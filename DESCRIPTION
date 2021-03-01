@@ -1,0 +1,20 @@
+Package: pmxsim
+Type: Package
+Title: Pmxsim library
+Version: 0.1
+Authors@R: c(
+  person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
+  )
+Description: TODO.
+Depends: R (>= 4.0.0)
+Imports: assertthat, dplyr, plyr, pmxmod, purrr, tibble, tidyr
+Remotes: 
+License: file LICENSE
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+Suggests: stringr, knitr, rmarkdown, testthat, roxygen2, devtools, pkgdown, bookdown, RxODE, ggplot2, pmxtran
+RoxygenNote: 7.1.1
+VignetteBuilder: knitr
+URL: 
+BugReports:
