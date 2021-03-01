@@ -1,5 +1,9 @@
 Package: pmxsim
 Type: Package
+Collate:
+    'special_operators.R'
+    'generic.R'
+    'dataset.R'
 Title: Pmxsim library
 Version: 0.1
 Authors@R: c(
