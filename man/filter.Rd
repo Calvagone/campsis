@@ -4,12 +4,12 @@
 \alias{filter}
 \title{Filter.}
 \usage{
-filter(object, type)
+filter(object, x)
 }
 \arguments{
 \item{object}{generic object}
 
-\item{type}{parameter type: theta, omega or sigma}
+\item{x}{element used as filter}
 }
 \value{
 filtered object

@@ -170,7 +170,15 @@ setGeneric("convert", function(object) {
 })
 
 setMethod("convert", signature = c("bolus"), definition = function(object) {
-  return(data.frame(TIME=object@time, EVID=1, MDV=1, DV=NA, AMT=object@amount, RATE=0, CMT=object@compartment))
+  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".", AMT=object@amount, RATE=as.integer(0), CMT=object@compartment))
+})
+
+setMethod("convert", signature = c("infusion"), definition = function(object) {
+  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".", AMT=object@amount, RATE=as.integer(-2), CMT=object@compartment))
+})
+
+setMethod("convert", signature = c("observation"), definition = function(object) {
+  return(data.frame(TIME=object@time, EVID=as.integer(0), MDV=as.integer(0), DV=".", AMT=as.numeric(NA), RATE=as.integer(NA), CMT=object@compartment))
 })
 
 #_______________________________________________________________________________
@@ -204,21 +212,27 @@ setMethod("add", signature = c("dataset", "dataset_entry"), definition = functio
 #' Filter.
 #' 
 #' @param object generic object
-#' @param type parameter type: theta, omega or sigma
+#' @param x element used as filter
 #' @return filtered object
 #' @export
-filter <- function(object, type) {
+filter <- function(object, x) {
   stop("No default function is provided")
 }
 
-setGeneric("filter", function(object, type) {
+setGeneric("filter", function(object, x) {
   standardGeneric("filter")
 })
 
-setMethod("filter", signature=c("dataset", "character"), definition=function(object, type) {
-  object@entries <- object@entries %>% purrr::keep(~is(.x, type))
+setMethod("filter", signature=c("dataset", "character"), definition=function(object, x) {
+  object@entries <- object@entries %>% purrr::keep(~is(.x, x))
   return(object)
 })
+
+setMethod("filter", signature=c("dataset", "arm"), definition=function(object, x) {
+  object@entries <- object@entries %>% purrr::keep(~(x@id %in% (.x@arms %>% purrr::map_int(~.x@id))))
+  return(object)
+})
+
 
 #_______________________________________________________________________________
 #----                                  order                                ----
@@ -269,7 +283,7 @@ setGeneric("getArms", function(object) {
 
 setMethod("getArms", signature=c("dataset"), definition=function(object) {
   armIds <- NULL
-  retValue <- NULL
+  retValue <- list()
   object@entries %>% purrr::map(.f=function(entry) {
     arms <- entry@arms
     for (arm in arms) {
@@ -310,5 +324,36 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 })
 
 setMethod("export", signature=c("dataset", "rxode_type"), definition=function(object, dest) {
-  return(data.frame())
+  arms <- object %>% getArms()
+  noArm <- length(arms)==0
+  if (noArm) {
+    arms <- list(new("arm"))
+  }
+  object <- object %>% order()
+  maxIDPerArm <- arms %>% purrr::map_int(~.x@subjects) %>% purrr::accumulate(~(.x+.y))
+  
+  retValue <- purrr::map2_df(arms, maxIDPerArm, .f=function(arm, maxID) {
+    armID <- arm@id
+    subjects <- arm@subjects
+
+    # Interesting part
+    if (noArm) {
+      subObject <- object
+    } else {
+      subObject <- object %>% filter(arm)
+    }
+    
+    df <- subObject@entries %>% purrr::map_df(.f=~convert(.x))
+
+    # Replicating part
+    ids <- seq_len(subjects) + maxID - subjects
+    expandedDf <- ids %>% purrr::map_df(.f=function(id) {
+      df <- df %>% tibble::add_column(ID=id, .before="TIME")
+      df <- df %>% tibble::add_column(ARM=armID, .before="TIME")
+    })
+    
+    return(expandedDf)
+  })
+  
+  return(retValue)
 })
