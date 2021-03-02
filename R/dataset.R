@@ -1,12 +1,60 @@
-#' 
-#' Dataset entry class.
-#' 
+
+#_______________________________________________________________________________
+#----                     dataset_entry class                               ----
+#_______________________________________________________________________________
+
+checkDatasetEntry <- function(object) {
+  return(checkReturn(checkObject(object, "time")))
+}
+
 setClass(
   "dataset_entry",
   representation(
     time = "numeric"
-  )
+  ),
+  validity=checkDatasetEntry
 )
+
+#_______________________________________________________________________________
+#----                            arm class                                  ----
+#_______________________________________________________________________________
+
+checkArm <- function(object) {
+  return(checkObject(object, c("id", "subjects")))
+}
+
+#' 
+#' Arm class.
+#' 
+#' @export
+setClass(
+  "arm",
+  representation(
+    id = "integer",
+    subjects = "integer"
+  ),
+  prototype=prototype(id=as.integer(1), subjects=as.integer(1))
+)
+
+#_______________________________________________________________________________
+#----                     treatment_entry class                             ----
+#_______________________________________________________________________________
+
+checkArms <- function(object) {
+  errors <- character()
+  if (length(object@arms) != 0) {
+    for(arm in object@arms) {
+      errors <- addError(checkArm(arm), errors)
+    }
+  }
+  return(errors)
+}
+
+checkTreatmentEntry <- function(object) {
+  check1 <- checkObject(object, c("amount", "compartment"))
+  check2 <- checkArms(object)
+  return(checkReturn(c(check1, check2)))
+}
 
 #' 
 #' Treatment entry class.
@@ -15,11 +63,21 @@ setClass(
   "treatment_entry",
   representation(
     amount = "numeric",
-    compartment = "integer"
+    compartment = "integer",
+    arms = "list"
   ),
   contains = "dataset_entry",
-  prototype=prototype(compartment=as.integer(NA))
+  prototype=prototype(compartment=as.integer(NA), arms=list()),
+  validity=checkTreatmentEntry
 )
+
+#_______________________________________________________________________________
+#----                           bolus class                                 ----
+#_______________________________________________________________________________
+
+checkBolus <- function(object) {
+  return(TRUE)
+}
 
 #' 
 #' Bolus class.
@@ -29,8 +87,19 @@ setClass(
   "bolus",
   representation(
   ),
-  contains = "treatment_entry"
+  contains = "treatment_entry",
+  validity=checkBolus
 )
+
+#_______________________________________________________________________________
+#----                        infusion class                                 ----
+#_______________________________________________________________________________
+
+checkInfusion <- function(object) {
+  check1 <- checkObject(object, c("duration"))
+  check2 <- checkArms(object)
+  return(checkReturn(c(check1, check2)))
+}
 
 #' 
 #' Infusion class.
@@ -41,8 +110,19 @@ setClass(
   representation(
     duration = "numeric"
   ),
-  contains = "treatment_entry"
+  contains = "treatment_entry",
+  validity=checkInfusion
 )
+
+#_______________________________________________________________________________
+#----                     observation class                                ----
+#_______________________________________________________________________________
+
+checkObservation <- function(object) {
+  check1 <- checkObject(object, c("compartment"))
+  check2 <- checkArms(object)
+  return(checkReturn(c(check1, check2)))
+}
 
 #' 
 #' Observation entry class.
@@ -51,10 +131,12 @@ setClass(
 setClass(
   "observation",
   representation(
-    compartment = "integer"
+    compartment = "integer",
+    arms = "list"
   ),
   contains = "dataset_entry",
-  prototype=prototype(compartment=as.integer(NA))
+  prototype=prototype(compartment=as.integer(NA), arms=list()),
+  validity=checkObservation
 )
 
 #' 
@@ -64,8 +146,9 @@ setClass(
 setClass(
   "dataset",
   representation(
-    list = "list"
-  )
+    entries = "list"
+  ),
+  prototype=prototype(entries=list())
 )
 
 #_______________________________________________________________________________
@@ -91,7 +174,7 @@ setMethod("convert", signature = c("bolus"), definition = function(object) {
 })
 
 #_______________________________________________________________________________
-#----                           addEntry                                    ----
+#----                           add                                   ----
 #_______________________________________________________________________________
 
 #' Add entry to list.
@@ -100,16 +183,16 @@ setMethod("convert", signature = c("bolus"), definition = function(object) {
 #' @param entry entry to add
 #' @return generic object
 #' @export
-addEntry <- function(object, entry) {
+add <- function(object, entry) {
   stop("No default function is provided")
 }
 
-setGeneric("addEntry", function(object, entry) {
-  standardGeneric("addEntry")
+setGeneric("add", function(object, entry) {
+  standardGeneric("add")
 })
 
-setMethod("addEntry", signature = c("dataset", "dataset_entry"), definition = function(object, entry) {
-    object@list <- c(object@list, entry)
+setMethod("add", signature = c("dataset", "dataset_entry"), definition = function(object, entry) {
+    object@entries <- c(object@entries, entry)
     return(object)
   }
 )
@@ -133,7 +216,7 @@ setGeneric("filter", function(object, type) {
 })
 
 setMethod("filter", signature=c("dataset", "character"), definition=function(object, type) {
-  object@list <- object@list %>% purrr::keep(~as.character(class(.x))==type)
+  object@entries <- object@entries %>% purrr::keep(~as.character(class(.x))==type)
   return(object)
 })
 
@@ -155,15 +238,15 @@ setGeneric("order", function(object) {
 })
 
 setMethod("order", signature=c("dataset"), definition=function(object) {
-  types <- object@list %>% purrr::map_chr(~as.character(class(.x)))
-  times <- object@list %>% purrr::map_dbl(~.x@time)
+  types <- object@entries %>% purrr::map_chr(~as.character(class(.x)))
+  times <- object@entries %>% purrr::map_dbl(~.x@time)
 
   # Reorder
   types <- factor(types, levels=c("observation", "bolus", "infusion"), labels=c("observation", "bolus", "infusion"))
   order <- base::order(times, types)
   
   # Apply result to original list
-  object@list <- object@list[order]
+  object@entries <- object@entries[order]
   return(object)
 })
 

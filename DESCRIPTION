@@ -2,6 +2,7 @@ Package: pmxsim
 Type: Package
 Collate:
     'special_operators.R'
+    'check.R'
     'generic.R'
     'dataset.R'
 Title: Pmxsim library
