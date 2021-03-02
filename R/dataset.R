@@ -1,143 +1,7 @@
 
 #_______________________________________________________________________________
-#----                     dataset_entry class                               ----
+#----                         dataset class                                 ----
 #_______________________________________________________________________________
-
-checkDatasetEntry <- function(object) {
-  return(checkReturn(checkObject(object, "time")))
-}
-
-setClass(
-  "dataset_entry",
-  representation(
-    time = "numeric"
-  ),
-  validity=checkDatasetEntry
-)
-
-#_______________________________________________________________________________
-#----                            arm class                                  ----
-#_______________________________________________________________________________
-
-checkArm <- function(object) {
-  return(checkObject(object, c("id", "subjects")))
-}
-
-#' 
-#' Arm class.
-#' 
-#' @export
-setClass(
-  "arm",
-  representation(
-    id = "integer",
-    subjects = "integer"
-  ),
-  prototype=prototype(id=as.integer(1), subjects=as.integer(1))
-)
-
-#_______________________________________________________________________________
-#----                     treatment_entry class                             ----
-#_______________________________________________________________________________
-
-checkArms <- function(object) {
-  errors <- character()
-  if (length(object@arms) != 0) {
-    for(arm in object@arms) {
-      errors <- addError(checkArm(arm), errors)
-    }
-  }
-  return(errors)
-}
-
-checkTreatmentEntry <- function(object) {
-  check1 <- checkObject(object, c("amount", "compartment"))
-  check2 <- checkArms(object)
-  return(checkReturn(c(check1, check2)))
-}
-
-#' 
-#' Treatment entry class.
-#' 
-setClass(
-  "treatment_entry",
-  representation(
-    amount = "numeric",
-    compartment = "integer",
-    arms = "list"
-  ),
-  contains = "dataset_entry",
-  prototype=prototype(compartment=as.integer(NA), arms=list()),
-  validity=checkTreatmentEntry
-)
-
-#_______________________________________________________________________________
-#----                           bolus class                                 ----
-#_______________________________________________________________________________
-
-checkBolus <- function(object) {
-  return(TRUE)
-}
-
-#' 
-#' Bolus class.
-#' 
-#' @export
-setClass(
-  "bolus",
-  representation(
-  ),
-  contains = "treatment_entry",
-  validity=checkBolus
-)
-
-#_______________________________________________________________________________
-#----                        infusion class                                 ----
-#_______________________________________________________________________________
-
-checkInfusion <- function(object) {
-  check1 <- checkObject(object, c("duration"))
-  check2 <- checkArms(object)
-  return(checkReturn(c(check1, check2)))
-}
-
-#' 
-#' Infusion class.
-#' 
-#' @export
-setClass(
-  "infusion",
-  representation(
-    duration = "numeric"
-  ),
-  contains = "treatment_entry",
-  validity=checkInfusion
-)
-
-#_______________________________________________________________________________
-#----                     observation class                                ----
-#_______________________________________________________________________________
-
-checkObservation <- function(object) {
-  check1 <- checkObject(object, c("compartment"))
-  check2 <- checkArms(object)
-  return(checkReturn(c(check1, check2)))
-}
-
-#' 
-#' Observation entry class.
-#' 
-#' @export
-setClass(
-  "observation",
-  representation(
-    compartment = "integer",
-    arms = "list"
-  ),
-  contains = "dataset_entry",
-  prototype=prototype(compartment=as.integer(NA), arms=list()),
-  validity=checkObservation
-)
 
 #' 
 #' Dataset class.
@@ -151,15 +15,15 @@ setClass(
   prototype=prototype(entries=list())
 )
 
+
 #_______________________________________________________________________________
 #----                            convert                                    ----
 #_______________________________________________________________________________
 
-#' Convert dataset entry.
+#' Convert generic object.
 #' 
 #' @param object generic object
-#' @param entry entry to add
-#' @return generic object
+#' @return conversion output
 #' @export
 convert <- function(object) {
   stop("No default function is provided")
@@ -336,13 +200,14 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
     armID <- arm@id
     subjects <- arm@subjects
 
-    # Interesting part
+    # Filter or not according to noArm
     if (noArm) {
       subObject <- object
     } else {
       subObject <- object %>% filter(arm)
     }
     
+    # Interesting part
     df <- subObject@entries %>% purrr::map_df(.f=~convert(.x))
 
     # Replicating part

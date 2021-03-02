@@ -4,6 +4,9 @@ Collate:
     'special_operators.R'
     'check.R'
     'generic.R'
+    'arm.R'
+    'treatment.R'
+    'observation.R'
     'dataset.R'
 Title: Pmxsim library
 Version: 0.1

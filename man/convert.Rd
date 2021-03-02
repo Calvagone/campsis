@@ -2,18 +2,16 @@
 % Please edit documentation in R/dataset.R
 \name{convert}
 \alias{convert}
-\title{Convert dataset entry.}
+\title{Convert generic object.}
 \usage{
 convert(object)
 }
 \arguments{
 \item{object}{generic object}
-
-\item{entry}{entry to add}
 }
 \value{
-generic object
+conversion output
 }
 \description{
-Convert dataset entry.
+Convert generic object.
 }
