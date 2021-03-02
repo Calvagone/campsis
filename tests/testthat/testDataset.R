@@ -50,7 +50,12 @@ test_that("Two arms example", {
   dataset <- dataset %>% order()
   
   # Filter
-  dataset <- dataset %>% filter(type="bolus")
-  expect_equal(length(dataset@entries), 2)
+  arms <- dataset %>% getArms()
+  expect_equal(length(arms), 2)
   
 })
+
+test_that("Is treatment entry test", {
+  expect_true(is(new("bolus", time=0, amount=100), "treatment_entry"))
+})
+

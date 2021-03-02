@@ -216,7 +216,7 @@ setGeneric("filter", function(object, type) {
 })
 
 setMethod("filter", signature=c("dataset", "character"), definition=function(object, type) {
-  object@entries <- object@entries %>% purrr::keep(~as.character(class(.x))==type)
+  object@entries <- object@entries %>% purrr::keep(~is(.x, type))
   return(object)
 })
 
@@ -249,6 +249,38 @@ setMethod("order", signature=c("dataset"), definition=function(object) {
   object@entries <- object@entries[order]
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                              getArms                                  ----
+#_______________________________________________________________________________
+
+#' Get arms from dataset.
+#'
+#' @param object generic object
+#' @return a list of arms
+#' @export
+getArms <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getArms", function(object) {
+  standardGeneric("getArms")
+})
+
+setMethod("getArms", signature=c("dataset"), definition=function(object) {
+  armIds <- NULL
+  retValue <- NULL
+  object@entries %>% purrr::map(.f=function(entry) {
+    arms <- entry@arms
+    for (arm in arms) {
+      if (!(arm@id %in% armIds)) {
+        armIds <<- c(armIds, arm@id)
+        retValue <<- c(retValue, arm)
+      }
+    }
+  })
+  return(retValue)
+}) 
 
 #_______________________________________________________________________________
 #----                           export_type                                 ----
