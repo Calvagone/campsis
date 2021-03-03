@@ -27,6 +27,7 @@ setMethod("add", signature=c("covariates", "covariate"), definition=function(obj
       object@list <- c(object@list, x)
     }
   }
+  return(object)
 })
 
 #_______________________________________________________________________________

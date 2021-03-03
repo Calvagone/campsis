@@ -51,7 +51,6 @@ checkAbstractFixedCovariate <- function(object) {
 #' 
 #' Abstract fixed covariate entry class.
 #' 
-#' @export
 setClass(
   "abstract_fixed_covariate",
   representation(
@@ -143,7 +142,7 @@ setClass(
 #' @param object generic object
 #' @return sampling result
 #' @export
-sample <- function(object) {
+sample <- function(object, n) {
   stop("No default function is provided")
 }
 
