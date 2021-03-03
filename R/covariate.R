@@ -111,16 +111,18 @@ setClass(
 #----                     bootstrap_covariate class                         ----
 #_______________________________________________________________________________
 
-checkBoostrapCovariate <- function(object) {
-  return(expectOneForAll(object, c("replacement", "random")))
+checkBootstrapCovariate <- function(object) {
+  check1 <- expectOneOrMore(object, c("data"))
+  check2 <- expectOneForAll(object, c("replacement", "random"))
+  return(c(check1, check2))
 }
 
 #' 
-#' Function covariate class.
+#' Bootstrap covariate class.
 #' 
 #' @export
 setClass(
-  "boostrap_covariate",
+  "bootstrap_covariate",
   representation(
     data = "numeric",
     replacement = "logical",
@@ -128,7 +130,7 @@ setClass(
   ),
   contains="abstract_fixed_covariate",
   prototype=prototype(replacement=FALSE, random=FALSE),
-  validity=checkBoostrapCovariate
+  validity=checkBootstrapCovariate
 )
 
 #_______________________________________________________________________________
@@ -194,6 +196,27 @@ setMethod("sample", signature = c("function_covariate", "integer"), definition =
   # Assign values
   object@values <- values
   
+  return(object)
+})
+
+setMethod("sample", signature = c("bootstrap_covariate", "integer"), definition = function(object, n) {
+  data <- object@data
+  nData <- length(data)
+  replacement <- object@replacement
+  random <- object@random
+  
+  if (n > nData && !replacement) {
+    stop(paste("Covariate", object@name, "does not have enough data to generate", n, "samples (please set 'replacement' to TRUE)"))
+  }
+  
+  if (random) {
+    values <- data[sample.int(n=nData, size=n, replace=replacement)]
+  } else {
+    values <- rep(data, length.out=n)
+  }
+  
+  # Assign values
+  object@values <- values
   return(object)
 })
 
