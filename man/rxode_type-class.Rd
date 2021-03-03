@@ -3,33 +3,7 @@
 \docType{class}
 \name{rxode_type-class}
 \alias{rxode_type-class}
-\title{#_______________________________________________________________________________
-#----                                 filter                                ----
-#_______________________________________________________________________________}
+\title{RxODE export type class.}
 \description{
-#' Filter.
-#' 
-#' @param object generic object
-#' @param x element used as filter
-#' @return filtered object
-#' @export
-filter <- function(object, x) {
-  stop("No default function is provided")
-}
-}
-\details{
-setGeneric("filter", function(object, x) {
-  standardGeneric("filter")
-})
-
-setMethod("filter", signature=c("dataset", "character"), definition=function(object, x) {
-  object@entries <- object@entries %>% purrr::keep(~is(.x, x))
-  return(object)
-})
-
-setMethod("filter", signature=c("dataset", "arm"), definition=function(object, x) {
-  object@entries <- object@entries %>% purrr::keep(~(x@id %in% (.x@arms %>% purrr::map_int(~.x@id))))
-  return(object)
-})
 RxODE export type class.
 }

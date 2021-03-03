@@ -43,35 +43,6 @@ setMethod("add", signature = c("dataset", "covariate"), definition = function(ob
   return(object)
 })
 
-#' #_______________________________________________________________________________
-#' #----                                 filter                                ----
-#' #_______________________________________________________________________________
-#' 
-#' #' Filter.
-#' #' 
-#' #' @param object generic object
-#' #' @param x element used as filter
-#' #' @return filtered object
-#' #' @export
-#' filter <- function(object, x) {
-#'   stop("No default function is provided")
-#' }
-#' 
-#' setGeneric("filter", function(object, x) {
-#'   standardGeneric("filter")
-#' })
-#' 
-#' setMethod("filter", signature=c("dataset", "character"), definition=function(object, x) {
-#'   object@entries <- object@entries %>% purrr::keep(~is(.x, x))
-#'   return(object)
-#' })
-#' 
-#' setMethod("filter", signature=c("dataset", "arm"), definition=function(object, x) {
-#'   object@entries <- object@entries %>% purrr::keep(~(x@id %in% (.x@arms %>% purrr::map_int(~.x@id))))
-#'   return(object)
-#' })
-
-
 #_______________________________________________________________________________
 #----                           export_type                                 ----
 #_______________________________________________________________________________
