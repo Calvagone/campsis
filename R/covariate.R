@@ -100,10 +100,10 @@ setClass(
   "function_covariate",
   representation(
     fun = "character",
-    args = "numeric"
+    args = "list"
   ),
   contains="abstract_fixed_covariate",
-  prototype=prototype(args=numeric(0)),
+  prototype=prototype(args=list()),
   validity=checkFunctionCovariate
 )
 
@@ -155,18 +155,33 @@ sample_delegate <- function(fun, n, ...) {
 setMethod("sample", signature = c("function_covariate", "integer"), definition = function(object, n) {
   fun <- get(object@fun)
   args <- object@args
+  SAMPLING_SIZE <- n
+  
+  # If "n" is provided as value in args, this means the first arg of the function
+  # is not related to the size
+  hasNCharAsValue <- "n" %in% as.character(args)
   
   if (length(args) == 0) {
-    args_str <- "n"
+    args_str <- "SAMPLING_SIZE"
   } else {
     # Example: return 'mean=70, sd=2'
-    args_str <- purrr::accumulate2(names(args), as.numeric(args), .f=function(.x, .y, .z){
+    args_str <- purrr::accumulate2(names(args), args, .f=function(.x, .y, .z){
       comma <- if (.x=="") {""} else {", "}
+      if (.z=="n") {
+        .z <- "SAMPLING_SIZE"
+      }
       paste0(.x, comma, .y, "=", .z)
     }, .init="")
-    args_str <- paste0("n, ", args_str[length(args_str)])
+    
+    if (hasNCharAsValue) {
+      # Size is not the first argument
+      args_str <- args_str[length(args_str)]
+    } else {
+      # Size is the first argument
+      args_str <- paste0("SAMPLING_SIZE, ", args_str[length(args_str)])
+    }
   }
-  
+
   # Eval string expression
   text <- paste0("sample_delegate(fun, ", args_str, ")")
   values <- eval(parse(text=text))
