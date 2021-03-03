@@ -8,6 +8,8 @@ sample(object, n)
 }
 \arguments{
 \item{object}{generic object}
+
+\item{n}{number of samples required}
 }
 \value{
 sampling result

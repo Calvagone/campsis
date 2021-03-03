@@ -140,6 +140,7 @@ setClass(
 #' Sample generic object.
 #' 
 #' @param object generic object
+#' @param n number of samples required
 #' @return sampling result
 #' @export
 sample <- function(object, n) {

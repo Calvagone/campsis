@@ -10,9 +10,10 @@
 setClass(
   "dataset",
   representation(
-    entries = "list"
+    entries = "list",
+    covariates = "covariates"
   ),
-  prototype=prototype(entries=list())
+  prototype=prototype(entries=list(), covariates=new("covariates"))
 )
 
 
@@ -54,6 +55,11 @@ setMethod("add", signature = c("dataset", "dataset_entry"), definition = functio
     return(object)
   }
 )
+
+setMethod("add", signature = c("dataset", "covariate"), definition = function(object, x) {
+  object@covariates <- object@covariates %>% add(x)
+  return(object)
+})
 
 #_______________________________________________________________________________
 #----                                 filter                                ----
