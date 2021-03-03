@@ -1,4 +1,63 @@
 #_______________________________________________________________________________
+#----                           add                                   ----
+#_______________________________________________________________________________
+
+#' Add element to list.
+#' 
+#' @param object object containing a list
+#' @param x element to add
+#' @return object
+#' @export
+add <- function(object, x) {
+  stop("No default function is provided")
+}
+
+setGeneric("add", function(object, x) {
+  standardGeneric("add")
+})
+
+#_______________________________________________________________________________
+#----                           hasElement                                  ----
+#_______________________________________________________________________________
+
+#' Check if an element exists in list.
+#' 
+#' @param object object containing a list
+#' @param x element to check if exists
+#' @return logical value
+#' @export
+hasElement <- function(object, x) {
+  stop("No default function is provided")
+}
+
+setGeneric("hasElement", function(object, x) {
+  standardGeneric("hasElement")
+})
+
+#_______________________________________________________________________________
+#----                            getNames                                   ----
+#_______________________________________________________________________________
+
+#' Get names of element in list.
+#' 
+#' @param object object containing a list
+#' @return character vector
+#' @export
+getNames <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getNames", function(object) {
+  standardGeneric("getNames")
+})
+
+#_______________________________________________________________________________
+#----                            length                                   ----
+#_______________________________________________________________________________
+
+# Already exists in base
+
+#_______________________________________________________________________________
 #----                           export_type                                 ----
 #_______________________________________________________________________________
 
@@ -28,3 +87,4 @@ export <- function(object, dest) {
 setGeneric("export", function(object, dest) {
   standardGeneric("export")
 })
+

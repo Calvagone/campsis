@@ -8,6 +8,7 @@ Collate:
     'treatment.R'
     'observation.R'
     'covariate.R'
+    'covariates.R'
     'dataset.R'
 Title: Pmxsim library
 Version: 0.1

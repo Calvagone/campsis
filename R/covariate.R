@@ -51,6 +51,7 @@ checkAbstractFixedCovariate <- function(object) {
 #' 
 #' Abstract fixed covariate entry class.
 #' 
+#' @export
 setClass(
   "abstract_fixed_covariate",
   representation(

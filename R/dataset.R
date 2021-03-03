@@ -49,22 +49,8 @@ setMethod("convert", signature = c("observation"), definition = function(object)
 #----                           add                                   ----
 #_______________________________________________________________________________
 
-#' Add entry to list.
-#' 
-#' @param object generic object
-#' @param entry entry to add
-#' @return generic object
-#' @export
-add <- function(object, entry) {
-  stop("No default function is provided")
-}
-
-setGeneric("add", function(object, entry) {
-  standardGeneric("add")
-})
-
-setMethod("add", signature = c("dataset", "dataset_entry"), definition = function(object, entry) {
-    object@entries <- c(object@entries, entry)
+setMethod("add", signature = c("dataset", "dataset_entry"), definition = function(object, x) {
+    object@entries <- c(object@entries, x)
     return(object)
   }
 )
