@@ -4,11 +4,17 @@ Collate:
     'special_operators.R'
     'check.R'
     'generic.R'
-    'arm.R'
+    'time_entry.R'
+    'time_entries.R'
+    'treatment_entry.R'
     'treatment.R'
     'observation.R'
+    'observations.R'
     'covariate.R'
     'covariates.R'
+    'protocol.R'
+    'arm.R'
+    'arms.R'
     'dataset.R'
 Title: Pmxsim library
 Version: 0.1

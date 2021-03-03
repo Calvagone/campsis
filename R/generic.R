@@ -88,3 +88,36 @@ setGeneric("export", function(object, dest) {
   standardGeneric("export")
 })
 
+#_______________________________________________________________________________
+#----                            convert                                    ----
+#_______________________________________________________________________________
+
+#' Convert generic object.
+#' 
+#' @param object generic object
+#' @return conversion output
+#' @export
+convert <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("convert", function(object) {
+  standardGeneric("convert")
+})
+
+#_______________________________________________________________________________
+#----                                  order                                ----
+#_______________________________________________________________________________
+
+#' Order.
+#' 
+#' @param object generic object
+#' @return ordered object
+#' @export
+order <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("order", function(object) {
+  standardGeneric("order")
+})

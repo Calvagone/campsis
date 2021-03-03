@@ -4,9 +4,7 @@
 #_______________________________________________________________________________
 
 checkObservation <- function(object) {
-  check1 <- expectOneForAll(object, c("compartment"))
-  check2 <- checkArms(object)
-  return(checkReturn(c(check1, check2)))
+  return(expectOne(object, "compartment"))
 }
 
 #' 
@@ -16,10 +14,17 @@ checkObservation <- function(object) {
 setClass(
   "observation",
   representation(
-    compartment = "integer",
-    arms = "list"
+    compartment = "integer"
   ),
-  contains = "dataset_entry",
-  prototype=prototype(compartment=as.integer(NA), arms=list()),
+  contains = "time_entry",
+  prototype=prototype(compartment=as.integer(NA)),
   validity=checkObservation
 )
+
+#_______________________________________________________________________________
+#----                            convert                                    ----
+#_______________________________________________________________________________
+
+setMethod("convert", signature = c("observation"), definition = function(object) {
+  return(data.frame(TIME=object@time, EVID=as.integer(0), MDV=as.integer(0), DV=".", AMT=as.numeric(NA), RATE=as.integer(NA), CMT=object@compartment))
+})

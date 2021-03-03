@@ -3,8 +3,6 @@ library(testthat)
 
 context("Test all methods from the dataset class")
 
-testFolder <<- ""
-
 test_that("Add entry, order, filter (simple example)", {
   
   dataset <- new("dataset") 
@@ -22,12 +20,7 @@ test_that("Add entry, order, filter (simple example)", {
   # Export to RxODE
   table <- dataset %>% export(dest="RxODE")
   
-  # Order
-  dataset <- dataset %>% order()
-  
-  # Filter
-  dataset <- dataset %>% filter("bolus")
-  expect_equal(length(dataset@entries), 3)
+  expect_equal(nrow(table), 16)
 })
 
 test_that("Two arms example", {

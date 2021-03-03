@@ -1,13 +1,13 @@
 #_______________________________________________________________________________
-#----                        treatment class                               ----
+#----                        observations class                             ----
 #_______________________________________________________________________________
 
 #' 
-#' Treatment class.
+#' Observations class.
 #' 
 #' @export
 setClass(
-  "treatment",
+  "observations",
   representation(
     list = "list"
   ),
@@ -18,7 +18,7 @@ setClass(
 #----                              add                                      ----
 #_______________________________________________________________________________
 
-setMethod("add", signature=c("treatment", "treatment_entry"), definition=function(object, x) {
+setMethod("add", signature=c("observations", "observation"), definition=function(object, x) {
   if (validObject(x)) {
     object@list <- c(object@list, x)
   }
@@ -29,7 +29,7 @@ setMethod("add", signature=c("treatment", "treatment_entry"), definition=functio
 #----                             length                                    ----
 #_______________________________________________________________________________
 
-setMethod("length", signature=c("treatment"), definition=function(x) {
+setMethod("length", signature=c("observations"), definition=function(x) {
   return(length(x@list))
 })
 

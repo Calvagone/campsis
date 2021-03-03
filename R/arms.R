@@ -1,13 +1,14 @@
+
 #_______________________________________________________________________________
-#----                        treatment class                               ----
+#----                        arms class                               ----
 #_______________________________________________________________________________
 
 #' 
-#' Treatment class.
+#' Arms class.
 #' 
 #' @export
 setClass(
-  "treatment",
+  "arms",
   representation(
     list = "list"
   ),
@@ -18,9 +19,13 @@ setClass(
 #----                              add                                      ----
 #_______________________________________________________________________________
 
-setMethod("add", signature=c("treatment", "treatment_entry"), definition=function(object, x) {
+setMethod("add", signature=c("arms", "arm"), definition=function(object, x) {
   if (validObject(x)) {
-    object@list <- c(object@list, x)
+    if (FALSE) {
+      stop(paste("Arm", x@id, "is already present."))
+    } else {
+      object@list <- c(object@list, x)
+    }
   }
   return(object)
 })
@@ -29,7 +34,6 @@ setMethod("add", signature=c("treatment", "treatment_entry"), definition=functio
 #----                             length                                    ----
 #_______________________________________________________________________________
 
-setMethod("length", signature=c("treatment"), definition=function(x) {
+setMethod("length", signature=c("arms"), definition=function(x) {
   return(length(x@list))
 })
-
