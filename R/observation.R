@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkObservation <- function(object) {
-  check1 <- checkObject(object, c("compartment"))
+  check1 <- expectOneForAll(object, c("compartment"))
   check2 <- checkArms(object)
   return(checkReturn(c(check1, check2)))
 }

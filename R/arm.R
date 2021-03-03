@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkArm <- function(object) {
-  return(checkObject(object, c("id", "subjects")))
+  return(expectOneForAll(object, c("id", "subjects")))
 }
 
 #' 

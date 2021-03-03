@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkDatasetEntry <- function(object) {
-  return(checkReturn(checkObject(object, "time")))
+  return(checkReturn(expectOneForAll(object, "time")))
 }
 
 setClass(
@@ -30,7 +30,7 @@ checkArms <- function(object) {
 }
 
 checkTreatmentEntry <- function(object) {
-  check1 <- checkObject(object, c("amount", "compartment"))
+  check1 <- expectOneForAll(object, c("amount", "compartment"))
   check2 <- checkArms(object)
   return(checkReturn(c(check1, check2)))
 }
@@ -75,7 +75,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkInfusion <- function(object) {
-  check1 <- checkObject(object, c("duration"))
+  check1 <- expectOneForAll(object, c("duration"))
   check2 <- checkArms(object)
   return(checkReturn(c(check1, check2)))
 }
