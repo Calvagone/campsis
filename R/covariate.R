@@ -4,7 +4,9 @@
 #_______________________________________________________________________________
 
 checkCovariate <- function(object) {
-  return(expectOneForAll(object, c("name")))
+  check1 <- expectZeroOrMore(object, "sampled_values")
+  check2 <- expectOne(object, "name")
+  return(c(check1, check2))
 }
 
 #' 
@@ -14,8 +16,10 @@ checkCovariate <- function(object) {
 setClass(
   "covariate",
   representation(
-    name = "character"
+    name = "character",
+    sampled_values = "numeric"
   ),
+  prototype=prototype(sampled_values=numeric(0)),
   validity=checkCovariate
 )
 
@@ -45,7 +49,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkAbstractFixedCovariate <- function(object) {
-  return(expectZeroOrMore(object, c("values")))
+  return(TRUE)
 }
 
 #' 
@@ -54,10 +58,8 @@ checkAbstractFixedCovariate <- function(object) {
 setClass(
   "abstract_fixed_covariate",
   representation(
-    values = "numeric"
   ),
   contains="covariate",
-  prototype=prototype(values=numeric(0)),
   validity=checkAbstractFixedCovariate
 )
 
@@ -155,6 +157,19 @@ sample_delegate <- function(fun, n, ...) {
   return(fun(n, ...))
 }
 
+setMethod("sample", signature = c("constant_covariate", "integer"), definition = function(object, n) {
+  object@sampled_values <- rep(object@value, n)
+  return(object)
+})
+
+setMethod("sample", signature = c("fixed_covariate", "integer"), definition = function(object, n) {
+  object@sampled_values <- object@values
+  if (length(object@values) != n) {
+    stop(paste0("Covariate ", object@name, "should have exactly ", n, "values, not ", length(object@values)))
+  }
+  return(object)
+})
+
 setMethod("sample", signature = c("function_covariate", "integer"), definition = function(object, n) {
   fun <- get(object@fun)
   args <- object@args
@@ -195,7 +210,7 @@ setMethod("sample", signature = c("function_covariate", "integer"), definition =
   }
   
   # Assign values
-  object@values <- values
+  object@sampled_values <- values
   
   return(object)
 })
@@ -217,7 +232,7 @@ setMethod("sample", signature = c("bootstrap_covariate", "integer"), definition 
   }
   
   # Assign values
-  object@values <- values
+  object@sampled_values <- values
   return(object)
 })
 

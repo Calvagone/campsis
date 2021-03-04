@@ -115,6 +115,7 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
     protocol <- arm@protocol
     treatment <- protocol@treatment
     observations <- protocol@observations
+    covariates <- arm@covariates
     
     # Fill in entries list
     entries <- new("time_entries")
@@ -131,11 +132,22 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
     # Interesting part
     df <- entries@list %>% purrr::map_df(.f=~convert(.x, config))
 
-    # Replicating part
+    # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
+    
+    # Generating covariates
+    covDf <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
+      data <- (covariate %>% sample(n=length(ids)))@sampled_values
+      matrix <- matrix(data=data, ncol=1)
+      colnames(matrix) <- covariate@name
+      matrix %>% as.data.frame()
+    })
+    
+    # Expanding the dataframe for all subjects
     expandedDf <- ids %>% purrr::map_df(.f=function(id) {
       df <- df %>% tibble::add_column(ID=id, .before="TIME")
       df <- df %>% tibble::add_column(ARM=armID, .before="TIME")
+      df <- df %>% dplyr::bind_cols(covDf[id,])
     })
     
     return(expandedDf)
