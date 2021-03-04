@@ -19,8 +19,17 @@ setClass(
     protocol = "protocol",
     covariates = "covariates"
   ),
+  contains="pmx_element",
   prototype=prototype(id=as.integer(1), subjects=as.integer(1), protocol=new("protocol"), covariates=new("covariates"))
 )
+
+#_______________________________________________________________________________
+#----                           getName                                     ----
+#_______________________________________________________________________________
+
+setMethod("getName", signature = c("arm"), definition = function(x) {
+  return(paste("ARM", x@id))
+})
 
 #_______________________________________________________________________________
 #----                           add                                   ----

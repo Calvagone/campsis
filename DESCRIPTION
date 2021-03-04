@@ -4,6 +4,8 @@ Collate:
     'special_operators.R'
     'check.R'
     'generic.R'
+    'generic_element_list.R'
+    'generic_list.R'
     'time_entry.R'
     'time_entries.R'
     'treatment_entry.R'

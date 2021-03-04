@@ -10,10 +10,9 @@
 setClass(
   "dataset",
   representation(
-    default_arm = "arm",
     arms = "arms"
   ),
-  prototype=prototype(default_arm=new('arm', id=as.integer(0), subjects=as.integer(1)), arms=new("arms"))
+  prototype=prototype(arms=new("arms"))
 )
 
 #_______________________________________________________________________________
@@ -27,19 +26,22 @@ setMethod("add", signature = c("dataset", "arm"), definition = function(object, 
 )
 
 setMethod("add", signature = c("dataset", "treatment_entry"), definition = function(object, x) {
-  object@default_arm@protocol@treatment <- object@default_arm@protocol@treatment %>% add(x) 
+  arm <- object@arms %>% default()
+  arm@protocol@treatment <- arm@protocol@treatment %>% add(x) 
     return(object)
   }
 )
 
 setMethod("add", signature = c("dataset", "observation"), definition = function(object, x) {
-  object@default_arm@protocol@observations <- object@default_arm@protocol@observations %>% add(x) 
+  arm <- object@arms %>% default()
+  arm@protocol@observations <- arm@protocol@observations %>% add(x) 
   return(object)
 }
 )
 
 setMethod("add", signature = c("dataset", "covariate"), definition = function(object, x) {
-  object@default_arm@covariates <- object@default_arm@covariates %>% add(x)
+  arm <- object@arms %>% default()
+  arm@covariates <- arm@covariates %>% add(x)
   return(object)
 })
 
@@ -75,8 +77,7 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
   # Use either arms or default_arm
   arms <- object@arms
   if (length(arms) == 0) {
-    arms = new("arms")
-    arms <- arms %>% add(object@default_arm)
+    stop("No entry in dataset. Not able to export anything...")
   }
   
   # Compute max ID per arm

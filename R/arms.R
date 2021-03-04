@@ -10,30 +10,20 @@
 setClass(
   "arms",
   representation(
-    list = "list"
   ),
-  prototype=prototype(list=list())
+  contains="pmx_list"
 )
 
+
 #_______________________________________________________________________________
-#----                              add                                      ----
+#----                              default                                  ----
 #_______________________________________________________________________________
 
-setMethod("add", signature=c("arms", "arm"), definition=function(object, x) {
-  if (validObject(x)) {
-    if (FALSE) {
-      stop(paste("Arm", x@id, "is already present."))
-    } else {
-      object@list <- c(object@list, x)
-    }
+setMethod("default", signature=c("arms"), definition=function(object, ...) {
+  if (object %>% length() == 0) {
+    arm = new("arm", id=as.integer(0))
+    object <- object %>% add(arm)
   }
-  return(object)
+  return(object@list[[1]])
 })
 
-#_______________________________________________________________________________
-#----                             length                                    ----
-#_______________________________________________________________________________
-
-setMethod("length", signature=c("arms"), definition=function(x) {
-  return(length(x@list))
-})

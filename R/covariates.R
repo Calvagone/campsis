@@ -21,7 +21,7 @@ setClass(
 
 setMethod("add", signature=c("covariates", "covariate"), definition=function(object, x) {
   if (validObject(x)) {
-    if (object %>% hasElement(x)) {
+    if (object %>% contains(x)) {
       stop(paste("Covariate", x@name, "is already present."))
     } else {
       object@list <- c(object@list, x)
@@ -31,15 +31,15 @@ setMethod("add", signature=c("covariates", "covariate"), definition=function(obj
 })
 
 #_______________________________________________________________________________
-#----                            hasElement                                 ----
+#----                            contains                                 ----
 #_______________________________________________________________________________
 
-setMethod("hasElement", signature=c("covariates", "character"), definition=function(object, x) {
+setMethod("contains", signature=c("covariates", "character"), definition=function(object, x) {
   return(x %in% (object %>% getNames()))
 })
 
-setMethod("hasElement", signature=c("covariates", "covariate"), definition=function(object, x) {
-  return(object %>% hasElement(x@name))
+setMethod("contains", signature=c("covariates", "covariate"), definition=function(object, x) {
+  return(object %>% contains(x@name))
 })
 
 #_______________________________________________________________________________
