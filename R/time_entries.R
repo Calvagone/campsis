@@ -14,18 +14,18 @@ setClass(
 )
 
 #_______________________________________________________________________________
-#----                                  order                                ----
+#----                                  sort                                 ----
 #_______________________________________________________________________________
 
-setMethod("order", signature=c("time_entries"), definition=function(object) {
-  types <- object@list %>% purrr::map_chr(~as.character(class(.x)))
-  times <- object@list %>% purrr::map_dbl(~.x@time)
+setMethod("sort", signature=c("time_entries"), definition=function(x, decreasing=FALSE, ...) {
+  types <- x@list %>% purrr::map_chr(~as.character(class(.x)))
+  times <- x@list %>% purrr::map_dbl(~.x@time)
   
   # Reorder
   types <- factor(types, levels=c("observation", "bolus", "infusion"), labels=c("observation", "bolus", "infusion"))
-  order <- base::order(times, types)
+  order <- order(times, types)
   
   # Apply result to original list
-  object@list <- object@list[order]
-  return(object)
+  x@list <- x@list[order]
+  return(x)
 })

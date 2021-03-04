@@ -116,8 +116,8 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
       entries <<- entries %>% add(entry)
     })
     
-    # Order
-    entries <- entries %>% order()
+    # Sort entries
+    entries <- entries %>% sort()
 
     # Interesting part
     df <- entries@list %>% purrr::map_df(.f=~convert(.x))

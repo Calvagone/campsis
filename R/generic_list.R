@@ -176,21 +176,10 @@ setMethod("length", signature=c("pmx_list"), definition=function(x) {
 })
 
 #_______________________________________________________________________________
-#----                        order (ABSTRACT)                               ----
+#----                         sort (ABSTRACT)                               ----
 #_______________________________________________________________________________
 
-#' Order.
-#' 
-#' @param object generic object
-#' @return ordered object
-#' @export
-order <- function(object) {
-  stop("No default function is provided")
-}
-
-setGeneric("order", function(object) {
-  standardGeneric("order")
-})
+# Reuse base::sort(x, decreasing = FALSE, ...) definition
 
 #_______________________________________________________________________________
 #----                       default (ABSTRACT)                              ----

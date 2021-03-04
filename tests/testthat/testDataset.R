@@ -12,6 +12,7 @@ test_that("Add entry, order, filter (simple example)", {
   dataset <- dataset %>% add(new("bolus", time=24, amount=100))
   dataset <- dataset %>% add(new("bolus", time=48, amount=100))
 
+
   # Add observations
   for (t in seq(0, 48, by=4)) {
     dataset <- dataset %>% add(new("observation", time=t))
