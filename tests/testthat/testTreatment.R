@@ -18,4 +18,10 @@ test_that("Test a couple of methods", {
   
   # No duplicate in treatment is possible
   expect_error(treatment %>% add(bolus3_dup)) # Element BOLUS [TIME=48, AMOUNT=1000, CMT=NA] is already present.
+  
+  # Assign dose number
+  treatment <- treatment %>% assignDoseNumber()
+  expect_equal(treatment@list[[1]]@dose_number, 1)
+  expect_equal(treatment@list[[2]]@dose_number, 2)
+  expect_equal(treatment@list[[3]]@dose_number, 3)
 })

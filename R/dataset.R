@@ -113,7 +113,7 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
     armID <- arm@id
     subjects <- arm@subjects
     protocol <- arm@protocol
-    treatment <- protocol@treatment
+    treatment <- protocol@treatment %>% assignDoseNumber()
     observations <- protocol@observations
     covariates <- arm@covariates
     

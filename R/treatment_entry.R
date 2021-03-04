@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkTreatmentEntry <- function(object) {
-  return(expectOneForAll(object, c("amount", "compartment")))
+  return(expectOneForAll(object, c("amount", "compartment", "dose_number")))
 }
 
 #' 
@@ -14,10 +14,11 @@ setClass(
   "treatment_entry",
   representation(
     amount = "numeric",
-    compartment = "integer"
+    compartment = "integer",
+    dose_number = "integer" # Transient
   ),
   contains = "time_entry",
-  prototype=prototype(compartment=as.integer(NA)),
+  prototype=prototype(compartment=as.integer(NA), dose_number=as.integer(NA)),
   validity=checkTreatmentEntry
 )
 
@@ -81,7 +82,7 @@ setMethod("convert", signature = c("bolus", "config"), definition = function(obj
   } else {
     depotCmt <- object@compartment
   }
-  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".", AMT=object@amount, RATE=as.integer(0), CMT=depotCmt))
+  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".", AMT=object@amount, RATE=as.integer(0), CMT=depotCmt, DOSENO=object@dose_number))
 })
 
 setMethod("convert", signature = c("infusion", "config"), definition = function(object, config) {
@@ -90,6 +91,6 @@ setMethod("convert", signature = c("infusion", "config"), definition = function(
   } else {
     depotCmt <- object@compartment
   }
-  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".", AMT=object@amount, RATE=as.integer(-2), CMT=depotCmt))
+  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".", AMT=object@amount, RATE=as.integer(-2), CMT=depotCmt, DOSENO=object@dose_number))
 })
 
