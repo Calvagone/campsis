@@ -4,12 +4,14 @@
 \alias{export}
 \title{Export function.}
 \usage{
-export(object, dest)
+export(object, dest, ...)
 }
 \arguments{
 \item{object}{generic object}
 
 \item{dest}{destination}
+
+\item{...}{optional arguments}
 }
 \value{
 specific object depending on given destination

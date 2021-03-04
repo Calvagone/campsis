@@ -3,6 +3,7 @@ Type: Package
 Collate:
     'special_operators.R'
     'check.R'
+    'config.R'
     'generic.R'
     'generic_element_list.R'
     'generic_list.R'

@@ -2,16 +2,18 @@
 % Please edit documentation in R/generic.R
 \name{convert}
 \alias{convert}
-\title{Convert generic object.}
+\title{Convert generic object according to given configuration.}
 \usage{
-convert(object)
+convert(object, config)
 }
 \arguments{
 \item{object}{generic object}
+
+\item{config}{specified configuration}
 }
 \value{
 conversion output
 }
 \description{
-Convert generic object.
+Convert generic object according to given configuration.
 }

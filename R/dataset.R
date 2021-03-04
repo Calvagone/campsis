@@ -81,16 +81,25 @@ setClass(
 #_______________________________________________________________________________
 
 
-setMethod("export", signature=c("dataset", "character"), definition=function(object, dest) {
+setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, ...) {
   if (dest=="RxODE") {
-    return(object %>% export(new("rxode_type")))
+    return(object %>% export(new("rxode_type"), ...))
   } else {
     stop("Only RxODE is supported for now")
   }
 })
 
-setMethod("export", signature=c("dataset", "rxode_type"), definition=function(object, dest) {
-
+setMethod("export", signature=c("dataset", "rxode_type"), definition=function(object, dest, ...) {
+  # Check extra arguments
+  args <- list(...)
+  
+  # Retrieve the config argument if present or create a new one
+  if (hasName(args, "config")) {
+    config <- args$config
+  } else {
+    config <- new("config")
+  }
+  
   # Use either arms or default_arm
   arms <- object@arms
   if (length(arms) == 0) {
@@ -120,7 +129,7 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
     entries <- entries %>% sort()
 
     # Interesting part
-    df <- entries@list %>% purrr::map_df(.f=~convert(.x))
+    df <- entries@list %>% purrr::map_df(.f=~convert(.x, config))
 
     # Replicating part
     ids <- seq_len(subjects) + maxID - subjects

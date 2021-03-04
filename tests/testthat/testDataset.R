@@ -56,4 +56,28 @@ test_that("Two arms example", {
   
 })
 
+test_that("Export using config", {
+  
+  dataset <- new("dataset") 
+  
+  # Add doses
+  dataset <- dataset %>% add(new("bolus", time=0, amount=100))
+  dataset <- dataset %>% add(new("bolus", time=24, amount=100))
+  dataset <- dataset %>% add(new("bolus", time=48, amount=100))
+  
+  
+  # Add observations
+  for (t in seq(0, 48, by=10)) {
+    dataset <- dataset %>% add(new("observation", time=t))
+  }
+  
+  # Export to RxODE
+  config <- new("config", default_depot_cmt=as.integer(1), default_obs_cmt=as.integer(2))
+  table <- dataset %>% export(dest="RxODE",
+                              config=config)
+  
+  expect_true(all(c(1,2) %in% table$CMT))
+  
+})
+
 

@@ -29,6 +29,11 @@ setMethod("getName", signature = c("observation"), definition = function(x) {
 #----                            convert                                    ----
 #_______________________________________________________________________________
 
-setMethod("convert", signature = c("observation"), definition = function(object) {
-  return(data.frame(TIME=object@time, EVID=as.integer(0), MDV=as.integer(0), DV=".", AMT=as.numeric(NA), RATE=as.integer(NA), CMT=object@compartment))
+setMethod("convert", signature = c("observation"), definition = function(object, config) {
+  if (is.na(object@compartment)) {
+    obsCmt <- config@default_obs_cmt
+  } else {
+    obsCmt <- object@compartment
+  }
+  return(data.frame(TIME=object@time, EVID=as.integer(0), MDV=as.integer(0), DV=".", AMT=as.numeric(NA), RATE=as.integer(NA), CMT=obsCmt))
 })
