@@ -105,7 +105,7 @@ setMethod("indexOf", signature=c("pmx_list", "pmx_element"), definition=function
 #' Get an element from a list by name.
 #' 
 #' @param object list object
-#' @param x element to know the index
+#' @param name element name to search for
 #' @return index of this element
 #' @export
 getByName <- function(object, name) {
@@ -143,8 +143,6 @@ setGeneric("contains", function(object, x) {
 })
 
 setMethod("contains", signature=c("pmx_list", "pmx_element"), definition=function(object, x) {
-  cat("object :", class(object))
-  cat("x :", class(x))
   return(object %>% getByName(x %>% getName()) %>% length() != 0)
 })
 

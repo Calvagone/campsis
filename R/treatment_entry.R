@@ -41,6 +41,10 @@ setClass(
   validity=checkBolus
 )
 
+setMethod("getName", signature = c("bolus"), definition = function(x) {
+  return(paste0("BOLUS [", "TIME=", x@time, ", ", "AMOUNT=", x@amount, ", ", "CMT=", x@compartment, "]"))
+})
+
 #_______________________________________________________________________________
 #----                        infusion class                                 ----
 #_______________________________________________________________________________
@@ -62,6 +66,9 @@ setClass(
   validity=checkInfusion
 )
 
+setMethod("getName", signature = c("infusion"), definition = function(x) {
+  return(paste0("INFUSION [", "TIME=", x@time, ", ", "AMOUNT=", x@amount, ", ", "CMT=", x@compartment, "]"))
+})
 
 #_______________________________________________________________________________
 #----                            convert                                    ----

@@ -9,7 +9,7 @@ getByName(object, name)
 \arguments{
 \item{object}{list object}
 
-\item{x}{element to know the index}
+\item{name}{element name to search for}
 }
 \value{
 index of this element

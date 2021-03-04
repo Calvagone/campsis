@@ -11,5 +11,6 @@ setClass(
   representation(
     time = "numeric"
   ),
+  contains="pmx_element",
   validity=checkTimeEntry
 )

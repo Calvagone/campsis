@@ -9,27 +9,6 @@
 setClass(
   "treatment",
   representation(
-    list = "list"
   ),
-  prototype=prototype(list=list())
+  contains="pmx_list"
 )
-
-#_______________________________________________________________________________
-#----                              add                                      ----
-#_______________________________________________________________________________
-
-setMethod("add", signature=c("treatment", "treatment_entry"), definition=function(object, x) {
-  if (validObject(x)) {
-    object@list <- c(object@list, x)
-  }
-  return(object)
-})
-
-#_______________________________________________________________________________
-#----                             length                                    ----
-#_______________________________________________________________________________
-
-setMethod("length", signature=c("treatment"), definition=function(x) {
-  return(length(x@list))
-})
-

@@ -21,6 +21,10 @@ setClass(
   validity=checkObservation
 )
 
+setMethod("getName", signature = c("observation"), definition = function(x) {
+  return(paste0("OBS [", "TIME=", x@time, ", ", "CMT=", x@compartment, "]"))
+})
+
 #_______________________________________________________________________________
 #----                            convert                                    ----
 #_______________________________________________________________________________

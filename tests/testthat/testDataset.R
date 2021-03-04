@@ -51,9 +51,8 @@ test_that("Two arms example", {
   # Export to RxODE
   table <- dataset %>% export(dest="RxODE")
   
+  expect_equal(nrow(table), 98)
+  
 })
 
-test_that("Is treatment entry test", {
-  expect_true(is(new("bolus", time=0, amount=100), "treatment_entry"))
-})
 
