@@ -202,7 +202,7 @@ test_that("Export boostrap covariates work well (N=8)", {
   dataset <- new("dataset")
   dataset <- dataset %>% add(arm)
   
-  # Export to RxODE N=1
+  # Export to RxODE
   set.seed(1)
   config <- new("config", default_depot_cmt=as.integer(1), default_obs_cmt=as.integer(2))
   table <- dataset %>% export(dest="RxODE", config=config)

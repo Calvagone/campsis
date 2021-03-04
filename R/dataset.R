@@ -92,7 +92,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 setMethod("export", signature=c("dataset", "rxode_type"), definition=function(object, dest, ...) {
   # Check extra arguments
   args <- list(...)
-  
+
   # Retrieve the config argument if present or create a new one
   if (hasName(args, "config")) {
     config <- args$config
@@ -140,14 +140,14 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
       data <- (covariate %>% sample(n=length(ids)))@sampled_values
       matrix <- matrix(data=data, ncol=1)
       colnames(matrix) <- covariate@name
-      matrix %>% as.data.frame()
+      matrix %>% tibble::as_tibble()
     })
     
     # Expanding the dataframe for all subjects
     expandedDf <- ids %>% purrr::map_df(.f=function(id) {
       df <- df %>% tibble::add_column(ID=id, .before="TIME")
       df <- df %>% tibble::add_column(ARM=armID, .before="TIME")
-      df <- df %>% dplyr::bind_cols(covDf[id,])
+      df <- df %>% dplyr::bind_cols(covDf[(id - maxID + subjects),])
     })
     
     return(expandedDf)
