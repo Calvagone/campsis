@@ -57,11 +57,13 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_type"), defi
     # Export PMX model to RxODE
     rxmod <- model %>% pmxmod::export(dest="RxODE")
     
+    # Instantiate RxODE model
+    mod <- RxODE::RxODE(paste0(rxmod@code, collapse="\n"))
+    
     # Launch RxODE
     results <- purrr::map2_df(rounds$start, rounds$end, .f=function(.x, .y){
       events <- dataset %>% dplyr::filter(ID >= .x & ID <= .y)
-      tmp <- RxODE::rxSolve(paste0(rxmod@code, collapse="\n"), params=rxmod@theta, omega=rxmod@omega, sigma=rxmod@sigma,
-                     events=events, returnType="tibble")
+      tmp <- RxODE::rxSolve(mod, params=rxmod@theta, omega=rxmod@omega, sigma=rxmod@sigma, events=events, returnType="tibble")
       if (!is.null(output)) {
         tmp <- tmp %>% dplyr::select(output)
       }
