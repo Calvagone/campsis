@@ -9,9 +9,6 @@ checkCovariate <- function(object) {
   return(c(check1, check2))
 }
 
-#' 
-#' Covariate entry class.
-#' 
 #' @export
 setClass(
   "covariate",
@@ -31,9 +28,6 @@ checkConstantCovariate <- function(object) {
   return(expectOneForAll(object, c("value")))
 }
 
-#' 
-#' Covariate entry class.
-#' 
 #' @export
 setClass(
   "constant_covariate",
@@ -44,6 +38,17 @@ setClass(
   validity=checkConstantCovariate
 )
 
+#' 
+#' Create a constant covariate. Its value will be constant across all arms and subjects.
+#' 
+#' @param name covariate name, character
+#' @param value covariate value, numeric
+#' @return a covariate  
+#' @export
+ConstantCovariate <- function(name, value) {
+  return(new("constant_covariate", name=name, value=value))
+}
+
 #_______________________________________________________________________________
 #----                 abstract_fixed_covariate class                        ----
 #_______________________________________________________________________________
@@ -52,9 +57,6 @@ checkAbstractFixedCovariate <- function(object) {
   return(TRUE)
 }
 
-#' 
-#' Abstract fixed covariate entry class.
-#' 
 setClass(
   "abstract_fixed_covariate",
   representation(
@@ -71,9 +73,6 @@ checkFixedCovariate <- function(object) {
   return(expectOneOrMore(object, c("values")))
 }
 
-#' 
-#' Covariate entry class.
-#' 
 #' @export
 setClass(
   "fixed_covariate",
@@ -83,6 +82,18 @@ setClass(
   contains="abstract_fixed_covariate",
   validity=checkFixedCovariate
 )
+
+#'
+#' Create a fixed covariate. Each subject will be assigned a fixed value, i.e.,
+#' a value that does not vary over time.
+#'
+#' @param name covariate name, character
+#' @param values covariate values, numeric vector (1 value per subject)
+#' @return a covariate
+#' @export
+FixedCovariate <- function(name, values) {
+  return(new("fixed_covariate", name=name, values=values))
+}
 
 #_______________________________________________________________________________
 #----                     function_covariate class                          ----
@@ -94,9 +105,6 @@ checkFunctionCovariate <- function(object) {
   return(c(check1, check2))
 }
 
-#' 
-#' Covariate entry class.
-#' 
 #' @export
 setClass(
   "function_covariate",
@@ -109,6 +117,21 @@ setClass(
   validity=checkFunctionCovariate
 )
 
+#'
+#' Create a function covariate. During covariate sampling, the provided function
+#' will be responsible for generating values for each subject. If first argument
+#' of this function is not the size (n), please tell which argument corresponds
+#' to the size 'n' (e.g. list(size="n")).
+#'
+#' @param name covariate name, character
+#' @param fun function name, character (e.g. 'rnorm')
+#' @param args list of arguments (e.g list(mean=70, sd=10))
+#' @return a covariate
+#' @export
+FunctionCovariate <- function(name, fun, args) {
+  return(new("function_covariate", name=name, fun=fun, args=args))
+}
+
 #_______________________________________________________________________________
 #----                     bootstrap_covariate class                         ----
 #_______________________________________________________________________________
@@ -119,9 +142,6 @@ checkBootstrapCovariate <- function(object) {
   return(c(check1, check2))
 }
 
-#' 
-#' Bootstrap covariate class.
-#' 
 #' @export
 setClass(
   "bootstrap_covariate",
@@ -134,6 +154,20 @@ setClass(
   prototype=prototype(replacement=FALSE, random=FALSE),
   validity=checkBootstrapCovariate
 )
+
+#'
+#' Create a bootstrap covariate. During covariate sampling, PMXsim will generate
+#' values depending on the given data and arguments.
+#'
+#' @param name covariate name, character
+#' @param data values to draw, numeric vector
+#' @param replacement values can be reused or not, logical
+#' @param random values are drawn randomly, logical
+#' @return a covariate
+#' @export
+BootstrapCovariate <- function(name, data, replacement=FALSE, random=FALSE) {
+  return(new("bootstrap_covariate", name=name, data=data, replacement=replacement, random=random))
+}
 
 #_______________________________________________________________________________
 #----                             sample                                    ----

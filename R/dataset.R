@@ -3,9 +3,6 @@
 #----                         dataset class                                 ----
 #_______________________________________________________________________________
 
-#' 
-#' Dataset class.
-#' 
 #' @export
 setClass(
   "dataset",
@@ -14,6 +11,15 @@ setClass(
   ),
   prototype=prototype(arms=new("arms"))
 )
+
+#'
+#' Create a dataset.
+#'
+#' @return a dataset
+#' @export
+Dataset <- function() {
+  return(new("dataset"))
+}
 
 #_______________________________________________________________________________
 #----                           add                                   ----

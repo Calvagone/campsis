@@ -7,9 +7,6 @@ checkArm <- function(object) {
   return(expectOneForAll(object, c("id", "subjects")))
 }
 
-#' 
-#' Arm class.
-#' 
 #' @export
 setClass(
   "arm",
@@ -22,6 +19,17 @@ setClass(
   contains="pmx_element",
   prototype=prototype(id=as.integer(1), subjects=as.integer(1), protocol=new("protocol"), covariates=new("covariates"))
 )
+
+#' 
+#' Create a treatment arm.
+#' 
+#' @param id arm unique ID, integer
+#' @param subjects number of subjects in arm, integer
+#' @return an arm  
+#' @export
+Arm <- function(id=1, subjects=1) {
+  return(new("arm", id=as.integer(id), subjects=as.integer(subjects)))
+}
 
 #_______________________________________________________________________________
 #----                           getName                                     ----

@@ -21,6 +21,17 @@ setClass(
   validity=checkObservation
 )
 
+#'
+#' Create an observation.
+#'
+#' @param time observation time, numeric
+#' @param compartment compartment index, integer
+#' @return an observation
+#' @export
+Observation <- function(time, compartment=NA) {
+  return(new("observation", time=time, compartment=as.integer(compartment)))
+}
+
 setMethod("getName", signature = c("observation"), definition = function(x) {
   return(paste0("OBS [", "TIME=", x@time, ", ", "CMT=", x@compartment, "]"))
 })

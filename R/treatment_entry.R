@@ -7,9 +7,6 @@ checkTreatmentEntry <- function(object) {
   return(expectOneForAll(object, c("amount", "compartment", "dose_number")))
 }
 
-#' 
-#' Treatment entry class.
-#' 
 setClass(
   "treatment_entry",
   representation(
@@ -30,9 +27,6 @@ checkBolus <- function(object) {
   return(TRUE)
 }
 
-#' 
-#' Bolus class.
-#' 
 #' @export
 setClass(
   "bolus",
@@ -41,6 +35,18 @@ setClass(
   contains = "treatment_entry",
   validity=checkBolus
 )
+
+#'
+#' Create a bolus.
+#'
+#' @param time treatment time, numeric
+#' @param amount amount to give as bolus, numeric
+#' @param compartment compartment index, integer
+#' @return an observation
+#' @export
+Bolus <- function(time, amount, compartment=NA) {
+  return(new("bolus", time=time, amount=amount, compartment=as.integer(compartment)))
+}
 
 setMethod("getName", signature = c("bolus"), definition = function(x) {
   return(paste0("BOLUS [", "TIME=", x@time, ", ", "AMOUNT=", x@amount, ", ", "CMT=", x@compartment, "]"))
@@ -54,9 +60,6 @@ checkInfusion <- function(object) {
   return(expectOneForAll(object, c("duration")))
 }
 
-#' 
-#' Infusion class.
-#' 
 #' @export
 setClass(
   "infusion",
@@ -66,6 +69,19 @@ setClass(
   contains = "treatment_entry",
   validity=checkInfusion
 )
+
+#'
+#' Create an infusion bolus.
+#'
+#' @param time treatment time, numeric
+#' @param amount amount to give as bolus, numeric
+#' @param duration infusion duration
+#' @param compartment compartment index, integer
+#' @return an observation
+#' @export
+Infusion <- function(time, amount, duration, compartment=NA) {
+  return(new("infusion", time=time, amount=amount, duration=duration, compartment=as.integer(compartment)))
+}
 
 setMethod("getName", signature = c("infusion"), definition = function(x) {
   return(paste0("INFUSION [", "TIME=", x@time, ", ", "AMOUNT=", x@amount, ", ", "CMT=", x@compartment, "]"))
