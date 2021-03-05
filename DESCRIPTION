@@ -18,7 +18,9 @@ Collate:
     'protocol.R'
     'arm.R'
     'arms.R'
+    'export_type.R'
     'dataset.R'
+    'simulate.R'
 Title: Pmxsim library
 Version: 0.1
 Authors@R: c(
