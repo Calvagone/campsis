@@ -21,7 +21,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), defin
 
 setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_type"), definition=function(model, dataset, dest, ...) {
   
-  config <- new("config", default_depot_cmt=as.integer(1), default_obs_cmt=as.integer(2))
+  config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
   dataset <- dataset %>% export(dest="RxODE", config=config)
   
   return(simulate(model=model, dataset=dataset, dest=dest, ...))

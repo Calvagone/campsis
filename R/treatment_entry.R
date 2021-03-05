@@ -92,18 +92,18 @@ setMethod("getName", signature = c("infusion"), definition = function(x) {
 #_______________________________________________________________________________
 
 
-setMethod("convert", signature = c("bolus", "config"), definition = function(object, config) {
+setMethod("convert", signature = c("bolus", "dataset_config"), definition = function(object, config) {
   if (is.na(object@compartment)) {
-    depotCmt <- config@default_depot_cmt
+    depotCmt <- config@def_depot_cmt
   } else {
     depotCmt <- object@compartment
   }
   return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".", AMT=object@amount, RATE=as.integer(0), CMT=depotCmt, DOSENO=object@dose_number))
 })
 
-setMethod("convert", signature = c("infusion", "config"), definition = function(object, config) {
+setMethod("convert", signature = c("infusion", "dataset_config"), definition = function(object, config) {
   if (is.na(object@compartment)) {
-    depotCmt <- config@default_depot_cmt
+    depotCmt <- config@def_depot_cmt
   } else {
     depotCmt <- object@compartment
   }

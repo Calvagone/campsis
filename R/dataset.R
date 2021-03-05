@@ -89,7 +89,7 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
   if (hasName(args, "config")) {
     config <- args$config
   } else {
-    config <- new("config")
+    config <- new("dataset_config")
   }
   
   # Use either arms or default_arm
@@ -139,7 +139,10 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
     expandedDf <- ids %>% purrr::map_df(.f=function(id) {
       df <- df %>% tibble::add_column(ID=id, .before="TIME")
       df <- df %>% tibble::add_column(ARM=armID, .before="TIME")
-      df <- df %>% dplyr::bind_cols(covDf[(id - maxID + subjects),])
+      if (nrow(covDf) > 0) {
+        df <- df %>% dplyr::bind_cols(covDf[(id - maxID + subjects),])
+      }
+      return(df)
     })
     
     return(expandedDf)

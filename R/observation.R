@@ -42,7 +42,7 @@ setMethod("getName", signature = c("observation"), definition = function(x) {
 
 setMethod("convert", signature = c("observation"), definition = function(object, config) {
   if (is.na(object@compartment)) {
-    obsCmt <- config@default_obs_cmt
+    obsCmt <- config@def_obs_cmt
   } else {
     obsCmt <- object@compartment
   }
