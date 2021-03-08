@@ -51,8 +51,14 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_type"), defi
       output <- NULL
     }
 
-    # Compute all rounds to perform
-    rounds <- list(start=seq(1, maxID, by=sliceNo), end=seq(0, maxID-1, by=sliceNo) + sliceNo)
+    # Compute all slice rounds to perform
+    sliceRounds <- list(start=seq(1, maxID, by=sliceNo), end=seq(0, maxID-1, by=sliceNo) + sliceNo)
+    
+    # Prepare list of events (1 event dataframe per slice/round)
+    eventsList <- purrr::map2(sliceRounds$start, sliceRounds$end, .f=function(.x, .y){
+      events <- dataset %>% dplyr::filter(ID >= .x & ID <= .y)
+      return(events)
+    })
 
     # Export PMX model to RxODE
     rxmod <- model %>% pmxmod::export(dest="RxODE")
@@ -61,11 +67,10 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_type"), defi
     mod <- RxODE::RxODE(paste0(rxmod@code, collapse="\n"))
     
     # Launch RxODE
-    results <- purrr::map2_df(rounds$start, rounds$end, .f=function(.x, .y){
-      events <- dataset %>% dplyr::filter(ID >= .x & ID <= .y)
+    results <- eventsList %>% purrr::map_df(.f=function(events){
       tmp <- RxODE::rxSolve(mod, params=rxmod@theta, omega=rxmod@omega, sigma=rxmod@sigma, events=events, returnType="tibble")
       if (!is.null(output)) {
-        tmp <- tmp %>% dplyr::select(output)
+        tmp <- tmp %>% dplyr::select(dplyr::all_of(output))
       }
       return(tmp)
     })
