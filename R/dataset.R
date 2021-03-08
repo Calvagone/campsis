@@ -46,7 +46,7 @@ setMethod("add", signature = c("dataset", "treatment_entry"), definition = funct
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% replace(arm)
+  object@arms <- object@arms %>% pmxmod::replace(arm)
   return(object)
   }
 )
@@ -55,7 +55,7 @@ setMethod("add", signature = c("dataset", "observation"), definition = function(
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@protocol@observations <- arm@protocol@observations %>% add(x)
-  object@arms <- object@arms %>% replace(arm)
+  object@arms <- object@arms %>% pmxmod::replace(arm)
   return(object)
 }
 )
@@ -64,7 +64,7 @@ setMethod("add", signature = c("dataset", "covariate"), definition = function(ob
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@covariates <- arm@covariates %>% add(x)
-  object@arms <- object@arms %>% replace(arm)
+  object@arms <- object@arms %>% pmxmod::replace(arm)
   return(object)
 })
 
@@ -119,7 +119,7 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
     })
     
     # Sort entries
-    entries <- entries %>% sort()
+    entries <- entries %>% pmxmod::sort()
 
     # Interesting part
     df <- entries@list %>% purrr::map_df(.f=~convert(.x, config))
