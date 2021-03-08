@@ -21,8 +21,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), defin
 
 setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_type"), definition=function(model, dataset, dest, ...) {
   
-  config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
-  dataset <- dataset %>% export(dest="RxODE", config=config)
+  dataset <- dataset %>% export(dest="RxODE")
   
   return(simulate(model=model, dataset=dataset, dest=dest, ...))
 })
@@ -68,7 +67,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_type"), defi
     
     # Launch RxODE
     results <- eventsList %>% purrr::map_df(.f=function(events){
-      tmp <- RxODE::rxSolve(mod, params=rxmod@theta, omega=rxmod@omega, sigma=rxmod@sigma, events=events, returnType="tibble")
+      tmp <- RxODE::rxSolve(object=mod, params=rxmod@theta, omega=rxmod@omega, sigma=rxmod@sigma, events=events, returnType="tibble")
       if (!is.null(output)) {
         tmp <- tmp %>% dplyr::select(dplyr::all_of(output))
       }

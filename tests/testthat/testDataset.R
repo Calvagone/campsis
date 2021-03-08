@@ -81,8 +81,8 @@ test_that("Export using config", {
   
   # Export to RxODE
   config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
-  table <- dataset %>% export(dest="RxODE",
-                              config=config)
+  dataset <- dataset %>% add(config)
+  table <- dataset %>% export(dest="RxODE")
   
   expect_true(all(c(1,2) %in% table$CMT))
   
@@ -108,8 +108,8 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   
   # Export to RxODE N=1
   config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
-  table <- dataset %>% export(dest="RxODE",
-                              config=config)
+  dataset <- dataset %>% add(config)
+  table <- dataset %>% export(dest="RxODE")
   
   expect_true(all(table$WT==70))
   expect_true(all(table$HT==180))
@@ -117,10 +117,10 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   # Export to RxODE N=2
   arm <- dataset@arms %>% default()
   arm@subjects <- as.integer(2)
-  dataset@arms <- dataset@arms %>% pmxmod::replace(arm)
+  dataset@arms <- dataset@arms %>% replace(arm)
   
-  table <- dataset %>% export(dest="RxODE",
-                              config=config)
+  dataset <- dataset %>% add(config)
+  table <- dataset %>% export(dest="RxODE")
   
   expect_true(all(table$WT==70))
   expect_true(all(table$HT==180))
@@ -150,8 +150,8 @@ test_that("Export fixed covariates work well (N=3)", {
   
   # Export to RxODE N=1
   config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
-  table <- dataset %>% export(dest="RxODE",
-                              config=config)
+  dataset <- dataset %>% add(config)
+  table <- dataset %>% export(dest="RxODE")
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct()
   expect_equal(subTable, data.frame(ID=c(1,2,3), WT=c(65,70,75), HT=c(175,180,185)))
@@ -182,7 +182,8 @@ test_that("Export function covariates work well (N=3)", {
   # Export to RxODE N=1
   set.seed(1)
   config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
-  table <- dataset %>% export(dest="RxODE", config=config)
+  dataset <- dataset %>% add(config)
+  table <- dataset %>% export(dest="RxODE")
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct() %>% dplyr::mutate(WT=round(WT), HT=round(HT))
   expect_equal(subTable, data.frame(ID=c(1,2,3), WT=c(64,72,62), HT=c(212,187,164)))
@@ -212,7 +213,8 @@ test_that("Export boostrap covariates work well (N=8)", {
   # Export to RxODE
   set.seed(1)
   config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
-  table <- dataset %>% export(dest="RxODE", config=config)
+  dataset <- dataset %>% add(config)
+  table <- dataset %>% export(dest="RxODE")
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct()
   expect_equal(subTable, data.frame(ID=c(1,2,3,4,5,6,7,8), WT=c(65,75,65,70,65,75,75,70), HT=c(180,185,185,175,175,175,180,180)))

@@ -1,7 +1,43 @@
 library(testthat)
+library(ggplot2)
 
 context("Test the simulate method")
 
-test_that("Simple test with RxODE", {
+plotCp <- function(results) {
+  p <- ggplot(results, aes(x=time, y=CP)) +
+    geom_line()
+  print(p)
+}
 
+test_that("Simulate a bolus", {
+  model <- getNONMEMModelTemplate(4,4)
+  
+  dataset <- Dataset()
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  for (time in seq(0,24, by=0.5)) {
+    dataset <- dataset %>% add(Observation(time=time))
+  }
+  dataset <- dataset %>% add(DatasetConfig(defObsCmt=2))
+
+  results <- model %>% simulate(dataset, dest="RxODE")
+  plotCp(results)
+  
+  expect_equal(nrow(results), 49)
 })
+
+# test_that("Simulate an infusion", {
+#   model <- getNONMEMModelTemplate(4,4)
+#   pkRecord <- model@model %>% pmxmod::getByName("PK")
+#   pkRecord@code <- c(pkRecord@code, "D2=5")
+#   model@model <- model@model %>% pmxmod::replace(pkRecord)
+#   
+#   dataset <- Dataset()
+#   dataset <- dataset %>% add(Infusion(time=0, amount=1000, duration=5, compartment=2))
+#   for (time in seq(0,24, by=0.5)) {
+#     dataset <- dataset %>% add(Observation(time=time))
+#   }
+#   dataset <- dataset %>% add(DatasetConfig(defObsCmt=2))
+#   
+#   results <- model %>% simulate(dataset, dest="RxODE")
+#   plotCp(results)
+# })
