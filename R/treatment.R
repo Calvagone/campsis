@@ -67,5 +67,5 @@ setMethod("assignDoseNumber", signature = c("treatment"), definition = function(
     .x@dose_number <- .y
     return(.x)
   })
-  return(new("treatment", list=list))
+  return(new("treatment", list=list, lag_times=object@lag_times))
 })

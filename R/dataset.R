@@ -113,6 +113,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     treatment <- protocol@treatment %>% assignDoseNumber()
     observations <- protocol@observations
     covariates <- arm@covariates
+    lagTimes <- treatment@lag_times
     
     # Fill in entries list
     entries <- new("time_entries")
@@ -127,6 +128,15 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
 
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
+    
+    # Treating lag time as a covariate
+    if (lagTimes %>% length() > 0) {
+      for (lagTime in lagTimes@list) {
+        covariates <- covariates %>% add(FunctionCovariate(
+          name=paste0("ALAG", lagTime@compartment),
+          fun="rnorm", args=list(mean=lagTime@mean, sd=sqrt(lagTime@variance))))
+      }
+    }
     
     # Generating covariates
     covDf <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
@@ -145,6 +155,22 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       }
       return(df)
     })
+    
+    # Treating lag time
+    if (lagTimes %>% length() > 0) {
+      colToRemove <- NULL
+      for (lagTime in lagTimes@list) {
+        colName <- paste0("ALAG", lagTime@compartment)
+        compartment <- lagTime@compartment
+        expandedDf <- expandedDf %>% dplyr::mutate(
+          TIME=ifelse(expandedDf$EVID==1 & expandedDf$CMT==compartment,
+                      expandedDf$TIME + expandedDf[,colName],
+                      expandedDf$TIME))
+        colToRemove <- c(colToRemove, colName)
+      }
+      expandedDf <- expandedDf %>% dplyr::select(-dplyr::all_of(colToRemove))
+      expandedDf <- expandedDf %>% dplyr::group_by(ID) %>% dplyr::arrange(TIME) %>% dplyr::ungroup()
+    }
     
     return(expandedDf)
   })
