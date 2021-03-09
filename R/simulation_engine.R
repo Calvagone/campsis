@@ -1,13 +1,19 @@
 #_______________________________________________________________________________
-#----                           export_type                                 ----
+#----                           engine_type                                 ----
 #_______________________________________________________________________________
 
-#' RxODE export type class.
-#' 
 #' @export
 setClass(
-  "rxode_type",
+  "simulation_engine",
+  representation(
+  )
+)
+
+
+#' @export
+setClass(
+  "rxode_engine",
   representation(
   ),
-  contains="export_type" 
+  contains="simulation_engine" 
 )

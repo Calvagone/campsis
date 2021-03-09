@@ -25,6 +25,18 @@ test_that("Simulate a bolus", {
   expect_equal(nrow(results), 49)
 })
 
+test_that("Simulate a bolus with infusion", {
+  model <- getNONMEMModelTemplate(4,4)
+  
+  dataset <- Dataset()
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  for (time in seq(0,24, by=0.5)) {
+    dataset <- dataset %>% add(Observation(time=time))
+  }
+
+  
+})
+
 
 test_that("Simulate an infusion using the duration", {
   model <- getNONMEMModelTemplate(4,4)

@@ -5,7 +5,7 @@
 
 setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, ...) {
   if (dest=="RxODE") {
-    return(simulate(model=model, dataset=dataset, dest=new("rxode_type"), ...))
+    return(simulate(model=model, dataset=dataset, dest=new("rxode_engine"), ...))
   } else {
     stop("Only RxODE is supported for now")
   }
@@ -13,20 +13,20 @@ setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definiti
 
 setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), definition=function(model, dataset, dest, ...) {
   if (dest=="RxODE") {
-    return(simulate(model=model, dataset=dataset, dest=new("rxode_type"), ...))
+    return(simulate(model=model, dataset=dataset, dest=new("rxode_engine"), ...))
   } else {
     stop("Only RxODE is supported for now")
   }
 })
 
-setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_type"), definition=function(model, dataset, dest, ...) {
+setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, ...) {
   
   dataset <- dataset %>% export(dest="RxODE")
   
   return(simulate(model=model, dataset=dataset, dest=dest, ...))
 })
 
-setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_type"), definition=function(model, dataset, dest, ...) {
+setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), definition=function(model, dataset, dest, ...) {
     # Check extra arguments
     args <- list(...)
     

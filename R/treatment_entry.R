@@ -129,6 +129,7 @@ setMethod("convert", signature = c("bolus", "dataset_config"), definition = func
   } else {
     depotCmt <- object@compartment
   }
+
   return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".", AMT=object@amount, RATE=as.numeric(0), CMT=depotCmt, DOSENO=object@dose_number))
 })
 
@@ -138,6 +139,7 @@ setMethod("convert", signature = c("infusion", "dataset_config"), definition = f
   } else {
     depotCmt <- object@compartment
   }
+  
   rate <- object %>% getRate()
   return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".", AMT=object@amount, RATE=rate, CMT=depotCmt, DOSENO=object@dose_number))
 })

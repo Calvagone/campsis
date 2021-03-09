@@ -74,6 +74,11 @@ setMethod("add", signature = c("dataset", "dataset_config"), definition = functi
   return(object)
 })
 
+setMethod("add", signature = c("dataset", "lag_time"), definition = function(object, x) {
+  object@config <- object@config %>% add(x)
+  return(object)
+})
+
 #_______________________________________________________________________________
 #----                                export                                 ----
 #_______________________________________________________________________________
@@ -81,13 +86,13 @@ setMethod("add", signature = c("dataset", "dataset_config"), definition = functi
 
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, ...) {
   if (dest=="RxODE") {
-    return(object %>% export(new("rxode_type"), ...))
+    return(object %>% export(new("rxode_engine"), ...))
   } else {
     stop("Only RxODE is supported for now")
   }
 })
 
-setMethod("export", signature=c("dataset", "rxode_type"), definition=function(object, dest, ...) {
+setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, ...) {
 
   # Retrieve dataset configuration
   config <- object@config
@@ -111,12 +116,8 @@ setMethod("export", signature=c("dataset", "rxode_type"), definition=function(ob
     
     # Fill in entries list
     entries <- new("time_entries")
-    treatment@list %>% purrr::map(.f=function(entry) {
-      entries <<- entries %>% add(entry)
-    })
-    observations@list %>% purrr::map(.f=function(entry) {
-      entries <<- entries %>% add(entry)
-    })
+    entries@list <- c(entries@list, treatment@list)
+    entries@list <- c(entries@list, observations@list)
     
     # Sort entries
     entries <- entries %>% sort()
