@@ -62,6 +62,8 @@ test_that("Simulate an infusion using the duration", {
 
   results <- model %>% simulate(dataset, dest="RxODE")
   plotCp(results)
+  
+  expect_equal(nrow(results), 49)
 })
 
 test_that("Simulate an infusion using the rate", {
@@ -76,6 +78,8 @@ test_that("Simulate an infusion using the rate", {
   
   results <- model %>% simulate(dataset, dest="RxODE")
   plotCp(results)
+  
+  expect_equal(nrow(results), 49)
 })
 
 test_that("Simulate an infusion using the rate and lag time", {
@@ -92,4 +96,6 @@ test_that("Simulate an infusion using the rate and lag time", {
   
   results <- model %>% simulate(dataset, dest="RxODE")
   plotCp(results)
+  
+  expect_equal(nrow(results), 49*10)
 })
