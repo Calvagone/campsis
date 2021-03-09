@@ -40,8 +40,7 @@ createDefaultArmIfNotExists <- function(object) {
 setMethod("add", signature = c("dataset", "arm"), definition = function(object, x) {
   object@arms <- object@arms %>% add(x) 
   return(object)
-}
-)
+})
 
 setMethod("add", signature = c("dataset", "treatment_entry"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
@@ -49,8 +48,15 @@ setMethod("add", signature = c("dataset", "treatment_entry"), definition = funct
   arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
   object@arms <- object@arms %>% replace(arm)
   return(object)
-  }
-)
+})
+
+setMethod("add", signature = c("dataset", "lag_time"), definition = function(object, x) {
+  object <- object %>% createDefaultArmIfNotExists()
+  arm <- object@arms %>% default()
+  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
+  object@arms <- object@arms %>% replace(arm)
+  return(object)
+})
 
 setMethod("add", signature = c("dataset", "observation"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
@@ -58,8 +64,7 @@ setMethod("add", signature = c("dataset", "observation"), definition = function(
   arm@protocol@observations <- arm@protocol@observations %>% add(x)
   object@arms <- object@arms %>% replace(arm)
   return(object)
-}
-)
+})
 
 setMethod("add", signature = c("dataset", "covariate"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
@@ -71,11 +76,6 @@ setMethod("add", signature = c("dataset", "covariate"), definition = function(ob
 
 setMethod("add", signature = c("dataset", "dataset_config"), definition = function(object, x) {
   object@config <- x
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "lag_time"), definition = function(object, x) {
-  object@config <- object@config %>% add(x)
   return(object)
 })
 

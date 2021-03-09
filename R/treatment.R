@@ -9,9 +9,21 @@
 setClass(
   "treatment",
   representation(
+    lag_times = "lag_times"
   ),
-  contains="pmx_list"
+  contains="pmx_list",
+  prototype=prototype(lag_times=new("lag_times"))
 )
+
+#_______________________________________________________________________________
+#----                                 add                                   ----
+#_______________________________________________________________________________
+
+
+setMethod("add", signature = c("treatment", "lag_time"), definition = function(object, x) {
+  object@lag_times <- object@lag_times %>% add(x)
+  return(object)
+})
 
 #_______________________________________________________________________________
 #----                                  sort                                 ----
