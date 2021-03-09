@@ -4,7 +4,7 @@
 \alias{Infusion}
 \title{Create an infusion bolus.}
 \usage{
-Infusion(time, amount, duration, compartment = NA)
+Infusion(time, amount, duration = NA, rate = NA, compartment = NA)
 }
 \arguments{
 \item{time}{treatment time, numeric}
@@ -12,6 +12,8 @@ Infusion(time, amount, duration, compartment = NA)
 \item{amount}{amount to give as bolus, numeric}
 
 \item{duration}{infusion duration}
+
+\item{rate}{infusion rate}
 
 \item{compartment}{compartment index, integer}
 }

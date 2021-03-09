@@ -25,19 +25,31 @@ test_that("Simulate a bolus", {
   expect_equal(nrow(results), 49)
 })
 
-# test_that("Simulate an infusion", {
-#   model <- getNONMEMModelTemplate(4,4)
-#   pkRecord <- model@model %>% pmxmod::getByName("PK")
-#   pkRecord@code <- c(pkRecord@code, "D2=5")
-#   model@model <- model@model %>% pmxmod::replace(pkRecord)
-#   
-#   dataset <- Dataset()
-#   dataset <- dataset %>% add(Infusion(time=0, amount=1000, duration=5, compartment=2))
-#   for (time in seq(0,24, by=0.5)) {
-#     dataset <- dataset %>% add(Observation(time=time))
-#   }
-#   dataset <- dataset %>% add(DatasetConfig(defObsCmt=2))
-#   
-#   results <- model %>% simulate(dataset, dest="RxODE")
-#   plotCp(results)
-# })
+
+test_that("Simulate an infusion using the duration", {
+  model <- getNONMEMModelTemplate(4,4)
+
+  dataset <- Dataset()
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, duration=5, compartment=2))
+  for (time in seq(0,24, by=0.5)) {
+    dataset <- dataset %>% add(Observation(time=time))
+  }
+  dataset <- dataset %>% add(DatasetConfig(defObsCmt=2))
+
+  results <- model %>% simulate(dataset, dest="RxODE")
+  plotCp(results)
+})
+
+test_that("Simulate an infusion using the rate", {
+  model <- getNONMEMModelTemplate(4,4)
+  
+  dataset <- Dataset()
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, rate=200, compartment=2))
+  for (time in seq(0,24, by=0.5)) {
+    dataset <- dataset %>% add(Observation(time=time))
+  }
+  dataset <- dataset %>% add(DatasetConfig(defObsCmt=2))
+  
+  results <- model %>% simulate(dataset, dest="RxODE")
+  plotCp(results)
+})
