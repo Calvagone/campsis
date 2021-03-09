@@ -65,9 +65,20 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), de
     # Instantiate RxODE model
     mod <- RxODE::RxODE(paste0(rxmod@code, collapse="\n"))
     
+    # Preparing parameters
+    params <- rxmod@theta
+    omega <- rxmod@omega
+    sigma <- rxmod@sigma
+    if (nrow(omega)==0) {
+      omega <- NULL
+    }
+    if (nrow(sigma)==0) {
+      sigma <- NULL
+    }
+    
     # Launch RxODE
     results <- eventsList %>% purrr::map_df(.f=function(events){
-      tmp <- RxODE::rxSolve(object=mod, params=rxmod@theta, omega=rxmod@omega, sigma=rxmod@sigma, events=events, returnType="tibble")
+      tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=events, returnType="tibble")
       if (!is.null(output)) {
         tmp <- tmp %>% dplyr::select(dplyr::all_of(output))
       }
