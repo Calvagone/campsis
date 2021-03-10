@@ -117,7 +117,7 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   # Export to RxODE N=2
   arm <- dataset@arms %>% default()
   arm@subjects <- as.integer(2)
-  dataset@arms <- dataset@arms %>% replace(arm)
+  dataset@arms <- dataset@arms %>% pmxmod::replace(arm)
   
   dataset <- dataset %>% add(config)
   table <- dataset %>% export(dest="RxODE")

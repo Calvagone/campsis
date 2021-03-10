@@ -1,3 +1,4 @@
 `%>%` <- magrittr::`%>%`
 
-#library(pmxmod)
+library(pmxmod)
+#loadNamespace("pmxmod")
