@@ -32,12 +32,13 @@ test_that("Simulate a bolus, 2 arms", {
   }
   
   dataset <- Dataset() %>% add(arm1) %>% add(arm2)
-
+  
   results <- model %>% simulate(dataset, dest="RxODE")
   spaguettiPlot(results, "CP", "ARM")
   shadedPlot(results, "CP", "ARM")
   
   expect_equal(nrow(results), 49*20)
+  expect_equal(dataset %>% length(), 20)
 })
 
 test_that("Simulate a bolus with lag time", {

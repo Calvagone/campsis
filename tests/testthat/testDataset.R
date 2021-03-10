@@ -46,6 +46,9 @@ test_that("Two arms example", {
   dataset <- dataset %>% add(arm1)
   dataset <- dataset %>% add(arm2)
   
+  # Total number of subjects
+  expect_equal(dataset %>% length(), 7)
+  
   # Arms number
   expect_equal(length(dataset@arms), 2)
   

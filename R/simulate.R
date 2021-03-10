@@ -5,6 +5,9 @@
 
 setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, ...) {
   if (dest=="RxODE") {
+    # Generate IIV into dataset
+    dataset <- dataset %>% generateIIV(model)
+    
     return(simulate(model=model, dataset=dataset, dest=new("rxode_engine"), ...))
   } else {
     stop("Only RxODE is supported for now")
@@ -20,16 +23,16 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), defin
 })
 
 setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, ...) {
+  # Export to data frame
+  table <- dataset %>% export(dest="RxODE")
   
-  dataset <- dataset %>% export(dest="RxODE")
-  
-  return(simulate(model=model, dataset=dataset, dest=dest, ...))
+  return(simulate(model=model, dataset=table, dest=dest, ...))
 })
 
 setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), definition=function(model, dataset, dest, ...) {
     # Check extra arguments
     args <- list(...)
-    
+
     # IDs
     ids <- unique(dataset$ID)
     maxID <- max(ids)
@@ -55,6 +58,9 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), de
     } else {
       output <- NULL
     }
+    
+    # Export PMX model to RxODE
+    rxmod <- model %>% pmxmod::export(dest="RxODE")
 
     # Compute all slice rounds to perform
     sliceRounds <- list(start=seq(1, maxID, by=sliceNo), end=seq(0, maxID-1, by=sliceNo) + sliceNo)
@@ -64,23 +70,21 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), de
       events <- dataset %>% dplyr::filter(ID >= .x & ID <= .y)
       return(events)
     })
-
-    # Export PMX model to RxODE
-    rxmod <- model %>% pmxmod::export(dest="RxODE")
     
     # Instantiate RxODE model
     mod <- RxODE::RxODE(paste0(rxmod@code, collapse="\n"))
     
     # Preparing parameters
     params <- rxmod@theta
-    omega <- rxmod@omega
     sigma <- rxmod@sigma
-    if (nrow(omega)==0) {
-      omega <- NULL
-    }
     if (nrow(sigma)==0) {
       sigma <- NULL
     }
+    # Fake OMEGA to avoid RxODE warning if several subjects in dataset
+    omega <- matrix(1)
+    fakeEtaName <- "FAKE_ETA"
+    rownames(omega) <- fakeEtaName
+    colnames(omega) <- fakeEtaName
     
     # Launch RxODE
     results <- eventsList %>% purrr::map_df(.f=function(events){

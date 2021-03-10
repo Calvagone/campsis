@@ -8,9 +8,10 @@ setClass(
   "dataset",
   representation(
     arms = "arms",
-    config = "dataset_config"
+    config = "dataset_config",
+    iiv = "data.frame"
   ),
-  prototype=prototype(arms=new("arms"), config=DatasetConfig())
+  prototype=prototype(arms=new("arms"), config=DatasetConfig(), iiv=data.frame())
 )
 
 #'
@@ -80,6 +81,48 @@ setMethod("add", signature = c("dataset", "dataset_config"), definition = functi
 })
 
 #_______________________________________________________________________________
+#----                             length                                    ----
+#_______________________________________________________________________________
+
+setMethod("length", signature=c("dataset"), definition=function(x) {
+  subjectsPerArm <- x@arms@list %>% purrr::map_int(.f=~.x@subjects) 
+  return(sum(subjectsPerArm))
+})
+
+#_______________________________________________________________________________
+#----                           generate_iiv                                ----
+#_______________________________________________________________________________
+
+#' Generate IIV in dataset.
+#' 
+#' @param dataset dataset
+#' @param model model
+#' @return dataset
+#' @export
+generateIIV <- function(dataset, model) {
+  stop("No default function is provided")
+}
+
+setGeneric("generateIIV", function(dataset, model) {
+  standardGeneric("generateIIV")
+})
+
+setMethod("generateIIV", signature=c("dataset", "pmx_model"), definition=function(dataset, model) {
+  rxmod <- model %>% pmxmod::export(dest="RxODE")
+  omega <- rxmod@omega
+  n <- dataset %>% length()
+  iiv <- MASS::mvrnorm(n=n, mu=rep(0, nrow(omega)), Sigma=omega)
+  if (n==1) {
+    iiv <- t(iiv) # If n=1, mvrnorm result is a numeric vector, not a matrix
+  }
+  iiv <- iiv %>% as.data.frame()
+  retValue <- dataset
+  retValue@iiv <- iiv 
+  
+  return(retValue)
+})
+
+#_______________________________________________________________________________
 #----                                export                                 ----
 #_______________________________________________________________________________
 
@@ -96,7 +139,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
 
   # Retrieve dataset configuration
   config <- object@config
-  
+
   # Use either arms or default_arm
   arms <- object@arms
   if (length(arms) == 0) {
@@ -146,12 +189,18 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       matrix %>% tibble::as_tibble()
     })
     
+    # IIV df
+    iivDf <- object@iiv
+    
     # Expanding the dataframe for all subjects
     expandedDf <- ids %>% purrr::map_df(.f=function(id) {
       df <- df %>% tibble::add_column(ID=id, .before="TIME")
       df <- df %>% tibble::add_column(ARM=armID, .before="TIME")
       if (nrow(covDf) > 0) {
         df <- df %>% dplyr::bind_cols(covDf[(id - maxID + subjects),])
+      }
+      if (nrow(iivDf) > 0) {
+        df <- df %>% dplyr::bind_cols(iivDf[id,])
       }
       return(df)
     })
