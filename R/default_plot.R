@@ -24,8 +24,8 @@ factorScenarios <- function(x, scenarios=NULL) {
 #' @param x data frame
 #' @param output variable to show
 #' @param scenarios scenarios
-#' @importFrom ggplot2 aes_string ggplot geom_line
 #' @return plot
+#' @importFrom ggplot2 aes_string ggplot geom_line
 #' @export
 spaguettiPlot <- function(x, output, scenarios=NULL) {
   hasId <- "id" %in% colnames(x)
@@ -50,10 +50,11 @@ spaguettiPlot <- function(x, output, scenarios=NULL) {
 #' @param x data frame
 #' @param output variable to show
 #' @param scenarios scenarios
-#' @param level PI level, default is 0.9 (90% PI)
+#' @param level PI level, default is 0.9 (90\% PI)
+#' @return summary
 #' @importFrom dplyr group_by_at rename_at summarise
 #' @export
-pi <- function(x, output, scenarios=NULL, level=0.90) {
+PI <- function(x, output, scenarios=NULL, level=0.90) {
   x <- factorScenarios(x, scenarios=scenarios)
   retValue <- x %>% dplyr::rename_at(.vars=output, .funs=function(x){"variable"}) %>%
     dplyr::group_by_at(c("time", scenarios)) %>%
@@ -70,12 +71,12 @@ pi <- function(x, output, scenarios=NULL, level=0.90) {
 #' @param x data frame
 #' @param output variable to show
 #' @param scenarios scenarios
-#' @param level PI level, default is 0.9 (90% PI)
-#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
+#' @param level PI level, default is 0.9 (90\% PI)
 #' @return plot
+#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
 #' @export
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
-  x <- pi(x=x, output=output, scenarios=scenarios, level=level)
+  x <- PI(x=x, output=output, scenarios=scenarios, level=level)
   if (length(scenarios) > 0) {
     colour <- paste0(scenarios, collapse = ":")
   } else {

@@ -13,7 +13,7 @@ shadedPlot(x, output, scenarios = NULL, level = 0.9)
 
 \item{scenarios}{scenarios}
 
-\item{level}{PI level, default is 0.9 (90% PI)}
+\item{level}{PI level, default is 0.9 (90\% PI)}
 }
 \value{
 plot

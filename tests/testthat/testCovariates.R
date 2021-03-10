@@ -1,5 +1,5 @@
-
 library(testthat)
+library(pmxmod)
 
 context("Test all methods from the covariates class")
 

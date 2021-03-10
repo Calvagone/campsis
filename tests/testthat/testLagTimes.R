@@ -1,4 +1,5 @@
 library(testthat)
+library(pmxmod)
 
 context("Test lag times")
 
