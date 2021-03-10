@@ -15,6 +15,9 @@ shadedPlot(x, output, scenarios = NULL, level = 0.9)
 
 \item{level}{PI level, default is 0.9 (90% PI)}
 }
+\value{
+plot
+}
 \description{
 Shaded plot (or prediction interval plot).
 }

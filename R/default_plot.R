@@ -25,6 +25,7 @@ factorScenarios <- function(x, scenarios=NULL) {
 #' @param output variable to show
 #' @param scenarios scenarios
 #' @importFrom ggplot2 aes_string ggplot geom_line
+#' @return plot
 #' @export
 spaguettiPlot <- function(x, output, scenarios=NULL) {
   hasId <- "id" %in% colnames(x)
@@ -41,8 +42,7 @@ spaguettiPlot <- function(x, output, scenarios=NULL) {
     plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="time", y=output)) +
       ggplot2::geom_line()
   }
-  
-  print(plot)
+  return(plot)
 }
 
 #' Compute the prediction interval summary over time.
@@ -71,7 +71,8 @@ pi <- function(x, output, scenarios=NULL, level=0.90) {
 #' @param output variable to show
 #' @param scenarios scenarios
 #' @param level PI level, default is 0.9 (90% PI)
-#' @importFrom ggplot2 aes_string ggplot geom_line geom_ribbon
+#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
+#' @return plot
 #' @export
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
   x <- pi(x=x, output=output, scenarios=scenarios, level=level)
@@ -81,7 +82,7 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
     colour <- NULL
   }
   plot <- ggplot2::ggplot(x, aes <- ggplot2::aes_string(x="time", colour=colour)) +
-          ggplot2::geom_line(aes(y = med)) +
+          ggplot2::geom_line(ggplot2::aes(y = med)) +
           ggplot2::geom_ribbon(ggplot2::aes_string(ymin="pLow", ymax="pUp", colour=colour, fill=colour), colour=NA, alpha=0.25)
   plot <- plot + ggplot2::ylab(output)
   return(plot)

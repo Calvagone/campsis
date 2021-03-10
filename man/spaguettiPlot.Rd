@@ -13,6 +13,9 @@ spaguettiPlot(x, output, scenarios = NULL)
 
 \item{scenarios}{scenarios}
 }
+\value{
+plot
+}
 \description{
 Spaguetti plot.
 }
