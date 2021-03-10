@@ -32,9 +32,15 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), de
     
     # IDs
     ids <- unique(dataset$ID)
-    
     maxID <- max(ids)
     assertthat::assert_that(all(ids==seq_len(maxID)), msg="ID's must be consecutive numbers, starting at 1")
+    
+    # Add ARM equation in model (will then be output by RxODE)
+    if ("ARM" %in% colnames(dataset)) {
+      pkRecord <- model@model %>% pmxmod::getByName("PK")
+      pkRecord@code <- c(pkRecord@code, "ARM=ARM")
+      model@model <- model@model %>% pmxmod::replace(pkRecord)
+    }
     
     # Slice number
     if (hasName(args, "sliceNo")) {
