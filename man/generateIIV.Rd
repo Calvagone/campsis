@@ -2,18 +2,18 @@
 % Please edit documentation in R/dataset.R
 \name{generateIIV}
 \alias{generateIIV}
-\title{Generate IIV in dataset.}
+\title{Generate IIV.}
 \usage{
-generateIIV(dataset, model)
+generateIIV(omega, n)
 }
 \arguments{
-\item{dataset}{dataset}
+\item{omega}{omega matrix}
 
-\item{model}{model}
+\item{n}{number of subjects}
 }
 \value{
-dataset
+IIV data frame
 }
 \description{
-Generate IIV in dataset.
+Generate IIV.
 }

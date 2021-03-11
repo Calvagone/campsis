@@ -58,3 +58,28 @@ test_that("Simulate an infusion using the rate and lag time", {
   
   expect_equal(nrow(results), dataset %>% length() * 49)
 })
+
+test_that("Simulate an infusion using the rate and lag time (parameter distribution)", {
+  model <- getNONMEMModelTemplate(4,4)
+  model@parameters <- model@parameters %>% add(Theta(name="ALAG2", index=6, value=2)) # 2 hours lag time
+  model@parameters <- model@parameters %>% add(Omega(name="ALAG2", index=6, index2=6, value=0.2^2)) #20% CV
+  
+  dataset <- Dataset(10)
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=2))
+  for (time in seq(0,24, by=0.5)) {
+    dataset <- dataset %>% add(Observation(time=time))
+  }
+
+  # Add lag time
+  lag <- LagTime(compartment=2, ParameterDistribution(thetaName="ALAG2", etaName="ALAG2"))
+  dataset <- dataset %>% add(lag)
+  
+  # 5 hours duration
+  dataset <- dataset %>% add(InfusionDuration(compartment=2, ConstantDistribution(200), rate=TRUE))
+  
+  
+  results <- model %>% simulate(dataset, dest="RxODE")
+  spaguettiPlot(results, "CP")
+  
+  expect_equal(nrow(results), dataset %>% length() * 49)
+})

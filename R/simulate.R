@@ -5,9 +5,6 @@
 
 setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, ...) {
   if (dest=="RxODE") {
-    # Generate IIV into dataset
-    dataset <- dataset %>% generateIIV(model)
-    
     return(simulate(model=model, dataset=dataset, dest=new("rxode_engine"), ...))
   } else {
     stop("Only RxODE is supported for now")
@@ -24,7 +21,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), defin
 
 setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, ...) {
   # Export to data frame
-  table <- dataset %>% export(dest="RxODE")
+  table <- dataset %>% export(dest="RxODE", model=model)
   
   return(simulate(model=model, dataset=table, dest=dest, ...))
 })

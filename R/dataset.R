@@ -105,41 +105,23 @@ setMethod("length", signature=c("dataset"), definition=function(x) {
 })
 
 #_______________________________________________________________________________
-#----                           generate_iiv                                ----
+#----                                export                                 ----
 #_______________________________________________________________________________
 
-#' Generate IIV in dataset.
+#' Generate IIV.
 #' 
-#' @param dataset dataset
-#' @param model model
-#' @return dataset
+#' @param omega omega matrix
+#' @param n number of subjects
+#' @return IIV data frame
 #' @export
-generateIIV <- function(dataset, model) {
-  stop("No default function is provided")
-}
-
-setGeneric("generateIIV", function(dataset, model) {
-  standardGeneric("generateIIV")
-})
-
-setMethod("generateIIV", signature=c("dataset", "pmx_model"), definition=function(dataset, model) {
-  rxmod <- model %>% pmxmod::export(dest="RxODE")
-  omega <- rxmod@omega
-  n <- dataset %>% length()
+generateIIV <- function(omega, n) {
   iiv <- MASS::mvrnorm(n=n, mu=rep(0, nrow(omega)), Sigma=omega)
   if (n==1) {
     iiv <- t(iiv) # If n=1, mvrnorm result is a numeric vector, not a matrix
   }
   iiv <- iiv %>% as.data.frame()
-  retValue <- dataset
-  retValue@iiv <- iiv 
-  
-  return(retValue)
-})
-
-#_______________________________________________________________________________
-#----                                export                                 ----
-#_______________________________________________________________________________
+  return(iiv)
+}
 
 
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, ...) {
@@ -152,6 +134,20 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, ...) {
 
+  args <- list(...)
+  model <- args$model
+  if (is.null(model) || !is(model, "pmx_model")) {
+    stop("Please provide a model to export the dataset.")
+  }
+  
+  # Need RxODE model to access THETA's and OMEGA's
+  rxmod <- model %>% pmxmod::export(dest="RxODE")
+  omega <- rxmod@omega
+  theta <- rxmod@theta
+  
+  # Generate IIV
+  iivDf <- generateIIV(omega=omega, n=object %>% length())
+  
   # Retrieve dataset configuration
   config <- object@config
 
@@ -191,11 +187,19 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     # Treating infusion duration & lag times as a covariate
     for (specialVariable in c(lagTimes@list, infusionDurations@list)) {
       dist <- specialVariable@distribution
+      
       if (is(dist, "sampled_distribution")) {
         name <- specialVariable %>% getColumnName()
         covariates <- covariates %>% add(Covariate(name=name, distribution=dist))
+      
       } else if(is(dist, "parameter_distribution")) {
-        stop(paste0("Unknown distribution class: ", as.character(class(dist))))
+        name <- specialVariable %>% getColumnName()
+        thetaName <- specialVariable@distribution@theta_name
+        etaName <- specialVariable@distribution@eta_name
+        mean <- theta[[paste0("THETA_", thetaName)]]
+        var <- iivDf[ids, paste0("ETA_", etaName)]
+        covariates <- covariates %>% add(Covariate(name=name, distribution=FixedDistribution(mean*exp(var))))
+      
       } else {
         stop(paste0("Unknown distribution class: ", as.character(class(dist))))
       }
@@ -209,11 +213,8 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       matrix %>% tibble::as_tibble()
     })
 
-    # IIV df
-    iivDf <- object@iiv
-    
     # Expanding the dataframe for all subjects
-    expandedDf <- ids %>% purrr::map_df(.f=function(id) {
+    expDf <- ids %>% purrr::map_df(.f=function(id) {
       df <- df %>% tibble::add_column(ID=id, .before="TIME")
       df <- df %>% tibble::add_column(ARM=armID, .before="TIME")
       if (nrow(covDf) > 0) {
@@ -227,25 +228,25 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     
     # Treating infusion durations
     if (infusionDurations %>% length() > 0) {
-      expandedDf <- expandedDf %>% tibble::add_column(RATE=0, .after="AMT")
+      expDf <- expDf %>% tibble::add_column(RATE=0, .after="AMT")
       colToRemove <- NULL
       for (duration in infusionDurations@list) {
         colName <- duration %>% getColumnName()
         compartment <- duration@compartment
         if (duration@rate) {
-          expandedDf <- expandedDf %>% dplyr::mutate(
-            RATE=ifelse(expandedDf$EVID==1 & expandedDf$CMT==compartment,
-                        expandedDf[,colName],
-                        expandedDf$RATE))
+          expDf <- expDf %>% dplyr::mutate(
+            RATE=ifelse(expDf$EVID==1 & expDf$CMT==compartment,
+                        expDf[,colName],
+                        expDf$RATE))
         } else {
-          expandedDf <- expandedDf %>% dplyr::mutate(
-            RATE=ifelse(expandedDf$EVID==1 & expandedDf$CMT==compartment,
-                        expandedDf$AMT / expandedDf[,colName],
-                        expandedDf$RATE))
+          expDf <- expDf %>% dplyr::mutate(
+            RATE=ifelse(expDf$EVID==1 & expDf$CMT==compartment,
+                        expDf$AMT / expDf[,colName],
+                        expDf$RATE))
         }
         colToRemove <- c(colToRemove, colName)
       }
-      expandedDf <- expandedDf %>% dplyr::select(-dplyr::all_of(colToRemove))
+      expDf <- expDf %>% dplyr::select(-dplyr::all_of(colToRemove))
     }
     
     # Treating lag times
@@ -254,17 +255,17 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       for (lagTime in lagTimes@list) {
         colName <- lagTime %>% getColumnName()
         compartment <- lagTime@compartment
-        expandedDf <- expandedDf %>% dplyr::mutate(
-          TIME=ifelse(expandedDf$EVID==1 & expandedDf$CMT==compartment,
-                      expandedDf$TIME + expandedDf[,colName],
-                      expandedDf$TIME))
+        expDf <- expDf %>% dplyr::mutate(
+          TIME=ifelse(expDf$EVID==1 & expDf$CMT==compartment,
+                      expDf$TIME + expDf[,colName],
+                      expDf$TIME))
         colToRemove <- c(colToRemove, colName)
       }
-      expandedDf <- expandedDf %>% dplyr::select(-dplyr::all_of(colToRemove))
-      expandedDf <- expandedDf %>% dplyr::group_by(ID) %>% dplyr::arrange(TIME) %>% dplyr::ungroup()
+      expDf <- expDf %>% dplyr::select(-dplyr::all_of(colToRemove))
+      expDf <- expDf %>% dplyr::group_by(ID) %>% dplyr::arrange(TIME) %>% dplyr::ungroup()
     }
     
-    return(expandedDf)
+    return(expDf)
   })
   
   return(retValue)
