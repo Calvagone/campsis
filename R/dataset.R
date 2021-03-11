@@ -17,10 +17,17 @@ setClass(
 #'
 #' Create a dataset.
 #'
+#' @param subjects number of subjects in the default arm
 #' @return a dataset
 #' @export
-Dataset <- function() {
-  return(new("dataset"))
+Dataset <- function(subjects=NULL) {
+  arms=new("arms")
+  if (!is.null(subjects)) {
+    arm <- arms %>% default()
+    arm@subjects <- as.integer(subjects)
+    arms <- arms %>% add(arm)
+  }
+  return(new("dataset", arms=arms))
 }
 
 #_______________________________________________________________________________
@@ -175,9 +182,15 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     # Treating lag time as a covariate
     if (lagTimes %>% length() > 0) {
       for (lagTime in lagTimes@list) {
-        covariates <- covariates %>% add(FunctionCovariate(
-          name=paste0("ALAG", lagTime@compartment),
-          fun="rnorm", args=list(mean=lagTime@mean, sd=sqrt(lagTime@variance))))
+        dist <- lagTime@distribution
+        if (is(dist, "sampled_distribution")) {
+          lagName <- paste0("ALAG", lagTime@compartment)
+          covariates <- covariates %>% add(Covariate(name=lagName, distribution=dist))
+        } else if(is(dist, "parameter_distribution")) {
+          stop(paste0("Unknown distribution class: ", as.character(class(dist))))
+        } else {
+          stop(paste0("Unknown distribution class: ", as.character(class(dist))))
+        }
       }
     }
     
@@ -188,7 +201,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       colnames(matrix) <- covariate@name
       matrix %>% tibble::as_tibble()
     })
-    
+
     # IIV df
     iivDf <- object@iiv
     

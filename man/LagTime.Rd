@@ -4,14 +4,12 @@
 \alias{LagTime}
 \title{Create a lag time for the specified compartment.}
 \usage{
-LagTime(compartment, mean, variance)
+LagTime(compartment, distribution)
 }
 \arguments{
 \item{compartment}{compartment number}
 
-\item{mean}{lag time mean value}
-
-\item{variance}{lag time variance}
+\item{distribution}{distribution}
 }
 \value{
 lag time

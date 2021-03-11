@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkLagTime <- function(object) {
-  return(expectOneForAll(object, c("compartment", "mean", "variance")))
+  return(expectOneForAll(object, c("compartment", "distribution")))
 }
 
 #' @export
@@ -12,8 +12,7 @@ setClass(
   "lag_time",
   representation(
     compartment = "integer",
-    mean = "numeric",
-    variance = "numeric" 
+    distribution = "distribution"
   ),
   contains = "pmx_element",
   validity=checkLagTime
@@ -23,12 +22,11 @@ setClass(
 #' Create a lag time for the specified compartment.
 #'
 #' @param compartment compartment number
-#' @param mean lag time mean value
-#' @param variance lag time variance
+#' @param distribution distribution
 #' @return lag time
 #' @export
-LagTime <- function(compartment, mean, variance) {
-  return(new("lag_time", compartment=as.integer(compartment), mean=as.numeric(mean), variance=as.numeric(variance)))
+LagTime <- function(compartment, distribution) {
+  return(new("lag_time", compartment=as.integer(compartment), distribution=distribution))
 }
 
 setMethod("getName", signature = c("lag_time"), definition = function(x) {
