@@ -55,3 +55,21 @@ setGeneric("simulate", function(model, dataset, dest, ...) {
   standardGeneric("simulate")
 })
 
+#_______________________________________________________________________________
+#----                             sample                                    ----
+#_______________________________________________________________________________
+
+#' Sample generic object.
+#' 
+#' @param object generic object
+#' @param n number of samples required
+#' @return sampling result
+#' @export
+sample <- function(object, n) {
+  stop("No default function is provided")
+}
+
+setGeneric("sample", function(object, n) {
+  standardGeneric("sample")
+})
+

@@ -101,8 +101,8 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   dataset <- dataset %>% add(new("bolus", time=48, amount=100))
   
   # Add covariate
-  dataset <- dataset %>% add(new("constant_covariate", name="WT", value=70))
-  dataset <- dataset %>% add(new("constant_covariate", name="HT", value=180))
+  dataset <- dataset %>% add(Covariate(name="WT", ConstantDistribution(value=70)))
+  dataset <- dataset %>% add(Covariate(name="HT", ConstantDistribution(value=180)))
   
   # Add observations
   for (t in seq(0, 48, by=10)) {
@@ -140,8 +140,8 @@ test_that("Export fixed covariates work well (N=3)", {
   arm <- arm %>% add(new("bolus", time=48, amount=100))
   
   # Add covariate
-  arm <- arm %>% add(new("fixed_covariate", name="WT", values=c(65, 70, 75)))
-  arm <- arm %>% add(new("fixed_covariate", name="HT", values=c(175, 180, 185)))
+  arm <- arm %>% add(Covariate(name="WT", FixedDistribution(values=c(65, 70, 75))))
+  arm <- arm %>% add(Covariate(name="HT", FixedDistribution(values=c(175, 180, 185))))
   
   # Add observations
   for (t in seq(0, 48, by=10)) {
@@ -171,8 +171,8 @@ test_that("Export function covariates work well (N=3)", {
   arm <- arm %>% add(new("bolus", time=48, amount=100))
   
   # Add covariate
-  arm <- arm %>% add(new("function_covariate", name="WT", fun="rnorm", args=list(mean=70, sd=10)))
-  arm <- arm %>% add(new("function_covariate", name="HT", fun="rnorm", args=list(mean=180, sd=20)))
+  arm <- arm %>% add(Covariate(name="WT", FunctionDistribution(fun="rnorm", args=list(mean=70, sd=10))))
+  arm <- arm %>% add(Covariate(name="HT", FunctionDistribution(fun="rnorm", args=list(mean=180, sd=20))))
   
   # Add observations
   for (t in seq(0, 48, by=10)) {
@@ -202,8 +202,8 @@ test_that("Export boostrap covariates work well (N=8)", {
   arm <- arm %>% add(new("bolus", time=48, amount=100))
   
   # Add covariate
-  arm <- arm %>% add(new("bootstrap_covariate", name="WT", data=c(65, 70, 75), random=TRUE, replacement=TRUE))
-  arm <- arm %>% add(new("bootstrap_covariate", name="HT", data=c(175, 180, 185), random=TRUE, replacement=TRUE))
+  arm <- arm %>% add(Covariate("WT", BootstrapDistribution(data=c(65, 70, 75), random=TRUE, replacement=TRUE)))
+  arm <- arm %>% add(Covariate("HT", BootstrapDistribution(data=c(175, 180, 185), random=TRUE, replacement=TRUE)))
   
   # Add observations
   for (t in seq(0, 48, by=10)) {

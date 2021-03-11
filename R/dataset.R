@@ -183,7 +183,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     
     # Generating covariates
     covDf <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
-      data <- (covariate %>% sample(n=length(ids)))@sampled_values
+      data <- (covariate %>% sample(n=length(ids)))@distribution@sampled_values
       matrix <- matrix(data=data, ncol=1)
       colnames(matrix) <- covariate@name
       matrix %>% tibble::as_tibble()

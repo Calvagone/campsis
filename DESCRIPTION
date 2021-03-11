@@ -6,6 +6,7 @@ Collate:
     'model_library.R'
     'check.R'
     'generic.R'
+    'distribution.R'
     'lag_time.R'
     'lag_times.R'
     'dataset_config.R'

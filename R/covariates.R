@@ -10,37 +10,9 @@
 setClass(
   "covariates",
   representation(
-    list = "list"
   ),
-  prototype=prototype(list=list())
+  contains = "pmx_list"
 )
-
-#_______________________________________________________________________________
-#----                              add                                      ----
-#_______________________________________________________________________________
-
-setMethod("add", signature=c("covariates", "covariate"), definition=function(object, x) {
-  if (validObject(x)) {
-    if (object %>% contains(x)) {
-      stop(paste("Covariate", x@name, "is already present."))
-    } else {
-      object@list <- c(object@list, x)
-    }
-  }
-  return(object)
-})
-
-#_______________________________________________________________________________
-#----                            contains                                 ----
-#_______________________________________________________________________________
-
-setMethod("contains", signature=c("covariates", "character"), definition=function(object, x) {
-  return(x %in% (object %>% getNames()))
-})
-
-setMethod("contains", signature=c("covariates", "covariate"), definition=function(object, x) {
-  return(object %>% contains(x@name))
-})
 
 #_______________________________________________________________________________
 #----                            getNames                                   ----
@@ -48,12 +20,4 @@ setMethod("contains", signature=c("covariates", "covariate"), definition=functio
 
 setMethod("getNames", signature=c("covariates"), definition=function(object) {
   return(object@list %>% purrr::map_chr(.f=~.x@name))
-})
-
-#_______________________________________________________________________________
-#----                             length                                    ----
-#_______________________________________________________________________________
-
-setMethod("length", signature=c("covariates"), definition=function(x) {
-  return(length(x@list))
 })

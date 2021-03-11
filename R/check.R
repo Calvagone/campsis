@@ -21,6 +21,16 @@ expectOneOrMore <- function(object, slot) {
   return(error)
 }
 
+expectZeroOrOne <- function(object, slot) {
+  # An error is automatically raised if the slot does not exist
+  lengthSlot <- getSlotLength(object, slot)
+  error <- character()
+  if (lengthSlot > 1) {
+    error <- paste0(slot, " is length ", lengthSlot, ". Should be 0 or 1.")
+  }
+  return(error)
+}
+
 expectZeroOrMore <- function(object, slot) {
   # An error is automatically raised if the slot does not exist
   lengthSlot <- getSlotLength(object, slot)
