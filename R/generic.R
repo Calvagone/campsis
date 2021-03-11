@@ -73,3 +73,39 @@ setGeneric("sample", function(object, n) {
   standardGeneric("sample")
 })
 
+#_______________________________________________________________________________
+#----                         getByCompartment                              ----
+#_______________________________________________________________________________
+
+#' Get element by compartment number.
+#' 
+#' @param object any object
+#' @param compartment compartment number
+#' @return the element that has the right compartment
+#' @export
+getByCompartment <- function(object, compartment) {
+  stop("No default function is provided")
+}
+
+setGeneric("getByCompartment", function(object, compartment) {
+  standardGeneric("getByCompartment")
+})
+
+#_______________________________________________________________________________
+#----                         getColumnName                                 ----
+#_______________________________________________________________________________
+
+#' Get column name.
+#' 
+#' @param x any object
+#' @return column name
+#' @export
+getColumnName <- function(x) {
+  stop("No default function is provided")
+}
+
+setGeneric("getColumnName", function(x) {
+  standardGeneric("getColumnName")
+})
+
+

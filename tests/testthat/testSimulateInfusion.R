@@ -8,10 +8,11 @@ test_that("Simulate an infusion using the duration", {
   model <- getNONMEMModelTemplate(4,4)
   
   dataset <- Dataset()
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, duration=5, compartment=2))
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=2))
   for (time in seq(0,24, by=0.5)) {
     dataset <- dataset %>% add(Observation(time=time))
   }
+  dataset <- dataset %>% add(InfusionDuration(compartment=2, ConstantDistribution(5)))
   
   results <- model %>% simulate(dataset, dest="RxODE")
   spaguettiPlot(results, "CP")
@@ -23,10 +24,11 @@ test_that("Simulate an infusion using the rate", {
   model <- getNONMEMModelTemplate(4,4)
   
   dataset <- Dataset()
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, rate=200, compartment=2))
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=2))
   for (time in seq(0,24, by=0.5)) {
     dataset <- dataset %>% add(Observation(time=time))
   }
+  dataset <- dataset %>% add(InfusionDuration(compartment=2, ConstantDistribution(200), rate=TRUE))
   
   results <- model %>% simulate(dataset, dest="RxODE")
   spaguettiPlot(results, "CP")

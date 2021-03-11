@@ -66,6 +66,14 @@ setMethod("add", signature = c("dataset", "lag_time"), definition = function(obj
   return(object)
 })
 
+setMethod("add", signature = c("dataset", "infusion_duration"), definition = function(object, x) {
+  object <- object %>% createDefaultArmIfNotExists()
+  arm <- object@arms %>% default()
+  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
+  object@arms <- object@arms %>% pmxmod::replace(arm)
+  return(object)
+})
+
 setMethod("add", signature = c("dataset", "observation"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
@@ -164,6 +172,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     observations <- protocol@observations
     covariates <- arm@covariates
     lagTimes <- treatment@lag_times
+    infusionDurations <- treatment@infusion_durations
     
     # Fill in entries list
     entries <- new("time_entries")
@@ -178,19 +187,17 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
 
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
-    
-    # Treating lag time as a covariate
-    if (lagTimes %>% length() > 0) {
-      for (lagTime in lagTimes@list) {
-        dist <- lagTime@distribution
-        if (is(dist, "sampled_distribution")) {
-          lagName <- paste0("ALAG", lagTime@compartment)
-          covariates <- covariates %>% add(Covariate(name=lagName, distribution=dist))
-        } else if(is(dist, "parameter_distribution")) {
-          stop(paste0("Unknown distribution class: ", as.character(class(dist))))
-        } else {
-          stop(paste0("Unknown distribution class: ", as.character(class(dist))))
-        }
+
+    # Treating infusion duration & lag times as a covariate
+    for (specialVariable in c(lagTimes@list, infusionDurations@list)) {
+      dist <- specialVariable@distribution
+      if (is(dist, "sampled_distribution")) {
+        name <- specialVariable %>% getColumnName()
+        covariates <- covariates %>% add(Covariate(name=name, distribution=dist))
+      } else if(is(dist, "parameter_distribution")) {
+        stop(paste0("Unknown distribution class: ", as.character(class(dist))))
+      } else {
+        stop(paste0("Unknown distribution class: ", as.character(class(dist))))
       }
     }
     
@@ -218,11 +225,34 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       return(df)
     })
     
-    # Treating lag time
+    # Treating infusion durations
+    if (infusionDurations %>% length() > 0) {
+      expandedDf <- expandedDf %>% tibble::add_column(RATE=0, .after="AMT")
+      colToRemove <- NULL
+      for (duration in infusionDurations@list) {
+        colName <- duration %>% getColumnName()
+        compartment <- duration@compartment
+        if (duration@rate) {
+          expandedDf <- expandedDf %>% dplyr::mutate(
+            RATE=ifelse(expandedDf$EVID==1 & expandedDf$CMT==compartment,
+                        expandedDf[,colName],
+                        expandedDf$RATE))
+        } else {
+          expandedDf <- expandedDf %>% dplyr::mutate(
+            RATE=ifelse(expandedDf$EVID==1 & expandedDf$CMT==compartment,
+                        expandedDf$AMT / expandedDf[,colName],
+                        expandedDf$RATE))
+        }
+        colToRemove <- c(colToRemove, colName)
+      }
+      expandedDf <- expandedDf %>% dplyr::select(-dplyr::all_of(colToRemove))
+    }
+    
+    # Treating lag times
     if (lagTimes %>% length() > 0) {
       colToRemove <- NULL
       for (lagTime in lagTimes@list) {
-        colName <- paste0("ALAG", lagTime@compartment)
+        colName <- lagTime %>% getColumnName()
         compartment <- lagTime@compartment
         expandedDf <- expandedDf %>% dplyr::mutate(
           TIME=ifelse(expandedDf$EVID==1 & expandedDf$CMT==compartment,

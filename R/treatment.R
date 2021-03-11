@@ -9,10 +9,11 @@
 setClass(
   "treatment",
   representation(
-    lag_times = "lag_times"
+    lag_times = "lag_times",
+    infusion_durations = "infusion_durations"
   ),
   contains="pmx_list",
-  prototype=prototype(lag_times=new("lag_times"))
+  prototype=prototype(lag_times=new("lag_times"), infusion_durations=new("infusion_durations"))
 )
 
 #_______________________________________________________________________________
@@ -22,6 +23,11 @@ setClass(
 
 setMethod("add", signature = c("treatment", "lag_time"), definition = function(object, x) {
   object@lag_times <- object@lag_times %>% add(x)
+  return(object)
+})
+
+setMethod("add", signature = c("treatment", "infusion_duration"), definition = function(object, x) {
+  object@infusion_durations <- object@infusion_durations %>% add(x)
   return(object)
 })
 
@@ -67,5 +73,5 @@ setMethod("assignDoseNumber", signature = c("treatment"), definition = function(
     .x@dose_number <- .y
     return(.x)
   })
-  return(new("treatment", list=list, lag_times=object@lag_times))
+  return(new("treatment", list=list, lag_times=object@lag_times, infusion_durations=object@infusion_durations))
 })

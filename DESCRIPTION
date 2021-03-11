@@ -12,6 +12,8 @@ Collate:
     'dataset_config.R'
     'time_entry.R'
     'time_entries.R'
+    'infusion_duration.R'
+    'infusion_durations.R'
     'treatment_entry.R'
     'treatment.R'
     'observation.R'

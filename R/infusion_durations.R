@@ -1,11 +1,11 @@
 
 #_______________________________________________________________________________
-#----                         lag_times class                                ----
+#----                     infusion_durations class                          ----
 #_______________________________________________________________________________
 
 #' @export
 setClass(
-  "lag_times",
+  "infusion_durations",
   representation(
   ),
   contains="pmx_list"
@@ -15,7 +15,7 @@ setClass(
 #----                         getByCompartment                              ----
 #_______________________________________________________________________________
 
-setMethod("getByCompartment", signature = c("lag_times", "integer"), definition = function(object, compartment) {
+setMethod("getByCompartment", signature = c("infusion_durations", "integer"), definition = function(object, compartment) {
   element <- object@list %>% purrr::keep(~(.x@compartment==compartment))
   if (length(element) > 0) {
     element <- element[[1]]

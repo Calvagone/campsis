@@ -29,6 +29,19 @@ LagTime <- function(compartment, distribution) {
   return(new("lag_time", compartment=as.integer(compartment), distribution=distribution))
 }
 
+#_______________________________________________________________________________
+#----                            getName                                    ----
+#_______________________________________________________________________________
+
+
 setMethod("getName", signature = c("lag_time"), definition = function(x) {
   return(paste0("LAG_TIME [", "CMT=", x@compartment, "]"))
+})
+
+#_______________________________________________________________________________
+#----                         getColumnName                                 ----
+#_______________________________________________________________________________
+
+setMethod("getColumnName", signature = c("lag_time"), definition = function(x) {
+  return(paste0("ALAG", x@compartment))
 })
