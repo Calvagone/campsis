@@ -26,7 +26,7 @@ setMethod("getName", signature = c("covariate"), definition = function(x) {
 #' Create a covariate.
 #' 
 #' @param name covariate name, character
-#' @param value covariate value, numeric
+#' @param distribution covariate distribution
 #' @return a covariate  
 #' @export
 Covariate <- function(name, distribution) {

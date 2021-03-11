@@ -13,8 +13,6 @@ BootstrapDistribution(data, replacement = FALSE, random = FALSE)
 \item{replacement}{values can be reused or not, logical}
 
 \item{random}{values are drawn randomly, logical}
-
-\item{name}{covariate name, character}
 }
 \value{
 a covariate

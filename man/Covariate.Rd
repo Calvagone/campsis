@@ -9,7 +9,7 @@ Covariate(name, distribution)
 \arguments{
 \item{name}{covariate name, character}
 
-\item{value}{covariate value, numeric}
+\item{distribution}{covariate distribution}
 }
 \value{
 a covariate

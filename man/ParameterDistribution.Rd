@@ -7,12 +7,12 @@
 ParameterDistribution(thetaName, etaName = character(0))
 }
 \arguments{
-\item{name}{covariate name, character}
+\item{thetaName}{corresponding THETA name, character}
 
-\item{value}{covariate value, numeric}
+\item{etaName}{corresponding ETA name, character (character(0) if no ETA)}
 }
 \value{
-a covariate
+a parameter distribution
 }
 \description{
 Create a parameter distribution.

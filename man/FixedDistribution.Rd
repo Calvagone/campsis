@@ -2,18 +2,18 @@
 % Please edit documentation in R/distribution.R
 \name{FixedDistribution}
 \alias{FixedDistribution}
-\title{Create a fixed distribution Each sample will be assigned a fixed value coming from vector 'values'.}
+\title{Create a fixed distribution.
+Each sample will be assigned a fixed value coming from vector 'values'.}
 \usage{
 FixedDistribution(values)
 }
 \arguments{
-\item{values}{covariate values, numeric vector (1 value per subject)}
-
-\item{name}{covariate name, character}
+\item{values}{covariate values, numeric vector (1 value per sample)}
 }
 \value{
 a covariate
 }
 \description{
-Create a fixed distribution Each sample will be assigned a fixed value coming from vector 'values'.
+Create a fixed distribution.
+Each sample will be assigned a fixed value coming from vector 'values'.
 }

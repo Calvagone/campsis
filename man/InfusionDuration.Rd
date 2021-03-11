@@ -7,11 +7,11 @@
 InfusionDuration(compartment, distribution, rate = FALSE)
 }
 \arguments{
+\item{compartment}{compartment number}
+
 \item{distribution}{distribution of this infusion}
 
 \item{rate}{logical value, TRUE if distribution is a rate, FALSE if it is an infusion}
-
-\item{compatment}{compartment number}
 }
 \value{
 details about infusion duration/rate

@@ -39,9 +39,9 @@ setClass(
 #' 
 #' Create a parameter distribution.
 #' 
-#' @param name covariate name, character
-#' @param value covariate value, numeric
-#' @return a covariate  
+#' @param thetaName corresponding THETA name, character
+#' @param etaName corresponding ETA name, character (character(0) if no ETA)
+#' @return a parameter distribution  
 #' @export
 ParameterDistribution <- function(thetaName, etaName=character(0)) {
   return(new("parameter_distribution", theta_name=thetaName, eta_name=etaName))
@@ -112,10 +112,10 @@ setClass(
 )
 
 #'
-#' Create a fixed distribution Each sample will be assigned a fixed value coming from vector 'values'.
+#' Create a fixed distribution.
+#' Each sample will be assigned a fixed value coming from vector 'values'.
 #'
-#' @param name covariate name, character
-#' @param values covariate values, numeric vector (1 value per subject)
+#' @param values covariate values, numeric vector (1 value per sample)
 #' @return a covariate
 #' @export
 FixedDistribution <- function(values) {
@@ -145,12 +145,11 @@ setClass(
 )
 
 #'
-#' Create a function distribution During covariate sampling, the provided function
-#' will be responsible for generating values for each subject. If first argument
+#' Create a function distribution. During distribution sampling, the provided function
+#' will be responsible for generating values for each sample. If first argument
 #' of this function is not the size (n), please tell which argument corresponds
 #' to the size 'n' (e.g. list(size="n")).
 #'
-#' @param name covariate name, character
 #' @param fun function name, character (e.g. 'rnorm')
 #' @param args list of arguments (e.g list(mean=70, sd=10))
 #' @return a covariate
@@ -186,7 +185,6 @@ setClass(
 #' Create a bootstrap distribution. During function sampling, PMXsim will generate
 #' values depending on the given data and arguments.
 #'
-#' @param name covariate name, character
 #' @param data values to draw, numeric vector
 #' @param replacement values can be reused or not, logical
 #' @param random values are drawn randomly, logical

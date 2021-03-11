@@ -2,8 +2,8 @@
 % Please edit documentation in R/distribution.R
 \name{FunctionDistribution}
 \alias{FunctionDistribution}
-\title{Create a function distribution During covariate sampling, the provided function
-will be responsible for generating values for each subject. If first argument
+\title{Create a function distribution. During distribution sampling, the provided function
+will be responsible for generating values for each sample. If first argument
 of this function is not the size (n), please tell which argument corresponds
 to the size 'n' (e.g. list(size="n")).}
 \usage{
@@ -13,15 +13,13 @@ FunctionDistribution(fun, args)
 \item{fun}{function name, character (e.g. 'rnorm')}
 
 \item{args}{list of arguments (e.g list(mean=70, sd=10))}
-
-\item{name}{covariate name, character}
 }
 \value{
 a covariate
 }
 \description{
-Create a function distribution During covariate sampling, the provided function
-will be responsible for generating values for each subject. If first argument
+Create a function distribution. During distribution sampling, the provided function
+will be responsible for generating values for each sample. If first argument
 of this function is not the size (n), please tell which argument corresponds
 to the size 'n' (e.g. list(size="n")).
 }

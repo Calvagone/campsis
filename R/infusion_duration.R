@@ -22,7 +22,7 @@ setClass(
 #'
 #' Create an infusion duration/rate.
 #'
-#' @param compatment compartment number
+#' @param compartment compartment number
 #' @param distribution distribution of this infusion
 #' @param rate logical value, TRUE if distribution is a rate, FALSE if it is an infusion
 #' @return details about infusion duration/rate
