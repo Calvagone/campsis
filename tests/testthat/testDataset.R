@@ -5,17 +5,17 @@ context("Test all methods from the dataset class")
 
 test_that("Add entry, order, filter (simple example)", {
   
-  dataset <- new("dataset") 
+  dataset <- Dataset() 
   
   # Add doses
-  dataset <- dataset %>% add(new("bolus", time=0, amount=100))
-  dataset <- dataset %>% add(new("bolus", time=24, amount=100))
-  dataset <- dataset %>% add(new("bolus", time=48, amount=100))
+  dataset <- dataset %>% add(Bolus(time=0, amount=100))
+  dataset <- dataset %>% add(Bolus(time=24, amount=100))
+  dataset <- dataset %>% add(Bolus(time=48, amount=100))
 
 
   # Add observations
   for (t in seq(0, 48, by=4)) {
-    dataset <- dataset %>% add(new("observation", time=t))
+    dataset <- dataset %>% add(Observation(time=t))
   }
   
   # Export to RxODE
@@ -27,22 +27,22 @@ test_that("Add entry, order, filter (simple example)", {
 test_that("Two arms example", {
   
   # Create 2 arms
-  arm1 <- new("arm", id=as.integer(1), subjects=as.integer(4))
-  arm2 <- new("arm", id=as.integer(2), subjects=as.integer(3))
+  arm1 <- Arm(id=1, subjects=4)
+  arm2 <- Arm(id=2, subjects=3)
 
   # Add doses in respective arms
-  arm1 <- arm1 %>% add(new("bolus", time=0, amount=100))
-  arm2 <- arm2 %>% add(new("bolus", time=0, amount=200))
+  arm1 <- arm1 %>% add(Bolus(time=0, amount=100))
+  arm2 <- arm2 %>% add(Bolus(time=0, amount=200))
     
   # Add observations
   for (t in seq(0, 48, by=4)) {
-    obs <- new("observation", time=t)
+    obs <- Observation(time=t)
     arm1 <- arm1 %>% add(obs)
     arm2 <- arm2 %>% add(obs)
   }
   
   # Create dataset
-  dataset <- new("dataset")
+  dataset <- Dataset() 
   dataset <- dataset %>% add(arm1)
   dataset <- dataset %>% add(arm2)
   
@@ -51,14 +51,6 @@ test_that("Two arms example", {
   
   # Arms number
   expect_equal(length(dataset@arms), 2)
-  
-  covariates <- dataset@arms@list[[1]]@covariates
-  covDf <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
-    data <- (covariate %>% sample(n=length(ids)))@sampled_values
-    matrix <- matrix(data=data, ncol=1)
-    colnames(matrix) <- covariate@name
-    matrix %>% tibble::as_tibble()
-  })
   
   # Export to RxODE
   table <- dataset %>% export(dest="RxODE")
@@ -69,21 +61,21 @@ test_that("Two arms example", {
 
 test_that("Export using config", {
   
-  dataset <- new("dataset") 
+  dataset <- Dataset() 
   
   # Add doses
-  dataset <- dataset %>% add(new("bolus", time=0, amount=100))
-  dataset <- dataset %>% add(new("bolus", time=24, amount=100))
-  dataset <- dataset %>% add(new("bolus", time=48, amount=100))
+  dataset <- dataset %>% add(Bolus(time=0, amount=100))
+  dataset <- dataset %>% add(Bolus(time=24, amount=100))
+  dataset <- dataset %>% add(Bolus(time=48, amount=100))
   
   
   # Add observations
   for (t in seq(0, 48, by=10)) {
-    dataset <- dataset %>% add(new("observation", time=t))
+    dataset <- dataset %>% add(Observation(time=t))
   }
   
   # Export to RxODE
-  config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
+  config <- DatasetConfig(defObsCmt=2)
   dataset <- dataset %>% add(config)
   table <- dataset %>% export(dest="RxODE")
   
@@ -93,12 +85,12 @@ test_that("Export using config", {
 
 test_that("Export constant covariates work well (N=1, N=2)", {
   
-  dataset <- new("dataset") 
+  dataset <- Dataset()
   
   # Add doses
-  dataset <- dataset %>% add(new("bolus", time=0, amount=100))
-  dataset <- dataset %>% add(new("bolus", time=24, amount=100))
-  dataset <- dataset %>% add(new("bolus", time=48, amount=100))
+  dataset <- dataset %>% add(Bolus(time=0, amount=100))
+  dataset <- dataset %>% add(Bolus(time=24, amount=100))
+  dataset <- dataset %>% add(Bolus(time=48, amount=100))
   
   # Add covariate
   dataset <- dataset %>% add(Covariate(name="WT", ConstantDistribution(value=70)))
@@ -106,11 +98,11 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   
   # Add observations
   for (t in seq(0, 48, by=10)) {
-    dataset <- dataset %>% add(new("observation", time=t))
+    dataset <- dataset %>% add(Observation(time=t))
   }
   
   # Export to RxODE N=1
-  config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
+  config <- DatasetConfig(defObsCmt=2)
   dataset <- dataset %>% add(config)
   table <- dataset %>% export(dest="RxODE")
   
@@ -132,12 +124,12 @@ test_that("Export constant covariates work well (N=1, N=2)", {
 
 test_that("Export fixed covariates work well (N=3)", {
 
-  arm <- new("arm", id=as.integer(1), subjects=as.integer(3))
+  arm <- Arm(id=1, subjects=3)
   
   # Add doses
-  arm <- arm %>% add(new("bolus", time=0, amount=100))
-  arm <- arm %>% add(new("bolus", time=24, amount=100))
-  arm <- arm %>% add(new("bolus", time=48, amount=100))
+  arm <- arm %>% add(Bolus(time=0, amount=100))
+  arm <- arm %>% add(Bolus(time=24, amount=100))
+  arm <- arm %>% add(Bolus(time=48, amount=100))
   
   # Add covariate
   arm <- arm %>% add(Covariate(name="WT", FixedDistribution(values=c(65, 70, 75))))
@@ -145,14 +137,14 @@ test_that("Export fixed covariates work well (N=3)", {
   
   # Add observations
   for (t in seq(0, 48, by=10)) {
-    arm <- arm %>% add(new("observation", time=t))
+    arm <- arm %>% add(Observation(time=t))
   }
   
-  dataset <- new("dataset")
+  dataset <- Dataset()
   dataset <- dataset %>% add(arm)
   
   # Export to RxODE N=1
-  config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
+  config <- DatasetConfig(defObsCmt=2)
   dataset <- dataset %>% add(config)
   table <- dataset %>% export(dest="RxODE")
   
@@ -163,12 +155,12 @@ test_that("Export fixed covariates work well (N=3)", {
 
 test_that("Export function covariates work well (N=3)", {
   
-  arm <- new("arm", id=as.integer(1), subjects=as.integer(3))
+  arm <- Arm(id=1, subjects=3)
   
   # Add doses
-  arm <- arm %>% add(new("bolus", time=0, amount=100))
-  arm <- arm %>% add(new("bolus", time=24, amount=100))
-  arm <- arm %>% add(new("bolus", time=48, amount=100))
+  arm <- arm %>% add(Bolus(time=0, amount=100))
+  arm <- arm %>% add(Bolus(time=24, amount=100))
+  arm <- arm %>% add(Bolus(time=48, amount=100))
   
   # Add covariate
   arm <- arm %>% add(Covariate(name="WT", FunctionDistribution(fun="rnorm", args=list(mean=70, sd=10))))
@@ -176,10 +168,10 @@ test_that("Export function covariates work well (N=3)", {
   
   # Add observations
   for (t in seq(0, 48, by=10)) {
-    arm <- arm %>% add(new("observation", time=t))
+    arm <- arm %>% add(Observation(time=t))
   }
   
-  dataset <- new("dataset")
+  dataset <- Dataset()
   dataset <- dataset %>% add(arm)
   
   # Export to RxODE N=1
@@ -197,9 +189,9 @@ test_that("Export boostrap covariates work well (N=8)", {
   arm <- new("arm", id=as.integer(1), subjects=as.integer(8))
   
   # Add doses
-  arm <- arm %>% add(new("bolus", time=0, amount=100))
-  arm <- arm %>% add(new("bolus", time=24, amount=100))
-  arm <- arm %>% add(new("bolus", time=48, amount=100))
+  arm <- arm %>% add(Bolus(time=0, amount=100))
+  arm <- arm %>% add(Bolus(time=24, amount=100))
+  arm <- arm %>% add(Bolus(time=48, amount=100))
   
   # Add covariate
   arm <- arm %>% add(Covariate("WT", BootstrapDistribution(data=c(65, 70, 75), random=TRUE, replacement=TRUE)))
@@ -207,15 +199,15 @@ test_that("Export boostrap covariates work well (N=8)", {
   
   # Add observations
   for (t in seq(0, 48, by=10)) {
-    arm <- arm %>% add(new("observation", time=t))
+    arm <- arm %>% add(Observation(time=t))
   }
   
-  dataset <- new("dataset")
+  dataset <- Dataset()
   dataset <- dataset %>% add(arm)
   
   # Export to RxODE
   set.seed(1)
-  config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
+  config <- DatasetConfig(defObsCmt=2)
   dataset <- dataset %>% add(config)
   table <- dataset %>% export(dest="RxODE")
   
