@@ -2,8 +2,6 @@ Package: pmxsim
 Type: Package
 Collate:
     'special_operators.R'
-    'data.R'
-    'model_library.R'
     'check.R'
     'generic.R'
     'distribution.R'
