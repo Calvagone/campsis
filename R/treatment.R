@@ -26,11 +26,6 @@ setMethod("add", signature = c("treatment", "treatment_characteristic"), definit
   return(object)
 })
 
-setMethod("add", signature = c("treatment", "treatment_characteristic"), definition = function(object, x) {
-  object@characteristics <- object@characteristics %>% add(x)
-  return(object)
-})
-
 #_______________________________________________________________________________
 #----                                  sort                                 ----
 #_______________________________________________________________________________

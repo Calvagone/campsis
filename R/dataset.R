@@ -58,15 +58,7 @@ setMethod("add", signature = c("dataset", "treatment_entry"), definition = funct
   return(object)
 })
 
-setMethod("add", signature = c("dataset", "lag_time"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% pmxmod::replace(arm)
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "infusion_duration"), definition = function(object, x) {
+setMethod("add", signature = c("dataset", "treatment_characteristic"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
@@ -129,6 +121,31 @@ generateIIV <- function(omega, n) {
   }
   iiv <- iiv %>% as.data.frame()
   return(iiv)
+}
+
+#' Process bioavailabilities.
+#' 
+#' @param table current dataset, data frame form
+#' @param characteristics all treatment characteristics
+#' @return updated table (AMT adapted)
+#' 
+processBioavailabilities <- function(table, characteristics) {
+  bioavailabilities <- characteristics %>% select("bioavailability")
+  if (bioavailabilities %>% length() == 0) {
+    return(table)
+  }
+  colToRemove <- NULL
+  for (bioavailability in bioavailabilities@list) {
+    colName <- bioavailability %>% getColumnName()
+    compartment <- bioavailability@compartment
+    table <- table %>% dplyr::mutate(
+      AMT=ifelse(table$EVID==1 & table$CMT==compartment,
+                  table$AMT * table[,colName],
+                  table$AMT))
+    colToRemove <- c(colToRemove, colName)
+  }
+  table <- table %>% dplyr::select(-dplyr::all_of(colToRemove))
+  return(table)
 }
 
 #' Process infusions.
@@ -297,6 +314,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       }
       return(df)
     })
+    
+    # Treating bioavailabilities
+    expDf <- processBioavailabilities(expDf, characteristics)
     
     # Treating infusion durations
     expDf <- processInfusions(expDf, characteristics)
