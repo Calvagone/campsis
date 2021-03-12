@@ -29,5 +29,6 @@ test_that("Simulate a bolus, 2 arms", {
   shadedPlot(results, "CP", "ARM")
   
   expect_equal(nrow(results), dataset %>% length() * 49)
+  expect_false(dataset %>% hasParameterDistribution())
   regressionTest(dataset, model, seed=seed, filename="bolus_2arms_bioavailability.csv")
 })

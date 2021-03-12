@@ -108,4 +108,22 @@ setGeneric("getColumnName", function(x) {
   standardGeneric("getColumnName")
 })
 
+#_______________________________________________________________________________
+#----                      hasParameterDistribution                         ----
+#_______________________________________________________________________________
+
+#' Tell if the dataset contains at least one parameter distribution (in its treatment characteristics).
+#' This is useful information to know as we therefore need the PMX model to know the
+#' corresponding values (THETA and OMEGA) for this parameter.
+#' 
+#' @param object generic object
+#' @return logical value
+#' @export
+hasParameterDistribution <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("hasParameterDistribution", function(object) {
+  standardGeneric("hasParameterDistribution")
+})
 

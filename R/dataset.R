@@ -105,6 +105,14 @@ setMethod("length", signature=c("dataset"), definition=function(x) {
 })
 
 #_______________________________________________________________________________
+#----                      hasParameterDistribution                         ----
+#_______________________________________________________________________________
+
+setMethod("hasParameterDistribution", signature = c("dataset"), definition = function(object) {
+  return(any(object@arms@list %>% purrr::map_lgl(~.x@protocol@treatment@characteristics %>% hasParameterDistribution())))
+})
+
+#_______________________________________________________________________________
 #----                                export                                 ----
 #_______________________________________________________________________________
 
@@ -233,6 +241,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   # Generate IIV only if model is provided
   if (is.null(model)) {
     iivDf <- data.frame()
+    if (object %>% hasParameterDistribution()) {
+      stop("Dataset contains at least one parameter-related distribution. Please provide a PMX model.")
+    }
   } else {
     rxmod <- model %>% pmxmod::export(dest="RxODE")
     iivDf <- generateIIV(omega=rxmod@omega, n=object %>% length())

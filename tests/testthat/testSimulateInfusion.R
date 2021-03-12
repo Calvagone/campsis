@@ -81,9 +81,10 @@ test_that("Simulate an infusion using the rate and lag time (parameter distribut
   dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
   
   
-  results <- model %>% simulate(dataset, dest="RxODE")
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), dataset %>% length() * 49)
+  expect_true(dataset %>% hasParameterDistribution())
   regressionTest(dataset, model, seed=seed, filename="infusion_rate_lag_time2.csv")
 })
