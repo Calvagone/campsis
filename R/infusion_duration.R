@@ -3,18 +3,16 @@
 #_______________________________________________________________________________
 
 validateInfusionDuration <- function(object) {
-  return(expectOneForAll(object, c("compartment", "distribution", "rate")))
+  return(expectOneForAll(object, c("rate")))
 }
 
 #' @export
 setClass(
   "infusion_duration",
   representation(
-    compartment = "integer",
-    distribution = "distribution",
     rate = "logical"
   ),
-  contains = "pmx_element",
+  contains = "treatment_characteristic",
   prototype=prototype(rate=FALSE),
   validity=validateInfusionDuration
 )

@@ -5,7 +5,7 @@ context("Test lag times")
 
 test_that("Test add, getName, getByCompartment methods", {
   
-  lags <- new("lag_times")
+  lags <- new("treatment_characteristics")
   lag1 <- LagTime(compartment=1, FunctionDistribution(fun="rnorm", args=list(mean=1, variance=0.04)))
   lag2 <- LagTime(compartment=2, FunctionDistribution(fun="rnorm", args=list(mean=1, variance=0.04)))
   

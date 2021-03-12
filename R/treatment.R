@@ -1,3 +1,4 @@
+
 #_______________________________________________________________________________
 #----                        treatment class                               ----
 #_______________________________________________________________________________
@@ -9,11 +10,10 @@
 setClass(
   "treatment",
   representation(
-    lag_times = "lag_times",
-    infusion_durations = "infusion_durations"
+    characteristics = "treatment_characteristics"
   ),
   contains="pmx_list",
-  prototype=prototype(type="treatment_entry", lag_times=new("lag_times"), infusion_durations=new("infusion_durations"))
+  prototype=prototype(type="treatment_entry", characteristics=new("treatment_characteristics"))
 )
 
 #_______________________________________________________________________________
@@ -21,13 +21,13 @@ setClass(
 #_______________________________________________________________________________
 
 
-setMethod("add", signature = c("treatment", "lag_time"), definition = function(object, x) {
-  object@lag_times <- object@lag_times %>% add(x)
+setMethod("add", signature = c("treatment", "treatment_characteristic"), definition = function(object, x) {
+  object@characteristics <- object@characteristics %>% add(x)
   return(object)
 })
 
-setMethod("add", signature = c("treatment", "infusion_duration"), definition = function(object, x) {
-  object@infusion_durations <- object@infusion_durations %>% add(x)
+setMethod("add", signature = c("treatment", "treatment_characteristic"), definition = function(object, x) {
+  object@characteristics <- object@characteristics %>% add(x)
   return(object)
 })
 
@@ -69,9 +69,9 @@ setMethod("assignDoseNumber", signature = c("treatment"), definition = function(
   object <- object %>% pmxmod::sort()
   times <- object@list %>% purrr::map_chr(~.x@time)
   doseNumbers <- match(times, unique(times))
-  list <- purrr::map2(object@list, doseNumbers, .f=function(.x, .y){
+  object@list <- purrr::map2(object@list, doseNumbers, .f=function(.x, .y){
     .x@dose_number <- .y
     return(.x)
   })
-  return(new("treatment", list=list, lag_times=object@lag_times, infusion_durations=object@infusion_durations))
+  return(object)
 })

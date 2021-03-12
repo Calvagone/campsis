@@ -3,19 +3,17 @@
 #----                         lag_time class                                ----
 #_______________________________________________________________________________
 
-checkLagTime <- function(object) {
-  return(expectOneForAll(object, c("compartment", "distribution")))
+validateLagTime <- function(object) {
+  return(TRUE)
 }
 
 #' @export
 setClass(
   "lag_time",
   representation(
-    compartment = "integer",
-    distribution = "distribution"
   ),
-  contains = "pmx_element",
-  validity=checkLagTime
+  contains = "treatment_characteristic",
+  validity=validateLagTime
 )
 
 #'

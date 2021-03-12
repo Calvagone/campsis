@@ -181,9 +181,8 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     treatment <- protocol@treatment %>% assignDoseNumber()
     observations <- protocol@observations
     covariates <- arm@covariates
-    lagTimes <- treatment@lag_times
-    infusionDurations <- treatment@infusion_durations
-    
+    characteristics <- treatment@characteristics
+
     # Fill in entries list
     entries <- new("time_entries")
     entries@list <- c(entries@list, treatment@list)
@@ -199,17 +198,17 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     ids <- seq_len(subjects) + maxID - subjects
 
     # Treating infusion duration & lag times as a covariate
-    for (specialVariable in c(lagTimes@list, infusionDurations@list)) {
-      dist <- specialVariable@distribution
+    for (characteristic in characteristics@list) {
+      dist <- characteristic@distribution
       
       if (is(dist, "sampled_distribution")) {
-        name <- specialVariable %>% getColumnName()
+        name <- characteristic %>% getColumnName()
         covariates <- covariates %>% add(Covariate(name=name, distribution=dist))
       
       } else if(is(dist, "parameter_distribution")) {
-        name <- specialVariable %>% getColumnName()
-        thetaName <- specialVariable@distribution@theta_name
-        etaName <- specialVariable@distribution@eta_name
+        name <- characteristic %>% getColumnName()
+        thetaName <- characteristic@distribution@theta_name
+        etaName <- characteristic@distribution@eta_name
         mean <- rxmod@theta[[paste0("THETA_", thetaName)]]
         var <- iivDf[ids, paste0("ETA_", etaName)]
         covariates <- covariates %>% add(Covariate(name=name, distribution=FixedDistribution(mean*exp(var))))
@@ -241,6 +240,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     })
     
     # Treating infusion durations
+    infusionDurations <- characteristics %>% select("infusion_duration")
     if (infusionDurations %>% length() > 0) {
       expDf <- expDf %>% tibble::add_column(RATE=0, .after="AMT")
       colToRemove <- NULL
@@ -264,6 +264,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     }
     
     # Treating lag times
+    lagTimes <- characteristics %>% select("lag_time")
     if (lagTimes %>% length() > 0) {
       colToRemove <- NULL
       for (lagTime in lagTimes@list) {
