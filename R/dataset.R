@@ -131,6 +131,65 @@ generateIIV <- function(omega, n) {
   return(iiv)
 }
 
+#' Process infusions.
+#' 
+#' @param table current dataset, data frame form
+#' @param characteristics all treatment characteristics
+#' @return updated table with RATE column
+#' 
+processInfusions <- function(table, characteristics) {
+  durations <- characteristics %>% select("infusion_duration")
+  if (durations %>% length() == 0) {
+    return(table)
+  }
+  table <- table %>% tibble::add_column(RATE=0, .after="AMT")
+  colToRemove <- NULL
+  for (duration in durations@list) {
+    colName <- duration %>% getColumnName()
+    compartment <- duration@compartment
+    if (duration@rate) {
+      table <- table %>% dplyr::mutate(
+        RATE=ifelse(table$EVID==1 & table$CMT==compartment,
+                    table[,colName],
+                    table$RATE))
+    } else {
+      table <- table %>% dplyr::mutate(
+        RATE=ifelse(table$EVID==1 & table$CMT==compartment,
+                    table$AMT / table[,colName],
+                    table$RATE))
+    }
+    colToRemove <- c(colToRemove, colName)
+  }
+  table <- table %>% dplyr::select(-dplyr::all_of(colToRemove))
+  return(table)
+}
+
+#' Process lag times.
+#' 
+#' @param table current dataset, data frame form
+#' @param characteristics all treatment characteristics
+#' @return updated table with time of doses updated
+#' 
+processLagTimes <- function(table, characteristics) {
+  lagTimes <- characteristics %>% select("lag_time")
+  if (lagTimes %>% length() == 0) {
+    return(table)
+  }
+  colToRemove <- NULL
+  for (lagTime in lagTimes@list) {
+    colName <- lagTime %>% getColumnName()
+    compartment <- lagTime@compartment
+    table <- table %>% dplyr::mutate(
+      TIME=ifelse(table$EVID==1 & table$CMT==compartment,
+                  table$TIME + table[,colName],
+                  table$TIME))
+    colToRemove <- c(colToRemove, colName)
+  }
+  table <- table %>% dplyr::select(-dplyr::all_of(colToRemove))
+  table <- table %>% dplyr::arrange(ID, TIME)
+  return(table)
+}
+
 
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, ...) {
   if (dest=="RxODE") {
@@ -197,7 +256,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
 
-    # Treating infusion duration & lag times as a covariate
+    # Treating treatment characteristics as covariates in the dataset
     for (characteristic in characteristics@list) {
       dist <- characteristic@distribution
       
@@ -240,45 +299,10 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     })
     
     # Treating infusion durations
-    infusionDurations <- characteristics %>% select("infusion_duration")
-    if (infusionDurations %>% length() > 0) {
-      expDf <- expDf %>% tibble::add_column(RATE=0, .after="AMT")
-      colToRemove <- NULL
-      for (duration in infusionDurations@list) {
-        colName <- duration %>% getColumnName()
-        compartment <- duration@compartment
-        if (duration@rate) {
-          expDf <- expDf %>% dplyr::mutate(
-            RATE=ifelse(expDf$EVID==1 & expDf$CMT==compartment,
-                        expDf[,colName],
-                        expDf$RATE))
-        } else {
-          expDf <- expDf %>% dplyr::mutate(
-            RATE=ifelse(expDf$EVID==1 & expDf$CMT==compartment,
-                        expDf$AMT / expDf[,colName],
-                        expDf$RATE))
-        }
-        colToRemove <- c(colToRemove, colName)
-      }
-      expDf <- expDf %>% dplyr::select(-dplyr::all_of(colToRemove))
-    }
+    expDf <- processInfusions(expDf, characteristics)
     
     # Treating lag times
-    lagTimes <- characteristics %>% select("lag_time")
-    if (lagTimes %>% length() > 0) {
-      colToRemove <- NULL
-      for (lagTime in lagTimes@list) {
-        colName <- lagTime %>% getColumnName()
-        compartment <- lagTime@compartment
-        expDf <- expDf %>% dplyr::mutate(
-          TIME=ifelse(expDf$EVID==1 & expDf$CMT==compartment,
-                      expDf$TIME + expDf[,colName],
-                      expDf$TIME))
-        colToRemove <- c(colToRemove, colName)
-      }
-      expDf <- expDf %>% dplyr::select(-dplyr::all_of(colToRemove))
-      expDf <- expDf %>% dplyr::arrange(ID, TIME)
-    }
+    expDf <- processLagTimes(expDf, characteristics)
     
     return(expDf)
   })
