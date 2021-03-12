@@ -3,39 +3,46 @@ library(pmxmod)
 
 context("Test the simulate method with infusions")
 
+overwriteNonRegressionFiles <<- FALSE
+testFolder <<- "C:/prj/pmxsim/tests/testthat/"
+seed <<- 1
+
+source(paste0(testFolder, "testUtils.R"))
 
 test_that("Simulate an infusion using the duration", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- getNONMEMModelTemplate(3,4)
   
   dataset <- Dataset()
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=2))
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
   for (time in seq(0,24, by=0.5)) {
     dataset <- dataset %>% add(Observation(time=time))
   }
   # 5 hours duration
-  dataset <- dataset %>% add(InfusionDuration(compartment=2, ConstantDistribution(5)))
+  dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(5)))
   
-  results <- model %>% simulate(dataset, dest="RxODE")
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), 49)
+  regressionTest(dataset, model, seed=seed, filename="infusion_duration.csv")
 })
 
 test_that("Simulate an infusion using the rate", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- getNONMEMModelTemplate(3,4)
   
   dataset <- Dataset()
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=2))
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
   for (time in seq(0,24, by=0.5)) {
     dataset <- dataset %>% add(Observation(time=time))
   }
   # 5 hours duration
-  dataset <- dataset %>% add(InfusionDuration(compartment=2, ConstantDistribution(200), rate=TRUE))
+  dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
   
-  results <- model %>% simulate(dataset, dest="RxODE")
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), 49)
+  regressionTest(dataset, model, seed=seed, filename="infusion_duration.csv")
 })
 
 test_that("Simulate an infusion using the rate and lag time", {

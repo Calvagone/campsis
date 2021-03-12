@@ -140,6 +140,12 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     stop("Please provide a model to export the dataset.")
   }
   
+  # Set seed value only if requested
+  seed <- processExtraArg(args, name="seed")
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  
   # Need RxODE model to access THETA's and OMEGA's
   rxmod <- model %>% pmxmod::export(dest="RxODE")
   omega <- rxmod@omega

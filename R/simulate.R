@@ -20,8 +20,9 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), defin
 })
 
 setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, ...) {
+
   # Export to data frame
-  table <- dataset %>% export(dest="RxODE", model=model)
+  table <- dataset %>% export(dest="RxODE", model=model, ...)
   
   return(simulate(model=model, dataset=table, dest=dest, ...))
 })
@@ -43,24 +44,16 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), de
     }
     
     # Slice number
-    if (hasName(args, "sliceNo")) {
-      sliceNo <- args$sliceNo
-    } else {
-      sliceNo <- maxID
-    }
-    
+    slices <- processExtraArg(args, name="slices", default=maxID)
+
     # Output variables
-    if (hasName(args, "output")) {
-      output <- args$output
-    } else {
-      output <- NULL
-    }
+    output <- processExtraArg(args, name="output")
     
     # Export PMX model to RxODE
     rxmod <- model %>% pmxmod::export(dest="RxODE")
 
     # Compute all slice rounds to perform
-    sliceRounds <- list(start=seq(1, maxID, by=sliceNo), end=seq(0, maxID-1, by=sliceNo) + sliceNo)
+    sliceRounds <- list(start=seq(1, maxID, by=slices), end=seq(0, maxID-1, by=slices) + slices)
     
     # Prepare list of events (1 event dataframe per slice/round)
     eventsList <- purrr::map2(sliceRounds$start, sliceRounds$end, .f=function(.x, .y){

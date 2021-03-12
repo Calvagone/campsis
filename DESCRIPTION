@@ -2,6 +2,7 @@ Package: pmxsim
 Type: Package
 Collate:
     'special_operators.R'
+    'utilities.R'
     'check.R'
     'generic.R'
     'distribution.R'
