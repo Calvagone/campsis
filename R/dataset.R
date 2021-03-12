@@ -268,7 +268,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
         colToRemove <- c(colToRemove, colName)
       }
       expDf <- expDf %>% dplyr::select(-dplyr::all_of(colToRemove))
-      expDf <- expDf %>% dplyr::group_by(ID) %>% dplyr::arrange(TIME) %>% dplyr::ungroup()
+      expDf <- expDf %>% dplyr::arrange(ID, TIME)
     }
     
     return(expDf)

@@ -18,7 +18,7 @@ datasetInMemory <- function(dataset, model, seed, doseOnly=TRUE) {
 
 regressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename) {
   dataset1 <- datasetInMemory(dataset=dataset, model=model, seed=seed, doseOnly=doseOnly)
-  dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6)
+  dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6) %>% as.data.frame()
   
   file <- paste0(testFolder, "non_regression/", filename)
   
@@ -26,6 +26,6 @@ regressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename) {
     write.table(dataset1, file=file, sep=",", row.names=FALSE)
   }
   
-  dataset2 <- read.csv(file=file)
+  dataset2 <- read.csv(file=file) %>% as.data.frame()
   expect_equal(dataset1, dataset2)
 }
