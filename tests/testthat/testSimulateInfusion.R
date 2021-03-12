@@ -14,9 +14,8 @@ test_that("Simulate an infusion using the duration", {
   
   dataset <- Dataset()
   dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
-  for (time in seq(0,24, by=0.5)) {
-    dataset <- dataset %>% add(Observation(time=time))
-  }
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  
   # 5 hours duration
   dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(5)))
   
@@ -32,9 +31,8 @@ test_that("Simulate an infusion using the rate", {
   
   dataset <- Dataset()
   dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
-  for (time in seq(0,24, by=0.5)) {
-    dataset <- dataset %>% add(Observation(time=time))
-  }
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  
   # 5 hours duration
   dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
   
@@ -50,9 +48,8 @@ test_that("Simulate an infusion using the rate and lag time", {
   
   dataset <- Dataset(10)
   dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
-  for (time in seq(0,24, by=0.5)) {
-    dataset <- dataset %>% add(Observation(time=time))
-  }
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  
   # 2 hours lag time with 20% CV
   lag <- LagTime(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(2), sdlog=0.2)))
   
@@ -74,9 +71,7 @@ test_that("Simulate an infusion using the rate and lag time (parameter distribut
   
   dataset <- Dataset(10)
   dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
-  for (time in seq(0,24, by=0.5)) {
-    dataset <- dataset %>% add(Observation(time=time))
-  }
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   # Add lag time
   lag <- LagTime(compartment=2, ParameterDistribution(thetaName="ALAG1", etaName="ALAG1"))

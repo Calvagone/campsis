@@ -54,6 +54,11 @@ setMethod("add", signature = c("arm", "lag_time"), definition = function(object,
   return(object)
 })
 
+setMethod("add", signature = c("arm", "observations"), definition = function(object, x) {
+  object@protocol@observations <- object@protocol@observations %>% add(x) 
+  return(object)
+})
+
 setMethod("add", signature = c("arm", "observation"), definition = function(object, x) {
   object@protocol@observations <- object@protocol@observations %>% add(x) 
   return(object)
