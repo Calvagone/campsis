@@ -74,6 +74,14 @@ setMethod("add", signature = c("dataset", "infusion_duration"), definition = fun
   return(object)
 })
 
+setMethod("add", signature = c("dataset", "observations"), definition = function(object, x) {
+  object <- object %>% createDefaultArmIfNotExists()
+  arm <- object@arms %>% default()
+  arm@protocol@observations <- arm@protocol@observations %>% add(x)
+  object@arms <- object@arms %>% pmxmod::replace(arm)
+  return(object)
+})
+
 setMethod("add", signature = c("dataset", "observation"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()

@@ -13,7 +13,7 @@ setClass(
     infusion_durations = "infusion_durations"
   ),
   contains="pmx_list",
-  prototype=prototype(lag_times=new("lag_times"), infusion_durations=new("infusion_durations"))
+  prototype=prototype(type="treatment_entry", lag_times=new("lag_times"), infusion_durations=new("infusion_durations"))
 )
 
 #_______________________________________________________________________________

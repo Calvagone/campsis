@@ -3,6 +3,12 @@ library(pmxmod)
 
 context("Test the simulate method with boluses")
 
+overwriteNonRegressionFiles <<- FALSE
+testFolder <<- ""
+seed <<- 1
+
+source(paste0(testFolder, "testUtils.R"))
+
 test_that("Simulate a bolus", {
   model <- getNONMEMModelTemplate(4,4)
   
@@ -12,10 +18,11 @@ test_that("Simulate a bolus", {
     dataset <- dataset %>% add(Observation(time=time))
   }
 
-  results <- model %>% simulate(dataset, dest="RxODE")
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), 49)
+  regressionTest(dataset, model, seed=seed, filename="simple_bolus.csv")
 })
 
 test_that("Simulate a bolus, 2 arms", {
@@ -33,11 +40,12 @@ test_that("Simulate a bolus, 2 arms", {
   
   dataset <- Dataset() %>% add(arm1) %>% add(arm2)
   
-  results <- model %>% simulate(dataset, dest="RxODE")
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results, "CP", "ARM")
   shadedPlot(results, "CP", "ARM")
   
   expect_equal(nrow(results), dataset %>% length() * 49)
+  regressionTest(dataset, model, seed=seed, filename="bolus_2arms.csv")
 })
 
 test_that("Simulate a bolus with lag time", {
@@ -54,9 +62,10 @@ test_that("Simulate a bolus with lag time", {
     dataset <- dataset %>% add(Observation(time=time))
   }
 
-  results <- model %>% simulate(dataset, dest="RxODE")
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), dataset %>% length() * 49)
+  regressionTest(dataset, model, seed=seed, filename="bolus_lag_time.csv")
   
 })

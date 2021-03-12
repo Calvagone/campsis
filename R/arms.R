@@ -11,7 +11,8 @@ setClass(
   "arms",
   representation(
   ),
-  contains="pmx_list"
+  contains="pmx_list",
+  prototype = prototype(type="arm") 
 )
 
 

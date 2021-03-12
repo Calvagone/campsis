@@ -8,7 +8,8 @@ setClass(
   "lag_times",
   representation(
   ),
-  contains="pmx_list"
+  contains="pmx_list",
+  prototype = prototype(type="lag_time") 
 )
 
 #_______________________________________________________________________________

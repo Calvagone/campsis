@@ -7,6 +7,7 @@ setClass(
   "observations",
   representation(
   ),
-  contains="pmx_list"
+  contains="pmx_list",
+  prototype = prototype(type="observation") 
 )
 

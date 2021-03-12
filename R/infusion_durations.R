@@ -8,7 +8,8 @@ setClass(
   "infusion_durations",
   representation(
   ),
-  contains="pmx_list"
+  contains="pmx_list",
+  prototype = prototype(type="infusion_duration") 
 )
 
 #_______________________________________________________________________________
