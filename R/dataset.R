@@ -136,8 +136,8 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
 
   args <- list(...)
   model <- args$model
-  if (is.null(model) || !is(model, "pmx_model")) {
-    stop("Please provide a model to export the dataset.")
+  if (!is.null(model) && !is(model, "pmx_model")) {
+    stop("Please provide a valid PMX model.")
   }
   
   # Set seed value only if requested
@@ -146,14 +146,14 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     set.seed(seed)
   }
   
-  # Need RxODE model to access THETA's and OMEGA's
-  rxmod <- model %>% pmxmod::export(dest="RxODE")
-  omega <- rxmod@omega
-  theta <- rxmod@theta
-  
-  # Generate IIV
-  iivDf <- generateIIV(omega=omega, n=object %>% length())
-  
+  # Generate IIV only if model is provided
+  if (is.null(model)) {
+    iivDf <- data.frame()
+  } else {
+    rxmod <- model %>% pmxmod::export(dest="RxODE")
+    iivDf <- generateIIV(omega=rxmod@omega, n=object %>% length())
+  }
+
   # Retrieve dataset configuration
   config <- object@config
 
@@ -202,7 +202,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
         name <- specialVariable %>% getColumnName()
         thetaName <- specialVariable@distribution@theta_name
         etaName <- specialVariable@distribution@eta_name
-        mean <- theta[[paste0("THETA_", thetaName)]]
+        mean <- rxmod@theta[[paste0("THETA_", thetaName)]]
         var <- iivDf[ids, paste0("ETA_", etaName)]
         covariates <- covariates %>% add(Covariate(name=name, distribution=FixedDistribution(mean*exp(var))))
       
