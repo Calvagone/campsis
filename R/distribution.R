@@ -43,13 +43,15 @@ setClass(
 validateParameterDistribution <- function(object) {
   check1 <- expectOne(object, "theta")
   check2 <- expectZeroOrOne(object, "omega")
-  return(c(check1, check2))
+  check3 <- expectZeroOrOne(object, "iov")
+  return(c(check1, check2, check3))
 }
 
 #' @export
 setClass(
   "parameter_distribution",
   representation(
+    iov = "character"
   ),
   contains="model_distribution",
   validity=validateParameterDistribution
@@ -62,11 +64,15 @@ setClass(
 #' 
 #' @param theta corresponding THETA name, character
 #' @param omega corresponding OMEGA name, character, NULL if not defined
+#' @param iov IOV column name, character, NULL if not defined
 #' @return a parameter distribution  
 #' @export
-ParameterDistribution <- function(theta, omega=NULL) {
+ParameterDistribution <- function(theta, omega=NULL, iov=NULL) {
   if (is.null(omega)) {
     omega <- character(0)
+  }
+  if (is.null(iov)) {
+    iov <- character(0)
   }
   return(new("parameter_distribution", theta=theta, omega=omega))
 }

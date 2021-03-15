@@ -6,12 +6,14 @@
 log-normal distribution, computed as THETA * exp(Normal(mean=0, sd=sqrt(OMEGA))).
 It is currently not possible to change the distribution type.}
 \usage{
-ParameterDistribution(theta, omega = NULL)
+ParameterDistribution(theta, omega = NULL, iov = NULL)
 }
 \arguments{
 \item{theta}{corresponding THETA name, character}
 
 \item{omega}{corresponding OMEGA name, character, NULL if not defined}
+
+\item{iov}{IOV column name, character, NULL if not defined}
 }
 \value{
 a parameter distribution

@@ -141,6 +141,29 @@ generateIIV <- function(omega, n) {
   return(iiv)
 }
 
+#' Process characteristic IOV.
+#' 
+#' @param table current dataset, data frame form
+#' @param characteristics all treatment characteristics
+#' @return updated table (AMT adapted)
+#' 
+processCharacteristicIOV <- function(table, characteristic) {
+  distribution <- characteristic@distribution
+  if (is(distribution, "parameter_distribution") && length(distribution@iov) > 0) {
+    iov <- distribution@iov
+    colName <- bioavailability %>% getColumnName()
+    if (!(iov %in% colnames(table))) {
+      stop(paste0("There is no IOV column '", iov, "'", "Please add it to the dataset."))
+    }
+    table <- table %>% dplyr::mutate_at(.vars=colname, .funs=function(x){
+      ifelse(!is.na(x), x*exp(table[,iov]))
+    })
+    return(table)
+  } else {
+    return(table)
+  }
+}
+
 #' Process bioavailabilities.
 #' 
 #' @param table current dataset, data frame form
@@ -156,6 +179,7 @@ processBioavailabilities <- function(table, characteristics) {
   for (bioavailability in bioavailabilities@list) {
     colName <- bioavailability %>% getColumnName()
     compartment <- bioavailability@compartment
+    table <- processCharacteristicIOV(table, characteristic=bioavailability)
     table <- table %>% dplyr::mutate(
       AMT=ifelse(table$EVID==1 & table$CMT==compartment,
                   table$AMT * table[,colName],
@@ -182,6 +206,7 @@ processInfusions <- function(table, characteristics) {
   for (duration in durations@list) {
     colName <- duration %>% getColumnName()
     compartment <- duration@compartment
+    table <- processCharacteristicIOV(table, characteristic=duration)
     if (duration@rate) {
       table <- table %>% dplyr::mutate(
         RATE=ifelse(table$EVID==1 & table$CMT==compartment,
@@ -214,6 +239,7 @@ processLagTimes <- function(table, characteristics) {
   for (lagTime in lagTimes@list) {
     colName <- lagTime %>% getColumnName()
     compartment <- lagTime@compartment
+    table <- processCharacteristicIOV(table, characteristic=lagTime)
     table <- table %>% dplyr::mutate(
       TIME=ifelse(table$EVID==1 & table$CMT==compartment,
                   table$TIME + table[,colName],
@@ -264,7 +290,7 @@ processAsCovariate <- function(list, iiv, rxmod, ids) {
           covariates <- covariates %>% add(Covariate(name=name, distribution=ConstantDistribution(mean)))
         }
       } else if (is(dist, "eta_distribution")) {
-        if (!hasName(rxmod@omega, etaName)) {
+        if (!(etaName %in% colnames(rxmod@omega))) {
           stop(paste0("'", etaName, "'", " not part of the OMEGA matrix"))
         }
         var <- rxmod@omega[[etaName, etaName]]

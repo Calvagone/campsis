@@ -3,13 +3,13 @@ library(pmxmod)
 
 context("Test the simulate method with IOV")
 
-overwriteNonRegressionFiles <<- FALSE
+overwriteNonRegressionFiles <<- TRUE
 testFolder <<- "C:/prj/pmxsim/tests/testthat/"
 seed <<- 1
 
 source(paste0(testFolder, "testUtils.R"))
 
-test_that("Simulate 1000mg QD with IOV on KA", {
+test_that("Simulate 1000mg QD with IOV on KA (1)", {
   model <- getNONMEMModelTemplate(4,4)
   pk <- model@model %>% getByName("PK")
   pk@code[[1]] <- "KA=THETA_1*exp(ETA_1 + IOV_KA)"
@@ -26,5 +26,26 @@ test_that("Simulate 1000mg QD with IOV on KA", {
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), 145*dataset %>% length())
-  regressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka.csv")
+  regressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka_1.csv")
+})
+
+test_that("Simulate 1000mg QD with IOV on KA (2)", {
+  model <- getNONMEMModelTemplate(4,4)
+  pk <- model@model %>% getByName("PK")
+  pk@code[[1]] <- "KA=THETA_1*exp(ETA_1 + IOV_KA)"
+  model@model <- model@model %>% pmxmod::replace(pk)
+  model@parameters <- model@parameters %>% add(Omega("IOV_KA", index=6, index2=6, value=0.2^2))
+  
+  dataset <- Dataset(10)
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
+  dataset <- dataset %>% add(IOV(colname="IOV_KA", distribution=EtaDistribution(omega="IOV_KA")))
+  
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results, "CP")
+  
+  expect_equal(nrow(results), 145*dataset %>% length())
+  regressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka_2.csv")
 })

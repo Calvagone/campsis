@@ -28,6 +28,9 @@ setClass(
 #' @return IOV
 #' @export
 IOV <- function(colname, distribution) {
+  if (is(distribution, "parameter_distribution")) {
+    stop("IOV distribution can't be a parameter distribution. Do you want to define it as an eta distribution instead?")
+  }
   return(new("treatment_iov", colname=colname, distribution=distribution))
 }
 
