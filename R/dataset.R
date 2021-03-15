@@ -306,6 +306,22 @@ processAsCovariate <- function(list, iiv, rxmod, ids) {
   return(covariates)
 }
 
+#' Sample covariates list.
+#' 
+#' @param covariates list of covariates to sample
+#' @param n number of desired samples
+#' @return a dataframe of n rows, 1 column per covariate
+#' 
+sampleCovariatesList <- function(covariates, n) {
+  retValue <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
+    data <- (covariate %>% sample(n=n))@distribution@sampled_values
+    matrix <- matrix(data=data, ncol=1)
+    colnames(matrix) <- covariate@name
+    matrix %>% tibble::as_tibble()
+  })
+  return(retValue)
+}
+
 
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, ...) {
   if (dest=="RxODE") {
@@ -381,30 +397,25 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     characteristicsAsCov <- processAsCovariate(characteristics@list, iiv=iiv, rxmod=rxmod, ids=ids)
     covariates <- covariates %>% add(characteristicsAsCov)
     
-    # Generating covariates
-    covDf <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
-      data <- (covariate %>% sample(n=length(ids)))@distribution@sampled_values
-      matrix <- matrix(data=data, ncol=1)
-      colnames(matrix) <- covariate@name
-      matrix %>% tibble::as_tibble()
-    })
+    # Sampling covariates
+    cov <- sampleCovariatesList(covariates, n=length(ids))
     
-    # Treating IOVs (note that IIV is not needed)
+    # Treating IOV's (note that IIV is not needed)
     iovsAsCov <- processAsCovariate(treatmentIovs@list, iiv=data.frame(), rxmod=rxmod, ids=ids)
 
-    # Generating IOVs
-    iov <- iovsAsCov@list %>% purrr::map_df(.f=function(covariate) {
-      retValue <- data.frame(ID=rep(ids, each=doseNumber), DOSENO=rep(seq_len(doseNumber), length(ids)))
-      retValue[, covariate@name] <- (covariate %>% sample(n=length(ids)*doseNumber))@distribution@sampled_values
-      return(retValue)
-    })
+    # Sampling IOV's
+    iov <- sampleCovariatesList(iovsAsCov, n=length(ids)*doseNumber)
+    if (nrow(iov) > 0) {
+      iovInit <- data.frame(ID=rep(ids, each=doseNumber), DOSENO=rep(seq_len(doseNumber), length(ids)))
+      iov <- cbind(iovInit, iov)
+    }
 
     # Expanding the dataframe for all subjects
     expDf <- ids %>% purrr::map_df(.f=function(id) {
       df <- df %>% tibble::add_column(ID=id, .before="TIME")
       df <- df %>% tibble::add_column(ARM=armID, .before="TIME")
-      if (nrow(covDf) > 0) {
-        df <- df %>% dplyr::bind_cols(covDf[(id - maxID + subjects),])
+      if (nrow(cov) > 0) {
+        df <- df %>% dplyr::bind_cols(cov[(id - maxID + subjects),])
       }
       if (nrow(iiv) > 0) {
         df <- df %>% dplyr::bind_cols(iiv[id,])
