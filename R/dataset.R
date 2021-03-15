@@ -144,20 +144,20 @@ generateIIV <- function(omega, n) {
 #' Process characteristic IOV.
 #' 
 #' @param table current dataset, data frame form
-#' @param characteristics all treatment characteristics
-#' @return updated table (AMT adapted)
+#' @param characteristic characteristic being treated
+#' @return updated table
 #' 
 processCharacteristicIOV <- function(table, characteristic) {
   distribution <- characteristic@distribution
   if (is(distribution, "parameter_distribution") && length(distribution@iov) > 0) {
     iov <- distribution@iov
-    colName <- bioavailability %>% getColumnName()
+    colName <- characteristic %>% getColumnName()
     if (!(iov %in% colnames(table))) {
-      stop(paste0("There is no IOV column '", iov, "'", "Please add it to the dataset."))
+      stop(paste0("There is no IOV column '", iov, "'. ", "Please add it to the dataset."))
     }
-    table <- table %>% dplyr::mutate_at(.vars=colname, .funs=function(x){
-      ifelse(!is.na(x), x*exp(table[,iov]))
-    })
+    # Only valid for log-normal distributions: exp(ETA1 + ETA2) = exp(ETA1)*exp(ETA2)
+    charValue <- table[, colName]
+    table[, colName] <- ifelse(is.na(charValue), charValue, charValue*exp(table[, iov]))
     return(table)
   } else {
     return(table)

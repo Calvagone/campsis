@@ -9,10 +9,10 @@ processCharacteristicIOV(table, characteristic)
 \arguments{
 \item{table}{current dataset, data frame form}
 
-\item{characteristics}{all treatment characteristics}
+\item{characteristic}{characteristic being treated}
 }
 \value{
-updated table (AMT adapted)
+updated table
 }
 \description{
 Process characteristic IOV.

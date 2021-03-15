@@ -74,7 +74,7 @@ ParameterDistribution <- function(theta, omega=NULL, iov=NULL) {
   if (is.null(iov)) {
     iov <- character(0)
   }
-  return(new("parameter_distribution", theta=theta, omega=omega))
+  return(new("parameter_distribution", theta=theta, omega=omega, iov=iov))
 }
 
 #_______________________________________________________________________________

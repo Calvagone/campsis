@@ -49,3 +49,42 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
   expect_equal(nrow(results), 145*dataset %>% length())
   regressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka_2.csv")
 })
+
+test_that("Simulate IOV on F1", {
+  # Model with IIV on F1
+  model <- getNONMEMModelTemplate(4,4)
+  pk <- model@model %>% getByName("PK")
+  model@parameters <- model@parameters %>% add(Theta("F1", index=6, value=0.75))
+  model@parameters <- model@parameters %>% add(Omega("F1", index=6, index2=6, value=0.2^2))
+
+  # Model with IIV and IOV on F1
+  model_iov <- model
+  iovCvPc <- 20 # 20% CV
+  
+  # Add IOV
+  model@parameters <- model@parameters %>% add(Omega("IOV_F1", index=7, index2=7, value=(0/100)^2))
+  model_iov@parameters <- model_iov@parameters %>% add(Omega("IOV_F1", index=7, index2=7, value=(iovCvPc/100)^2))
+  
+  dataset <- Dataset(10)
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
+  dataset <- dataset %>% add(IOV(colname="IOV_F1_COL", distribution=EtaDistribution(omega="IOV_F1")))
+  
+  # Add bioavailability
+  dataset <- dataset %>% add(Bioavailability(compartment=1, ParameterDistribution(theta="F1", omega="F1", iov="IOV_F1_COL")))
+
+  # Simulate just IIV
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  results1$ARM <- "IIV"
+  
+  # Simulate just IIV + IOV
+  results2 <- model_iov %>% simulate(dataset, dest="RxODE", seed=seed)
+  results2$id <- results2$id + dataset %>% length()
+  results2$ARM <- "IIV + IOV"
+  
+  spaguettiPlot(rbind(results1, results2), "CP", "ARM")
+  shadedPlot(rbind(results1, results2), "CP", "ARM")
+  
+})
