@@ -304,8 +304,8 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       
       } else if(is(dist, "parameter_distribution")) {
         name <- characteristic %>% getColumnName()
-        thetaName <- characteristic@distribution@theta_name
-        etaName <- characteristic@distribution@eta_name
+        thetaName <- characteristic@distribution@theta
+        etaName <- characteristic@distribution@eta
         mean <- rxmod@theta[[paste0("THETA_", thetaName)]]
         var <- iivDf[ids, paste0("ETA_", etaName)]
         covariates <- covariates %>% add(Covariate(name=name, distribution=FixedDistribution(mean*exp(var))))
@@ -334,8 +334,8 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
         
       } else if(is(dist, "parameter_distribution")) {
         name <- iov %>% getColumnName()
-        thetaName <- iov@distribution@theta_name
-        etaName <- iov@distribution@eta_name
+        thetaName <- iov@distribution@theta
+        etaName <- iov@distribution@eta
         mean <- rxmod@theta[[paste0("THETA_", thetaName)]]
         var <- iivDf[ids, paste0("ETA_", etaName)]
         covariates <- covariates %>% add(Covariate(name=name, distribution=FixedDistribution(mean*exp(var))))

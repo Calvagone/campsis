@@ -4,12 +4,12 @@
 \alias{ParameterDistribution}
 \title{Create a parameter distribution.}
 \usage{
-ParameterDistribution(thetaName, etaName = character(0))
+ParameterDistribution(theta, eta = character(0))
 }
 \arguments{
-\item{thetaName}{corresponding THETA name, character}
+\item{theta}{corresponding THETA name, character}
 
-\item{etaName}{corresponding ETA name, character (character(0) if no ETA)}
+\item{eta}{corresponding ETA name, character (character(0) if no ETA)}
 }
 \value{
 a parameter distribution

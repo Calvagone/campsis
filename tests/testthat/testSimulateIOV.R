@@ -1,9 +1,9 @@
 library(testthat)
 library(pmxmod)
 
-context("Test the simulate method with boluses")
+context("Test the simulate method with IOV")
 
-overwriteNonRegressionFiles <<- TRUE
+overwriteNonRegressionFiles <<- FALSE
 testFolder <<- "C:/prj/pmxsim/tests/testthat/"
 seed <<- 1
 
@@ -13,7 +13,7 @@ test_that("Simulate 1000mg QD with IOV on KA", {
   model <- getNONMEMModelTemplate(4,4)
   pk <- model@model %>% getByName("PK")
   pk@code[[1]] <- "KA=THETA_1*exp(ETA_1 + IOV_KA)"
-  model@model <- model@model %>% replace(pk)
+  model@model <- model@model %>% pmxmod::replace(pk)
   
   dataset <- Dataset(10)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
@@ -25,6 +25,6 @@ test_that("Simulate 1000mg QD with IOV on KA", {
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results, "CP")
   
-  expect_equal(nrow(results), 49)
+  expect_equal(nrow(results), 145*dataset %>% length())
   regressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka.csv")
 })

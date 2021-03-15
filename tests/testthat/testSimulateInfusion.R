@@ -74,7 +74,7 @@ test_that("Simulate an infusion using the rate and lag time (parameter distribut
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   # Add lag time
-  lag <- LagTime(compartment=2, ParameterDistribution(thetaName="ALAG1", etaName="ALAG1"))
+  lag <- LagTime(compartment=2, ParameterDistribution(theta="ALAG1", eta="ALAG1"))
   dataset <- dataset %>% add(lag)
   
   # 5 hours duration

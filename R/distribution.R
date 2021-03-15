@@ -20,8 +20,8 @@ setClass(
 #_______________________________________________________________________________
 
 validateParameterDistribution <- function(object) {
-  check1 <- expectOne(object, "theta_name")
-  check2 <- expectZeroOrOne(object, "eta_name")
+  check1 <- expectOne(object, "theta")
+  check2 <- expectZeroOrOne(object, "eta")
   return(c(check1, check2))
 }
 
@@ -29,8 +29,8 @@ validateParameterDistribution <- function(object) {
 setClass(
   "parameter_distribution",
   representation(
-    theta_name = "character",
-    eta_name = "character"
+    theta = "character",
+    eta = "character"
   ),
   contains="distribution",
   validity=validateParameterDistribution
@@ -39,12 +39,12 @@ setClass(
 #' 
 #' Create a parameter distribution.
 #' 
-#' @param thetaName corresponding THETA name, character
-#' @param etaName corresponding ETA name, character (character(0) if no ETA)
+#' @param theta corresponding THETA name, character
+#' @param eta corresponding ETA name, character (character(0) if no ETA)
 #' @return a parameter distribution  
 #' @export
-ParameterDistribution <- function(thetaName, etaName=character(0)) {
-  return(new("parameter_distribution", theta_name=thetaName, eta_name=etaName))
+ParameterDistribution <- function(theta, eta=character(0)) {
+  return(new("parameter_distribution", theta=theta, eta=eta))
 }
 
 #_______________________________________________________________________________
