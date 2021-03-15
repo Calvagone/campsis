@@ -2,20 +2,20 @@
 % Please edit documentation in R/treatment_entry.R
 \name{Infusion}
 \alias{Infusion}
-\title{Create an infusion bolus.}
+\title{Create an infusion.}
 \usage{
 Infusion(time, amount, compartment = NA)
 }
 \arguments{
 \item{time}{treatment time, numeric}
 
-\item{amount}{amount to give as bolus, numeric}
+\item{amount}{total amount to infuse, numeric}
 
 \item{compartment}{compartment index, integer}
 }
 \value{
-an observation
+an infusion.
 }
 \description{
-Create an infusion bolus.
+Create an infusion.
 }

@@ -14,6 +14,8 @@ Collate:
     'bioavailability.R'
     'lag_time.R'
     'infusion_duration.R'
+    'treatment_iov.R'
+    'treatment_iovs.R'
     'treatment_entry.R'
     'treatment.R'
     'observation.R'

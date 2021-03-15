@@ -66,6 +66,14 @@ setMethod("add", signature = c("dataset", "treatment_characteristic"), definitio
   return(object)
 })
 
+setMethod("add", signature = c("dataset", "treatment_iov"), definition = function(object, x) {
+  object <- object %>% createDefaultArmIfNotExists()
+  arm <- object@arms %>% default()
+  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
+  object@arms <- object@arms %>% pmxmod::replace(arm)
+  return(object)
+})
+
 setMethod("add", signature = c("dataset", "observations"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
@@ -138,7 +146,7 @@ generateIIV <- function(omega, n) {
 #' @return updated table (AMT adapted)
 #' 
 processBioavailabilities <- function(table, characteristics) {
-  bioavailabilities <- characteristics %>% select("bioavailability")
+  bioavailabilities <- characteristics %>% pmxmod::select("bioavailability")
   if (bioavailabilities %>% length() == 0) {
     return(table)
   }
@@ -163,7 +171,7 @@ processBioavailabilities <- function(table, characteristics) {
 #' @return updated table with RATE column
 #' 
 processInfusions <- function(table, characteristics) {
-  durations <- characteristics %>% select("infusion_duration")
+  durations <- characteristics %>% pmxmod::select("infusion_duration")
   if (durations %>% length() == 0) {
     return(table)
   }
@@ -196,7 +204,7 @@ processInfusions <- function(table, characteristics) {
 #' @return updated table with time of doses updated
 #' 
 processLagTimes <- function(table, characteristics) {
-  lagTimes <- characteristics %>% select("lag_time")
+  lagTimes <- characteristics %>% pmxmod::select("lag_time")
   if (lagTimes %>% length() == 0) {
     return(table)
   }
@@ -266,9 +274,11 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     subjects <- arm@subjects
     protocol <- arm@protocol
     treatment <- protocol@treatment %>% assignDoseNumber()
+    doseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
     observations <- protocol@observations
     covariates <- arm@covariates
     characteristics <- treatment@characteristics
+    iovs <- treatment@iovs
 
     # Fill in entries list
     entries <- new("time_entries")
@@ -312,6 +322,35 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       colnames(matrix) <- covariate@name
       matrix %>% tibble::as_tibble()
     })
+    
+    # Treating IOVs
+    covariates <- new("covariates")
+    for (iov in iovs@list) {
+      dist <- iov@distribution
+      
+      if (is(dist, "sampled_distribution")) {
+        name <- iov@colname
+        covariates <- covariates %>% add(Covariate(name=name, distribution=dist))
+        
+      } else if(is(dist, "parameter_distribution")) {
+        name <- iov %>% getColumnName()
+        thetaName <- iov@distribution@theta_name
+        etaName <- iov@distribution@eta_name
+        mean <- rxmod@theta[[paste0("THETA_", thetaName)]]
+        var <- iivDf[ids, paste0("ETA_", etaName)]
+        covariates <- covariates %>% add(Covariate(name=name, distribution=FixedDistribution(mean*exp(var))))
+        
+      } else {
+        stop(paste0("Unknown distribution class: ", as.character(class(dist))))
+      }
+    }
+    
+    # Generating IOVs
+    iovDf <- covariates@list %>% purrr::map_df(.f=function(covariate) {
+      retValue <- data.frame(ID=rep(ids, each=doseNumber), DOSENO=rep(seq_len(doseNumber), length(ids)))
+      retValue[, covariate@name] <- (covariate %>% sample(n=length(ids)*doseNumber))@distribution@sampled_values
+      return(retValue)
+    })
 
     # Expanding the dataframe for all subjects
     expDf <- ids %>% purrr::map_df(.f=function(id) {
@@ -326,6 +365,11 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       return(df)
     })
     
+    # Left join IOV, by subject ID and dose number
+    if (nrow(iovDf) > 0) {
+      expDf <- expDf %>% dplyr::left_join(iovDf, by = c("ID", "DOSENO"))
+    }
+
     # Treating bioavailabilities
     expDf <- processBioavailabilities(expDf, characteristics)
     

@@ -70,12 +70,12 @@ setClass(
 )
 
 #'
-#' Create an infusion bolus.
+#' Create an infusion.
 #'
 #' @param time treatment time, numeric
-#' @param amount amount to give as bolus, numeric
+#' @param amount total amount to infuse, numeric
 #' @param compartment compartment index, integer
-#' @return an observation
+#' @return an infusion.
 #' @export
 Infusion <- function(time, amount, compartment=NA) {
   return(new("infusion", time=time, amount=amount, compartment=as.integer(compartment)))
