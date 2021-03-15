@@ -3,7 +3,7 @@ library(pmxmod)
 
 context("Test the simulate method with IOV")
 
-overwriteNonRegressionFiles <<- TRUE
+overwriteNonRegressionFiles <<- FALSE
 testFolder <<- "C:/prj/pmxsim/tests/testthat/"
 seed <<- 1
 
@@ -125,6 +125,46 @@ test_that("Simulate IOV on ALAG1", {
   results2$id <- results2$id + dataset %>% length()
   results2$ARM <- "IIV + IOV"
   regressionTest(dataset, model_iov, seed=seed, filename="3_boluses_iiv_iov_alag1.csv")
+  
+  spaguettiPlot(rbind(results1, results2), "CP", "ARM")
+  shadedPlot(rbind(results1, results2), "CP", "ARM")
+})
+
+test_that("Simulate IOV on D1", {
+  # Model with IIV on D1
+  model <- getNONMEMModelTemplate(3,4)
+  pk <- model@model %>% getByName("PK")
+  model@parameters <- model@parameters %>% add(Theta("D1", index=5, value=5))
+  model@parameters <- model@parameters %>% add(Omega("D1", index=5, index2=5, value=0.2^2))
+  
+  # Model with IIV and IOV on D1
+  model_iov <- model
+  iovCvPc <- 50 # 50% CV
+  
+  # Add IOV
+  model@parameters <- model@parameters %>% add(Omega("IOV_D1", index=6, index2=6, value=(0/100)^2))
+  model_iov@parameters <- model_iov@parameters %>% add(Omega("IOV_D1", index=6, index2=6, value=(iovCvPc/100)^2))
+  
+  dataset <- Dataset(10)
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Infusion(time=24, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Infusion(time=48, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
+  dataset <- dataset %>% add(IOV(colname="IOV_D1_COL", distribution=EtaDistribution(omega="IOV_D1")))
+  
+  # Add infusion duration
+  dataset <- dataset %>% add(InfusionDuration(compartment=1, ParameterDistribution(theta="D1", omega="D1", iov="IOV_D1_COL")))
+  
+  # Simulate just IIV
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  results1$ARM <- "IIV"
+  regressionTest(dataset, model, seed=seed, filename="3_infusions_iiv_d1.csv")
+  
+  # Simulate just IIV + IOV
+  results2 <- model_iov %>% simulate(dataset, dest="RxODE", seed=seed)
+  results2$id <- results2$id + dataset %>% length()
+  results2$ARM <- "IIV + IOV"
+  regressionTest(dataset, model_iov, seed=seed, filename="3_infusions_iiv_iov_d1.csv")
   
   spaguettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")
