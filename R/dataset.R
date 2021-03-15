@@ -113,11 +113,13 @@ setMethod("length", signature=c("dataset"), definition=function(x) {
 })
 
 #_______________________________________________________________________________
-#----                      hasParameterDistribution                         ----
+#----                      hasModelDistribution                         ----
 #_______________________________________________________________________________
 
-setMethod("hasParameterDistribution", signature = c("dataset"), definition = function(object) {
-  return(any(object@arms@list %>% purrr::map_lgl(~.x@protocol@treatment@characteristics %>% hasParameterDistribution())))
+setMethod("hasModelDistribution", signature = c("dataset"), definition = function(object) {
+  res1 <- object@arms@list %>% purrr::map_lgl(~.x@protocol@treatment@characteristics %>% hasModelDistribution())
+  res2 <- object@arms@list %>% purrr::map_lgl(~.x@protocol@treatment@iovs %>% hasModelDistribution())
+  return(any(c(res1, res2)))
 })
 
 #_______________________________________________________________________________
@@ -249,7 +251,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   # Generate IIV only if model is provided
   if (is.null(model)) {
     iivDf <- data.frame()
-    if (object %>% hasParameterDistribution()) {
+    if (object %>% hasModelDistribution()) {
       stop("Dataset contains at least one parameter-related distribution. Please provide a PMX model.")
     }
   } else {
@@ -305,7 +307,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       } else if(is(dist, "parameter_distribution")) {
         name <- characteristic %>% getColumnName()
         thetaName <- characteristic@distribution@theta
-        etaName <- characteristic@distribution@eta
+        etaName <- characteristic@distribution@omega
         mean <- rxmod@theta[[paste0("THETA_", thetaName)]]
         var <- iivDf[ids, paste0("ETA_", etaName)]
         covariates <- covariates %>% add(Covariate(name=name, distribution=FixedDistribution(mean*exp(var))))
@@ -335,7 +337,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       } else if(is(dist, "parameter_distribution")) {
         name <- iov %>% getColumnName()
         thetaName <- iov@distribution@theta
-        etaName <- iov@distribution@eta
+        etaName <- iov@distribution@omega
         mean <- rxmod@theta[[paste0("THETA_", thetaName)]]
         var <- iivDf[ids, paste0("ETA_", etaName)]
         covariates <- covariates %>% add(Covariate(name=name, distribution=FixedDistribution(mean*exp(var))))

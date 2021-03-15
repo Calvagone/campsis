@@ -16,12 +16,33 @@ setClass(
 )
 
 #_______________________________________________________________________________
+#----                       model_distribution class                        ----
+#_______________________________________________________________________________
+
+validateModelDistribution <- function(object) {
+  check1 <- expectZeroOrOne(object, "theta")
+  check2 <- expectZeroOrOne(object, "omega")
+  return(c(check1, check2))
+}
+
+#' @export
+setClass(
+  "model_distribution",
+  representation(
+    theta = "character",
+    omega = "character"
+  ),
+  contains="distribution",
+  validity=validateModelDistribution
+)
+
+#_______________________________________________________________________________
 #----                   parameter_distribution class                        ----
 #_______________________________________________________________________________
 
 validateParameterDistribution <- function(object) {
   check1 <- expectOne(object, "theta")
-  check2 <- expectZeroOrOne(object, "eta")
+  check2 <- expectZeroOrOne(object, "omega")
   return(c(check1, check2))
 }
 
@@ -29,22 +50,56 @@ validateParameterDistribution <- function(object) {
 setClass(
   "parameter_distribution",
   representation(
-    theta = "character",
-    eta = "character"
   ),
-  contains="distribution",
+  contains="model_distribution",
   validity=validateParameterDistribution
 )
 
 #' 
-#' Create a parameter distribution.
+#' Create a parameter distribution. By default, the resulting distribution is a
+#' log-normal distribution, computed as THETA * exp(Normal(mean=0, sd=sqrt(OMEGA))).
+#' It is currently not possible to change the distribution type.
 #' 
 #' @param theta corresponding THETA name, character
-#' @param eta corresponding ETA name, character (character(0) if no ETA)
+#' @param omega corresponding OMEGA name, character, NULL if not defined
 #' @return a parameter distribution  
 #' @export
-ParameterDistribution <- function(theta, eta=character(0)) {
-  return(new("parameter_distribution", theta=theta, eta=eta))
+ParameterDistribution <- function(theta, omega=NULL) {
+  if (is.null(omega)) {
+    omega <- character(0)
+  }
+  return(new("parameter_distribution", theta=theta, omega=omega))
+}
+
+#_______________________________________________________________________________
+#----                        eta_distribution class                         ----
+#_______________________________________________________________________________
+
+validateEtaDistribution <- function(object) {
+  check1 <- expectZero(object, "theta")
+  check2 <- expectOne(object, "omega")
+  return(c(check1, check2))
+}
+
+#' @export
+setClass(
+  "eta_distribution",
+  representation(
+  ),
+  contains="model_distribution",
+  validity=validateEtaDistribution
+)
+
+#' 
+#' Create an ETA distribution. By default, the resulting distribution is a
+#' normal distribution, computed as Normal(mean=0, sd=sqrt(OMEGA)).
+#' It is currently not possible to change the distribution type.
+#' 
+#' @param omega corresponding THETA name, character
+#' @return an ETA distribution
+#' @export
+EtaDistribution <- function(omega) {
+  return(new("eta_distribution", omega=omega))
 }
 
 #_______________________________________________________________________________

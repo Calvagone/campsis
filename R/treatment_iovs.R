@@ -13,9 +13,9 @@ setClass(
 )
 
 #_______________________________________________________________________________
-#----                      hasParameterDistribution                         ----
+#----                      hasModelDistribution                         ----
 #_______________________________________________________________________________
 
-setMethod("hasParameterDistribution", signature = c("treatment_iovs"), definition = function(object) {
-  return(object@list %>% purrr::keep(~(is(.x@distribution, "parameter_distribution"))) %>% length() > 0)
+setMethod("hasModelDistribution", signature = c("treatment_iovs"), definition = function(object) {
+  return(object@list %>% purrr::keep(~(is(.x@distribution, "model_distribution"))) %>% length() > 0)
 })

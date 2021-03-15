@@ -25,11 +25,11 @@ setMethod("getByCompartment", signature = c("treatment_characteristics", "intege
 })
 
 #_______________________________________________________________________________
-#----                      hasParameterDistribution                         ----
+#----                      hasModelDistribution                         ----
 #_______________________________________________________________________________
 
-setMethod("hasParameterDistribution", signature = c("treatment_characteristics"), definition = function(object) {
-  return(object@list %>% purrr::keep(~(is(.x@distribution, "parameter_distribution"))) %>% length() > 0)
+setMethod("hasModelDistribution", signature = c("treatment_characteristics"), definition = function(object) {
+  return(object@list %>% purrr::keep(~(is(.x@distribution, "model_distribution"))) %>% length() > 0)
 })
 
 #_______________________________________________________________________________

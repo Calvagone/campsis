@@ -109,7 +109,7 @@ setGeneric("getColumnName", function(x) {
 })
 
 #_______________________________________________________________________________
-#----                      hasParameterDistribution                         ----
+#----                      hasModelDistribution                         ----
 #_______________________________________________________________________________
 
 #' Tell if the dataset contains at least one parameter distribution (in its treatment characteristics).
@@ -119,11 +119,11 @@ setGeneric("getColumnName", function(x) {
 #' @param object generic object
 #' @return logical value
 #' @export
-hasParameterDistribution <- function(object) {
+hasModelDistribution <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("hasParameterDistribution", function(object) {
-  standardGeneric("hasParameterDistribution")
+setGeneric("hasModelDistribution", function(object) {
+  standardGeneric("hasModelDistribution")
 })
 

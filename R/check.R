@@ -37,6 +37,15 @@ expectZeroOrMore <- function(object, slot) {
   return(character())
 }
 
+expectZero <- function(object, slot) {
+  lengthSlot <- getSlotLength(object, slot)
+  error <- character()
+  if (lengthSlot != 0) {
+    error <- paste0(slot, " is length ", lengthSlot, ". Should be 0.")
+  }
+  return(error)
+}
+
 expectMany <- function(object, slot) {
   lengthSlot <- getSlotLength(object, slot)
   error <- character()
