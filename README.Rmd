@@ -1,18 +1,22 @@
+---
+pagetitle: "pmxsim"
+date: ""
+author: ""
+output: github_document
+---
 
 # pmxsim
-
 A generic clinical trial simulation platform.
 
 ## Requirements
 
--   R package `pmxmod` must be installed beforehand
--   Simulation engine must be installed too (e.g. `RxODE`)
+* R package `pmxmod` must be installed beforehand
+* Simulation engine must be installed too (e.g. `RxODE`)
 
 ## Installation
-
 Install the current development version:
-
-``` r
+  
+```{r, eval=FALSE}
 remotes::install_github("Calvagone/pmxsim@dev")
 ```
 
@@ -22,21 +26,20 @@ remotes::install_github("Calvagone/pmxsim@dev")
 
 First import the `pmxmod` and `pmxsim` packages:
 
-``` r
+```{r, message=FALSE}
 library(pmxmod)
 library(pmxsim)
 ```
 
 Load 2-compartment PK model from built-in model library:
 
-``` r
+```{r}
 model <- getNONMEMModelTemplate(advan=4, trans=4)
 ```
 
-Create your dataset using `pmxsim`. For instance, let’s give 1000mg QD
-for 3 days and observe every hour.
+Create your dataset using `pmxsim`. For instance, let's give 1000mg QD for 3 days and observe every hour.
 
-``` r
+```{r}
 dataset <- Dataset()
 dataset <- dataset %>% add(Bolus(time=0, amount=1000))
 dataset <- dataset %>% add(Bolus(time=24, amount=1000))
@@ -46,39 +49,20 @@ dataset <- dataset %>% add(Observations(times=seq(0,72, by=1)))
 
 Simulate this very simple protocol:
 
-``` r
+```{r}
 results <- model %>% simulate(dataset, dest="RxODE", seed=1)
-```
-
-    ## qs v0.23.5.
-
-``` r
 head(results)
 ```
 
-    ## # A tibble: 6 x 16
-    ##    time    KA    CL    V2    V3     Q    S2   ARM     F    CP OBS_CP     Y
-    ##   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl>
-    ## 1     0  1.05  6.43  70.1  20.6  3.62  70.1     0  0     0      0     0   
-    ## 2     1  1.05  6.43  70.1  20.6  3.62  70.1     0  8.56  8.56   8.22  8.22
-    ## 3     2  1.05  6.43  70.1  20.6  3.62  70.1     0 10.5  10.5   12.5  12.5 
-    ## 4     3  1.05  6.43  70.1  20.6  3.62  70.1     0 10.3  10.3   10.5  10.5 
-    ## 5     4  1.05  6.43  70.1  20.6  3.62  70.1     0  9.45  9.45   9.64  9.64
-    ## 6     5  1.05  6.43  70.1  20.6  3.62  70.1     0  8.56  8.56  10.5  10.5 
-    ## # ... with 4 more variables: A_DEPOT <dbl>, A_CENTRAL <dbl>,
-    ## #   A_PERIPHERAL <dbl>, A_OUTPUT <dbl>
-
 Plot these results:
 
-``` r
+```{r}
 spaguettiPlot(results, "CP")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-
 Simulate more subjects:
 
-``` r
+```{r}
 dataset <- Dataset(subjects=100)
 dataset <- dataset %>% add(Bolus(time=0, amount=1000))
 dataset <- dataset %>% add(Bolus(time=24, amount=1000))
@@ -88,20 +72,15 @@ results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 spaguettiPlot(results, "CP")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
-
 A shaded plot may also be used:
 
-``` r
+```{r}
 shadedPlot(results, "CP")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+We could also simulate two different treatment arms. Say the first arm receives 1000mg QD and the second arm 2000mg QD.
 
-We could also simulate two different treatment arms. Say the first arm
-receives 1000mg QD and the second arm 2000mg QD.
-
-``` r
+```{r}
 arm1 <- Arm(id=1, subjects=50)
 arm2 <- Arm(id=2, subjects=50)
 
@@ -121,20 +100,17 @@ results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 shadedPlot(results, "CP", scenarios="ARM")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
-
 ### Simulate infusions
 
-Load 2-compartment PK model without absorption from built-in model
-library:
+Load 2-compartment PK model without absorption from built-in model library:
 
-``` r
+```{r}
 model <- getNONMEMModelTemplate(advan=3, trans=4)
 ```
 
 1000mg is infused in central compartment in 5 hours of time.
 
-``` r
+```{r}
 dataset <- Dataset(10)
 dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
 dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
@@ -146,11 +122,9 @@ results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 spaguettiPlot(results, "CP")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+Let's add some variability on the infusion duration:
 
-Let’s add some variability on the infusion duration:
-
-``` r
+```{r}
 dataset <- Dataset(10)
 dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
 dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
@@ -161,5 +135,3 @@ dataset <- dataset %>% add(InfusionDuration(compartment=1, distribution=Function
 results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 spaguettiPlot(results, "CP")
 ```
-
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
