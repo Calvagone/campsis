@@ -15,7 +15,7 @@ FunctionDistribution(fun, args)
 \item{args}{list of arguments (e.g list(mean=70, sd=10))}
 }
 \value{
-a covariate
+a function distribution
 }
 \description{
 Create a function distribution. During distribution sampling, the provided function

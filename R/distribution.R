@@ -213,10 +213,64 @@ setClass(
 #'
 #' @param fun function name, character (e.g. 'rnorm')
 #' @param args list of arguments (e.g list(mean=70, sd=10))
-#' @return a covariate
+#' @return a function distribution
 #' @export
 FunctionDistribution <- function(fun, args) {
   return(new("function_distribution", fun=fun, args=args))
+}
+
+#'
+#' Create an uniform distribution.
+#'
+#' @param min min value
+#' @param max max value
+#' @return an uniform distribution
+#' @export
+UniformDistribution <- function(min, max) {
+  expectSingleNumericValue(min, "min")
+  expectSingleNumericValue(max, "max")
+  return(new("function_distribution", fun="runif", args=list(min=as.numeric(min), max=as.numeric(max))))
+}
+
+#'
+#' Create a normal distribution.
+#'
+#' @param mean mean
+#' @param sd sd
+#' @return a normal distribution
+#' @export
+NormalDistribution <- function(mean, sd) {
+  expectSingleNumericValue(mean, "mean")
+  expectSingleNumericValue(sd, "sd")
+  return(new("function_distribution", fun="rnorm", args=list(mean=as.numeric(mean), sd=as.numeric(sd))))
+}
+
+#'
+#' Create a log normal distribution.
+#'
+#' @param meanlog mean in log domain
+#' @param sdlog sd in log domain
+#' @return a log normal distribution
+#' @export
+LogNormalDistribution <- function(meanlog, sdlog) {
+  expectSingleNumericValue(meanlog, "meanlog")
+  expectSingleNumericValue(sdlog, "sdlog")
+  return(new("function_distribution", fun="rlnorm", args=list(meanlog=as.numeric(meanlog), sdlog=as.numeric(sdlog))))
+}
+
+#'
+#' Discrete distribution.
+#'
+#' @param x vector of one or more integers from which to choose
+#' @param prob a vector of probability weights for obtaining the elements of the vector being sampled
+#' @param replace should sampling be with replacement, default is TRUE
+#' @return a discrete distribution
+#' @export
+DiscreteDistribution <- function(x, prob, replace=TRUE) {
+  assertthat::assert_that(is.numeric(x), msg="x must be numeric")
+  assertthat::assert_that(is.numeric(prob), msg="prob must be numeric")
+  assertthat::assert_that(length(x)==length(prob), msg="x and prob must have the same length")
+  return(new("function_distribution", fun="base::sample", args=list(size="n", x=as.numeric(x), prob=as.numeric(prob), replace=as.logical(replace))))
 }
 
 #_______________________________________________________________________________
@@ -259,7 +313,11 @@ BootstrapDistribution <- function(data, replacement=FALSE, random=FALSE) {
 #----                             sample                                    ----
 #_______________________________________________________________________________
 
-sample_delegate <- function(fun, n, ...) {
+sample_delegate <- function(fun, ...) {
+  return(fun(...))
+}
+
+sample_delegate_n <- function(fun, n, ...) {
   return(fun(n, ...))
 }
 
@@ -277,7 +335,7 @@ setMethod("sample", signature = c("fixed_distribution", "integer"), definition =
 })
 
 setMethod("sample", signature = c("function_distribution", "integer"), definition = function(object, n) {
-  fun <- get(object@fun)
+  fun <- eval(parse(text=object@fun))
   args <- object@args
   SAMPLING_SIZE <- n
   
@@ -291,10 +349,15 @@ setMethod("sample", signature = c("function_distribution", "integer"), definitio
     # Example: return 'mean=70, sd=2'
     args_str <- purrr::accumulate2(names(args), args, .f=function(.x, .y, .z){
       comma <- if (.x=="") {""} else {", "}
-      if (.z=="n") {
+      if (.z[[1]]=="n") {
         .z <- "SAMPLING_SIZE"
       }
-      paste0(.x, comma, .y, "=", .z)
+      if (length(.z) > 1) {
+        value <- paste0("c(", paste0(.z, collapse=","), ")")
+      } else {
+        value <- .z
+      }
+      paste0(.x, comma, .y , "=", value)
     }, .init="")
     
     if (hasNCharAsValue) {
@@ -307,7 +370,12 @@ setMethod("sample", signature = c("function_distribution", "integer"), definitio
   }
   
   # Eval string expression
-  text <- paste0("sample_delegate(fun, ", args_str, ")")
+  if (hasNCharAsValue) {
+    text <- paste0("sample_delegate(fun, ", args_str, ")")
+  } else {
+    text <- paste0("sample_delegate_n(fun, ", args_str, ")")
+  }
+  
   values <- eval(parse(text=text))
   
   # Check result

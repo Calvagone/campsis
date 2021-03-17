@@ -156,7 +156,7 @@ dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
 dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
 # 5 hours duration, with 20% CV
-dataset <- dataset %>% add(InfusionDuration(compartment=1, distribution=FunctionDistribution(fun="rlnorm", args=list(meanlog=log(5), sdlog=0.2))))
+dataset <- dataset %>% add(InfusionDuration(compartment=1, distribution=LogNormalDistribution(meanlog=log(5), sdlog=0.2)))
 
 results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 spaguettiPlot(results, "CP")

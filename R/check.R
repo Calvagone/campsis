@@ -81,3 +81,7 @@ expectOneForAll <- function(object, attrs) {
   return(errors)
 }
 
+expectSingleNumericValue <- function(value, name) {
+  assertthat::assert_that(is.numeric(value) && length(value)==1, msg=paste0(name, " not a single numeric value"))
+}
+
