@@ -1,7 +1,7 @@
 Package: pmxsim
 Type: Package
 Collate:
-    'special_operators.R'
+    'load.R'
     'utilities.R'
     'check.R'
     'generic.R'
