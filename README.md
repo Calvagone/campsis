@@ -44,6 +44,32 @@ dataset <- dataset %>% add(Bolus(time=48, amount=1000))
 dataset <- dataset %>% add(Observations(times=seq(0,72, by=1)))
 ```
 
+See all methods that can be applied on a dataset:
+
+``` r
+methods(class=class(dataset))
+```
+
+    ## [1] add                  export               hasModelDistribution
+    ## [4] length               simulate            
+    ## see '?methods' for accessing help and source code
+
+``` r
+showMethods("add", classes=class(dataset))
+```
+
+    ## Function: add (package pmxmod)
+    ## object="dataset", x="arm"
+    ## object="dataset", x="bolus"
+    ##     (inherited from: object="dataset", x="treatment_entry")
+    ## object="dataset", x="covariate"
+    ## object="dataset", x="dataset_config"
+    ## object="dataset", x="observation"
+    ## object="dataset", x="observations"
+    ## object="dataset", x="treatment_characteristic"
+    ## object="dataset", x="treatment_entry"
+    ## object="dataset", x="treatment_iov"
+
 Simulate this very simple protocol:
 
 ``` r
@@ -74,7 +100,7 @@ Plot these results:
 spaguettiPlot(results, "CP")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 Simulate more subjects:
 
@@ -88,7 +114,7 @@ results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 spaguettiPlot(results, "CP")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 A shaded plot may also be used:
 
@@ -96,7 +122,7 @@ A shaded plot may also be used:
 shadedPlot(results, "CP")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 We could also simulate two different treatment arms. Say the first arm
 receives 1000mg QD and the second arm 2000mg QD.
@@ -121,7 +147,7 @@ results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 shadedPlot(results, "CP", scenarios="ARM")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
 ### Simulate infusions
 
@@ -146,7 +172,7 @@ results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 spaguettiPlot(results, "CP")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 Let’s add some variability on the infusion duration:
 
@@ -162,4 +188,4 @@ results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 spaguettiPlot(results, "CP")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
