@@ -322,6 +322,27 @@ sampleCovariatesList <- function(covariates, n) {
   return(retValue)
 }
 
+#' Apply compartment characteristics from model.
+#' 
+#' @param table current dataset
+#' @param characteristics compartment characteristics from model
+#' @return updated dataset
+#' @importFrom dplyr mutate
+#' 
+applyCompartmentCharacteristics <- function(table, characteristics) {
+  for (charateristic in characteristics@list) {
+    if (is(charateristic, "compartment_infusion_duration")) {
+      compartment <- charateristic@compartment
+      if (!("RATE" %in% colnames(table))) {
+        table <- table %>% dplyr::mutate(RATE=0)
+      }
+      rateValue <- ifelse(charateristic@rate, -1, -2)
+      table <- table %>% dplyr::mutate(RATE=ifelse(EVID==1 & CMT==compartment, rateValue, RATE))
+    }
+  }
+  return(table)
+}
+
 
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, ...) {
   if (dest=="RxODE") {
@@ -439,6 +460,11 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     
     return(expDf)
   })
+  
+  # Apply compartment characteristics coming from the model
+  if (!is.null(model)) {
+    retValue <- applyCompartmentCharacteristics(retValue, model@compartments@characteristics)
+  }
   
   return(retValue)
 })

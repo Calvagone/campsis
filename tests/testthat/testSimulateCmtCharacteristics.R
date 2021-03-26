@@ -1,0 +1,58 @@
+library(testthat)
+library(pmxmod)
+
+context("Test the simulate method with characteristics implemented in model")
+seed <<- 1
+
+test_that("Add lag time to model", {
+  model <- getNONMEMModelTemplate(4,4)
+  model <- model %>% add(CompartmentLagTime(1, "2*exp(ETA_1)"))
+
+  dataset <- Dataset(10)
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results, "CP")
+  
+})
+
+test_that("Add bioavailability to model", {
+  model <- getNONMEMModelTemplate(4,4) %>% disable("IIV")
+  model <- model %>% add(CompartmentBioavailability(1, "0.75*exp(IOV_F1)"))
+  
+  dataset <- Dataset(10)
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,48, by=0.5)))
+  
+  dataset <- dataset %>% add(IOV("IOV_F1", distribution=NormalDistribution(0, 0.05)))
+  
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results, "CP")
+  
+})
+
+test_that("Add infusion rate to model", {
+  model <- getNONMEMModelTemplate(3,4)
+  model <- model %>% add(CompartmentInfusionDuration(1, "200", rate=TRUE))
+  
+  dataset <- Dataset(10)
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results, "CP")
+})
+
+test_that("Add infusion duration to model", {
+  model <- getNONMEMModelTemplate(3,4)
+  model <- model %>% add(CompartmentInfusionDuration(1, "5", rate=FALSE))
+
+  dataset <- Dataset(10)
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+
+  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results, "CP")
+})
