@@ -82,6 +82,11 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), de
       if (!is.null(output)) {
         tmp <- tmp %>% dplyr::select(dplyr::all_of(output))
       }
+      # RxODE does not add the 'id' column if only 1 subject
+      uniqueID <- unique(events$ID)
+      if (length(uniqueID) == 1) {
+        tmp <- tmp %>% dplyr::mutate(id=uniqueID)
+      }
       return(tmp)
     })
   return(results)
