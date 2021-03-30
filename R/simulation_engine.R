@@ -17,3 +17,11 @@ setClass(
   ),
   contains="simulation_engine" 
 )
+
+#' @export
+setClass(
+  "mrgsolve_engine",
+  representation(
+  ),
+  contains="simulation_engine" 
+)

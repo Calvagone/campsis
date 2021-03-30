@@ -42,7 +42,7 @@ License: file LICENSE
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-Suggests: stringr, knitr, rmarkdown, testthat, roxygen2, devtools, pkgdown, bookdown, RxODE, ggplot2, pmxtran
+Suggests: stringr, knitr, rmarkdown, testthat, roxygen2, devtools, pkgdown, bookdown, RxODE, mrgsolve, pmxtran
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 URL: 

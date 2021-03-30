@@ -23,6 +23,20 @@ test_that("Simulate a bolus", {
   regressionTest(dataset, model, seed=seed, filename="simple_bolus.csv")
 })
 
+test_that("Simulate a bolus (mrgsolve)", {
+  model <- getNONMEMModelTemplate(3,4)
+  
+  dataset <- Dataset()
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  
+  results <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  spaguettiPlot(results, "CP")
+  
+  #expect_equal(nrow(results), 49)
+  #regressionTest(dataset, model, seed=seed, filename="simple_bolus.csv")
+})
+
 test_that("Simulate a bolus, 2 arms", {
   model <- getNONMEMModelTemplate(4,4)
   

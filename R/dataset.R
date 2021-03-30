@@ -394,7 +394,11 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     subjects <- arm@subjects
     protocol <- arm@protocol
     treatment <- protocol@treatment %>% assignDoseNumber()
-    doseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
+    if (treatment %>% length() > 0) {
+      doseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
+    } else { 
+      doseNumber <- 1 # Default
+    }
     observations <- protocol@observations
     covariates <- arm@covariates
     characteristics <- treatment@characteristics
