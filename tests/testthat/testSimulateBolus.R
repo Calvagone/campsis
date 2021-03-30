@@ -27,7 +27,7 @@ test_that("Simulate a bolus (RxODE/mrgsolve)", {
   regressionTest(dataset, model, seed=seed, filename="simple_bolus.csv")
 })
 
-test_that("Simulate a bolus, 2 arms", {
+test_that("Simulate a bolus, 2 arms (RxODE/mrgsolve)", {
   model <- getNONMEMModelTemplate(4,4)
   
   arm1 <- Arm(1, subjects=10)
@@ -39,11 +39,16 @@ test_that("Simulate a bolus, 2 arms", {
 
   dataset <- Dataset() %>% add(arm1) %>% add(arm2)
   
-  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP", "ARM")
-  shadedPlot(results, "CP", "ARM")
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results1, "CP", "ARM")
+  shadedPlot(results1, "CP", "ARM")
+  expect_equal(nrow(results1), dataset %>% length() * 49)
   
-  expect_equal(nrow(results), dataset %>% length() * 49)
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  spaguettiPlot(results2, "CP", "ARM")
+  shadedPlot(results2, "CP", "ARM")
+  expect_equal(nrow(results2), dataset %>% length() * 49)
+  
   regressionTest(dataset, model, seed=seed, filename="bolus_2arms.csv")
 })
 

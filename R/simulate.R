@@ -136,7 +136,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
   maxID <- max(ids)
   
   # Add ARM equation in model
-  model <- preprocessArmColumn(dataset, model)
+  hasARM <- "ARM" %in% colnames(dataset)
   
   # Slice number
   slices <- processExtraArg(args, name="slices", default=maxID)
@@ -158,7 +158,11 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
       mrgmod@param <- mrgmod@param %>% append(paste0(etaName, " : ", 0, " : ", etaName))
     }
   }
-  
+  if (hasARM) {
+    mrgmod@param <- mrgmod@param %>% append("ARM : 0 : ARM")
+    mrgmod@table <- mrgmod@table %>% append("capture ARM=ARM;") 
+  }
+
   # Compute all slice rounds to perform
   sliceRounds <- list(start=seq(1, maxID, by=slices), end=seq(0, maxID-1, by=slices) + slices)
   
