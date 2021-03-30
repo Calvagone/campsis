@@ -4,37 +4,27 @@ library(pmxmod)
 context("Test the simulate method with boluses")
 
 overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
+testFolder <<- "C:/prj/pmxsim/tests/testthat/"
 seed <<- 1
 
 source(paste0(testFolder, "testUtils.R"))
 
-test_that("Simulate a bolus", {
+test_that("Simulate a bolus (RxODE/mrgsolve)", {
   model <- getNONMEMModelTemplate(4,4)
   
   dataset <- Dataset()
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
-  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results1, "CP")
+  expect_equal(nrow(results1), 49)
   
-  expect_equal(nrow(results), 49)
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  spaguettiPlot(results2, "CP")
+  expect_equal(nrow(results2), 49)
+  
   regressionTest(dataset, model, seed=seed, filename="simple_bolus.csv")
-})
-
-test_that("Simulate a bolus (mrgsolve)", {
-  model <- getNONMEMModelTemplate(3,4)
-  
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
-  
-  results <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results, "CP")
-  
-  #expect_equal(nrow(results), 49)
-  #regressionTest(dataset, model, seed=seed, filename="simple_bolus.csv")
 })
 
 test_that("Simulate a bolus, 2 arms", {

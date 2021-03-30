@@ -147,6 +147,18 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
   # Export PMX model to RxODE
   mrgmod <- model %>% pmxmod::export(dest="mrgsolve")
   
+  # Disable IIV in mrgsolve model
+  mrgmod@omega <- character(0) # IIV managed by pmxsim
+  
+  # Declare all ETA's in the PARAM block
+  omegas <- rxodeMatrix(model, )
+  for (omega in (model@parameters %>% pmxmod::select("omega"))@list) {
+    if(omega %>% isDiag()) {
+      etaName <- omega %>% pmxmod::getNameInModel()
+      mrgmod@param <- mrgmod@param %>% append(paste0(etaName, " : ", 0, " : ", etaName))
+    }
+  }
+  
   # Compute all slice rounds to perform
   sliceRounds <- list(start=seq(1, maxID, by=slices), end=seq(0, maxID-1, by=slices) + slices)
   
@@ -156,15 +168,20 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
     return(events)
   })
   
-  # Instantiate RxODE model
+  # Instantiate mrgsolve model
   mod <- mrgsolve::mcode("model", mrgmod %>% pmxmod::toString())
   
   # Launch mrgsolve
   results <- eventsList %>% purrr::map_df(.f=function(events){
-    tmp <- (mod %>% mrgsolve::ev(events) %>% mrgsolve::mrgsim())@data
+    tmp <- (mod %>% mrgsolve::data_set(data=events) %>% mrgsolve::mrgsim())@data
     if (!is.null(output)) {
       tmp <- tmp %>% dplyr::select(dplyr::all_of(output))
     }
+    # Use same id and time columns as RxODE
+    tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
+    # Mrgsolve also keeps values at EVID=1 -> get rid of duplicates in dataset
+    # Note: add argument in simulate function?
+    tmp <- tmp %>% dplyr::distinct(dplyr::across(c(id, time)), .keep_all=TRUE)
     return(tmp)
   })
   return(results)
