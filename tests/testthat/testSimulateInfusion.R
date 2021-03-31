@@ -4,20 +4,20 @@ library(pmxmod)
 context("Test the simulate method with infusions")
 
 overwriteNonRegressionFiles <<- FALSE
-testFolder <<- "C:/prj/pmxsim/tests/testthat/"
+testFolder <<- ""
 seed <<- 1
 
 source(paste0(testFolder, "testUtils.R"))
 
-test_that("Simulate infusion using duration in dataset", {
+test_that("Simulate infusion using duration in dataset, then in model", {
   model <- getNONMEMModelTemplate(3,4)
-  regFilename <- "infusion_duration_dataset"
+  regFilename <- "infusion_duration"
   
   dataset <- Dataset()
   dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
-  # 5 hours duration
+  # 5 hours infusion duration implemented in dataset
   dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(5)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
@@ -31,17 +31,35 @@ test_that("Simulate infusion using duration in dataset", {
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
+  
+  # 5 hours infusion duration implemented in model
+  dataset <- Dataset()
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  
+  model <- model %>% add(CompartmentInfusionDuration(compartment=1, rhs="5"))
+  
+  results3 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results3, "CP")
+  expect_equal(nrow(results3), 49)
+  
+  results4 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  spaguettiPlot(results4, "CP")
+  expect_equal(nrow(results4), 49)
+  
+  outputRegressionTest(results3, output="CP", filename=regFilename)
+  outputRegressionTest(results4, output="CP", filename=regFilename)
 })
 
 test_that("Simulate infusion using rate in dataset", {
   model <- getNONMEMModelTemplate(3,4)
-  regFilename <- "infusion_duration_dataset"
+  regFilename <- "infusion_duration"
   
   dataset <- Dataset()
   dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
-  # 5 hours duration
+  # 5 hours infusion duration implemented in dataset
   dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
@@ -55,6 +73,24 @@ test_that("Simulate infusion using rate in dataset", {
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
+  
+  # 5 hours infusion duration implemented in model
+  dataset <- Dataset()
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  
+  model <- model %>% add(CompartmentInfusionDuration(compartment=1, rhs="200", rate=TRUE))
+  
+  results3 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results3, "CP")
+  expect_equal(nrow(results3), 49)
+  
+  results4 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  spaguettiPlot(results4, "CP")
+  expect_equal(nrow(results4), 49)
+  
+  outputRegressionTest(results3, output="CP", filename=regFilename)
+  outputRegressionTest(results4, output="CP", filename=regFilename)
 })
 
 test_that("Simulate infusion using rate and lag time in dataset", {
