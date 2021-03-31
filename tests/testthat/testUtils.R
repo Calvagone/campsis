@@ -45,7 +45,8 @@ datasetRegressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename)
 #' @param filename reference file (output will be appended automatically)
 #' @export
 outputRegressionTest <- function(results, output, filename) {
-  results1 <- results %>% dplyr::mutate_if(is.numeric, round, digits=6) %>% dplyr::select(dplyr::all_of(output)) %>% as.data.frame()
+  selectedColumns <- unique(c("id", "time", output))
+  results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)  %>% as.data.frame()
   suffix <- paste0(output, collapse="_") %>% tolower()
   
   file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
