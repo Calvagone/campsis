@@ -3,8 +3,8 @@ library(pmxmod)
 
 context("Test the simulate method with boluses")
 
-overwriteNonRegressionFiles <<- TRUE
-testFolder <<- "C:/prj/pmxsim/tests/testthat/"
+overwriteNonRegressionFiles <<- FALSE
+testFolder <<- ""
 seed <<- 1
 
 source(paste0(testFolder, "testUtils.R"))
@@ -32,7 +32,8 @@ test_that("Simulate a bolus (RxODE/mrgsolve)", {
 
 test_that("Simulate a bolus, 2 arms (RxODE/mrgsolve)", {
   model <- getNONMEMModelTemplate(4,4)
-  
+  regFilename <- "bolus_2arms"
+    
   arm1 <- Arm(1, subjects=10)
   arm2 <- Arm(2, subjects=10)
   arm1 <- arm1 %>% add(Bolus(time=0, amount=1000, compartment=1))
@@ -52,24 +53,7 @@ test_that("Simulate a bolus, 2 arms (RxODE/mrgsolve)", {
   shadedPlot(results2, "CP", "ARM")
   expect_equal(nrow(results2), dataset %>% length() * 49)
   
-  datasetRegressionTest(dataset, model, seed=seed, filename="bolus_2arms")
-})
-
-test_that("Simulate a bolus with lag time", {
-  model <- getNONMEMModelTemplate(4,4)
-  
-  dataset <- Dataset(3)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
-  
-  # 2 hours lag time with 20% CV
-  lag <- LagTime(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(2), sdlog=0.2)))
-  dataset <- dataset %>% add(lag)
-
-  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
-  
-  expect_equal(nrow(results), dataset %>% length() * 49)
-  datasetRegressionTest(dataset, model, seed=seed, filename="bolus_lag_time")
-  
+  datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
 })

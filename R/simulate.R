@@ -177,15 +177,13 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
   
   # Launch mrgsolve
   results <- eventsList %>% purrr::map_df(.f=function(events){
-    tmp <- (mod %>% mrgsolve::data_set(data=events) %>% mrgsolve::mrgsim())@data
+    # Observation only set to TRUE to align results with RxODE
+    tmp <- mod %>% mrgsolve::data_set(data=events) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df")
     if (!is.null(output)) {
       tmp <- tmp %>% dplyr::select(dplyr::all_of(output))
     }
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
-    # Mrgsolve also keeps values at EVID=1 -> get rid of duplicates in dataset
-    # Note: add argument in simulate function?
-    tmp <- tmp %>% dplyr::distinct(dplyr::across(c(id, time)), .keep_all=TRUE)
     return(tmp)
   })
   return(results)
