@@ -33,3 +33,27 @@ test_that("Simulate a bolus with lag time in dataset", {
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
+
+test_that("Simulate a bolus with lag time in model", {
+  model <- getNONMEMModelTemplate(4,4)
+  regFilename <- "bolus_lag_time_model"
+  
+  dataset <- Dataset(3)
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  
+  # 2 hours lag time, no variability
+  model <- model %>% add(CompartmentLagTime(compartment=1, rhs="2"))
+
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results1, "CP")
+  expect_equal(nrow(results1), dataset %>% length() * 49)
+  
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  spaguettiPlot(results2, "CP")
+  expect_equal(nrow(results2), dataset %>% length() * 49)
+  
+  datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
+})
