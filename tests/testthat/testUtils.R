@@ -16,11 +16,19 @@ datasetInMemory <- function(dataset, model, seed, doseOnly=TRUE) {
   }
 }
 
-regressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename) {
+#' Test there is no regression in the exported dataset.
+#' 
+#' @param dataset newly generated PMX dataset
+#' @param model PMX model
+#' @param seed seed that was used for export
+#' @param doseOnly look only at the doses, i.e. EVID==1
+#' @param filename reference file
+#' @export
+datasetRegressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename) {
   dataset1 <- datasetInMemory(dataset=dataset, model=model, seed=seed, doseOnly=doseOnly)
   dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6) %>% as.data.frame()
   
-  file <- paste0(testFolder, "non_regression/", filename)
+  file <- paste0(testFolder, "non_regression/", paste0(filename, ".csv"))
   
   if (overwriteNonRegressionFiles) {
     write.table(dataset1, file=file, sep=",", row.names=FALSE)
@@ -28,4 +36,24 @@ regressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename) {
   
   dataset2 <- read.csv(file=file) %>% as.data.frame()
   expect_equal(dataset1, dataset2)
+}
+
+#' Test there is no regression in the simulated output.
+#' 
+#' @param results newly generated results
+#' @param output variables to compare
+#' @param filename reference file (output will be appended automatically)
+#' @export
+outputRegressionTest <- function(results, output, filename) {
+  results1 <- results %>% dplyr::mutate_if(is.numeric, round, digits=6) %>% dplyr::select(dplyr::all_of(output)) %>% as.data.frame()
+  suffix <- paste0(output, collapse="_") %>% tolower()
+  
+  file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
+  
+  if (overwriteNonRegressionFiles) {
+    write.table(results1, file=file, sep=",", row.names=FALSE)
+  }
+  
+  results2 <- read.csv(file=file) %>% as.data.frame()
+  expect_equal(results1, results2)
 }

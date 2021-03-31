@@ -23,7 +23,7 @@ test_that("Simulate an infusion using the duration", {
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), 49)
-  regressionTest(dataset, model, seed=seed, filename="infusion_duration.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="infusion_duration")
 })
 
 test_that("Simulate an infusion using the rate", {
@@ -40,7 +40,7 @@ test_that("Simulate an infusion using the rate", {
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), 49)
-  regressionTest(dataset, model, seed=seed, filename="infusion_duration.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="infusion_duration")
 })
 
 test_that("Simulate an infusion using the rate and lag time", {
@@ -61,7 +61,7 @@ test_that("Simulate an infusion using the rate and lag time", {
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), dataset %>% length() * 49)
-  regressionTest(dataset, model, seed=seed, filename="infusion_rate_lag_time1.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="infusion_rate_lag_time1")
 })
 
 test_that("Simulate an infusion using the rate and lag time (parameter distribution)", {
@@ -86,5 +86,5 @@ test_that("Simulate an infusion using the rate and lag time (parameter distribut
   
   expect_equal(nrow(results), dataset %>% length() * 49)
   expect_true(dataset %>% hasModelDistribution())
-  regressionTest(dataset, model, seed=seed, filename="infusion_rate_lag_time2.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="infusion_rate_lag_time2")
 })

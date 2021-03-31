@@ -26,7 +26,7 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), 145*dataset %>% length())
-  regressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka_1.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka_1")
 })
 
 test_that("Simulate 1000mg QD with IOV on KA (2)", {
@@ -47,7 +47,7 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), 145*dataset %>% length())
-  regressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka_2.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka_2")
 })
 
 test_that("Simulate IOV on F1", {
@@ -78,13 +78,13 @@ test_that("Simulate IOV on F1", {
   # Simulate just IIV
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   results1$ARM <- "IIV"
-  regressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_f1.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_f1")
   
   # Simulate just IIV + IOV
   results2 <- model_iov %>% simulate(dataset, dest="RxODE", seed=seed)
   results2$id <- results2$id + dataset %>% length()
   results2$ARM <- "IIV + IOV"
-  regressionTest(dataset, model_iov, seed=seed, filename="3_boluses_iiv_iov_f1.csv")
+  datasetRegressionTest(dataset, model_iov, seed=seed, filename="3_boluses_iiv_iov_f1")
   
   spaguettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")
@@ -118,13 +118,13 @@ test_that("Simulate IOV on ALAG1", {
   # Simulate just IIV
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   results1$ARM <- "IIV"
-  regressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_alag1.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_alag1")
   
   # Simulate just IIV + IOV
   results2 <- model_iov %>% simulate(dataset, dest="RxODE", seed=seed)
   results2$id <- results2$id + dataset %>% length()
   results2$ARM <- "IIV + IOV"
-  regressionTest(dataset, model_iov, seed=seed, filename="3_boluses_iiv_iov_alag1.csv")
+  datasetRegressionTest(dataset, model_iov, seed=seed, filename="3_boluses_iiv_iov_alag1")
   
   spaguettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")
@@ -158,13 +158,13 @@ test_that("Simulate IOV on D1", {
   # Simulate just IIV
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   results1$ARM <- "IIV"
-  regressionTest(dataset, model, seed=seed, filename="3_infusions_iiv_d1.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="3_infusions_iiv_d1")
   
   # Simulate just IIV + IOV
   results2 <- model_iov %>% simulate(dataset, dest="RxODE", seed=seed)
   results2$id <- results2$id + dataset %>% length()
   results2$ARM <- "IIV + IOV"
-  regressionTest(dataset, model_iov, seed=seed, filename="3_infusions_iiv_iov_d1.csv")
+  datasetRegressionTest(dataset, model_iov, seed=seed, filename="3_infusions_iiv_iov_d1")
   
   spaguettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")

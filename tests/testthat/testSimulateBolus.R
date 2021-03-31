@@ -24,7 +24,7 @@ test_that("Simulate a bolus (RxODE/mrgsolve)", {
   spaguettiPlot(results2, "CP")
   expect_equal(nrow(results2), 49)
   
-  regressionTest(dataset, model, seed=seed, filename="simple_bolus.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="simple_bolus")
 })
 
 test_that("Simulate a bolus, 2 arms (RxODE/mrgsolve)", {
@@ -49,7 +49,7 @@ test_that("Simulate a bolus, 2 arms (RxODE/mrgsolve)", {
   shadedPlot(results2, "CP", "ARM")
   expect_equal(nrow(results2), dataset %>% length() * 49)
   
-  regressionTest(dataset, model, seed=seed, filename="bolus_2arms.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="bolus_2arms")
 })
 
 test_that("Simulate a bolus with lag time", {
@@ -67,6 +67,6 @@ test_that("Simulate a bolus with lag time", {
   spaguettiPlot(results, "CP")
   
   expect_equal(nrow(results), dataset %>% length() * 49)
-  regressionTest(dataset, model, seed=seed, filename="bolus_lag_time.csv")
+  datasetRegressionTest(dataset, model, seed=seed, filename="bolus_lag_time")
   
 })

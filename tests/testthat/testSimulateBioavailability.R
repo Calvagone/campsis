@@ -30,5 +30,6 @@ test_that("Simulate a bolus, 2 arms", {
   
   expect_equal(nrow(results), dataset %>% length() * 49)
   expect_false(dataset %>% hasModelDistribution())
-  regressionTest(dataset, model, seed=seed, filename="bolus_2arms_bioavailability.csv")
+  
+  datasetRegressionTest(dataset, model, seed=seed, filename="bolus_2arms_bioavailability")
 })
