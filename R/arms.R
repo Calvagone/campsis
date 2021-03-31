@@ -28,3 +28,19 @@ setMethod("default", signature=c("arms"), definition=function(object, ...) {
   return(object@list[[1]])
 })
 
+#_______________________________________________________________________________
+#----                          getCovariateNames                            ----
+#_______________________________________________________________________________
+
+setMethod("getCovariateNames", signature = c("arms"), definition = function(object) {
+  return(object@list %>% purrr::map(.f=~.x %>% getCovariateNames()) %>% purrr::flatten_chr() %>% unique())
+})
+
+#_______________________________________________________________________________
+#----                            getIOVNames                                ----
+#_______________________________________________________________________________
+
+setMethod("getIOVNames", signature = c("arms"), definition = function(object) {
+  return(object@list %>% purrr::map(.f=~.x %>% getIOVNames())  %>% purrr::flatten_chr() %>% unique())
+})
+

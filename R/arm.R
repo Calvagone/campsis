@@ -32,6 +32,22 @@ Arm <- function(id=1, subjects=1) {
 }
 
 #_______________________________________________________________________________
+#----                          getCovariateNames                            ----
+#_______________________________________________________________________________
+
+setMethod("getCovariateNames", signature = c("arm"), definition = function(object) {
+  return(object@covariates@list %>% purrr::map_chr(.f=~.x@name))
+})
+
+#_______________________________________________________________________________
+#----                            getIOVNames                                ----
+#_______________________________________________________________________________
+
+setMethod("getIOVNames", signature = c("arm"), definition = function(object) {
+  return(object@protocol@treatment@iovs@list %>% purrr::map_chr(.f=~.x@colname))
+})
+
+#_______________________________________________________________________________
 #----                           getName                                     ----
 #_______________________________________________________________________________
 

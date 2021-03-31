@@ -36,7 +36,18 @@ setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), de
   # Export to data frame (data frame RxODE = data frame mrgsolve)
   table <- dataset %>% export(dest="RxODE", model=model, ...)
   
-  return(simulate(model=model, dataset=table, dest=dest, ...))
+  # Variables to declare in the mrgsolve model
+  iovNames <- dataset %>% getIOVNames()
+  covariateNames <- dataset %>% getCovariateNames()
+  declare <- c(iovNames, covariateNames)
+  
+  # Mrgsolve complains if treatment IOV has NA's for observations
+  # Warning: Parameter column IOV_KA must not contain missing values
+  for (iovName in iovNames) {
+    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovName), .direction="downup")
+  }
+  
+  return(simulate(model=model, dataset=table, dest=dest, declare=declare, ...))
 })
 
 #' Preprocess subjects ID's.
@@ -144,6 +155,9 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
   # Output variables
   output <- processExtraArg(args, name="output")
   
+  # Variables to declare
+  declare <- processExtraArg(args, name="declare")
+  
   # Export PMX model to RxODE
   mrgmod <- model %>% pmxmod::export(dest="mrgsolve")
   
@@ -151,13 +165,18 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
   mrgmod@omega <- character(0) # IIV managed by pmxsim
   
   # Declare all ETA's in the PARAM block
-  omegas <- rxodeMatrix(model, )
+  omegas <- rxodeMatrix(model, type="omega")
   for (omega in (model@parameters %>% pmxmod::select("omega"))@list) {
     if(omega %>% isDiag()) {
       etaName <- omega %>% pmxmod::getNameInModel()
       mrgmod@param <- mrgmod@param %>% append(paste0(etaName, " : ", 0, " : ", etaName))
     }
   }
+  # Declare all covariates and IOV variables contained in dataset
+  for (variable in declare) {
+    mrgmod@param <- mrgmod@param %>% append(paste0(declare, " : ", 0, " : ", declare))
+  }
+  
   if (hasARM) {
     mrgmod@param <- mrgmod@param %>% append("ARM : 0 : ARM")
     mrgmod@table <- mrgmod@table %>% append("capture ARM=ARM;") 

@@ -4,12 +4,13 @@ library(pmxmod)
 context("Test the simulate method with IOV")
 
 overwriteNonRegressionFiles <<- FALSE
-testFolder <<- "C:/prj/pmxsim/tests/testthat/"
+testFolder <<- ""
 seed <<- 1
 
 source(paste0(testFolder, "testUtils.R"))
 
 test_that("Simulate 1000mg QD with IOV on KA (1)", {
+  regFilename <- "3_boluses_iov_ka_1"
   model <- getNONMEMModelTemplate(4,4)
   pk <- model@model %>% getByName("PK")
   pk@code[[1]] <- "KA=THETA_1*exp(ETA_1 + IOV_KA)"
@@ -22,14 +23,23 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
   dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
   dataset <- dataset %>% add(IOV(colname="IOV_KA", distribution=FunctionDistribution(fun="rnorm", args=list(mean=0, sd=0.2))))
   
-  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
+  expect_equal(dataset %>% getIOVNames(), "IOV_KA")
   
-  expect_equal(nrow(results), 145*dataset %>% length())
-  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka_1")
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results1, "CP")
+  expect_equal(nrow(results1), 145*dataset %>% length())
+  
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  spaguettiPlot(results2, "CP")
+  expect_equal(nrow(results2), 145*dataset %>% length())
+  
+  datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
 })
 
 test_that("Simulate 1000mg QD with IOV on KA (2)", {
+  regFilename <- "3_boluses_iov_ka_2"
   model <- getNONMEMModelTemplate(4,4)
   pk <- model@model %>% getByName("PK")
   pk@code[[1]] <- "KA=THETA_1*exp(ETA_1 + IOV_KA)"
@@ -43,11 +53,17 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
   dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
   dataset <- dataset %>% add(IOV(colname="IOV_KA", distribution=EtaDistribution(omega="IOV_KA")))
   
-  results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results1, "CP")
+  expect_equal(nrow(results1), 145*dataset %>% length())
   
-  expect_equal(nrow(results), 145*dataset %>% length())
-  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iov_ka_2")
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  spaguettiPlot(results2, "CP")
+  expect_equal(nrow(results2), 145*dataset %>% length())
+  
+  datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
 })
 
 test_that("Simulate IOV on F1", {

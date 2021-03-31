@@ -104,12 +104,19 @@ setMethod("add", signature = c("dataset", "dataset_config"), definition = functi
 })
 
 #_______________________________________________________________________________
-#----                             length                                    ----
+#----                          getCovariateNames                            ----
 #_______________________________________________________________________________
 
-setMethod("length", signature=c("dataset"), definition=function(x) {
-  subjectsPerArm <- x@arms@list %>% purrr::map_int(.f=~.x@subjects) 
-  return(sum(subjectsPerArm))
+setMethod("getCovariateNames", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getCovariateNames())
+})
+
+#_______________________________________________________________________________
+#----                            getIOVNames                                ----
+#_______________________________________________________________________________
+
+setMethod("getIOVNames", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getIOVNames())
 })
 
 #_______________________________________________________________________________
@@ -120,6 +127,15 @@ setMethod("hasModelDistribution", signature = c("dataset"), definition = functio
   res1 <- object@arms@list %>% purrr::map_lgl(~.x@protocol@treatment@characteristics %>% hasModelDistribution())
   res2 <- object@arms@list %>% purrr::map_lgl(~.x@protocol@treatment@iovs %>% hasModelDistribution())
   return(any(c(res1, res2)))
+})
+
+#_______________________________________________________________________________
+#----                             length                                    ----
+#_______________________________________________________________________________
+
+setMethod("length", signature=c("dataset"), definition=function(x) {
+  subjectsPerArm <- x@arms@list %>% purrr::map_int(.f=~.x@subjects) 
+  return(sum(subjectsPerArm))
 })
 
 #_______________________________________________________________________________

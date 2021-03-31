@@ -95,6 +95,7 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   # Add covariate
   dataset <- dataset %>% add(Covariate(name="WT", ConstantDistribution(value=70)))
   dataset <- dataset %>% add(Covariate(name="HT", ConstantDistribution(value=180)))
+  expect_equal(dataset %>% getCovariateNames(), c("WT", "HT"))
   
   # Add observations
   for (t in seq(0, 48, by=10)) {

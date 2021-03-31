@@ -90,6 +90,40 @@ setGeneric("getColumnName", function(x) {
 })
 
 #_______________________________________________________________________________
+#----                           getIOVNames                                 ----
+#_______________________________________________________________________________
+
+#' Get IOV names.
+#' 
+#' @param object any object
+#' @return character vector
+#' @export
+getIOVNames <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getIOVNames", function(object) {
+  standardGeneric("getIOVNames")
+})
+
+#_______________________________________________________________________________
+#----                         getCovariateNames                             ----
+#_______________________________________________________________________________
+
+#' Get covariate names.
+#' 
+#' @param object any object
+#' @return character vector
+#' @export
+getCovariateNames <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getCovariateNames", function(object) {
+  standardGeneric("getCovariateNames")
+})
+
+#_______________________________________________________________________________
 #----                      hasModelDistribution                         ----
 #_______________________________________________________________________________
 
