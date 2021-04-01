@@ -174,7 +174,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
   }
   # Declare all covariates and IOV variables contained in dataset
   for (variable in declare) {
-    mrgmod@param <- mrgmod@param %>% append(paste0(declare, " : ", 0, " : ", declare))
+    mrgmod@param <- mrgmod@param %>% append(paste0(variable, " : ", 0, " : ", variable))
   }
   
   if (hasARM) {
