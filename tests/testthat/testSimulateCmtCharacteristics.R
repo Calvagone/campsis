@@ -6,7 +6,7 @@ seed <<- 1
 
 test_that("Add lag time to model", {
   model <- getNONMEMModelTemplate(4,4)
-  model <- model %>% add(CompartmentLagTime(1, "2*exp(ETA_1)"))
+  model <- model %>% add(CompartmentLagTime(1, "2*exp(ETA_KA)"))
 
   dataset <- Dataset(10)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
@@ -60,7 +60,7 @@ test_that("Add infusion duration to model", {
 test_that("Reproduce RxODE bug with a minimalist example", {
   model <- getNONMEMModelTemplate(4,4) %>% disable("IIV")
   model <- model %>% add(CompartmentBioavailability(1, "0.75*exp(IOV_F1)"))
-  model <- model %>% add(CompartmentInfusionDuration(1, "1*exp(ETA_1)"))
+  model <- model %>% add(CompartmentInfusionDuration(1, "1*exp(ETA_KA)"))
   
   dataset <- Dataset(10)
   dataset <- dataset %>% add(Infusion(time=0.01, amount=1000, compartment=1)) # Setting time=0 makes RxODE crash

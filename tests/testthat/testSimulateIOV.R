@@ -13,7 +13,7 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
   regFilename <- "3_boluses_iov_ka_1"
   model <- getNONMEMModelTemplate(4,4)
   pk <- model@model %>% getByName("PK")
-  pk@code[[1]] <- "KA=THETA_1*exp(ETA_1 + IOV_KA)"
+  pk@code[[1]] <- "KA=THETA_KA*exp(ETA_KA + IOV_KA)"
   model@model <- model@model %>% pmxmod::replace(pk)
   
   dataset <- Dataset(10)
@@ -42,7 +42,7 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
   regFilename <- "3_boluses_iov_ka_2"
   model <- getNONMEMModelTemplate(4,4)
   pk <- model@model %>% getByName("PK")
-  pk@code[[1]] <- "KA=THETA_1*exp(ETA_1 + IOV_KA)"
+  pk@code[[1]] <- "KA=THETA_KA*exp(ETA_KA + IOV_KA)"
   model@model <- model@model %>% pmxmod::replace(pk)
   model@parameters <- model@parameters %>% add(Omega("IOV_KA", index=6, index2=6, value=0.2^2))
   
