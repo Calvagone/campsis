@@ -176,10 +176,9 @@ test_that("Export function covariates work well (N=3)", {
   dataset <- dataset %>% add(arm)
   
   # Export to RxODE N=1
-  set.seed(1)
   config <- new("dataset_config", def_depot_cmt=as.integer(1), def_obs_cmt=as.integer(2))
   dataset <- dataset %>% add(config)
-  table <- dataset %>% export(dest="RxODE")
+  table <- dataset %>% export(dest="RxODE", seed=1)
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct() %>% dplyr::mutate(WT=round(WT), HT=round(HT))
   expect_equal(subTable, data.frame(ID=c(1,2,3), WT=c(64,72,62), HT=c(212,187,164)))
@@ -207,10 +206,9 @@ test_that("Export boostrap covariates work well (N=8)", {
   dataset <- dataset %>% add(arm)
   
   # Export to RxODE
-  set.seed(1)
   config <- DatasetConfig(defObsCmt=2)
   dataset <- dataset %>% add(config)
-  table <- dataset %>% export(dest="RxODE")
+  table <- dataset %>% export(dest="RxODE", seed=1)
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct()
   expect_equal(subTable, data.frame(ID=c(1,2,3,4,5,6,7,8), WT=c(65,75,65,70,65,75,75,70), HT=c(180,185,185,175,175,175,180,180)))

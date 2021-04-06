@@ -3,51 +3,46 @@
 #----                             simulate                                  ----
 #_______________________________________________________________________________
 
-setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, slices=NULL, replicates=1, ...) {
+#' Get simulation engine type.
+#' 
+#' @param dest destination engine, string form
+#' @return simulation engine type
+#' 
+getSimulationEngineType <- function(dest) {
   if (dest=="RxODE") {
-    return(simulate(model=model, dataset=dataset, dest=new("rxode_engine"), slices=slices, replicates=replicates, ...))
+    engine <- new("rxode_engine")
   } else if (dest=="mrgsolve") {
-    return(simulate(model=model, dataset=dataset, dest=new("mrgsolve_engine"), slices=slices, replicates=replicates, ...))
+    engine <- new("mrgsolve_engine")
   } else {
     stop("Only RxODE and mrgsolve are supported for now")
   }
+  return(engine)
+}
+
+setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, seed=NULL, slices=NULL, replicates=1, ...) {
+  destinationEngine <- getSimulationEngineType(dest)
+  return(simulate(model=model, dataset=dataset, dest=destinationEngine, seed=seed, slices=slices, replicates=replicates, ...))
 })
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), definition=function(model, dataset, dest, slices=NULL, replicates=1, ...) {
-  if (dest=="RxODE") {
-    return(simulate(model=model, dataset=dataset, dest=new("rxode_engine"), slices=slices, replicates=replicates, ...))
-  } else if (dest=="mrgsolve") {
-    return(simulate(model=model, dataset=dataset, dest=new("mrgsolve_engine"), slices=slices, replicates=replicates, ...))
-  } else {
-    stop("Only RxODE and mrgsolve are supported for now")
-  }
+setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), definition=function(model, dataset, dest, seed=NULL, slices=NULL, replicates=1, ...) {
+  destinationEngine <- getSimulationEngineType(dest)
+  return(simulate(model=model, dataset=dataset, dest=destinationEngine, seed=seed, slices=slices, replicates=replicates, ...))
 })
 
-setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, slices, replicates, ...) {
-
-  # Export to data frame
-  table <- dataset %>% export(dest="RxODE", model=model, ...)
-  
+setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, seed, slices, replicates, ...) {
+  table <- dataset %>% export(dest="RxODE", model=model, seed=seed, ...)
   return(simulate(model=model, dataset=table, dest=dest, slices=slices, replicates=replicates, ...))
 })
 
-setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), definition=function(model, dataset, dest, slices, replicates, ...) {
-  
-  # Export to data frame (data frame RxODE = data frame mrgsolve)
-  table <- dataset %>% export(dest="RxODE", model=model, ...)
+setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), definition=function(model, dataset, dest, seed, slices, replicates, ...) {
+  table <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, ...)
   
   # Variables to declare in the mrgsolve model
   iovNames <- dataset %>% getIOVNames()
   covariateNames <- dataset %>% getCovariateNames()
   declare <- c(iovNames, covariateNames)
   
-  # Mrgsolve complains if treatment IOV has NA's for observations
-  # Warning: Parameter column IOV_KA must not contain missing values
-  for (iovName in iovNames) {
-    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovName), .direction="downup")
-  }
-  
-  return(simulate(model=model, dataset=table, dest=dest, declare=declare, slices=slices, replicates=replicates, ...))
+  return(simulate(model=model, dataset=table, dest=dest, slices=slices, replicates=replicates, declare=declare, ...))
 })
 
 #' Preprocess subjects ID's.

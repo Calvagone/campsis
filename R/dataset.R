@@ -359,16 +359,22 @@ applyCompartmentCharacteristics <- function(table, characteristics) {
   return(table)
 }
 
+#' Get random seed value.
+#' 
+#' @return random seed value generated based on time
+#' 
+getRandomSeedValue <- function() {
+  seed <- as.numeric(Sys.time())
+  return(seed)
+}
 
-setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, ...) {
-  if (dest=="RxODE") {
-    return(object %>% export(new("rxode_engine"), ...))
-  } else {
-    stop("Only RxODE is supported for now")
-  }
+
+setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, ...) {
+  destinationEngine <- getSimulationEngineType(dest)
+  return(object %>% export(destinationEngine, seed=seed, ...))
 })
 
-setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, ...) {
+setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
 
   args <- list(...)
   model <- args$model
@@ -377,8 +383,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   }
   
   # Set seed value only if requested
-  seed <- processExtraArg(args, name="seed")
-  if (!is.null(seed)) {
+  if (is.null(seed)) {
+    set.seed(getRandomSeedValue())
+  } else {
     set.seed(seed)
   }
   
@@ -487,4 +494,18 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   }
   
   return(retValue)
+})
+
+setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, ...) {
+  
+  # First export dataset for RxODE, then, make some modifications
+  table <- object %>% export(dest=getSimulationEngineType("RxODE"), seed=seed, ...)
+  
+  # Mrgsolve complains if treatment IOV has NA's for observations
+  # Warning: Parameter column IOV_KA must not contain missing values
+  for (iovName in object %>% getIOVNames()) {
+    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovName), .direction="downup")
+  }
+  
+  return(table)
 })
