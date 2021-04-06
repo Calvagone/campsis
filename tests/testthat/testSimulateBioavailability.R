@@ -20,7 +20,7 @@ test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
   arm2 <- arm2 %>% add(Observations(times=seq(0,24, by=0.5)))
   
   # Add F1=0.75 (20%CV) into first arm
-  arm1 <- arm1 %>% add(Bioavailability(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(0.75), sdlog=0.2))))
+  arm1 <- arm1 %>% add(TreatmentBioavailability(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(0.75), sdlog=0.2))))
   
   dataset <- Dataset() %>% add(arm1) %>% add(arm2)
   
@@ -43,7 +43,7 @@ test_that("Simulate a simple bolus with bioavailability", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   # Bioavailability implemented in dataset
-  dataset <- dataset %>% add(Bioavailability(compartment=1, distribution=ConstantDistribution(0.75)))
+  dataset <- dataset %>% add(TreatmentBioavailability(compartment=1, distribution=ConstantDistribution(0.75)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")

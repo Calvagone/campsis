@@ -18,7 +18,7 @@ test_that("Simulate a bolus with lag time in dataset", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   # 2 hours lag time with 20% CV
-  lag <- LagTime(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(2), sdlog=0.2)))
+  lag <- TreatmentLagTime(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(2), sdlog=0.2)))
   dataset <- dataset %>% add(lag)
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)

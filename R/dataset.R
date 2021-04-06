@@ -187,7 +187,7 @@ processCharacteristicIOV <- function(table, characteristic) {
 #' @return updated table (AMT adapted)
 #' 
 processBioavailabilities <- function(table, characteristics) {
-  bioavailabilities <- characteristics %>% pmxmod::select("bioavailability")
+  bioavailabilities <- characteristics %>% pmxmod::select("treatment_bioavailability")
   if (bioavailabilities %>% length() == 0) {
     return(table)
   }
@@ -213,7 +213,7 @@ processBioavailabilities <- function(table, characteristics) {
 #' @return updated table with RATE column
 #' 
 processInfusions <- function(table, characteristics) {
-  durations <- characteristics %>% pmxmod::select("infusion_duration")
+  durations <- characteristics %>% pmxmod::select("treatment_infusion_duration")
   if (durations %>% length() == 0) {
     return(table)
   }
@@ -247,7 +247,7 @@ processInfusions <- function(table, characteristics) {
 #' @return updated table with time of doses updated
 #' 
 processLagTimes <- function(table, characteristics) {
-  lagTimes <- characteristics %>% pmxmod::select("lag_time")
+  lagTimes <- characteristics %>% pmxmod::select("treatment_lag_time")
   if (lagTimes %>% length() == 0) {
     return(table)
   }

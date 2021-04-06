@@ -1,30 +1,30 @@
 
 #_______________________________________________________________________________
-#----                         lag_time class                                ----
+#----                     treatment_bioavailability class                   ----
 #_______________________________________________________________________________
 
-validateLagTime <- function(object) {
+validateBioavailability <- function(object) {
   return(TRUE)
 }
 
 #' @export
 setClass(
-  "lag_time",
+  "treatment_bioavailability",
   representation(
   ),
   contains = "treatment_characteristic",
-  validity=validateLagTime
+  validity=validateBioavailability
 )
 
 #'
-#' Create a lag time for the specified compartment.
+#' Create a bioavailability for the specified compartment.
 #'
 #' @param compartment compartment number
 #' @param distribution distribution
-#' @return lag time
+#' @return bioavailability
 #' @export
-LagTime <- function(compartment, distribution) {
-  return(new("lag_time", compartment=as.integer(compartment), distribution=distribution))
+TreatmentBioavailability <- function(compartment, distribution) {
+  return(new("treatment_bioavailability", compartment=as.integer(compartment), distribution=distribution))
 }
 
 #_______________________________________________________________________________
@@ -32,14 +32,14 @@ LagTime <- function(compartment, distribution) {
 #_______________________________________________________________________________
 
 
-setMethod("getName", signature = c("lag_time"), definition = function(x) {
-  return(paste0("LAG_TIME [", "CMT=", x@compartment, "]"))
+setMethod("getName", signature = c("treatment_bioavailability"), definition = function(x) {
+  return(paste0("BIOAVAILABILITY [", "CMT=", x@compartment, "]"))
 })
 
 #_______________________________________________________________________________
 #----                         getColumnName                                 ----
 #_______________________________________________________________________________
 
-setMethod("getColumnName", signature = c("lag_time"), definition = function(x) {
-  return(paste0("ALAG", x@compartment))
+setMethod("getColumnName", signature = c("treatment_bioavailability"), definition = function(x) {
+  return(paste0("F", x@compartment))
 })

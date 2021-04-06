@@ -1,5 +1,5 @@
 #_______________________________________________________________________________
-#----                     infusion_duration class                           ----
+#----                   treatment_infusion_duration class                   ----
 #_______________________________________________________________________________
 
 validateInfusionDuration <- function(object) {
@@ -8,7 +8,7 @@ validateInfusionDuration <- function(object) {
 
 #' @export
 setClass(
-  "infusion_duration",
+  "treatment_infusion_duration",
   representation(
     rate = "logical"
   ),
@@ -25,15 +25,15 @@ setClass(
 #' @param rate logical value, TRUE if distribution is a rate, FALSE if it is an infusion
 #' @return details about infusion duration/rate
 #' @export
-InfusionDuration <- function(compartment, distribution, rate=FALSE) {
-  return(new("infusion_duration", compartment=as.integer(compartment), distribution=distribution, rate=rate))
+TreatmentInfusionDuration <- function(compartment, distribution, rate=FALSE) {
+  return(new("treatment_infusion_duration", compartment=as.integer(compartment), distribution=distribution, rate=rate))
 }
 
 #_______________________________________________________________________________
 #----                            getName                                    ----
 #_______________________________________________________________________________
 
-setMethod("getName", signature = c("infusion_duration"), definition = function(x) {
+setMethod("getName", signature = c("treatment_infusion_duration"), definition = function(x) {
   return(paste0("INFUSION_DURATION [", "CMT=", x@compartment, "]"))
 })
 
@@ -41,6 +41,6 @@ setMethod("getName", signature = c("infusion_duration"), definition = function(x
 #----                         getColumnName                                 ----
 #_______________________________________________________________________________
 
-setMethod("getColumnName", signature = c("infusion_duration"), definition = function(x) {
+setMethod("getColumnName", signature = c("treatment_infusion_duration"), definition = function(x) {
   return(paste0("D", x@compartment))
 })

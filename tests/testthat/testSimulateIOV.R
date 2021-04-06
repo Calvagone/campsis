@@ -89,7 +89,7 @@ test_that("Simulate IOV on F1", {
   dataset <- dataset %>% add(IOV(colname="IOV_F1_COL", distribution=EtaDistribution(omega="IOV_F1")))
   
   # Add bioavailability
-  dataset <- dataset %>% add(Bioavailability(compartment=1, ParameterDistribution(theta="F1", omega="F1", iov="IOV_F1_COL")))
+  dataset <- dataset %>% add(TreatmentBioavailability(compartment=1, ParameterDistribution(theta="F1", omega="F1", iov="IOV_F1_COL")))
 
   # Simulate just IIV
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
@@ -129,7 +129,7 @@ test_that("Simulate IOV on ALAG1", {
   dataset <- dataset %>% add(IOV(colname="IOV_ALAG1_COL", distribution=EtaDistribution(omega="IOV_ALAG1")))
   
   # Add bioavailability
-  dataset <- dataset %>% add(LagTime(compartment=1, ParameterDistribution(theta="ALAG1", omega="ALAG1", iov="IOV_ALAG1_COL")))
+  dataset <- dataset %>% add(TreatmentLagTime(compartment=1, ParameterDistribution(theta="ALAG1", omega="ALAG1", iov="IOV_ALAG1_COL")))
   
   # Simulate just IIV
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
@@ -169,7 +169,7 @@ test_that("Simulate IOV on D1", {
   dataset <- dataset %>% add(IOV(colname="IOV_D1_COL", distribution=EtaDistribution(omega="IOV_D1")))
   
   # Add infusion duration
-  dataset <- dataset %>% add(InfusionDuration(compartment=1, ParameterDistribution(theta="D1", omega="D1", iov="IOV_D1_COL")))
+  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ParameterDistribution(theta="D1", omega="D1", iov="IOV_D1_COL")))
   
   # Simulate just IIV
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)

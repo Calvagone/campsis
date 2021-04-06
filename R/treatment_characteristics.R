@@ -38,10 +38,10 @@ setMethod("hasModelDistribution", signature = c("treatment_characteristics"), de
 
 setMethod("select", signature=c("treatment_characteristics"), definition=function(object, ...) {
   args <- list(...)
-  msg <- "Please select one of those treatment characteristics: 'infusion_duration', 'lag_time' or 'bioavailability'"
+  msg <- "Please select one of those treatment characteristics: 'treatment_infusion_duration', 'treatment_lag_time' or 'treatment_bioavailability'"
   assertthat::assert_that(length(args) > 0, msg=msg)
   type <- args[[1]]
-  assertthat::assert_that(type %in% c("infusion_duration", "lag_time", "bioavailability"), msg=msg)
+  assertthat::assert_that(type %in% c("treatment_infusion_duration", "treatment_lag_time", "treatment_bioavailability"), msg=msg)
   
   object@list <- object@list %>% purrr::keep(~as.character(class(.x))==type)
   return(object)

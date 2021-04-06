@@ -18,7 +18,7 @@ test_that("Simulate infusion using duration in dataset, then in model", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   # 5 hours infusion duration implemented in dataset
-  dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(5)))
+  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ConstantDistribution(5)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
@@ -60,7 +60,7 @@ test_that("Simulate infusion using rate in dataset", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   # 5 hours infusion duration implemented in dataset
-  dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
+  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
@@ -102,10 +102,10 @@ test_that("Simulate infusion using rate and lag time in dataset", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   # 2 hours lag time with 20% CV
-  lag <- LagTime(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(2), sdlog=0.2)))
+  lag <- TreatmentLagTime(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(2), sdlog=0.2)))
   
   # 5 hours duration
-  dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
+  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
   dataset <- dataset %>% add(lag)
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
@@ -132,11 +132,11 @@ test_that("Simulate infusion using rate and lag time (parameter distribution) in
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   # Add lag time
-  lag <- LagTime(compartment=2, ParameterDistribution(theta="ALAG1", omega="ALAG1"))
+  lag <- TreatmentLagTime(compartment=2, ParameterDistribution(theta="ALAG1", omega="ALAG1"))
   dataset <- dataset %>% add(lag)
   
   # 5 hours duration
-  dataset <- dataset %>% add(InfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
+  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
