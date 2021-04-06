@@ -27,6 +27,7 @@ Collate:
     'arms.R'
     'simulation_engine.R'
     'dataset.R'
+    'parameter_uncertainty.R'
     'simulate.R'
     'default_plot.R'
 Title: Pmxsim library
