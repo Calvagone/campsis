@@ -37,7 +37,7 @@ test_that("Simulate infusion using duration in dataset, then in model", {
   dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
-  model <- model %>% add(CompartmentInfusionDuration(compartment=1, rhs="5"))
+  model <- model %>% add(InfusionDuration(compartment=1, rhs="5"))
   
   results3 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results3, "CP")
@@ -79,7 +79,7 @@ test_that("Simulate infusion using rate in dataset", {
   dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
-  model <- model %>% add(CompartmentInfusionDuration(compartment=1, rhs="200", rate=TRUE))
+  model <- model %>% add(InfusionDuration(compartment=1, rhs="200", rate=TRUE))
   
   results3 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results3, "CP")

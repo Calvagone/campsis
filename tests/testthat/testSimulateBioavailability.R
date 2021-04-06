@@ -58,7 +58,7 @@ test_that("Simulate a simple bolus with bioavailability", {
   outputRegressionTest(results2, output="CP", filename=regFilename)
   
   # Bioavailability implemented in model
-  model <- model %>% add(CompartmentBioavailability(compartment=1, rhs="0.75"))
+  model <- model %>% add(Bioavailability(compartment=1, rhs="0.75"))
   
   dataset <- Dataset(3)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))

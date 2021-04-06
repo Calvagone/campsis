@@ -43,7 +43,7 @@ test_that("Simulate a bolus with lag time in model", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   # 2 hours lag time, no variability
-  model <- model %>% add(CompartmentLagTime(compartment=1, rhs="2"))
+  model <- model %>% add(LagTime(compartment=1, rhs="2"))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
