@@ -6,7 +6,8 @@ A generic clinical trial simulation platform.
 ## Requirements
 
 -   R package `pmxmod` must be installed beforehand
--   Simulation engine must be installed too (e.g. `RxODE`)
+-   Simulation engine must be installed too (either `RxODE` or
+    `mrgsolve`)
 
 ## Installation
 
@@ -50,8 +51,9 @@ See all methods that can be applied on a dataset:
 methods(class=class(dataset))
 ```
 
-    ## [1] add                  export               hasModelDistribution
-    ## [4] length               simulate            
+    ## [1] add                  export               getCovariateNames   
+    ## [4] getIOVNames          hasModelDistribution length              
+    ## [7] simulate            
     ## see '?methods' for accessing help and source code
 
 ``` r
@@ -74,15 +76,10 @@ Simulate this very simple protocol:
 
 ``` r
 results <- model %>% simulate(dataset, dest="RxODE", seed=1)
-```
-
-    ## qs v0.23.5.
-
-``` r
 head(results)
 ```
 
-    ## # A tibble: 6 x 16
+    ## # A tibble: 6 x 17
     ##    time    KA    CL    V2    V3     Q    S2   ARM     F    CP OBS_CP     Y
     ##   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl> <dbl>
     ## 1     0  1.05  6.43  70.1  20.6  3.62  70.1     0  0     0      0     0   
@@ -91,8 +88,8 @@ head(results)
     ## 4     3  1.05  6.43  70.1  20.6  3.62  70.1     0 10.3  10.3   10.5  10.5 
     ## 5     4  1.05  6.43  70.1  20.6  3.62  70.1     0  9.45  9.45   9.64  9.64
     ## 6     5  1.05  6.43  70.1  20.6  3.62  70.1     0  8.56  8.56  10.5  10.5 
-    ## # ... with 4 more variables: A_DEPOT <dbl>, A_CENTRAL <dbl>,
-    ## #   A_PERIPHERAL <dbl>, A_OUTPUT <dbl>
+    ## # ... with 5 more variables: A_DEPOT <dbl>, A_CENTRAL <dbl>,
+    ## #   A_PERIPHERAL <dbl>, A_OUTPUT <dbl>, id <int>
 
 Plot these results:
 
@@ -166,7 +163,7 @@ dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
 dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
 # 5 hours duration
-dataset <- dataset %>% add(InfusionDuration(compartment=1, distribution=ConstantDistribution(5)))
+dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, distribution=ConstantDistribution(5)))
 
 results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 spaguettiPlot(results, "CP")
@@ -182,7 +179,7 @@ dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
 dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
 # 5 hours duration, with 20% CV
-dataset <- dataset %>% add(InfusionDuration(compartment=1, distribution=LogNormalDistribution(meanlog=log(5), sdlog=0.2)))
+dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, distribution=LogNormalDistribution(meanlog=log(5), sdlog=0.2)))
 
 results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 spaguettiPlot(results, "CP")
