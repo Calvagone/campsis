@@ -4,7 +4,7 @@
 \alias{preprocessSimulateArguments}
 \title{Preprocess arguments of the simulate method.}
 \usage{
-preprocessSimulateArguments(model, dataset, dest, slices, replicates, ...)
+preprocessSimulateArguments(model, dataset, dest, slices, ...)
 }
 \arguments{
 \item{model}{PMX model}
@@ -14,8 +14,6 @@ preprocessSimulateArguments(model, dataset, dest, slices, replicates, ...)
 \item{dest}{destination engine}
 
 \item{slices}{number of subjects per slice}
-
-\item{replicates}{number of replicates to simulate}
 }
 \value{
 a simulation configuration

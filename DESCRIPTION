@@ -5,6 +5,7 @@ Collate:
     'utilities.R'
     'check.R'
     'generic.R'
+    'seed.R'
     'distribution.R'
     'dataset_config.R'
     'time_entry.R'

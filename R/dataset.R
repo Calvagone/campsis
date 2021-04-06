@@ -359,16 +359,6 @@ applyCompartmentCharacteristics <- function(table, characteristics) {
   return(table)
 }
 
-#' Get random seed value.
-#' 
-#' @return random seed value generated based on time
-#' 
-getRandomSeedValue <- function() {
-  seed <- as.numeric(Sys.time())
-  return(seed)
-}
-
-
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, ...) {
   destinationEngine <- getSimulationEngineType(dest)
   return(object %>% export(destinationEngine, seed=seed, ...))
@@ -382,12 +372,8 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     stop("Please provide a valid PMX model.")
   }
   
-  # Set seed value only if requested
-  if (is.null(seed)) {
-    set.seed(getRandomSeedValue())
-  } else {
-    set.seed(seed)
-  }
+  # Set seed value
+  setSeed(getSeed(seed))
   
   # Generate IIV only if model is provided
   if (is.null(model)) {

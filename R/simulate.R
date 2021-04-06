@@ -20,21 +20,27 @@ getSimulationEngineType <- function(dest) {
 }
 
 setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, seed=NULL, slices=NULL, replicates=1, ...) {
-  destinationEngine <- getSimulationEngineType(dest)
-  return(simulate(model=model, dataset=dataset, dest=destinationEngine, seed=seed, slices=slices, replicates=replicates, ...))
+  dest <- getSimulationEngineType(dest)
+  originalSeed <- getSeed(seed)
+  replicates <- preprocessReplicates(replicates)
+  
+  if (replicates==1) {
+    return(simulate(model=model, dataset=dataset, dest=dest, seed=originalSeed, slices=slices, replicates=replicates, ...))
+  } else {
+    setSeed(originalSeed - 1) # Set seed before sampling parameters uncertainty
+    models <- model %>% sample(as.integer(replicates))
+    return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(.x, .y) {
+      return(simulate(model=.x, dataset=dataset, dest=dest, seed=getSeedForReplicate(originalSeed, .y), slices=slices, ...))
+    }, .id="replicate"))
+  }
 })
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), definition=function(model, dataset, dest, seed=NULL, slices=NULL, replicates=1, ...) {
-  destinationEngine <- getSimulationEngineType(dest)
-  return(simulate(model=model, dataset=dataset, dest=destinationEngine, seed=seed, slices=slices, replicates=replicates, ...))
-})
-
-setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, seed, slices, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, seed, slices, ...) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed, ...)
-  return(simulate(model=model, dataset=table, dest=dest, slices=slices, replicates=replicates, ...))
+  return(simulate(model=model, dataset=table, dest=dest, slices=slices, ...))
 })
 
-setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), definition=function(model, dataset, dest, seed, slices, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), definition=function(model, dataset, dest, seed, slices, ...) {
   table <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, ...)
   
   # Variables to declare in the mrgsolve model
@@ -42,7 +48,23 @@ setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), de
   covariateNames <- dataset %>% getCovariateNames()
   declare <- c(iovNames, covariateNames)
   
-  return(simulate(model=model, dataset=table, dest=dest, slices=slices, replicates=replicates, declare=declare, ...))
+  return(simulate(model=model, dataset=table, dest=dest, slices=slices, declare=declare, ...))
+})
+
+setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), definition=function(model, dataset, dest, seed=NULL, slices=NULL, replicates=1, ...) {
+  dest <- getSimulationEngineType(dest)
+  originalSeed <- getSeed(seed)
+  replicates <- preprocessReplicates(replicates)
+  
+  if (replicates==1) {
+    return(simulate(model=model, dataset=dataset, dest=dest, slices=slices, ...))
+  } else {
+    setSeed(originalSeed - 1) # Set seed before sampling parameters uncertainty
+    models <- model %>% sample(as.integer(replicates))
+    return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(.x, .y) {
+      return(simulate(model=.x, dataset=dataset, dest=dest, slices=slices, ...))
+    }, .id="replicate"))
+  }
 })
 
 #' Preprocess subjects ID's.
@@ -107,11 +129,10 @@ preprocessReplicates <- function(replicates) {
 #' @param dataset dataset, data.frame form
 #' @param dest destination engine
 #' @param slices number of subjects per slice
-#' @param replicates number of replicates to simulate
 #' @return a simulation configuration
 #' @importFrom purrr map2
 #' 
-preprocessSimulateArguments <- function(model, dataset, dest, slices, replicates, ...) {
+preprocessSimulateArguments <- function(model, dataset, dest, slices, ...) {
   # Check extra arguments
   args <- list(...)
   
@@ -121,9 +142,6 @@ preprocessSimulateArguments <- function(model, dataset, dest, slices, replicates
   
   # Slice number
   slices <- preprocessSlices(slices, maxID=maxID)
-  
-  # Replicates number
-  replicates <- preprocessReplicates(replicates)
   
   # Output variables
   output <- processExtraArg(args, name="output")
@@ -147,16 +165,16 @@ preprocessSimulateArguments <- function(model, dataset, dest, slices, replicates
     return(events)
   })
   
-  return(list(slices=slices, replicates=replicates, output=output, declare=declare,
+  return(list(slices=slices, output=output, declare=declare,
               engineModel=engineModel, eventsList=eventsList))
 }
 
-setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), definition=function(model, dataset, dest, slices, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), definition=function(model, dataset, dest, slices, ...) {
   # Add ARM equation in model
   model <- preprocessArmColumn(dataset, model)
   
   # Retrieve simulation config
-  config <- preprocessSimulateArguments(model=model, dataset=dataset, dest=dest, slices=slices, replicates=replicates, ...)
+  config <- preprocessSimulateArguments(model=model, dataset=dataset, dest=dest, slices=slices, ...)
 
   # Instantiate RxODE model
   rxmod <- config$engineModel
@@ -192,10 +210,10 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), de
   return(results)
 })
 
-setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"), definition=function(model, dataset, dest, slices, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"), definition=function(model, dataset, dest, slices, ...) {
   
   # Retrieve simulation config
-  config <- preprocessSimulateArguments(model=model, dataset=dataset, dest=dest, slices=slices, replicates=replicates, ...)
+  config <- preprocessSimulateArguments(model=model, dataset=dataset, dest=dest, slices=slices, ...)
   
   # Export PMX model to RxODE
   mrgmod <- config$engineModel
@@ -233,11 +251,14 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
   results <- eventsList %>% purrr::map_df(.f=function(events){
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=events) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df")
+    
+    # Use same id and time columns as RxODE
+    tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
+    
+    # Select specified columns only
     if (!is.null(output)) {
       tmp <- tmp %>% dplyr::select(dplyr::all_of(output))
     }
-    # Use same id and time columns as RxODE
-    tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
     return(tmp)
   })
   return(results)
