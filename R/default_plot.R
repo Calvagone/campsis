@@ -45,27 +45,6 @@ spaguettiPlot <- function(x, output, scenarios=NULL) {
   return(plot)
 }
 
-#' Compute the prediction interval summary over time.
-#' 
-#' @param x data frame
-#' @param output variable to show
-#' @param scenarios scenarios
-#' @param level PI level, default is 0.9 (90\% PI)
-#' @return summary
-#' @importFrom dplyr group_by_at rename_at summarise
-#' @export
-PI <- function(x, output, scenarios=NULL, level=0.90) {
-  x <- factorScenarios(x, scenarios=scenarios)
-  retValue <- x %>% dplyr::rename_at(.vars=output, .funs=function(x){"variable"}) %>%
-    dplyr::group_by_at(c("time", scenarios)) %>%
-    dplyr::summarise(
-      med = median(variable),
-      pLow = quantile(variable, (1-level)/2),
-      pUp = quantile(variable, 1-(1-level)/2)
-    )
-  return(retValue)
-}
-
 #' Shaded plot (or prediction interval plot).
 #' 
 #' @param x data frame
@@ -82,9 +61,9 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
   } else {
     colour <- NULL
   }
-  plot <- ggplot2::ggplot(x, aes <- ggplot2::aes_string(x="time", colour=colour)) +
-          ggplot2::geom_line(ggplot2::aes(y = med)) +
-          ggplot2::geom_ribbon(ggplot2::aes_string(ymin="pLow", ymax="pUp", colour=colour, fill=colour), colour=NA, alpha=0.25)
+  plot <- ggplot2::ggplot(data=x, aes=ggplot2::aes_string(x="time", colour=colour)) +
+          ggplot2::geom_line(ggplot2::aes(y=med)) +
+          ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low", ymax="up", colour=colour, fill=colour), colour=NA, alpha=0.25)
   plot <- plot + ggplot2::ylab(output)
   return(plot)
 }

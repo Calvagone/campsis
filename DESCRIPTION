@@ -30,6 +30,7 @@ Collate:
     'dataset.R'
     'parameter_uncertainty.R'
     'simulate.R'
+    'results_processing.R'
     'default_plot.R'
 Title: Pmxsim library
 Version: 0.1
