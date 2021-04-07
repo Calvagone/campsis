@@ -4,7 +4,7 @@
 \alias{PI}
 \title{Compute the prediction interval summary over time.}
 \usage{
-PI(x, output, scenarios = NULL, level = 0.9)
+PI(x, output, scenarios = NULL, level = 0.9, gather = FALSE)
 }
 \arguments{
 \item{x}{data frame}
@@ -14,6 +14,8 @@ PI(x, output, scenarios = NULL, level = 0.9)
 \item{scenarios}{scenarios, character vector, NULL is default}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
+
+\item{gather}{FALSE: med, low & up columns, TRUE: metric column}
 }
 \value{
 summary

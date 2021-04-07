@@ -74,17 +74,23 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
 #' @param scenarios scenarios, character vector, NULL is default
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @return plot
-#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
+#' @importFrom dplyr filter_at pull
 #' @export
 vpcPlot <- function(x, scenarios=NULL, level=0.90) {
+  if (length(scenarios) > 1) {
+    stop("Currently max 1 scenario allowed")
+  }
   x <- VPC(x=x, scenarios=scenarios, level=level)
 
   if (length(scenarios) == 0) {
     retValue <- vpcPlotDelegate(x)
   } else {
     retValue <- list()
-    for (scenario in scenarios) {
-      #retValue <- retValue %>% append(vpcPlotDelegate(x %>% dplyr::filter()))
+    scenario <- scenarios[1]
+    values <- unique(x %>% dplyr::pull(scenario)) %>% as.character()
+    for (valueIndex in seq_along(values)) {
+      value <- values[valueIndex]
+      retValue[[valueIndex]] <- vpcPlotDelegate(x %>% dplyr::filter_at(.vars=scenario, .vars_predicate=~.x==value))
     }
   }
   
@@ -95,6 +101,8 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90) {
 #' 
 #' @param summary from vpcPlot
 #' @return plot
+#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
+#' 
 vpcPlotDelegate <- function(summary) {
   summary.low <- summary %>% dplyr::filter(metric=="low")
   summary.med <- summary %>% dplyr::filter(metric=="med")
