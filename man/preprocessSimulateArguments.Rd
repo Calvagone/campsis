@@ -4,7 +4,7 @@
 \alias{preprocessSimulateArguments}
 \title{Preprocess arguments of the simulate method.}
 \usage{
-preprocessSimulateArguments(model, dataset, dest, slices, ...)
+preprocessSimulateArguments(model, dataset, dest, output, slices, ...)
 }
 \arguments{
 \item{model}{PMX model}

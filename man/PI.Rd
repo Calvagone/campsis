@@ -11,7 +11,7 @@ PI(x, output, scenarios = NULL, level = 0.9)
 
 \item{output}{variable to show}
 
-\item{scenarios}{scenarios}
+\item{scenarios}{scenarios, character vector, NULL is default}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
 }

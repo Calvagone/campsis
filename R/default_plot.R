@@ -62,8 +62,51 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
     colour <- NULL
   }
   plot <- ggplot2::ggplot(data=x, aes=ggplot2::aes_string(x="time", colour=colour)) +
-          ggplot2::geom_line(ggplot2::aes(y=med)) +
-          ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low", ymax="up", colour=colour, fill=colour), colour=NA, alpha=0.25)
+    ggplot2::geom_line(ggplot2::aes(y=med)) +
+    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low", ymax="up", colour=colour, fill=colour), colour=NA, alpha=0.25)
   plot <- plot + ggplot2::ylab(output)
   return(plot)
 }
+
+#' VPC plot (1 plot per scenario).
+#' 
+#' @param x data frame, output of function VPC
+#' @param scenarios scenarios, character vector, NULL is default
+#' @param level PI level, default is 0.9 (90\% PI)
+#' @return plot
+#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
+#' @export
+vpcPlot <- function(x, scenarios=NULL, level=0.90) {
+  x <- VPC(x=x, scenarios=scenarios, level=level)
+
+  if (length(scenarios) == 0) {
+    retValue <- vpcPlotDelegate(x)
+  } else {
+    retValue <- list()
+    for (scenario in scenarios) {
+      #retValue <- retValue %>% append(vpcPlotDelegate(x %>% dplyr::filter()))
+    }
+  }
+  
+  return(retValue)
+}
+
+#' VPC plot delegate.
+#' 
+#' @param summary from vpcPlot
+#' @return plot
+vpcPlotDelegate <- function(summary) {
+  summary.low <- summary %>% dplyr::filter(metric=="low")
+  summary.med <- summary %>% dplyr::filter(metric=="med")
+  summary.up <- summary %>% dplyr::filter(metric=="up")
+  
+  plot <- ggplot2::ggplot(summary.med, ggplot2::aes(x=time, y=med)) +
+    ggplot2::geom_line(color="red", size=0.7) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), alpha=0.15, color=NA, fill="red") +
+    ggplot2::geom_line(data=summary.low, color="red", lty="dashed", size=0.7) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), data=summary.low, alpha=0.15, color=NA, fill="blue") +
+    ggplot2::geom_line(data=summary.up, color="red", lty="dashed", size=0.7) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), data=summary.up, alpha=0.15, color=NA, fill="blue")
+  return(plot)
+}
+
