@@ -13,7 +13,7 @@ preprocessSimulateArguments(model, dataset, dest, ...)
 
 \item{dest}{destination engine}
 
-\item{slices}{number of subjects per slice}
+\item{...}{all other arguments}
 }
 \value{
 a simulation configuration

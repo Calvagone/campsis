@@ -8,6 +8,7 @@
 #' @param gather FALSE: med, low & up columns, TRUE: metric column
 #' @return summary
 #' @importFrom dplyr group_by_at rename_at summarise
+#' @importFrom tidyr gather
 #' @export
 PI <- function(x, output, scenarios=NULL, level=0.90, gather=FALSE) {
   x <- factorScenarios(x, scenarios=scenarios)
@@ -45,8 +46,6 @@ PI <- function(x, output, scenarios=NULL, level=0.90, gather=FALSE) {
 #' @param scenarios scenarios, character vector, NULL is default
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @return VPC summary
-#' @importFrom dplyr across all_of mutate
-#' @importFrom tidyr gather
 #' @export
 VPC <- function(x, scenarios=NULL, level=0.90) {
   x <- factorScenarios(x, scenarios=scenarios)
