@@ -61,7 +61,7 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
   } else {
     colour <- NULL
   }
-  plot <- ggplot2::ggplot(data=x, aes=ggplot2::aes_string(x="time", colour=colour)) +
+  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes_string(x="time", colour=colour)) +
     ggplot2::geom_line(ggplot2::aes(y=med)) +
     ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low", ymax="up", colour=colour, fill=colour), colour=NA, alpha=0.25)
   plot <- plot + ggplot2::ylab(output)

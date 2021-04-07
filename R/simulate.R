@@ -57,7 +57,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), defin
   replicates <- preprocessReplicates(replicates)
   
   if (replicates==1) {
-    return(simulate(model=model, dataset=dataset, dest=dest, outvars=outvars, ...))
+    return(simulate(model=model, dataset=dataset, dest=dest, outvars=outvars, outfun=outfun, ...))
   } else {
     setSeed(originalSeed - 1) # Set seed before sampling parameters uncertainty
     models <- model %>% sample(as.integer(replicates))
