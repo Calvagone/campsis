@@ -4,12 +4,14 @@
 \alias{processReturnedDataframe}
 \title{Process the data frame returned by mrgsolve or RxODE.}
 \usage{
-processReturnedDataframe(x, output)
+processReturnedDataframe(x, outvars = NULL, outfun = NULL)
 }
 \arguments{
 \item{x}{the current data frame}
 
-\item{output}{character vector or function}
+\item{outvars}{variables to keep}
+
+\item{outfun}{processing function}
 }
 \value{
 processed data frame
