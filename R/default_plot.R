@@ -55,7 +55,7 @@ spaguettiPlot <- function(x, output, scenarios=NULL) {
 #' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
 #' @export
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
-  x <- PI(x=x, output=output, scenarios=scenarios, level=level)
+  x <- PI(x=x, output=output, scenarios=scenarios, level=level, gather=FALSE)
   if (length(scenarios) > 0) {
     colour <- paste0(scenarios, collapse = ":")
   } else {
