@@ -10,7 +10,7 @@
 #' @importFrom dplyr group_by_at rename_at summarise
 #' @importFrom tidyr gather
 #' @export
-PI <- function(x, output, scenarios=NULL, level=0.90, gather=FALSE) {
+PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
   x <- factorScenarios(x, scenarios=scenarios)
   retValue <- x %>% dplyr::rename_at(.vars=output, .funs=function(x){"variable"}) %>%
     dplyr::group_by_at(c("time", scenarios)) %>%
@@ -49,6 +49,6 @@ PI <- function(x, output, scenarios=NULL, level=0.90, gather=FALSE) {
 #' @export
 VPC <- function(x, scenarios=NULL, level=0.90) {
   x <- factorScenarios(x, scenarios=scenarios)
-  retValue <- PI(x=x, output="value", scenarios=c("metric", scenarios), level=level)
+  retValue <- PI(x=x, output="value", scenarios=c("metric", scenarios), level=level, gather=FALSE)
   return(retValue)
 }

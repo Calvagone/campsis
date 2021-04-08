@@ -4,13 +4,8 @@ library(ggplot2)
 
 context("Simulation with full uncertainty (variance-covariance matrix)")
 
-test_that("VPC on Y", {
-
+test_that("VPC on Y (predicate)", {
   model <- model_library$my_model1
-
-  fun <- function(x) {
-    return(PI(x=x, output="CP", level=0.90, gather=TRUE))
-  }
 
   ds <- Dataset(100)
   for (day in 0:6) {
@@ -18,13 +13,13 @@ test_that("VPC on Y", {
   }
   ds <- ds %>% add(Observations(times=seq(0, 7*24)))
 
-  results1 <- model %>% simulate(dataset=ds, dest="RxODE", replicates=5, outfun=fun, seed=1)
+  results1 <- model %>% simulate(dataset=ds, dest="RxODE", replicates=5, outfun=~PI(.x, output="Y"), seed=1)
   vpcPlot(results1)
-  results2 <- model %>% simulate(dataset=ds, dest="mrgsolve", replicates=5, outfun=fun, seed=1)
+  results2 <- model %>% simulate(dataset=ds, dest="mrgsolve", replicates=5, outfun=~PI(.x, output="Y"), seed=1)
   vpcPlot(results2)
 })
 
-test_that("VPC on both CP and Y", {
+test_that("VPC on both CP and Y (function)", {
 
   model <- model_library$my_model1
 

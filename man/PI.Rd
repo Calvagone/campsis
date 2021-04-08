@@ -4,7 +4,7 @@
 \alias{PI}
 \title{Compute the prediction interval summary over time.}
 \usage{
-PI(x, output, scenarios = NULL, level = 0.9, gather = FALSE)
+PI(x, output, scenarios = NULL, level = 0.9, gather = TRUE)
 }
 \arguments{
 \item{x}{data frame}

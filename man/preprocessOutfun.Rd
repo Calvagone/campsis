@@ -2,18 +2,18 @@
 % Please edit documentation in R/simulate.R
 \name{preprocessOutfun}
 \alias{preprocessOutfun}
-\title{Preprocess 'outvars' argument. Outvars is either the columns to keep from the 
-returned dataframe or the function to apply on this dataframe.}
+\title{Preprocess 'outfun' argument. Outfun is a function (or predicate) that will be
+call on the resulting output (at end of replicate simulation).}
 \usage{
 preprocessOutfun(outfun)
 }
 \arguments{
-\item{outvars}{character vector or function}
+\item{outfun}{function or lambda formula, may be NULL}
 }
 \value{
-outvars
+outfun
 }
 \description{
-Preprocess 'outvars' argument. Outvars is either the columns to keep from the 
-returned dataframe or the function to apply on this dataframe.
+Preprocess 'outfun' argument. Outfun is a function (or predicate) that will be
+call on the resulting output (at end of replicate simulation).
 }

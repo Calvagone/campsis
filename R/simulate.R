@@ -138,16 +138,19 @@ preprocessOutvars <- function(outvars) {
   return(outvars)
 }
 
-#' Preprocess 'outvars' argument. Outvars is either the columns to keep from the 
-#' returned dataframe or the function to apply on this dataframe.
+#' Preprocess 'outfun' argument. Outfun is a function (or predicate) that will be
+#' call on the resulting output (at end of replicate simulation).
 #'
-#' @param outvars character vector or function
-#' @return outvars
+#' @param outfun function or lambda formula, may be NULL
+#' @return outfun
 #' @importFrom assertthat assert_that
+#' @importFrom plyr is.formula
 #'
 preprocessOutfun <- function(outfun) {
-  assertthat::assert_that(is.null(outfun) || is.function(outfun),
-                          msg="outfun must be a function to apply on the returned dataframe")
+  if (!is.null(outfun)) {
+    assertthat::assert_that(is.function(outfun) || plyr::is.formula(outfun),
+                             msg="outfun must be a function/lambda formula to apply on the returned dataframe")
+  }
   return(outfun)
 }
 
@@ -158,13 +161,19 @@ preprocessOutfun <- function(outfun) {
 #' @param outfun processing function
 #' @return processed data frame
 #' @importFrom dplyr all_of select
+#' @importFrom rlang as_function
 #'
-processReturnedDataframe <- function(x, outvars=NULL, outfun=NULL) {
+processOutput <- function(x, outvars=NULL, outfun=NULL) {
   if (!is.null(outvars)) {
     x <- x %>% dplyr::select(dplyr::all_of(outvars))
   }
   if (!is.null(outfun)) {
-    x <- outfun(x)
+    if (plyr::is.formula(outfun)) {
+      outfun <- rlang::as_function(outfun)
+      x <- outfun(.x=x)
+    } else {
+      x <- outfun(x)
+    } 
   }
   return(x)
 }
@@ -175,11 +184,18 @@ processReturnedDataframe <- function(x, outvars=NULL, outfun=NULL) {
 #' @param tablefun function to apply
 #' @return processed data set, table form
 #' @importFrom assertthat assert_that
+#' @importFrom plyr is.formula
 #'
 processTable <- function(x, tablefun=NULL) {
   if (!is.null(tablefun)) {
-    assertthat::assert_that(is.function(tablefun), msg="tablefun must be a function")
-    x <- tablefun(x)
+    assertthat::assert_that(is.function(tablefun) || plyr::is.formula(tablefun),
+                            msg="tablefun must be a function/lambda formula")
+    if (plyr::is.formula(tablefun)) {
+      tablefun <- rlang::as_function(tablefun)
+      x <- tablefun(.x=x)
+    } else {
+      x <- tablefun(x)
+    } 
   }
   return(x)
 }
@@ -271,9 +287,9 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), de
     if (length(uniqueID)==1) {
       tmp <- tmp %>% dplyr::mutate(id=uniqueID)
     }
-    return(processReturnedDataframe(tmp, outvars=outvars))
+    return(processOutput(tmp, outvars=outvars))
   })
-  return(processReturnedDataframe(results, outfun=outfun))
+  return(processOutput(results, outfun=outfun))
 })
 
 setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"), definition=function(model, dataset, dest, ...) {
@@ -322,7 +338,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
 
-    return(processReturnedDataframe(tmp, outvars=outvars))
+    return(processOutput(tmp, outvars=outvars))
   })
-  return(processReturnedDataframe(results, outfun=outfun))
+  return(processOutput(results, outfun=outfun))
 })
