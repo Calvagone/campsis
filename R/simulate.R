@@ -19,29 +19,31 @@ getSimulationEngineType <- function(dest) {
   return(engine)
 }
 
-setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
+setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
   dest <- getSimulationEngineType(dest)
   originalSeed <- getSeed(seed)
   replicates <- preprocessReplicates(replicates)
   
   if (replicates==1) {
-    return(simulate(model=model, dataset=dataset, dest=dest, outvars=outvars, outfun=outfun, seed=originalSeed, ...))
+    return(simulate(model=model, dataset=dataset, dest=dest, tablefun=tablefun, outvars=outvars, outfun=outfun, seed=originalSeed, ...))
   } else {
     setSeed(originalSeed - 1) # Set seed before sampling parameters uncertainty
     models <- model %>% sample(as.integer(replicates))
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(.x, .y) {
-      return(simulate(model=.x, dataset=dataset, dest=dest, outvars=outvars, outfun=outfun, seed=getSeedForReplicate(originalSeed, .y), ...))
+      return(simulate(model=.x, dataset=dataset, dest=dest, tablefun=tablefun, outvars=outvars, outfun=outfun, seed=getSeedForReplicate(originalSeed, .y), ...))
     }, .id="replicate"))
   }
 })
 
-setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, seed, ...) {
+setMethod("simulate", signature=c("pmx_model", "dataset" ,"rxode_engine"), definition=function(model, dataset, dest, seed, tablefun, ...) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed, ...)
+  table <- table %>% processTable(tablefun=tablefun)
   return(simulate(model=model, dataset=table, dest=dest, ...))
 })
 
-setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), definition=function(model, dataset, dest, seed, ...) {
+setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), definition=function(model, dataset, dest, seed, tablefun, ...) {
   table <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, ...)
+  table <- table %>% processTable(tablefun=tablefun)
   
   # Variables to declare in the mrgsolve model
   iovNames <- dataset %>% getIOVNames()
@@ -163,6 +165,21 @@ processReturnedDataframe <- function(x, outvars=NULL, outfun=NULL) {
   }
   if (!is.null(outfun)) {
     x <- outfun(x)
+  }
+  return(x)
+}
+
+#' Process exported table.
+#'
+#' @param x the current data set, table form
+#' @param tablefun function to apply
+#' @return processed data set, table form
+#' @importFrom assertthat assert_that
+#'
+processTable <- function(x, tablefun=NULL) {
+  if (!is.null(tablefun)) {
+    assertthat::assert_that(is.function(tablefun), msg="tablefun must be a function")
+    x <- tablefun(x)
   }
   return(x)
 }

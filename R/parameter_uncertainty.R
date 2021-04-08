@@ -35,8 +35,31 @@ setMethod("sample", signature = c("pmx_model", "integer"), definition = function
         originalParam@value <- paramValues[paramIndex]
         model@parameters <- model@parameters %>% pmxmod::replace(originalParam)
       }
+
+      # Still need to update the omegas 'SAME'
+      # .x is the accumulating value
+      # .y is element in the list
+      omegas <- model@parameters %>% pmxmod::select("omega")
+      if (omegas %>% length() > 1) {
+        purrr::accumulate(.x=omegas@list, .f=function(.x, .y) {
+            if (isTRUE(.y@same)) {
+              if (is.na(.x@same)) {
+                stop("Inconsistent same column. Slot 'same' of Previous OMEGA can't be NA.")
+              }
+              # Take value just above
+              .y@value <- .x@value
+              model@parameters <<- model@parameters %>% pmxmod::replace(.y)
+            }
+            return(.y)
+          },
+          .init = omegas@list[[1]]
+        )
+      }
+      
+      # Store model in list
       retValue[[repIndex]] <- model
     }
   }
+
   return(retValue)
 })
