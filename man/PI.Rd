@@ -9,7 +9,7 @@ PI(x, output, scenarios = NULL, level = 0.9, gather = TRUE)
 \arguments{
 \item{x}{data frame}
 
-\item{output}{variable to show}
+\item{output}{variable to show, character value}
 
 \item{scenarios}{scenarios, character vector, NULL is default}
 

@@ -70,7 +70,7 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
 
 #' VPC plot (1 plot per scenario).
 #' 
-#' @param x data frame, output of function VPC
+#' @param x data frame, output of pmxsim with replicates
 #' @param scenarios scenarios, character vector, NULL is default
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @return plot
@@ -101,7 +101,7 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90) {
 #' 
 #' @param summary from vpcPlot
 #' @return plot
-#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
+#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon ylab
 #' 
 vpcPlotDelegate <- function(summary) {
   summary.low <- summary %>% dplyr::filter(metric=="low")
@@ -114,7 +114,8 @@ vpcPlotDelegate <- function(summary) {
     ggplot2::geom_line(data=summary.low, color="red", lty="dashed", size=0.7) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), data=summary.low, alpha=0.15, color=NA, fill="blue") +
     ggplot2::geom_line(data=summary.up, color="red", lty="dashed", size=0.7) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), data=summary.up, alpha=0.15, color=NA, fill="blue")
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), data=summary.up, alpha=0.15, color=NA, fill="blue") +
+    ggplot2::ylab("")
   return(plot)
 }
 

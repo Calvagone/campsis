@@ -2,26 +2,26 @@
 #' Compute the prediction interval summary over time.
 #' 
 #' @param x data frame
-#' @param output variable to show
+#' @param output variable to show, character value
 #' @param scenarios scenarios, character vector, NULL is default
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param gather FALSE: med, low & up columns, TRUE: metric column
 #' @return summary
-#' @importFrom dplyr group_by_at rename_at summarise
+#' @importFrom dplyr across group_by_at mutate rename_at summarise
 #' @importFrom tidyr gather
 #' @export
 PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
+  assertthat::assert_that(is.character(output) && length(output)==1)
   x <- factorScenarios(x, scenarios=scenarios)
-  retValue <- x %>% dplyr::rename_at(.vars=output, .funs=function(x){"variable"}) %>%
+  retValue <- x %>% dplyr::rename_at(.vars=output, .funs=~"variable_") %>%
     dplyr::group_by_at(c("time", scenarios)) %>%
     dplyr::summarise(
-      med=median(variable),
-      low=quantile(variable, (1-level)/2),
-      up=quantile(variable, 1-(1-level)/2)
+      med=median(variable_),
+      low=quantile(variable_, (1-level)/2),
+      up=quantile(variable_, 1-(1-level)/2)
     )
   # Gather data if requested
   if (gather) {
-    
     # Remove attributes in columns low, med, up (5%, 95%, coming from the quantile method)
     # This causes warnings
     retValue <- retValue %>% dplyr::mutate(dplyr::across(c("low", "med", "up"), as.vector))
@@ -32,6 +32,7 @@ PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
       retValue <- retValue %>% tidyr::gather(key="metric", value="value", -time, -dplyr::all_of(scenarios))
     }
   }
+
   return(retValue)
 }
 

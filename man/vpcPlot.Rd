@@ -7,7 +7,7 @@
 vpcPlot(x, scenarios = NULL, level = 0.9)
 }
 \arguments{
-\item{x}{data frame, output of function VPC}
+\item{x}{data frame, output of pmxsim with replicates}
 
 \item{scenarios}{scenarios, character vector, NULL is default}
 
