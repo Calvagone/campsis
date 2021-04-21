@@ -80,11 +80,6 @@ setMethod("add", signature = c("arm", "observations"), definition = function(obj
   return(object)
 })
 
-setMethod("add", signature = c("arm", "observation"), definition = function(object, x) {
-  object@protocol@observations <- object@protocol@observations %>% add(x) 
-  return(object)
-})
-
 setMethod("add", signature = c("arm", "covariate"), definition = function(object, x) {
   object@covariates <- object@covariates %>% add(x)
   return(object)

@@ -10,9 +10,9 @@ setClass(
   "protocol",
   representation(
     treatment = "treatment",
-    observations = "observations"
+    observations = "observations_set"
   ),
-  prototype=prototype(treatment=new("treatment"), observations=new("observations"))
+  prototype=prototype(treatment=new("treatment"), observations=new("observations_set"))
 )
 
 #_______________________________________________________________________________
@@ -23,6 +23,6 @@ setMethod("add", signature=c("protocol", "treatment_entry"), definition=function
   return(object@treatment %>% add(x))
 })
 
-setMethod("add", signature=c("protocol", "observation"), definition=function(object, x) {
+setMethod("add", signature=c("protocol", "observations"), definition=function(object, x) {
   return(object@observations %>% add(x))
 })

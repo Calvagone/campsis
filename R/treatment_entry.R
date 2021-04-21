@@ -97,7 +97,7 @@ setMethod("convert", signature = c("bolus", "dataset_config"), definition = func
     depotCmt <- object@compartment
   }
 
-  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".",
+  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1),
                     AMT=object@amount, CMT=depotCmt, DOSENO=object@dose_number, IS_INFUSION=FALSE))
 })
 
@@ -107,7 +107,7 @@ setMethod("convert", signature = c("infusion", "dataset_config"), definition = f
   } else {
     depotCmt <- object@compartment
   }
-  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1), DV=".",
+  return(data.frame(TIME=object@time, EVID=as.integer(1), MDV=as.integer(1),
                     AMT=object@amount, CMT=depotCmt, DOSENO=object@dose_number, IS_INFUSION=TRUE))
 })
 

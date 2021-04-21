@@ -2,18 +2,20 @@
 % Please edit documentation in R/observations.R
 \name{Observations}
 \alias{Observations}
-\title{Create a list of observations.}
+\title{Create an observations list. Please note that the provided 'times' will 
+automatically be sorted. Duplicated times will be removed.}
 \usage{
 Observations(times, compartment = NA)
 }
 \arguments{
-\item{compartment}{compartment index, integer}
+\item{times}{observation times, numeric vector}
 
-\item{time}{observation times, numeric vector}
+\item{compartment}{compartment index, integer}
 }
 \value{
-a list of observations, linked to the same compartment number
+observations
 }
 \description{
-Create a list of observations.
+Create an observations list. Please note that the provided 'times' will 
+automatically be sorted. Duplicated times will be removed.
 }

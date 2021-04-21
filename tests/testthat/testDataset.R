@@ -12,11 +12,8 @@ test_that("Add entry, order, filter (simple example)", {
   dataset <- dataset %>% add(Bolus(time=24, amount=100))
   dataset <- dataset %>% add(Bolus(time=48, amount=100))
 
-
   # Add observations
-  for (t in seq(0, 48, by=4)) {
-    dataset <- dataset %>% add(Observation(time=t))
-  }
+  dataset <- dataset %>% add(Observations(times=seq(0, 48, by=4)))
   
   # Export to RxODE
   table <- dataset %>% export(dest="RxODE")
@@ -35,11 +32,9 @@ test_that("Two arms example", {
   arm2 <- arm2 %>% add(Bolus(time=0, amount=200))
     
   # Add observations
-  for (t in seq(0, 48, by=4)) {
-    obs <- Observation(time=t)
-    arm1 <- arm1 %>% add(obs)
-    arm2 <- arm2 %>% add(obs)
-  }
+  obs <- Observations(times=seq(0, 48, by=4))
+  arm1 <- arm1 %>% add(obs)
+  arm2 <- arm2 %>% add(obs)
   
   # Create dataset
   dataset <- Dataset() 
@@ -70,9 +65,7 @@ test_that("Export using config", {
   
   
   # Add observations
-  for (t in seq(0, 48, by=10)) {
-    dataset <- dataset %>% add(Observation(time=t))
-  }
+  dataset <- dataset %>% add(Observations(times=seq(0, 48, by=10)))
   
   # Export to RxODE
   config <- DatasetConfig(defObsCmt=2)
@@ -98,9 +91,7 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   expect_equal(dataset %>% getCovariateNames(), c("WT", "HT"))
   
   # Add observations
-  for (t in seq(0, 48, by=10)) {
-    dataset <- dataset %>% add(Observation(time=t))
-  }
+  dataset <- dataset %>% add(Observations(times=seq(0, 48, by=10)))
   
   # Export to RxODE N=1
   config <- DatasetConfig(defObsCmt=2)
@@ -137,9 +128,7 @@ test_that("Export fixed covariates work well (N=3)", {
   arm <- arm %>% add(Covariate(name="HT", FixedDistribution(values=c(175, 180, 185))))
   
   # Add observations
-  for (t in seq(0, 48, by=10)) {
-    arm <- arm %>% add(Observation(time=t))
-  }
+  arm <- arm %>% add(Observations(times=seq(0, 48, by=10)))
   
   dataset <- Dataset()
   dataset <- dataset %>% add(arm)
@@ -168,9 +157,7 @@ test_that("Export function covariates work well (N=3)", {
   arm <- arm %>% add(Covariate(name="HT", FunctionDistribution(fun="rnorm", args=list(mean=180, sd=20))))
   
   # Add observations
-  for (t in seq(0, 48, by=10)) {
-    arm <- arm %>% add(Observation(time=t))
-  }
+  arm <- arm %>% add(Observations(times=seq(0, 48, by=10)))
   
   dataset <- Dataset()
   dataset <- dataset %>% add(arm)
@@ -198,9 +185,7 @@ test_that("Export boostrap covariates work well (N=8)", {
   arm <- arm %>% add(Covariate("HT", BootstrapDistribution(data=c(175, 180, 185), random=TRUE, replacement=TRUE)))
   
   # Add observations
-  for (t in seq(0, 48, by=10)) {
-    arm <- arm %>% add(Observation(time=t))
-  }
+  arm <- arm %>% add(Observations(times=seq(0, 48, by=10)))
   
   dataset <- Dataset()
   dataset <- dataset %>% add(arm)

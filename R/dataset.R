@@ -82,14 +82,6 @@ setMethod("add", signature = c("dataset", "observations"), definition = function
   return(object)
 })
 
-setMethod("add", signature = c("dataset", "observation"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@protocol@observations <- arm@protocol@observations %>% add(x)
-  object@arms <- object@arms %>% pmxmod::replace(arm)
-  return(object)
-})
-
 setMethod("add", signature = c("dataset", "covariate"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
@@ -414,16 +406,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     characteristics <- treatment@characteristics
     treatmentIovs <- treatment@iovs
 
-    # Fill in entries list
-    entries <- new("time_entries")
-    entries@list <- c(entries@list, treatment@list)
-    entries@list <- c(entries@list, observations@list)
-    
-    # Sort entries
-    entries <- entries %>% pmxmod::sort()
-
-    # Interesting part
-    df <- entries@list %>% purrr::map_df(.f=~convert(.x, config)) %>% dplyr::select(-DV)
+    # Create the base table with all treatment entries and observations
+    df <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~convert(.x, config))
+    df <- df %>% dplyr::arrange(TIME, EVID)
 
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects

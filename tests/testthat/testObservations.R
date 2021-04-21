@@ -3,20 +3,14 @@ library(pmxmod)
 
 context("Test the observations class")
 
-test_that("Test a couple of methods", {
+test_that("Observations are working well", {
   
-  obs1 <- new("observation", time=0)
-  obs2 <- new("observation", time=1) 
-  obs3 <- new("observation", time=2) 
-  obs3_dup <- new("observation", time=2) 
+  observations <- Observations(times=c(5,6,1,2,3,4,2)) 
+  expect_equal(observations@times, c(1,2,3,4,5,6))
+  expect_equal(observations %>% getName(), "OBS [TIMES=c(1,2,3,4,5,6), CMT=NA]")
+})
 
-  observations <- new("observations")
-  observations <- observations %>% add(obs1)
-  observations <- observations %>% add(obs2)
-  observations <- observations %>% add(obs3)
-  
-  expect_equal(observations %>% length(), 3)
-  
-  # No duplicate in observations is possible
-  expect_error(observations %>% add(obs3_dup)) # Element OBS [TIME=2, CMT=NA] is already present.
+test_that("Observations exceptions are working well", {
+  expect_error(Observations(times=NULL))
+  expect_error(Observations(times=numeric(0))) # times is length 0. Should be at least 1.
 })
