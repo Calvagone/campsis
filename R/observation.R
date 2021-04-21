@@ -46,5 +46,6 @@ setMethod("convert", signature = c("observation"), definition = function(object,
   } else {
     obsCmt <- object@compartment
   }
-  return(data.frame(TIME=object@time, EVID=as.integer(0), MDV=as.integer(0), DV=".", AMT=as.numeric(NA), CMT=obsCmt, DOSENO=as.integer(NA)))
+  return(data.frame(TIME=object@time, EVID=as.integer(0), MDV=as.integer(0), DV=".",
+                    AMT=as.numeric(NA), CMT=obsCmt, DOSENO=as.integer(NA), IS_INFUSION=as.logical(NA)))
 })

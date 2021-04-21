@@ -225,12 +225,12 @@ processInfusions <- function(table, characteristics) {
     table <- processCharacteristicIOV(table, characteristic=duration)
     if (duration@rate) {
       table <- table %>% dplyr::mutate(
-        RATE=ifelse(table$EVID==1 & table$CMT==compartment,
+        RATE=ifelse(table$EVID==1 & table$CMT==compartment & table$IS_INFUSION %in% TRUE,
                     table[,colName],
                     table$RATE))
     } else {
       table <- table %>% dplyr::mutate(
-        RATE=ifelse(table$EVID==1 & table$CMT==compartment,
+        RATE=ifelse(table$EVID==1 & table$CMT==compartment & table$IS_INFUSION %in% TRUE,
                     table$AMT / table[,colName],
                     table$RATE))
     }
@@ -339,6 +339,7 @@ sampleCovariatesList <- function(covariates, n) {
 }
 
 #' Apply compartment characteristics from model.
+#' In practice, only compartment infusion duration needs to be applied.
 #' 
 #' @param table current dataset
 #' @param characteristics compartment characteristics from model
@@ -353,7 +354,7 @@ applyCompartmentCharacteristics <- function(table, characteristics) {
         table <- table %>% dplyr::mutate(RATE=0)
       }
       rateValue <- ifelse(charateristic@rate, -1, -2)
-      table <- table %>% dplyr::mutate(RATE=ifelse(EVID==1 & CMT==compartment, rateValue, RATE))
+      table <- table %>% dplyr::mutate(RATE=ifelse(EVID==1 & CMT==compartment & IS_INFUSION %in% TRUE, rateValue, RATE))
     }
   }
   return(table)
@@ -478,6 +479,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   if (!is.null(model)) {
     retValue <- applyCompartmentCharacteristics(retValue, model@compartments@characteristics)
   }
+  
+  # Remove IS_INFUSION column
+  retValue <- retValue %>% dplyr::select(-IS_INFUSION)
   
   return(retValue)
 })

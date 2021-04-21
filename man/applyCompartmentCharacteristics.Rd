@@ -2,7 +2,8 @@
 % Please edit documentation in R/dataset.R
 \name{applyCompartmentCharacteristics}
 \alias{applyCompartmentCharacteristics}
-\title{Apply compartment characteristics from model.}
+\title{Apply compartment characteristics from model.
+In practice, only compartment infusion duration needs to be applied.}
 \usage{
 applyCompartmentCharacteristics(table, characteristics)
 }
@@ -16,4 +17,5 @@ updated dataset
 }
 \description{
 Apply compartment characteristics from model.
+In practice, only compartment infusion duration needs to be applied.
 }
