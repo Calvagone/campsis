@@ -14,13 +14,10 @@ test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
   
   arm1 <- Arm(1, subjects=10)
   arm2 <- Arm(2, subjects=10)
-  arm1 <- arm1 %>% add(Bolus(time=0, amount=2000, compartment=1))
+  arm1 <- arm1 %>% add(Bolus(time=0, amount=2000, compartment=1, fraction=0.75))
   arm2 <- arm2 %>% add(Bolus(time=0, amount=2000, compartment=1))
   arm1 <- arm1 %>% add(Observations(times=seq(0,24, by=0.5)))
   arm2 <- arm2 %>% add(Observations(times=seq(0,24, by=0.5)))
-  
-  # Add F1=0.75 (20%CV) into first arm
-  arm1 <- arm1 %>% add(TreatmentBioavailability(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(0.75), sdlog=0.2))))
   
   dataset <- Dataset() %>% add(arm1) %>% add(arm2)
   
@@ -38,11 +35,11 @@ test_that("Simulate a simple bolus with bioavailability", {
   model <- getNONMEMModelTemplate(4,4)
   regFilename <- "simple_bolus_bioavailability"
   
+  # Bioavailability implemented in dataset
   dataset <- Dataset(3)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1, fraction=0.75))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
-  # Bioavailability implemented in dataset
   dataset <- dataset %>% add(TreatmentBioavailability(compartment=1, distribution=ConstantDistribution(0.75)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
