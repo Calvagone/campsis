@@ -192,6 +192,28 @@ DiscreteDistribution <- function(x, prob, replace=TRUE) {
   return(new("function_distribution", fun="base::sample", args=list(size="n", x=as.numeric(x), prob=as.numeric(prob), replace=as.logical(replace))))
 }
 
+#' 
+#' Create a parameter distribution. By default, the resulting distribution is a
+#' log-normal distribution, computed as THETA * exp(Normal(mean=0, sd=sqrt(OMEGA))).
+#' It is currently not possible to change the distribution type.
+#' 
+#' @param model model
+#' @param theta corresponding THETA name, character
+#' @param omega corresponding OMEGA name, character, NULL if not defined
+#' @return a parameter distribution  
+#' @export
+ParameterDistribution <- function(model, theta, omega=NULL) {
+  thetaName <- paste0("THETA_", theta)
+  omegaName <- paste0("OMEGA_", omega)
+  thetaValue <- (model@parameters %>% getByName(thetaName))@value
+  omegaValue <- 0
+  if (!is.null(omega)) {
+    omegaValue <- (model@parameters %>% getByName(omegaName))@value
+  }
+  fun <- FunctionDistribution(fun="rlnorm", args=list(meanlog=log(thetaValue), sdlog=sqrt(omegaValue)))
+  return(fun)
+}
+
 #_______________________________________________________________________________
 #----                     bootstrap_distribution class                      ----
 #_______________________________________________________________________________

@@ -13,12 +13,10 @@ test_that("Simulate infusion using duration in dataset, then in model", {
   model <- getNONMEMModelTemplate(3,4)
   regFilename <- "infusion_duration"
   
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
-  
   # 5 hours infusion duration implemented in dataset
-  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ConstantDistribution(5)))
+  dataset <- Dataset()
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1, duration=5))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
@@ -55,12 +53,10 @@ test_that("Simulate infusion using rate in dataset", {
   model <- getNONMEMModelTemplate(3,4)
   regFilename <- "infusion_duration"
   
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
-  
   # 5 hours infusion duration implemented in dataset
-  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
+  dataset <- Dataset()
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1, rate=200))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
@@ -97,16 +93,14 @@ test_that("Simulate infusion using rate and lag time in dataset", {
   model <- getNONMEMModelTemplate(3,4)
   regFilename <- "infusion_rate_lag_time1_dataset"
   
-  dataset <- Dataset(10)
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
-  
-  # 2 hours lag time with 20% CV
-  lag <- TreatmentLagTime(compartment=1, FunctionDistribution(fun="rlnorm", args=list(meanlog=log(2), sdlog=0.2)))
-  
   # 5 hours duration
-  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
-  dataset <- dataset %>% add(lag)
+  duration <- 5
+  # 2 hours lag time with 20% CV
+  lag <- FunctionDistribution(fun="rlnorm", args=list(meanlog=log(2), sdlog=0.2))
+  
+  dataset <- Dataset(10)
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1, duration=duration, lag=lag))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
@@ -126,18 +120,12 @@ test_that("Simulate infusion using rate and lag time (parameter distribution) in
   regFilename <- "infusion_rate_lag_time2_dataset"
   model@parameters <- model@parameters %>% add(Theta(name="ALAG1", index=5, value=2)) # 2 hours lag time
   model@parameters <- model@parameters %>% add(Omega(name="ALAG1", index=5, index2=5, value=0.2^2)) #20% CV
-  
+
   dataset <- Dataset(10)
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
+  lag <- ParameterDistribution(model, theta="ALAG1", omega="ALAG1")
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1, rate=200, lag=lag))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
-  # Add lag time
-  lag <- TreatmentLagTime(compartment=2, ParameterDistribution(theta="ALAG1", omega="ALAG1"))
-  dataset <- dataset %>% add(lag)
-  
-  # 5 hours duration
-  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ConstantDistribution(200), rate=TRUE))
-  
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
   expect_equal(nrow(results1), dataset %>% length() * 49)
@@ -146,7 +134,7 @@ test_that("Simulate infusion using rate and lag time (parameter distribution) in
   spaguettiPlot(results2, "CP")
   expect_equal(nrow(results2), dataset %>% length() * 49)
   
-  expect_true(dataset %>% hasModelDistribution())
+  #expect_true(dataset %>% hasModelDistribution())
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
