@@ -2,19 +2,19 @@
 #----                            convert                                    ----
 #_______________________________________________________________________________
 
-#' Convert generic object according to given configuration.
+#' #' Convert generic object according to given configuration.
+#' #' 
+#' #' @param object generic object
+#' #' @param config specified configuration
+#' #' @return conversion output
+#' #' @export
+#' convert <- function(object, config) {
+#'   stop("No default function is provided")
+#' }
 #' 
-#' @param object generic object
-#' @param config specified configuration
-#' @return conversion output
-#' @export
-convert <- function(object, config) {
-  stop("No default function is provided")
-}
-
-setGeneric("convert", function(object, config) {
-  standardGeneric("convert")
-})
+#' setGeneric("convert", function(object, config) {
+#'   standardGeneric("convert")
+#' })
 
 #_______________________________________________________________________________
 #----                             simulate                                  ----
@@ -44,13 +44,14 @@ setGeneric("simulate", function(model, dataset, dest, ...) {
 #' 
 #' @param object generic object
 #' @param n number of samples required
+#' @param ... extra arguments
 #' @return sampling result
 #' @export
-sample <- function(object, n) {
+sample <- function(object, n, ...) {
   stop("No default function is provided")
 }
 
-setGeneric("sample", function(object, n) {
+setGeneric("sample", function(object, n, ...) {
   standardGeneric("sample")
 })
 

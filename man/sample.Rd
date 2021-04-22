@@ -4,12 +4,14 @@
 \alias{sample}
 \title{Sample generic object.}
 \usage{
-sample(object, n)
+sample(object, n, ...)
 }
 \arguments{
 \item{object}{generic object}
 
 \item{n}{number of samples required}
+
+\item{...}{extra arguments}
 }
 \value{
 sampling result

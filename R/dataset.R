@@ -406,12 +406,12 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     characteristics <- treatment@characteristics
     treatmentIovs <- treatment@iovs
 
-    # Create the base table with all treatment entries and observations
-    df <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~convert(.x, config))
-    df <- df %>% dplyr::arrange(TIME, EVID)
-
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
+    
+    # Create the base table with all treatment entries and observations
+    df <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, config=config, maxID=maxID))
+    df <- df %>% dplyr::arrange(TIME, EVID)
 
     # Treating treatment characteristics as covariates in the dataset
     characteristicsAsCov <- processAsCovariate(characteristics@list, iiv=iiv, rxmod=rxmod, ids=ids)

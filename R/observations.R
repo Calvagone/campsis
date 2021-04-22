@@ -41,12 +41,17 @@ setMethod("getName", signature = c("observations"), definition = function(x) {
 #----                            convert                                    ----
 #_______________________________________________________________________________
 
-setMethod("convert", signature = c("observations"), definition = function(object, config) {
+setMethod("sample", signature = c("observations", "integer"), definition = function(object, n, ...) {
+  args <- list(...)
+  config <- processExtraArg(args, name="config", mandatory=TRUE)
+  maxID <- processExtraArg(args, name="maxID", mandatory=TRUE)
+  ids <- seq_len(subjects) + maxID - subjects
+  
   if (is.na(object@compartment)) {
     obsCmt <- config@def_obs_cmt
   } else {
     obsCmt <- object@compartment
   }
-  return(data.frame(TIME=object@times, EVID=as.integer(0), MDV=as.integer(0),
+  return(data.frame(ID=rep(ids, each=length(object@times)), TIME=rep(object@times, n), EVID=as.integer(0), MDV=as.integer(0),
                     AMT=as.numeric(NA), CMT=obsCmt, DOSENO=as.integer(NA), IS_INFUSION=as.logical(NA)))
 })

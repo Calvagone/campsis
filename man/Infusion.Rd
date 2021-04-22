@@ -4,7 +4,15 @@
 \alias{Infusion}
 \title{Create an infusion.}
 \usage{
-Infusion(time, amount, compartment = NA)
+Infusion(
+  time,
+  amount,
+  compartment = NA,
+  fraction = NULL,
+  lag = NULL,
+  duration = NULL,
+  rate = NULL
+)
 }
 \arguments{
 \item{time}{treatment time, numeric}
@@ -12,6 +20,14 @@ Infusion(time, amount, compartment = NA)
 \item{amount}{total amount to infuse, numeric}
 
 \item{compartment}{compartment index, integer}
+
+\item{fraction}{fraction of infusion amount, distribution}
+
+\item{lag}{infusion lag time, distribution}
+
+\item{duration}{infusion duration, distribution}
+
+\item{rate}{infusion rate, distribution}
 }
 \value{
 an infusion.

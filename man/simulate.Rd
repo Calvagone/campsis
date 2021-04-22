@@ -2,7 +2,15 @@
 % Please edit documentation in R/generic.R
 \name{simulate}
 \alias{simulate}
-\title{Simulate function.}
+\title{#' Convert generic object according to given configuration.
+#' 
+#' @param object generic object
+#' @param config specified configuration
+#' @return conversion output
+#' @export
+convert <- function(object, config) {
+  stop("No default function is provided")
+}}
 \usage{
 simulate(model, dataset, dest, ...)
 }
@@ -19,5 +27,8 @@ simulate(model, dataset, dest, ...)
 specific object depending on given destination
 }
 \description{
+setGeneric("convert", function(object, config) {
+  standardGeneric("convert")
+})
 Simulate function.
 }
