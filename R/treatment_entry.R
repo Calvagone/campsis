@@ -17,7 +17,7 @@ setClass(
     dose_number = "integer" # Transient
   ),
   contains = "time_entry",
-  prototype=prototype(compartment=as.integer(NA), dose_number=as.integer(NA), fraction=NULL, lag=NULL),
+  prototype=prototype(compartment=as.integer(NA), dose_number=as.integer(NA)),
   validity=checkTreatmentEntry
 )
 
@@ -49,7 +49,8 @@ setClass(
 #' @return an observation
 #' @export
 Bolus <- function(time, amount, compartment=NA, fraction=NULL, lag=NULL) {
-  return(new("bolus", time=time, amount=amount, compartment=as.integer(compartment), fraction=fraction, lag=lag))
+  return(new("bolus", time=time, amount=amount, compartment=as.integer(compartment),
+             fraction=toExplicitDistribution(fraction), lag=toExplicitDistribution(lag)))
 }
 
 setMethod("getName", signature = c("bolus"), definition = function(x) {
@@ -72,7 +73,6 @@ setClass(
     rate = "distribution"
   ),
   contains = "treatment_entry",
-  prototype=prototype(duration=NULL, lagtime=NULL),
   validity=validateInfusion
 )
 
@@ -90,7 +90,8 @@ setClass(
 #' @export
 Infusion <- function(time, amount, compartment=NA, fraction=NULL, lag=NULL, duration=NULL, rate=NULL) {
   return(new("infusion", time=time, amount=amount, compartment=as.integer(compartment),
-             fraction=fraction, lag=lag, duration=duration, rate=rate))
+             fraction=toExplicitDistribution(fraction), lag=toExplicitDistribution(lag),
+             duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate)))
 }
 
 setMethod("getName", signature = c("infusion"), definition = function(x) {
@@ -101,12 +102,21 @@ setMethod("getName", signature = c("infusion"), definition = function(x) {
 #----                             sample                                    ----
 #_______________________________________________________________________________
 
+sampleTrtDistribution <- function(distribution, n, default) {
+  if (is(distribution, "undefined_distribution")) {
+    return(default) # Single value returned
+  } else {
+    return((distribution %>% sample(n))@sampled_values)
+  }
+}
 
 setMethod("sample", signature = c("bolus", "integer"), definition = function(object, n, ...) {
   args <- list(...)
   config <- processExtraArg(args, name="config", mandatory=TRUE)
   maxID <- processExtraArg(args, name="maxID", mandatory=TRUE)
-  ids <- seq_len(subjects) + maxID - subjects
+  ids <- seq_len(n) + maxID - n
+  fraction <- sampleTrtDistribution(object@fraction, n, default=1)
+  lag <- sampleTrtDistribution(object@lag, n, default=0)
   
   if (is.na(object@compartment)) {
     depotCmt <- config@def_depot_cmt
@@ -114,22 +124,36 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
     depotCmt <- object@compartment
   }
 
-  return(data.frame(ID=ids, TIME=object@time, EVID=as.integer(1), MDV=as.integer(1),
-                    AMT=object@amount, CMT=depotCmt, DOSENO=object@dose_number, IS_INFUSION=FALSE))
+  return(data.frame(ID=as.integer(ids), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
+                    AMT=object@amount*fraction, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number, IS_INFUSION=FALSE))
 })
 
 setMethod("sample", signature = c("infusion", "integer"), definition = function(object, n, ...) {
   args <- list(...)
   config <- processExtraArg(args, name="config", mandatory=TRUE)
   maxID <- processExtraArg(args, name="maxID", mandatory=TRUE)
-  ids <- seq_len(subjects) + maxID - subjects
+  ids <- seq_len(n) + maxID - n
+  fraction <- sampleTrtDistribution(object@fraction, n, default=1)
+  lag <- sampleTrtDistribution(object@lag, n, default=0)
+  
   
   if (is.na(object@compartment)) {
     depotCmt <- config@def_depot_cmt
   } else {
     depotCmt <- object@compartment
   }
-  return(data.frame(ID=ids, TIME=object@time, EVID=as.integer(1), MDV=as.integer(1),
-                    AMT=object@amount, CMT=depotCmt, DOSENO=object@dose_number, IS_INFUSION=TRUE))
+  retValue <- data.frame(ID=as.integer(ids), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
+                         AMT=object@amount*fraction, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number, IS_INFUSION=TRUE)
+  
+  # Duration or rate
+  if (!is(object@duration, "undefined_distribution")) {
+    duration <- sampleTrtDistribution(object@duration, n, default=0)
+    retValue <- retValue %>% dplyr::mutate(RATE=AMT/duration)
+  } else if (!is(object@rate, "undefined_distribution")) {
+    rate <- sampleTrtDistribution(object@rate, n, default=0)
+    retValue <- retValue %>% dplyr::mutate(RATE=rate)
+  }
+  
+  return(retValue)
 })
 

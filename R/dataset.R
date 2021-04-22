@@ -149,116 +149,6 @@ generateIIV <- function(omega, n) {
   return(iiv)
 }
 
-#' Process characteristic IOV.
-#' 
-#' @param table current dataset, data frame form
-#' @param characteristic characteristic being treated
-#' @return updated table
-#' 
-processCharacteristicIOV <- function(table, characteristic) {
-  distribution <- characteristic@distribution
-  if (is(distribution, "parameter_distribution") && length(distribution@iov) > 0) {
-    iov <- distribution@iov
-    colName <- characteristic %>% getColumnName()
-    if (!(iov %in% colnames(table))) {
-      stop(paste0("There is no IOV column '", iov, "'. ", "Please add it to the dataset."))
-    }
-    # Only valid for log-normal distributions: exp(ETA1 + ETA2) = exp(ETA1)*exp(ETA2)
-    charValue <- table[, colName]
-    table[, colName] <- ifelse(is.na(charValue), charValue, charValue*exp(table[, iov]))
-    return(table)
-  } else {
-    return(table)
-  }
-}
-
-#' Process bioavailabilities.
-#' 
-#' @param table current dataset, data frame form
-#' @param characteristics all treatment characteristics
-#' @return updated table (AMT adapted)
-#' 
-processBioavailabilities <- function(table, characteristics) {
-  bioavailabilities <- characteristics %>% pmxmod::select("treatment_bioavailability")
-  if (bioavailabilities %>% length() == 0) {
-    return(table)
-  }
-  colToRemove <- NULL
-  for (bioavailability in bioavailabilities@list) {
-    colName <- bioavailability %>% getColumnName()
-    compartment <- bioavailability@compartment
-    table <- processCharacteristicIOV(table, characteristic=bioavailability)
-    table <- table %>% dplyr::mutate(
-      AMT=ifelse(table$EVID==1 & table$CMT==compartment,
-                  table$AMT * table[,colName],
-                  table$AMT))
-    colToRemove <- c(colToRemove, colName)
-  }
-  table <- table %>% dplyr::select(-dplyr::all_of(colToRemove))
-  return(table)
-}
-
-#' Process infusions.
-#' 
-#' @param table current dataset, data frame form
-#' @param characteristics all treatment characteristics
-#' @return updated table with RATE column
-#' 
-processInfusions <- function(table, characteristics) {
-  durations <- characteristics %>% pmxmod::select("treatment_infusion_duration")
-  if (durations %>% length() == 0) {
-    return(table)
-  }
-  table <- table %>% tibble::add_column(RATE=0, .after="AMT")
-  colToRemove <- NULL
-  for (duration in durations@list) {
-    colName <- duration %>% getColumnName()
-    compartment <- duration@compartment
-    table <- processCharacteristicIOV(table, characteristic=duration)
-    if (duration@rate) {
-      table <- table %>% dplyr::mutate(
-        RATE=ifelse(table$EVID==1 & table$CMT==compartment & table$IS_INFUSION %in% TRUE,
-                    table[,colName],
-                    table$RATE))
-    } else {
-      table <- table %>% dplyr::mutate(
-        RATE=ifelse(table$EVID==1 & table$CMT==compartment & table$IS_INFUSION %in% TRUE,
-                    table$AMT / table[,colName],
-                    table$RATE))
-    }
-    colToRemove <- c(colToRemove, colName)
-  }
-  table <- table %>% dplyr::select(-dplyr::all_of(colToRemove))
-  return(table)
-}
-
-#' Process lag times.
-#' 
-#' @param table current dataset, data frame form
-#' @param characteristics all treatment characteristics
-#' @return updated table with time of doses updated
-#' 
-processLagTimes <- function(table, characteristics) {
-  lagTimes <- characteristics %>% pmxmod::select("treatment_lag_time")
-  if (lagTimes %>% length() == 0) {
-    return(table)
-  }
-  colToRemove <- NULL
-  for (lagTime in lagTimes@list) {
-    colName <- lagTime %>% getColumnName()
-    compartment <- lagTime@compartment
-    table <- processCharacteristicIOV(table, characteristic=lagTime)
-    table <- table %>% dplyr::mutate(
-      TIME=ifelse(table$EVID==1 & table$CMT==compartment,
-                  table$TIME + table[,colName],
-                  table$TIME))
-    colToRemove <- c(colToRemove, colName)
-  }
-  table <- table %>% dplyr::select(-dplyr::all_of(colToRemove))
-  table <- table %>% dplyr::arrange(ID, TIME)
-  return(table)
-}
-
 #' Process distribution-derived objects as covariates.
 #' 
 #' @param list list of distribution-derived objects
@@ -447,15 +337,6 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     if (nrow(iov) > 0) {
       expDf <- expDf %>% dplyr::left_join(iov, by = c("ID", "DOSENO"))
     }
-
-    # Treating bioavailabilities
-    expDf <- processBioavailabilities(expDf, characteristics)
-    
-    # Treating infusion durations
-    expDf <- processInfusions(expDf, characteristics)
-    
-    # Treating lag times
-    expDf <- processLagTimes(expDf, characteristics)
     
     return(expDf)
   })
