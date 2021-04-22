@@ -112,9 +112,9 @@ sampleTrtDistribution <- function(distribution, n, default) {
 
 setMethod("sample", signature = c("bolus", "integer"), definition = function(object, n, ...) {
   args <- list(...)
-  config <- processExtraArg(args, name="config", mandatory=TRUE)
-  maxID <- processExtraArg(args, name="maxID", mandatory=TRUE)
-  ids <- seq_len(n) + maxID - n
+  config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
+  ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
+  armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
   fraction <- sampleTrtDistribution(object@fraction, n, default=1)
   lag <- sampleTrtDistribution(object@lag, n, default=0)
   
@@ -124,15 +124,15 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
     depotCmt <- object@compartment
   }
 
-  return(data.frame(ID=as.integer(ids), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
+  return(data.frame(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
                     AMT=object@amount*fraction, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number, IS_INFUSION=FALSE))
 })
 
 setMethod("sample", signature = c("infusion", "integer"), definition = function(object, n, ...) {
   args <- list(...)
-  config <- processExtraArg(args, name="config", mandatory=TRUE)
-  maxID <- processExtraArg(args, name="maxID", mandatory=TRUE)
-  ids <- seq_len(n) + maxID - n
+  config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
+  ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
+  armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
   fraction <- sampleTrtDistribution(object@fraction, n, default=1)
   lag <- sampleTrtDistribution(object@lag, n, default=0)
   
@@ -142,7 +142,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   } else {
     depotCmt <- object@compartment
   }
-  retValue <- data.frame(ID=as.integer(ids), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
+  retValue <- data.frame(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
                          AMT=object@amount*fraction, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number, IS_INFUSION=TRUE)
   
   # Duration or rate

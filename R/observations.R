@@ -43,15 +43,15 @@ setMethod("getName", signature = c("observations"), definition = function(x) {
 
 setMethod("sample", signature = c("observations", "integer"), definition = function(object, n, ...) {
   args <- list(...)
-  config <- processExtraArg(args, name="config", mandatory=TRUE)
-  maxID <- processExtraArg(args, name="maxID", mandatory=TRUE)
-  ids <- seq_len(subjects) + maxID - subjects
+  config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
+  ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
+  armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
   
   if (is.na(object@compartment)) {
     obsCmt <- config@def_obs_cmt
   } else {
     obsCmt <- object@compartment
   }
-  return(data.frame(ID=rep(ids, each=length(object@times)), TIME=rep(object@times, n), EVID=as.integer(0), MDV=as.integer(0),
-                    AMT=as.numeric(NA), CMT=obsCmt, DOSENO=as.integer(NA), IS_INFUSION=as.logical(NA)))
+  return(data.frame(ID=rep(ids, each=length(object@times)), ARM=as.integer(armID), TIME=rep(object@times, n), EVID=as.integer(0), MDV=as.integer(0),
+                    AMT=as.numeric(NA), CMT=obsCmt, RATE=as.numeric(0), DOSENO=as.integer(NA), IS_INFUSION=as.logical(NA)))
 })

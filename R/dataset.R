@@ -152,51 +152,15 @@ generateIIV <- function(omega, n) {
 #' Process distribution-derived objects as covariates.
 #' 
 #' @param list list of distribution-derived objects
-#' @param iiv IIV pre-computed data frame
-#' @param rxmod prepared data for RxODE
-#' @param ids subject ID's being simulated in arm
 #' @return a list of covariates that can be easily processed
 #' 
-processAsCovariate <- function(list, iiv, rxmod, ids) {
+processAsCovariate <- function(list) {
   covariates <- new("covariates")
   for (distribution in list) {
     dist <- distribution@distribution
-    
     if (is(dist, "sampled_distribution")) {
       name <- distribution %>% getColumnName()
       covariates <- covariates %>% add(Covariate(name=name, distribution=dist))
-      
-    } else if(is(dist, "model_distribution")) {
-      name <- distribution %>% getColumnName()
-      theta <- dist@theta
-      omega <- dist@omega
-      thetaName <- paste0("THETA_", theta)
-      etaName <- paste0("ETA_", omega)
-      
-      if (is(dist, "parameter_distribution")) {
-        if (!hasName(rxmod@theta, thetaName)) {
-          stop(paste0("'", thetaName, "'", " not part of the THETA vector"))
-        }
-        if (length(omega) > 0 && !hasName(iiv, etaName)) {
-          stop(paste0("'", etaName, "'", " not part of the IIV matrix"))
-        }
-        mean <- rxmod@theta[[thetaName]]
-        if (length(omega) > 0) {
-          var <- iiv[ids, etaName]
-          covariates <- covariates %>% add(Covariate(name=name, distribution=FixedDistribution(mean*exp(var))))
-        } else {
-          covariates <- covariates %>% add(Covariate(name=name, distribution=ConstantDistribution(mean)))
-        }
-      } else if (is(dist, "eta_distribution")) {
-        if (!(etaName %in% colnames(rxmod@omega))) {
-          stop(paste0("'", etaName, "'", " not part of the OMEGA matrix"))
-        }
-        var <- rxmod@omega[[etaName, etaName]]
-        distribution <- FunctionDistribution(fun="rnorm", args=list(mean=0, sd=sqrt(var)))
-        covariates <- covariates %>% add(Covariate(name=name, distribution=distribution))
-      } else {
-        stop(paste0("Unknown distribution class: ", as.character(class(dist))))
-      }
     } else {
       stop(paste0("Unknown distribution class: ", as.character(class(dist))))
     }
@@ -266,7 +230,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     }
   } else {
     rxmod <- model %>% pmxmod::export(dest="RxODE")
-    iiv <- generateIIV(omega=rxmod@omega, n=object %>% length())
+    subjects <- object %>% length()
+    iiv <- generateIIV(omega=rxmod@omega, n=subjects)
+    iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
   }
 
   # Retrieve dataset configuration
@@ -293,52 +259,38 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     }
     observations <- protocol@observations
     covariates <- arm@covariates
-    characteristics <- treatment@characteristics
     treatmentIovs <- treatment@iovs
 
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
     
     # Create the base table with all treatment entries and observations
-    df <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, config=config, maxID=maxID))
-    df <- df %>% dplyr::arrange(TIME, EVID)
-
-    # Treating treatment characteristics as covariates in the dataset
-    characteristicsAsCov <- processAsCovariate(characteristics@list, iiv=iiv, rxmod=rxmod, ids=ids)
-    covariates <- covariates %>% add(characteristicsAsCov)
+    table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID))
+    table <- table %>% dplyr::arrange(ID, TIME, EVID)
     
     # Sampling covariates
     cov <- sampleCovariatesList(covariates, n=length(ids))
+    if (nrow(cov) > 0) {
+      cov <- cov %>% tibble::add_column(ID=ids, .before=1)
+      table <- table %>% dplyr::left_join(cov, by="ID")
+    }
     
-    # Treating IOV's (note that IIV is not needed)
-    iovsAsCov <- processAsCovariate(treatmentIovs@list, iiv=data.frame(), rxmod=rxmod, ids=ids)
+    # Treating IOV's
+    iovsAsCov <- processAsCovariate(treatmentIovs@list)
 
     # Sampling IOV's
     iov <- sampleCovariatesList(iovsAsCov, n=length(ids)*doseNumber)
     if (nrow(iov) > 0) {
       iovInit <- data.frame(ID=rep(ids, each=doseNumber), DOSENO=rep(seq_len(doseNumber), length(ids)))
       iov <- cbind(iovInit, iov)
-    }
-
-    # Expanding the dataframe for all subjects
-    expDf <- ids %>% purrr::map_df(.f=function(id) {
-      df <- df %>% tibble::add_column(ID=id, .before="TIME")
-      df <- df %>% tibble::add_column(ARM=armID, .before="TIME")
-      if (nrow(cov) > 0) {
-        df <- df %>% dplyr::bind_cols(cov[(id - maxID + subjects),])
-      }
-      if (nrow(iiv) > 0) {
-        df <- df %>% dplyr::bind_cols(iiv[id,])
-      }
-      return(df)
-    })
-    
-    # Left join IOV, by subject ID and dose number
-    if (nrow(iov) > 0) {
-      expDf <- expDf %>% dplyr::left_join(iov, by = c("ID", "DOSENO"))
+      table <- table %>% dplyr::left_join(iov, by=c("ID","DOSENO"))
     }
     
-    return(expDf)
+    # Joining IIV
+    if (nrow(iiv) > 0) {
+      table <- table %>% dplyr::left_join(iiv, by="ID")
+    }
+    return(table)
   })
   
   # Apply compartment characteristics coming from the model

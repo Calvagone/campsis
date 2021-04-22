@@ -4,16 +4,10 @@
 \alias{processAsCovariate}
 \title{Process distribution-derived objects as covariates.}
 \usage{
-processAsCovariate(list, iiv, rxmod, ids)
+processAsCovariate(list)
 }
 \arguments{
 \item{list}{list of distribution-derived objects}
-
-\item{iiv}{IIV pre-computed data frame}
-
-\item{rxmod}{prepared data for RxODE}
-
-\item{ids}{subject ID's being simulated in arm}
 }
 \value{
 a list of covariates that can be easily processed

@@ -29,7 +29,7 @@ test_that("Is treatment entry test", {
 
 test_that("sample method for bolus is working well", {
   bolus <- Bolus(time=0, amount=1000, fraction=0.6, lag=ConstantDistribution(2)) 
-  res <- bolus %>% sample(n=as.integer(10), config=DatasetConfig(), maxID=10)
+  res <- bolus %>% sample(n=as.integer(10))
   expect_equal(res$ID, seq_len(10))
   expect_equal(unique(res$AMT), 1000*0.6)
   expect_equal(unique(res$TIME), 0+2)
@@ -37,12 +37,12 @@ test_that("sample method for bolus is working well", {
 
 test_that("sample method for infusion is working well", {
   infusion <- Infusion(time=0, amount=1000, duration=2) 
-  res <- infusion %>% sample(n=as.integer(10), config=DatasetConfig(), maxID=10)
+  res <- infusion %>% sample(n=as.integer(10))
   expect_equal(res$ID, seq_len(10))
   expect_equal(unique(res$RATE), 1000/2)
   
   infusion <- Infusion(time=0, amount=1000, rate=200) 
-  res <- infusion %>% sample(n=as.integer(10), config=DatasetConfig(), maxID=10)
+  res <- infusion %>% sample(n=as.integer(10))
   expect_equal(res$ID, seq_len(10))
   expect_equal(unique(res$RATE), 200)
 })
