@@ -193,9 +193,35 @@ DiscreteDistribution <- function(x, prob, replace=TRUE) {
 }
 
 #' 
-#' Create a parameter distribution. By default, the resulting distribution is a
-#' log-normal distribution, computed as THETA * exp(Normal(mean=0, sd=sqrt(OMEGA))).
-#' It is currently not possible to change the distribution type.
+#' Retrieve the parameter value (standardised) for the specified parameter name.
+#' 
+#' @param model model
+#' @param paramName parameter name
+#' @param default defaut value if not found
+#' @param mandatory must be in model or not
+#' @return the parameter value (or a defautl value if parameter is not found)
+#' @importFrom assertthat assert_that
+retrieveParameterValue <- function(model, paramName, default=NULL, mandatory=FALSE) {
+  assertthat::assert_that(is.character(paramName) && length(paramName)==1,
+                          msg="paramName must be a single character value")
+  parameter <- model@parameters %>% getByName(paramName)
+  
+  if (parameter %>% length() == 0) {
+    if (is.null(default) && mandatory) {
+      stop(paste0(paramName, " can't be found in model"))
+    }
+    return(default)
+  } else {
+    # If parameter is OMEGA, it needs to be standardised before taking its value
+    # This way, value is always a variance (or covariance)
+    parameter <- parameter %>% standardise()
+    return(parameter@value)
+  }
+}
+
+#' 
+#' Create a parameter distribution. The resulting distribution is a
+#' log-normal distribution, with meanlog=log(THETA) and sdlog=sqrt(OMEGA).
 #' 
 #' @param model model
 #' @param theta corresponding THETA name, character
@@ -203,15 +229,27 @@ DiscreteDistribution <- function(x, prob, replace=TRUE) {
 #' @return a parameter distribution  
 #' @export
 ParameterDistribution <- function(model, theta, omega=NULL) {
-  thetaName <- paste0("THETA_", theta)
-  omegaName <- paste0("OMEGA_", omega)
-  thetaValue <- (model@parameters %>% getByName(thetaName))@value
-  omegaValue <- 0
-  if (!is.null(omega)) {
-    omegaValue <- (model@parameters %>% getByName(omegaName))@value
+  thetaValue <- retrieveParameterValue(model, paramName=paste0("THETA_", theta), mandatory=TRUE)
+  if (is.null(omega)) {
+    omegaValue <- 0
+  } else {
+    omegaValue <- retrieveParameterValue(model, paramName=paste0("OMEGA_", omega), mandatory=TRUE)
   }
   fun <- FunctionDistribution(fun="rlnorm", args=list(meanlog=log(thetaValue), sdlog=sqrt(omegaValue)))
   return(fun)
+}
+
+#' 
+#' Create an ETA distribution. The resulting distribution is a
+#' normal distribution, with mean=0 and sd=sqrt(OMEGA)
+#' 
+#' @param model model
+#' @param omega corresponding THETA name, character
+#' @return an ETA distribution
+#' @export
+EtaDistribution <- function(model, omega) {
+  omegaValue <- retrieveParameterValue(model, paramName=paste0("OMEGA_", omega), mandatory=TRUE)
+  return(NormalDistribution(mean=0, sd=sqrt(omegaValue)))
 }
 
 #_______________________________________________________________________________

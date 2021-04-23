@@ -3,8 +3,8 @@ library(pmxmod)
 
 context("Test the simulate method with IOV")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
+overwriteNonRegressionFiles <<- TRUE
+testFolder <<- "C:/prj/pmxsim/tests/testthat/"
 seed <<- 1
 
 source(paste0(testFolder, "testUtils.R"))
@@ -45,13 +45,13 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
   pk@code[[1]] <- "KA=THETA_KA*exp(ETA_KA + IOV_KA)"
   model@model <- model@model %>% pmxmod::replace(pk)
   model@parameters <- model@parameters %>% add(Omega("IOV_KA", index=6, index2=6, value=0.2^2))
-  
+
   dataset <- Dataset(10)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
   dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
-  dataset <- dataset %>% add(IOV(colname="IOV_KA", distribution=EtaDistribution(omega="IOV_KA")))
+  dataset <- dataset %>% add(IOV(colname="IOV_KA", distribution=EtaDistribution(model, omega="IOV_KA")))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
@@ -67,40 +67,42 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
 })
 
 test_that("Simulate IOV on F1", {
-  # Model with IIV on F1
+  # Model with IIV and IOV on F1
   model <- getNONMEMModelTemplate(4,4)
-  pk <- model@model %>% getByName("PK")
+  
   model@parameters <- model@parameters %>% add(Theta("F1", index=6, value=0.75))
   model@parameters <- model@parameters %>% add(Omega("F1", index=6, index2=6, value=0.2^2))
-
-  # Model with IIV and IOV on F1
-  model_iov <- model
-  iovCvPc <- 20 # 20% CV
+  model@parameters <- model@parameters %>% add(Omega("IOV_F1", index=7, index2=7, value=0.2^2, same=FALSE)) # 20% IOV
+  model <- model %>% add(Bioavailability(compartment=1, rhs="F1"))
   
-  # Add IOV
-  model@parameters <- model@parameters %>% add(Omega("IOV_F1", index=7, index2=7, value=(0/100)^2))
-  model_iov@parameters <- model_iov@parameters %>% add(Omega("IOV_F1", index=7, index2=7, value=(iovCvPc/100)^2))
+  pk <- model@model %>% getByName("PK")
+  pk@code <- pk@code %>% append("F1=THETA_F1*exp(ETA_F1 + IOV_F1)")
+  model@model <- model@model %>% pmxmod::replace(pk)
   
-  dataset <- Dataset(10)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
-  dataset <- dataset %>% add(IOV(colname="IOV_F1_COL", distribution=EtaDistribution(omega="IOV_F1")))
+  getDataset <- function(model) {
+    dataset <- Dataset(10)
+    dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
+    dataset <- dataset %>% add(IOV(colname="IOV_F1", distribution=EtaDistribution(model, omega="IOV_F1")))
+    return(dataset)
+  }
   
-  # Add bioavailability
-  dataset <- dataset %>% add(TreatmentBioavailability(compartment=1, ParameterDistribution(theta="F1", omega="F1", iov="IOV_F1_COL")))
-
+  
   # Simulate just IIV
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  model_no_iov <- model %>% disable("IOV")
+  dataset_no_iov <- getDataset(model_no_iov)
+  results1 <- model_no_iov %>% simulate(dataset_no_iov, dest="RxODE", seed=seed)
   results1$ARM <- "IIV"
-  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_f1")
+  datasetRegressionTest(dataset_no_iov, model_no_iov, seed=seed, filename="3_boluses_iiv_f1")
   
   # Simulate just IIV + IOV
-  results2 <- model_iov %>% simulate(dataset, dest="RxODE", seed=seed)
+  dataset <- getDataset(model)
+  results2 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   results2$id <- results2$id + dataset %>% length()
   results2$ARM <- "IIV + IOV"
-  datasetRegressionTest(dataset, model_iov, seed=seed, filename="3_boluses_iiv_iov_f1")
+  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_iov_f1")
   
   spaguettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")

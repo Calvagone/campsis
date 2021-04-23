@@ -2,9 +2,8 @@
 % Please edit documentation in R/distribution.R
 \name{ParameterDistribution}
 \alias{ParameterDistribution}
-\title{Create a parameter distribution. By default, the resulting distribution is a
-log-normal distribution, computed as THETA * exp(Normal(mean=0, sd=sqrt(OMEGA))).
-It is currently not possible to change the distribution type.}
+\title{Create a parameter distribution. The resulting distribution is a
+log-normal distribution, with meanlog=log(THETA) and sdlog=sqrt(OMEGA).}
 \usage{
 ParameterDistribution(model, theta, omega = NULL)
 }
@@ -19,7 +18,6 @@ ParameterDistribution(model, theta, omega = NULL)
 a parameter distribution
 }
 \description{
-Create a parameter distribution. By default, the resulting distribution is a
-log-normal distribution, computed as THETA * exp(Normal(mean=0, sd=sqrt(OMEGA))).
-It is currently not possible to change the distribution type.
+Create a parameter distribution. The resulting distribution is a
+log-normal distribution, with meanlog=log(THETA) and sdlog=sqrt(OMEGA).
 }
