@@ -123,6 +123,9 @@ setMethod("length", signature=c("dataset"), definition=function(x) {
 #' @return IIV data frame
 #' @export
 generateIIV <- function(omega, n) {
+  if (nrow(omega)==0) {
+    return(data.frame())
+  }
   iiv <- MASS::mvrnorm(n=n, mu=rep(0, nrow(omega)), Sigma=omega)
   if (n==1) {
     iiv <- t(iiv) # If n=1, mvrnorm result is a numeric vector, not a matrix
