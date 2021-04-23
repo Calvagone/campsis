@@ -26,8 +26,7 @@ test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
   shadedPlot(results, "CP", "ARM")
   
   expect_equal(nrow(results), dataset %>% length() * 49)
-  expect_false(dataset %>% hasModelDistribution())
-  
+
   datasetRegressionTest(dataset, model, seed=seed, filename="bolus_2arms_bioavailability")
 })
 
@@ -39,9 +38,7 @@ test_that("Simulate a simple bolus with bioavailability (dataset versus model)",
   dataset <- Dataset(3)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1, fraction=0.75))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
-  
-  dataset <- dataset %>% add(TreatmentBioavailability(compartment=1, distribution=ConstantDistribution(0.75)))
-  
+
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results1, "CP")
   expect_equal(nrow(results1), 49 * dataset %>% length())
@@ -81,8 +78,6 @@ test_that("Simulate several fixed fractions at once", {
   dataset <- Dataset(4)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1, fraction=c(0.3, 0.6, 0.9, 1)))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
-  
-  dataset <- dataset %>% add(TreatmentBioavailability(compartment=1, distribution=ConstantDistribution(0.75)))
   
   results <- model %>% disable("IIV") %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results, "CP")

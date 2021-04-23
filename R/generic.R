@@ -56,24 +56,6 @@ setGeneric("sample", function(object, n, ...) {
 })
 
 #_______________________________________________________________________________
-#----                         getByCompartment                              ----
-#_______________________________________________________________________________
-
-#' Get element by compartment number.
-#' 
-#' @param object any object
-#' @param compartment compartment number
-#' @return the element that has the right compartment
-#' @export
-getByCompartment <- function(object, compartment) {
-  stop("No default function is provided")
-}
-
-setGeneric("getByCompartment", function(object, compartment) {
-  standardGeneric("getByCompartment")
-})
-
-#_______________________________________________________________________________
 #----                         getColumnName                                 ----
 #_______________________________________________________________________________
 
@@ -122,24 +104,5 @@ getCovariateNames <- function(object) {
 
 setGeneric("getCovariateNames", function(object) {
   standardGeneric("getCovariateNames")
-})
-
-#_______________________________________________________________________________
-#----                      hasModelDistribution                         ----
-#_______________________________________________________________________________
-
-#' Tell if the dataset contains at least one parameter distribution (in its treatment characteristics).
-#' This is useful information to know as we therefore need the PMX model to know the
-#' corresponding values (THETA and OMEGA) for this parameter.
-#' 
-#' @param object generic object
-#' @return logical value
-#' @export
-hasModelDistribution <- function(object) {
-  stop("No default function is provided")
-}
-
-setGeneric("hasModelDistribution", function(object) {
-  standardGeneric("hasModelDistribution")
 })
 

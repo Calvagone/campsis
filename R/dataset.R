@@ -58,14 +58,6 @@ setMethod("add", signature = c("dataset", "treatment_entry"), definition = funct
   return(object)
 })
 
-setMethod("add", signature = c("dataset", "treatment_characteristic"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% pmxmod::replace(arm)
-  return(object)
-})
-
 setMethod("add", signature = c("dataset", "treatment_iov"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
@@ -109,16 +101,6 @@ setMethod("getCovariateNames", signature = c("dataset"), definition = function(o
 
 setMethod("getIOVNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getIOVNames())
-})
-
-#_______________________________________________________________________________
-#----                      hasModelDistribution                         ----
-#_______________________________________________________________________________
-
-setMethod("hasModelDistribution", signature = c("dataset"), definition = function(object) {
-  res1 <- object@arms@list %>% purrr::map_lgl(~.x@protocol@treatment@characteristics %>% hasModelDistribution())
-  res2 <- object@arms@list %>% purrr::map_lgl(~.x@protocol@treatment@iovs %>% hasModelDistribution())
-  return(any(c(res1, res2)))
 })
 
 #_______________________________________________________________________________
@@ -225,9 +207,6 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   # Generate IIV only if model is provided
   if (is.null(model)) {
     iiv <- data.frame()
-    if (object %>% hasModelDistribution()) {
-      stop("Dataset contains at least one parameter-related distribution. Please provide a PMX model.")
-    }
   } else {
     rxmod <- model %>% pmxmod::export(dest="RxODE")
     subjects <- object %>% length()

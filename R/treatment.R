@@ -10,23 +10,15 @@
 setClass(
   "treatment",
   representation(
-    characteristics = "treatment_characteristics",
     iovs = "treatment_iovs"
   ),
   contains="pmx_list",
-  prototype=prototype(type="treatment_entry", characteristics=new("treatment_characteristics"),
-                      iovs=new("treatment_iovs"))
+  prototype=prototype(type="treatment_entry", iovs=new("treatment_iovs"))
 )
 
 #_______________________________________________________________________________
 #----                                 add                                   ----
 #_______________________________________________________________________________
-
-
-setMethod("add", signature = c("treatment", "treatment_characteristic"), definition = function(object, x) {
-  object@characteristics <- object@characteristics %>% add(x)
-  return(object)
-})
 
 setMethod("add", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
   object@iovs <- object@iovs %>% add(x)

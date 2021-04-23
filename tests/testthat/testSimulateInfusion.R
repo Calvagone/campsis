@@ -134,7 +134,6 @@ test_that("Simulate infusion using rate and lag time (parameter distribution) in
   spaguettiPlot(results2, "CP")
   expect_equal(nrow(results2), dataset %>% length() * 49)
   
-  #expect_true(dataset %>% hasModelDistribution())
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
