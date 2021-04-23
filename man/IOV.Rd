@@ -7,9 +7,9 @@
 IOV(colname, distribution)
 }
 \arguments{
-\item{distribution}{distribution}
+\item{colname}{name of the column that will be output in dataset}
 
-\item{compartment}{compartment number}
+\item{distribution}{distribution}
 }
 \value{
 IOV

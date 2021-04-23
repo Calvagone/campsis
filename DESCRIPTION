@@ -38,7 +38,7 @@ Authors@R: c(
   )
 Description: TODO.
 Depends: R (>= 4.0.0)
-Imports: assertthat, dplyr, ggplot2, MASS, plyr, pmxmod, purrr, tibble, tidyr
+Imports: assertthat, dplyr, ggplot2, MASS, plyr, pmxmod, purrr, rlang, tibble, tidyr
 Remotes: 
 License: file LICENSE
 Encoding: UTF-8

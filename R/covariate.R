@@ -30,10 +30,7 @@ setMethod("getName", signature = c("covariate"), definition = function(x) {
 #' @return a covariate  
 #' @export
 Covariate <- function(name, distribution) {
-  if (is(distribution, "model_distribution")) {
-    stop("Covariate distribution shouln't be a model distribution.")
-  }
-  return(new("covariate", name=name, distribution=distribution))
+  return(new("covariate", name=name, distribution=toExplicitDistribution(distribution)))
 }
 
 #_______________________________________________________________________________

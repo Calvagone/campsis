@@ -31,7 +31,7 @@ test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
   datasetRegressionTest(dataset, model, seed=seed, filename="bolus_2arms_bioavailability")
 })
 
-test_that("Simulate a simple bolus with bioavailability", {
+test_that("Simulate a simple bolus with bioavailability (dataset versus model)", {
   model <- getNONMEMModelTemplate(4,4)
   regFilename <- "simple_bolus_bioavailability"
   
@@ -71,4 +71,22 @@ test_that("Simulate a simple bolus with bioavailability", {
   
   outputRegressionTest(results3, output="CP", filename=regFilename)
   outputRegressionTest(results4, output="CP", filename=regFilename)
+})
+
+
+test_that("Simulate several fixed fractions at once", {
+  model <- getNONMEMModelTemplate(4,4)
+
+  # Bioavailability implemented in dataset
+  dataset <- Dataset(4)
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1, fraction=c(0.3, 0.6, 0.9, 1)))
+  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  
+  dataset <- dataset %>% add(TreatmentBioavailability(compartment=1, distribution=ConstantDistribution(0.75)))
+  
+  results <- model %>% disable("IIV") %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaguettiPlot(results, "CP")
+  
+  cmax <- results %>% dplyr::filter(time==2.5) %>% dplyr::pull(CP)
+  expect_equal(round(cmax, 2), c(2.89, 5.77, 8.66, 9.62))
 })

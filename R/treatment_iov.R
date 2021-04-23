@@ -23,15 +23,12 @@ setClass(
 #'
 #' Create IOV.
 #'
-#' @param compartment compartment number
+#' @param colname name of the column that will be output in dataset
 #' @param distribution distribution
 #' @return IOV
 #' @export
 IOV <- function(colname, distribution) {
-  if (is(distribution, "parameter_distribution")) {
-    stop("IOV distribution can't be a parameter distribution. Do you want to define it as an eta distribution instead?")
-  }
-  return(new("treatment_iov", colname=colname, distribution=distribution))
+  return(new("treatment_iov", colname=colname, distribution=toExplicitDistribution(distribution)))
 }
 
 #_______________________________________________________________________________
