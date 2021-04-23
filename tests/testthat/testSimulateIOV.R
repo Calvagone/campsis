@@ -3,8 +3,8 @@ library(pmxmod)
 
 context("Test the simulate method with IOV")
 
-overwriteNonRegressionFiles <<- TRUE
-testFolder <<- "C:/prj/pmxsim/tests/testthat/"
+overwriteNonRegressionFiles <<- FALSE
+testFolder <<- ""
 seed <<- 1
 
 source(paste0(testFolder, "testUtils.R"))
@@ -69,7 +69,6 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
 test_that("Simulate IOV on F1", {
   # Model with IIV and IOV on F1
   model <- getNONMEMModelTemplate(4,4)
-  
   model@parameters <- model@parameters %>% add(Theta("F1", index=6, value=0.75))
   model@parameters <- model@parameters %>% add(Omega("F1", index=6, index2=6, value=0.2^2))
   model@parameters <- model@parameters %>% add(Omega("IOV_F1", index=7, index2=7, value=0.2^2, same=FALSE)) # 20% IOV
@@ -88,7 +87,6 @@ test_that("Simulate IOV on F1", {
     dataset <- dataset %>% add(IOV(colname="IOV_F1", distribution=EtaDistribution(model, omega="IOV_F1")))
     return(dataset)
   }
-  
   
   # Simulate just IIV
   model_no_iov <- model %>% disable("IOV")
@@ -111,38 +109,38 @@ test_that("Simulate IOV on F1", {
 test_that("Simulate IOV on ALAG1", {
   # Model with IIV on ALAG1
   model <- getNONMEMModelTemplate(4,4)
-  pk <- model@model %>% getByName("PK")
   model@parameters <- model@parameters %>% add(Theta("ALAG1", index=6, value=5))
   model@parameters <- model@parameters %>% add(Omega("ALAG1", index=6, index2=6, value=0.2^2))
+  model@parameters <- model@parameters %>% add(Omega("IOV_ALAG1", index=7, index2=7, value=0.2^2, same=FALSE)) # 20% IOV
+  model <- model %>% add(LagTime(compartment=1, rhs="ALAG1"))
   
-  # Model with IIV and IOV on ALAG1
-  model_iov <- model
-  iovCvPc <- 20 # 20% CV
+  pk <- model@model %>% getByName("PK")
+  pk@code <- pk@code %>% append("ALAG1=THETA_ALAG1*exp(ETA_ALAG1 + IOV_ALAG1)")
+  model@model <- model@model %>% pmxmod::replace(pk)
   
-  # Add IOV
-  model@parameters <- model@parameters %>% add(Omega("IOV_ALAG1", index=7, index2=7, value=(0/100)^2))
-  model_iov@parameters <- model_iov@parameters %>% add(Omega("IOV_ALAG1", index=7, index2=7, value=(iovCvPc/100)^2))
-  
-  dataset <- Dataset(10)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
-  dataset <- dataset %>% add(IOV(colname="IOV_ALAG1_COL", distribution=EtaDistribution(omega="IOV_ALAG1")))
-  
-  # Add bioavailability
-  dataset <- dataset %>% add(TreatmentLagTime(compartment=1, ParameterDistribution(theta="ALAG1", omega="ALAG1", iov="IOV_ALAG1_COL")))
-  
+  getDataset <- function(model) {
+    dataset <- Dataset(10)
+    dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
+    dataset <- dataset %>% add(IOV(colname="IOV_ALAG1", distribution=EtaDistribution(model, omega="IOV_ALAG1")))
+    return(dataset)
+  }
+
   # Simulate just IIV
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  model_no_iov <- model %>% disable("IOV")
+  dataset_no_iov <- getDataset(model_no_iov)
+  results1 <- model_no_iov %>% simulate(dataset_no_iov, dest="RxODE", seed=seed)
   results1$ARM <- "IIV"
-  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_alag1")
+  datasetRegressionTest(dataset_no_iov, model_no_iov, seed=seed, filename="3_boluses_iiv_alag1")
   
   # Simulate just IIV + IOV
-  results2 <- model_iov %>% simulate(dataset, dest="RxODE", seed=seed)
+  dataset <- getDataset(model)
+  results2 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   results2$id <- results2$id + dataset %>% length()
   results2$ARM <- "IIV + IOV"
-  datasetRegressionTest(dataset, model_iov, seed=seed, filename="3_boluses_iiv_iov_alag1")
+  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_iov_alag1")
   
   spaguettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")
@@ -151,38 +149,38 @@ test_that("Simulate IOV on ALAG1", {
 test_that("Simulate IOV on D1", {
   # Model with IIV on D1
   model <- getNONMEMModelTemplate(3,4)
-  pk <- model@model %>% getByName("PK")
   model@parameters <- model@parameters %>% add(Theta("D1", index=5, value=5))
   model@parameters <- model@parameters %>% add(Omega("D1", index=5, index2=5, value=0.2^2))
+  model@parameters <- model@parameters %>% add(Omega("IOV_D1", index=6, index2=6, value=0.5^2, same=FALSE)) # 50% IOV
+  model <- model %>% add(InfusionDuration(compartment=1, rhs="D1"))
+
+  pk <- model@model %>% getByName("PK")
+  pk@code <- pk@code %>% append("D1=THETA_D1*exp(ETA_D1 + IOV_D1)")
+  model@model <- model@model %>% pmxmod::replace(pk)
   
-  # Model with IIV and IOV on D1
-  model_iov <- model
-  iovCvPc <- 50 # 50% CV
-  
-  # Add IOV
-  model@parameters <- model@parameters %>% add(Omega("IOV_D1", index=6, index2=6, value=(0/100)^2))
-  model_iov@parameters <- model_iov@parameters %>% add(Omega("IOV_D1", index=6, index2=6, value=(iovCvPc/100)^2))
-  
-  dataset <- Dataset(10)
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Infusion(time=24, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Infusion(time=48, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
-  dataset <- dataset %>% add(IOV(colname="IOV_D1_COL", distribution=EtaDistribution(omega="IOV_D1")))
-  
-  # Add infusion duration
-  dataset <- dataset %>% add(TreatmentInfusionDuration(compartment=1, ParameterDistribution(theta="D1", omega="D1", iov="IOV_D1_COL")))
+  getDataset <- function(model) {
+    dataset <- Dataset(10)
+    dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Infusion(time=24, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Infusion(time=48, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
+    dataset <- dataset %>% add(IOV(colname="IOV_D1", distribution=EtaDistribution(model, omega="IOV_D1")))
+    return(dataset)
+  }
   
   # Simulate just IIV
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  model_no_iov <- model %>% disable("IOV")
+  dataset_no_iov <- getDataset(model_no_iov)
+  results1 <- model_no_iov %>% simulate(dataset_no_iov, dest="RxODE", seed=seed)
   results1$ARM <- "IIV"
-  datasetRegressionTest(dataset, model, seed=seed, filename="3_infusions_iiv_d1")
+  datasetRegressionTest(dataset_no_iov, model_no_iov, seed=seed, filename="3_infusions_iiv_d1")
   
   # Simulate just IIV + IOV
-  results2 <- model_iov %>% simulate(dataset, dest="RxODE", seed=seed)
+  dataset <- getDataset(model)
+  results2 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   results2$id <- results2$id + dataset %>% length()
   results2$ARM <- "IIV + IOV"
-  datasetRegressionTest(dataset, model_iov, seed=seed, filename="3_infusions_iiv_iov_d1")
+  datasetRegressionTest(dataset, model, seed=seed, filename="3_infusions_iiv_iov_d1")
   
   spaguettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")
