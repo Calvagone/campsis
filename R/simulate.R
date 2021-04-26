@@ -125,16 +125,51 @@ preprocessReplicates <- function(replicates) {
   return(replicates)
 }
 
-#' Preprocess 'outvars' argument. Outvars is either the columns to keep from the 
-#' returned dataframe or the function to apply on this dataframe.
+#' Return the 'DROP_OTHERS' string that may be used in the 'outvars' vector for
+#' RxODE/mrgsolve to drop all others variables that are usually output in the resulting data frame.
+#' 
+#' @return a character value
+#'
+dropOthers <- function() {
+  return("DROP_OTHERS")
+}
+
+#' Preprocess 'outvars' argument. Outvars is a character vector that contains 
+#' all the columns to keep in the RxODE/mrgsolve output.
 #'
 #' @param outvars character vector or function
 #' @return outvars
 #' @importFrom assertthat assert_that
+#' @importFrom pmxmod extractLhs isEquation trim
 #'
-preprocessOutvars <- function(outvars) {
+preprocessOutvars <- function(outvars, model, dest) {
   assertthat::assert_that(is.null(outvars) || is.character(outvars),
                           msg="outvars must be a character vector with the column names to keep")
+  
+  # In any cases, we should never see these special variables
+  outvars <- outvars[!(outvars %in% c("id", "time", "ARM"))]
+  
+  # Drop special string if present (already processed)
+  outvars <- outvars[!(outvars %in% dropOthers())]
+  
+  if (is(dest, "rxode_engine")) {
+    # Do nothing
+  } else if (is(dest, "mrgsolve_engine")) {
+    
+    # List all variables that are already exported into mrgsolve TABLE block by pmxmod
+    error <- model@model %>% getByName("ERROR")
+    list <- NULL
+    if (length(error) > 0) {
+      for (line in error@code) {
+        if (pmxmod::isEquation(line)) {
+          lhs <- pmxmod::extractLhs(line) %>% pmxmod::trim()
+          list <- list %>% append(lhs)
+        }
+      }
+      outvars <- outvars[!(outvars %in% list)]
+    }
+  }
+  
   return(outvars)
 }
 
@@ -157,16 +192,12 @@ preprocessOutfun <- function(outfun) {
 #' Process the data frame returned by mrgsolve or RxODE.
 #'
 #' @param x the current data frame
-#' @param outvars variables to keep
 #' @param outfun processing function
 #' @return processed data frame
 #' @importFrom dplyr all_of select
 #' @importFrom rlang as_function
 #'
-processOutput <- function(x, outvars=NULL, outfun=NULL) {
-  if (!is.null(outvars)) {
-    x <- x %>% dplyr::select(dplyr::all_of(outvars))
-  }
+processOutput <- function(x, outfun=NULL) {
   if (!is.null(outfun)) {
     if (plyr::is.formula(outfun)) {
       outfun <- rlang::as_function(outfun)
@@ -176,6 +207,22 @@ processOutput <- function(x, outvars=NULL, outfun=NULL) {
     } 
   }
   return(x)
+}
+
+#' Process 'DROP_OTHERS'.
+#'
+#' @param x the current data frame
+#' @param outvars variables to keep
+#' @param dropOthers logical value
+#' @return processed data frame
+#'
+processDropOthers <- function(x, outvars=NULL, dropOthers) {
+  if (!dropOthers) {
+    return(x)
+  }
+  out <- c("id", "time", "ARM", outvars)
+  names <- colnames(x)
+  return(x[, names[names %in% out]])
 }
 
 #' Process exported table.
@@ -224,8 +271,11 @@ preprocessSimulateArguments <- function(model, dataset, dest, ...) {
   # It may also be interesting to parallelise the replicates (see later on)
   slices <- preprocessSlices(6, maxID=maxID)
   
+  # Drop others 'argument'
+  dropOthers <- dropOthers() %in% args$outvars
+    
   # Outvars argument
-  outvars <- preprocessOutvars(args$outvars)
+  outvars <- preprocessOutvars(args$outvars, model, dest)
   
   # Outvars argument
   outfun <- preprocessOutfun(args$outfun)
@@ -237,7 +287,7 @@ preprocessSimulateArguments <- function(model, dataset, dest, ...) {
   if (is(dest, "rxode_engine")) {
     engineModel <- model %>% pmxmod::export(dest="RxODE")
   } else if (is(dest, "mrgsolve_engine")) {
-    engineModel <- model %>% pmxmod::export(dest="mrgsolve")
+    engineModel <- model %>% pmxmod::export(dest="mrgsolve", outvars=outvars)
   }
   
   # Compute all slice rounds to perform
@@ -250,7 +300,7 @@ preprocessSimulateArguments <- function(model, dataset, dest, ...) {
   })
   
   return(list(slices=slices, outvars=outvars, outfun=outfun, declare=declare,
-              engineModel=engineModel, eventsList=eventsList))
+              engineModel=engineModel, eventsList=eventsList, dropOthers=dropOthers))
 }
 
 setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), definition=function(model, dataset, dest, ...) {
@@ -280,14 +330,16 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"rxode_engine"), de
   eventsList <- config$eventsList
   outvars <- config$outvars
   outfun <- config$outfun
+  dropOthers <- config$dropOthers
+  
   results <- eventsList %>% purrr::map_df(.f=function(events){
     tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=events, returnType="tibble")
     # RxODE does not add the 'id' column if only 1 subject
     uniqueID <- unique(events$ID)
     if (length(uniqueID)==1) {
-      tmp <- tmp %>% dplyr::mutate(id=uniqueID)
+      tmp <- tmp %>% tibble::add_column(id=uniqueID, .before=1)
     }
-    return(processOutput(tmp, outvars=outvars))
+    return(processDropOthers(tmp, outvars=outvars, dropOthers=dropOthers))
   })
   return(processOutput(results, outfun=outfun))
 })
@@ -321,9 +373,9 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
   
   if (hasARM) {
     mrgmod@param <- mrgmod@param %>% append("ARM : 0 : ARM")
-    mrgmod@table <- mrgmod@table %>% append("capture ARM=ARM;") 
+    mrgmod@table <- mrgmod@table %>% append("capture ARM=ARM;", after=1) # Just after [TABLE] 
   }
-  
+
   # Instantiate mrgsolve model
   mod <- mrgsolve::mcode("model", mrgmod %>% pmxmod::toString())
   
@@ -331,14 +383,15 @@ setMethod("simulate", signature=c("pmx_model", "data.frame" ,"mrgsolve_engine"),
   eventsList <- config$eventsList
   outvars <- config$outvars
   outfun <- config$outfun
+  dropOthers <- config$dropOthers
+  
   results <- eventsList %>% purrr::map_df(.f=function(events){
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=events) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df")
     
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
-
-    return(processOutput(tmp, outvars=outvars))
+    return(processDropOthers(tmp, outvars=outvars, dropOthers=dropOthers))
   })
   return(processOutput(results, outfun=outfun))
 })

@@ -4,12 +4,10 @@
 \alias{processOutput}
 \title{Process the data frame returned by mrgsolve or RxODE.}
 \usage{
-processOutput(x, outvars = NULL, outfun = NULL)
+processOutput(x, outfun = NULL)
 }
 \arguments{
 \item{x}{the current data frame}
-
-\item{outvars}{variables to keep}
 
 \item{outfun}{processing function}
 }
