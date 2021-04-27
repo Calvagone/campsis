@@ -5,7 +5,7 @@ context("Test the outvars argument of the simulate function")
 seed <<- 1
 
 test_that("NULL outvars (RxODE/mrgsolve)", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
 
   dataset <- Dataset()
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
@@ -19,7 +19,7 @@ test_that("NULL outvars (RxODE/mrgsolve)", {
 })
 
 test_that("Not NULL outvars (RxODE/mrgsolve)", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
   
   dataset <- Dataset()
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
@@ -33,7 +33,7 @@ test_that("Not NULL outvars (RxODE/mrgsolve)", {
 })
 
 test_that("Not NULL outvars + DROP_OTHERS (RxODE/mrgsolve)", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
   
   dataset <- Dataset()
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
@@ -47,7 +47,7 @@ test_that("Not NULL outvars + DROP_OTHERS (RxODE/mrgsolve)", {
 })
 
 test_that("Not NULL outvars from ERROR block + DROP_OTHERS (RxODE/mrgsolve)", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
   
   dataset <- Dataset()
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))

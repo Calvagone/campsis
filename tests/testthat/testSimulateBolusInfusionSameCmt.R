@@ -13,7 +13,7 @@ test_that("Bolus and infusion in CMT 1", {
   
   regFilename <- "bolus_infusion_same_cmt"
   
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
   model <- model %>% add(InfusionDuration(compartment=1, rhs="5"))
  
   dataset <- Dataset(1)

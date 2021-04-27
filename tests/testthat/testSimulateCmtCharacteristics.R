@@ -5,7 +5,7 @@ context("Test the simulate method with characteristics implemented in model")
 seed <<- 1
 
 test_that("Add lag time to model", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
   model <- model %>% add(LagTime(1, "2*exp(ETA_KA)"))
 
   dataset <- Dataset(10)
@@ -18,7 +18,7 @@ test_that("Add lag time to model", {
 })
 
 test_that("Add bioavailability to model", {
-  model <- getNONMEMModelTemplate(4,4) %>% disable("IIV")
+  model <- model_library$advan4_trans4 %>% disable("IIV")
   model <- model %>% add(Bioavailability(1, "0.75*exp(IOV_F1)"))
   
   dataset <- Dataset(10)
@@ -34,7 +34,7 @@ test_that("Add bioavailability to model", {
 })
 
 test_that("Add infusion rate to model", {
-  model <- getNONMEMModelTemplate(3,4)
+  model <- model_library$advan3_trans4
   model <- model %>% add(InfusionRate(1, "200"))
   
   dataset <- Dataset(10)
@@ -46,7 +46,7 @@ test_that("Add infusion rate to model", {
 })
 
 test_that("Add infusion duration to model", {
-  model <- getNONMEMModelTemplate(3,4)
+  model <- model_library$advan3_trans4
   model <- model %>% add(InfusionDuration(1, "5"))
 
   dataset <- Dataset(10)
@@ -58,7 +58,7 @@ test_that("Add infusion duration to model", {
 })
 
 test_that("Reproduce RxODE bug with a minimalist example", {
-  model <- getNONMEMModelTemplate(4,4) %>% disable("IIV")
+  model <- model_library$advan4_trans4 %>% disable("IIV")
   model <- model %>% add(Bioavailability(1, "0.75*exp(IOV_F1)"))
   model <- model %>% add(InfusionDuration(1, "1*exp(ETA_KA)"))
   

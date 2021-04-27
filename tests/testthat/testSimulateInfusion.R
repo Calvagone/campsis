@@ -10,7 +10,7 @@ seed <<- 1
 source(paste0(testFolder, "testUtils.R"))
 
 test_that("Simulate infusion using duration in dataset, then in model", {
-  model <- getNONMEMModelTemplate(3,4)
+  model <- model_library$advan3_trans4
   regFilename <- "infusion_duration"
   
   # 5 hours infusion duration implemented in dataset
@@ -50,7 +50,7 @@ test_that("Simulate infusion using duration in dataset, then in model", {
 })
 
 test_that("Simulate infusion using rate in dataset", {
-  model <- getNONMEMModelTemplate(3,4)
+  model <- model_library$advan3_trans4
   regFilename <- "infusion_duration"
   
   # 5 hours infusion duration implemented in dataset
@@ -90,7 +90,7 @@ test_that("Simulate infusion using rate in dataset", {
 })
 
 test_that("Simulate infusion using rate and lag time in dataset", {
-  model <- getNONMEMModelTemplate(3,4)
+  model <- model_library$advan3_trans4
   regFilename <- "infusion_rate_lag_time1_dataset"
   
   # 5 hours duration
@@ -116,10 +116,10 @@ test_that("Simulate infusion using rate and lag time in dataset", {
 })
 
 test_that("Simulate infusion using rate and lag time (parameter distribution) in dataset", {
-  model <- getNONMEMModelTemplate(3,4)
+  model <- model_library$advan3_trans4
   regFilename <- "infusion_rate_lag_time2_dataset"
-  model@parameters <- model@parameters %>% add(Theta(name="ALAG1", index=5, value=2)) # 2 hours lag time
-  model@parameters <- model@parameters %>% add(Omega(name="ALAG1", index=5, index2=5, value=0.2^2)) #20% CV
+  model <- model %>% add(Theta(name="ALAG1", index=5, value=2)) # 2 hours lag time
+  model <- model %>% add(Omega(name="ALAG1", index=5, index2=5, value=0.2^2)) #20% CV
 
   dataset <- Dataset(10)
   lag <- ParameterDistribution(model, theta="ALAG1", omega="ALAG1")

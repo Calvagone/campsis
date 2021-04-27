@@ -10,7 +10,7 @@ seed <<- 1
 source(paste0(testFolder, "testUtils.R"))
 
 test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
   
   arm1 <- Arm(1, subjects=10)
   arm2 <- Arm(2, subjects=10)
@@ -31,7 +31,7 @@ test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
 })
 
 test_that("Simulate a simple bolus with bioavailability (dataset versus model)", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
   regFilename <- "simple_bolus_bioavailability"
   
   # Bioavailability implemented in dataset
@@ -72,7 +72,7 @@ test_that("Simulate a simple bolus with bioavailability (dataset versus model)",
 
 
 test_that("Simulate several fixed fractions at once", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
 
   # Bioavailability implemented in dataset
   dataset <- Dataset(4)

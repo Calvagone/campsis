@@ -10,7 +10,7 @@ seed <<- 1
 source(paste0(testFolder, "testUtils.R"))
 
 test_that("Simulate a bolus (RxODE/mrgsolve)", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
   regFilename <- "simple_bolus"
   
   dataset <- Dataset()
@@ -31,7 +31,7 @@ test_that("Simulate a bolus (RxODE/mrgsolve)", {
 })
 
 test_that("Simulate a bolus, 2 arms (RxODE/mrgsolve)", {
-  model <- getNONMEMModelTemplate(4,4)
+  model <- model_library$advan4_trans4
   regFilename <- "bolus_2arms"
     
   arm1 <- Arm(1, subjects=10)
