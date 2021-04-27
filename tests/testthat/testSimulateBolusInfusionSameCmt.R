@@ -14,7 +14,7 @@ test_that("Bolus and infusion in CMT 1", {
   regFilename <- "bolus_infusion_same_cmt"
   
   model <- getNONMEMModelTemplate(4,4)
-  model <- model %>% add(InfusionDuration(compartment=1, rhs="5", rate=FALSE))
+  model <- model %>% add(InfusionDuration(compartment=1, rhs="5"))
  
   dataset <- Dataset(1)
   dataset <- dataset %>% add(Bolus(time=5, amount=500, compartment=1))

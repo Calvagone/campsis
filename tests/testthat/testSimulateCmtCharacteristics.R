@@ -35,7 +35,7 @@ test_that("Add bioavailability to model", {
 
 test_that("Add infusion rate to model", {
   model <- getNONMEMModelTemplate(3,4)
-  model <- model %>% add(InfusionDuration(1, "200", rate=TRUE))
+  model <- model %>% add(InfusionRate(1, "200"))
   
   dataset <- Dataset(10)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
@@ -47,7 +47,7 @@ test_that("Add infusion rate to model", {
 
 test_that("Add infusion duration to model", {
   model <- getNONMEMModelTemplate(3,4)
-  model <- model %>% add(InfusionDuration(1, "5", rate=FALSE))
+  model <- model %>% add(InfusionDuration(1, "5"))
 
   dataset <- Dataset(10)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))

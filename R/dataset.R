@@ -173,18 +173,20 @@ sampleCovariatesList <- function(covariates, n) {
 #' In practice, only compartment infusion duration needs to be applied.
 #' 
 #' @param table current dataset
-#' @param characteristics compartment characteristics from model
+#' @param properties compartment properties from model
 #' @return updated dataset
 #' @importFrom dplyr mutate
 #' 
-applyCompartmentCharacteristics <- function(table, characteristics) {
-  for (charateristic in characteristics@list) {
-    if (is(charateristic, "compartment_infusion_duration")) {
-      compartment <- charateristic@compartment
+applyCompartmentCharacteristics <- function(table, properties) {
+  for (property in properties@list) {
+    isInfusion <- is(property, "compartment_infusion_duration")
+    isRate <- is(property, "compartment_infusion_rate")
+    if (isInfusion || isRate) {
+      compartment <- property@compartment
       if (!("RATE" %in% colnames(table))) {
         table <- table %>% dplyr::mutate(RATE=0)
       }
-      rateValue <- ifelse(charateristic@rate, -1, -2)
+      rateValue <- ifelse(isRate, -1, -2)
       table <- table %>% dplyr::mutate(RATE=ifelse(EVID==1 & CMT==compartment & IS_INFUSION %in% TRUE, rateValue, RATE))
     }
   }
@@ -275,9 +277,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     return(table)
   })
   
-  # Apply compartment characteristics coming from the model
+  # Apply compartment properties coming from the model
   if (!is.null(model)) {
-    retValue <- applyCompartmentCharacteristics(retValue, model@compartments@characteristics)
+    retValue <- applyCompartmentCharacteristics(retValue, model@compartments@properties)
   }
   
   # Remove IS_INFUSION column

@@ -5,12 +5,12 @@
 \title{Apply compartment characteristics from model.
 In practice, only compartment infusion duration needs to be applied.}
 \usage{
-applyCompartmentCharacteristics(table, characteristics)
+applyCompartmentCharacteristics(table, properties)
 }
 \arguments{
 \item{table}{current dataset}
 
-\item{characteristics}{compartment characteristics from model}
+\item{properties}{compartment properties from model}
 }
 \value{
 updated dataset

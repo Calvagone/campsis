@@ -75,7 +75,7 @@ test_that("Simulate infusion using rate in dataset", {
   dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
-  model <- model %>% add(InfusionDuration(compartment=1, rhs="200", rate=TRUE))
+  model <- model %>% add(InfusionRate(compartment=1, rhs="200"))
   
   results3 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaguettiPlot(results3, "CP")
