@@ -134,41 +134,23 @@ dropOthers <- function() {
   return("DROP_OTHERS")
 }
 
-#' Preprocess 'outvars' argument. Outvars is a character vector that contains 
-#' all the columns to keep in the RxODE/mrgsolve output.
+#' Preprocess 'outvars' argument. Outvars is a character vector which tells
+#' pmxsim the mandatory columns to keep in the output dataframe.
 #'
 #' @param outvars character vector or function
 #' @return outvars
 #' @importFrom assertthat assert_that
-#' @importFrom pmxmod extractLhs isEquation trim
 #'
-preprocessOutvars <- function(outvars, model, dest) {
+preprocessOutvars <- function(outvars) {
   assertthat::assert_that(is.null(outvars) || is.character(outvars),
                           msg="outvars must be a character vector with the column names to keep")
   
   # In any cases, we should never see these special variables
   outvars <- outvars[!(outvars %in% c("id", "time", "ARM"))]
   
-  # Drop special string if present (already processed)
+  # Retrieve DROP_OTHERS status, logical value, and drop it
+  dropOthers <- dropOthers() %in% outvars
   outvars <- outvars[!(outvars %in% dropOthers())]
-  
-  if (is(dest, "rxode_engine")) {
-    # Do nothing
-  } else if (is(dest, "mrgsolve_engine")) {
-    
-    # List all variables that are already exported into mrgsolve TABLE block by pmxmod
-    error <- model@model %>% getByName("ERROR")
-    list <- NULL
-    if (length(error) > 0) {
-      for (line in error@code) {
-        if (pmxmod::isEquation(line)) {
-          lhs <- pmxmod::extractLhs(line) %>% pmxmod::trim()
-          list <- list %>% append(lhs)
-        }
-      }
-      outvars <- outvars[!(outvars %in% list)]
-    }
-  }
   
   return(outvars)
 }
@@ -275,7 +257,7 @@ preprocessSimulateArguments <- function(model, dataset, dest, ...) {
   dropOthers <- dropOthers() %in% args$outvars
     
   # Outvars argument
-  outvars <- preprocessOutvars(args$outvars, model, dest)
+  outvars <- preprocessOutvars(args$outvars)
   
   # Outvars argument
   outfun <- preprocessOutfun(args$outfun)

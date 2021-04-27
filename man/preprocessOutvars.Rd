@@ -2,10 +2,10 @@
 % Please edit documentation in R/simulate.R
 \name{preprocessOutvars}
 \alias{preprocessOutvars}
-\title{Preprocess 'outvars' argument. Outvars is a character vector that contains 
-all the columns to keep in the RxODE/mrgsolve output.}
+\title{Preprocess 'outvars' argument. Outvars is a character vector which tells
+pmxsim the mandatory columns to keep in the output dataframe.}
 \usage{
-preprocessOutvars(outvars, model, dest)
+preprocessOutvars(outvars)
 }
 \arguments{
 \item{outvars}{character vector or function}
@@ -14,6 +14,6 @@ preprocessOutvars(outvars, model, dest)
 outvars
 }
 \description{
-Preprocess 'outvars' argument. Outvars is a character vector that contains 
-all the columns to keep in the RxODE/mrgsolve output.
+Preprocess 'outvars' argument. Outvars is a character vector which tells
+pmxsim the mandatory columns to keep in the output dataframe.
 }
