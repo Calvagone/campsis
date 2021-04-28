@@ -16,20 +16,133 @@ library(pmxsim)
 
 ### Instantiate a dataset
 
-Create a dataset of 50 subjects:
+Create a dataset of 3 subjects:
 
 ```{r}
-ds <- Dataset(subjects=50)
+ds <- Dataset(subjects=3)
 ```
 
 Or shortly:
 
 ```{r}
-ds <- Dataset(50)
+ds <- Dataset(3)
 ```
 
 Check how many subjects are part of this dataset:
 
 ```{r}
 ds %>% length()
+```
+
+See all methods that can be applied on a dataset:
+
+```{r}
+methods(class=class(ds))
+```
+
+Let's take a closer look at the `add` method. The following method shows all classes that can be added to a dataset:
+
+```{r}
+showMethods("add", classes=class(ds))
+```
+
+In the next sections we'll see how we can add boluses and infusions, which are both treatment entries:
+
+### Add a bolus
+
+A bolus can be created using the constructor `Bolus` and added to the dataset:
+
+```{r}
+ds <- ds %>% add(Bolus(time=0, amount=1000))
+```
+
+By default, it will be injected into the first compartment (CMT=1). If another compartment needs to be used, the `compartment` argument may be used as follows:
+
+```{r, results='hide'}
+Bolus(time=0, amount=1000, compartment=2)
+```
+
+Bioavailabilities (`f` argument) and lag times (`lag` argument) can be implemented as well, in the dataset. This will be illustrated in other vignettes.
+
+### Add an infusion
+
+An infusion can be created using the constructor `Infusion` and added to the dataset:
+
+```{r}
+ds <- ds %>% add(Infusion(time=0.5, amount=1000))
+```
+
+As previously, the default compartment is the first compartment.
+
+Infusion rate (`rate` argument) or duration (`duration` argument), bioavailabilities (`f` argument) and lag times (`lag` argument) can be implemented as well, in the dataset. This will be illustrated in other vignettes.
+
+### Add observations
+
+Observations can be created using the constructor `Observations` and added to the dataset:
+
+```{r}
+ds <- ds %>% add(Observations(time=c(0.5, 1)))
+```
+
+The default compartment is the first one. Although the compartment number is not useful for simulations (as simulation engines are able to look at all `DV` at once), it can still be useful when exporting a table for a modeling tool.
+
+### Export dataset
+
+So far so good! The dataset contains 5 subjects, 1 bolus and 1 infusion.
+We are going to export it to a 2-dimensional table. This step is done AUTOMATICALLY by `pmxsim` when you simulate your model.
+
+```{r}
+table <- ds %>% export(dest="RxODE")
+table
+```
+
+A few explanations need to be given here regarding the following column names:
+
+* ID: this is the subject ID, it always starts at 1. ID's are consecutive in `pmxsim`
+* ARM: this is the ARM number. 0 is the default arm.
+* RATE: the RATE column (0 for boluses, -1/-2 for a rate/infusion defined in the model, NA when no information is available)
+* DOSENO: the dose number. Doses (boluses and infusions) are numbered according to the time they occur.
+
+### Add several arms
+
+Instead of using the default arm (0) in the dataset, several arms can be created and added to the dataset. These arms are independent in the sense the treatment(s) and the observation(s) can be totally different.
+
+To illustrate this, let's create a dataset with two arms.
+
+```{r}
+arm1 <- Arm(id=1, subjects=2)
+arm2 <- Arm(id=2, subjects=3)
+```
+
+Let's create 2 different treatments:
+
+```{r}
+arm1 <- arm1 %>% add(Bolus(time=0, amount=1000))
+arm2 <- arm2 %>% add(Bolus(time=0, amount=2000))
+```
+
+Observations may also differ:
+
+```{r}
+arm1 <- arm1 %>% add(Observations(time=c(0.5, 1)))
+arm2 <- arm2 %>% add(Observations(time=c(1, 1.5)))
+```
+
+Let's now add these 2 arms into a fresh dataset:
+
+```{r}
+ds <- Dataset() %>% add(arm1) %>% add(arm2)
+```
+
+We can check how many subjects are part of this dataset:
+
+```{r}
+ds %>% length()
+```
+
+The resulting exported table is as follows:
+
+```{r}
+table <- ds %>% export(dest="RxODE")
+table
 ```

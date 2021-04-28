@@ -38,13 +38,6 @@ dataset <- dataset %>% add(Bolus(time=48, amount=1000))
 dataset <- dataset %>% add(Observations(times=seq(0,72, by=1)))
 ```
 
-See all methods that can be applied on a dataset:
-
-```{r}
-methods(class=class(dataset))
-showMethods("add", classes=class(dataset))
-```
-
 ### Simulate
 
 Simulate this very simple protocol:
