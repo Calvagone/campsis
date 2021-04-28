@@ -8,7 +8,7 @@ Infusion(
   time,
   amount,
   compartment = NA,
-  fraction = NULL,
+  f = NULL,
   lag = NULL,
   duration = NULL,
   rate = NULL
@@ -21,7 +21,7 @@ Infusion(
 
 \item{compartment}{compartment index, integer}
 
-\item{fraction}{fraction of infusion amount, distribution}
+\item{f}{fraction of infusion amount, distribution}
 
 \item{lag}{infusion lag time, distribution}
 

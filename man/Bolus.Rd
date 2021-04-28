@@ -4,7 +4,7 @@
 \alias{Bolus}
 \title{Create a bolus.}
 \usage{
-Bolus(time, amount, compartment = NA, fraction = NULL, lag = NULL)
+Bolus(time, amount, compartment = NA, f = NULL, lag = NULL)
 }
 \arguments{
 \item{time}{treatment time, numeric}
@@ -13,7 +13,7 @@ Bolus(time, amount, compartment = NA, fraction = NULL, lag = NULL)
 
 \item{compartment}{compartment index, integer}
 
-\item{fraction}{fraction of dose, distribution}
+\item{f}{fraction of dose amount, distribution}
 
 \item{lag}{dose lag time, distribution}
 }

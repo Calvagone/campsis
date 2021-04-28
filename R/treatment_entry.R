@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkTreatmentEntry <- function(object) {
-  return(expectOneForAll(object, c("amount", "compartment", "dose_number", "fraction", "lag")))
+  return(expectOneForAll(object, c("amount", "compartment", "dose_number", "f", "lag")))
 }
 
 setClass(
@@ -12,7 +12,7 @@ setClass(
   representation(
     amount = "numeric",
     compartment = "integer",
-    fraction = "distribution",
+    f = "distribution",
     lag = "distribution",
     dose_number = "integer" # Transient
   ),
@@ -44,13 +44,13 @@ setClass(
 #' @param time treatment time, numeric
 #' @param amount amount to give as bolus, numeric
 #' @param compartment compartment index, integer
-#' @param fraction fraction of dose, distribution
+#' @param f fraction of dose amount, distribution
 #' @param lag dose lag time, distribution
 #' @return an observation
 #' @export
-Bolus <- function(time, amount, compartment=NA, fraction=NULL, lag=NULL) {
+Bolus <- function(time, amount, compartment=NA, f=NULL, lag=NULL) {
   return(new("bolus", time=time, amount=amount, compartment=as.integer(compartment),
-             fraction=toExplicitDistribution(fraction), lag=toExplicitDistribution(lag)))
+             f=toExplicitDistribution(f), lag=toExplicitDistribution(lag)))
 }
 
 setMethod("getName", signature = c("bolus"), definition = function(x) {
@@ -82,15 +82,15 @@ setClass(
 #' @param time treatment time, numeric
 #' @param amount total amount to infuse, numeric
 #' @param compartment compartment index, integer
-#' @param fraction fraction of infusion amount, distribution
+#' @param f fraction of infusion amount, distribution
 #' @param lag infusion lag time, distribution
 #' @param duration infusion duration, distribution
 #' @param rate infusion rate, distribution
 #' @return an infusion.
 #' @export
-Infusion <- function(time, amount, compartment=NA, fraction=NULL, lag=NULL, duration=NULL, rate=NULL) {
+Infusion <- function(time, amount, compartment=NA, f=NULL, lag=NULL, duration=NULL, rate=NULL) {
   return(new("infusion", time=time, amount=amount, compartment=as.integer(compartment),
-             fraction=toExplicitDistribution(fraction), lag=toExplicitDistribution(lag),
+             f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
              duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate)))
 }
 
@@ -115,7 +115,7 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
   ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
   armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
-  fraction <- sampleTrtDistribution(object@fraction, n, default=1)
+  f <- sampleTrtDistribution(object@f, n, default=1)
   lag <- sampleTrtDistribution(object@lag, n, default=0)
   
   if (is.na(object@compartment)) {
@@ -125,7 +125,7 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   }
 
   return(data.frame(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
-                    AMT=object@amount*fraction, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number, IS_INFUSION=FALSE))
+                    AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number, IS_INFUSION=FALSE))
 })
 
 setMethod("sample", signature = c("infusion", "integer"), definition = function(object, n, ...) {
@@ -133,7 +133,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
   ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
   armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
-  fraction <- sampleTrtDistribution(object@fraction, n, default=1)
+  f <- sampleTrtDistribution(object@f, n, default=1)
   lag <- sampleTrtDistribution(object@lag, n, default=0)
   
   
@@ -143,7 +143,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
     depotCmt <- object@compartment
   }
   retValue <- data.frame(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
-                         AMT=object@amount*fraction, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number, IS_INFUSION=TRUE)
+                         AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number, IS_INFUSION=TRUE)
   
   # Duration or rate
   if (!is(object@duration, "undefined_distribution")) {

@@ -14,7 +14,7 @@ test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
   
   arm1 <- Arm(1, subjects=10)
   arm2 <- Arm(2, subjects=10)
-  arm1 <- arm1 %>% add(Bolus(time=0, amount=2000, compartment=1, fraction=0.75))
+  arm1 <- arm1 %>% add(Bolus(time=0, amount=2000, compartment=1, f=0.75))
   arm2 <- arm2 %>% add(Bolus(time=0, amount=2000, compartment=1))
   arm1 <- arm1 %>% add(Observations(times=seq(0,24, by=0.5)))
   arm2 <- arm2 %>% add(Observations(times=seq(0,24, by=0.5)))
@@ -36,7 +36,7 @@ test_that("Simulate a simple bolus with bioavailability (dataset versus model)",
   
   # Bioavailability implemented in dataset
   dataset <- Dataset(3)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1, fraction=0.75))
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1, f=0.75))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
@@ -71,12 +71,12 @@ test_that("Simulate a simple bolus with bioavailability (dataset versus model)",
 })
 
 
-test_that("Simulate several fixed fractions at once", {
+test_that("Simulate several fixed fs at once", {
   model <- model_library$advan4_trans4
 
   # Bioavailability implemented in dataset
   dataset <- Dataset(4)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1, fraction=c(0.3, 0.6, 0.9, 1)))
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1, f=c(0.3, 0.6, 0.9, 1)))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   results <- model %>% disable("IIV") %>% simulate(dataset, dest="RxODE", seed=seed)

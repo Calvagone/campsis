@@ -28,7 +28,7 @@ test_that("Is treatment entry test", {
 })
 
 test_that("sample method for bolus is working well", {
-  bolus <- Bolus(time=0, amount=1000, fraction=0.6, lag=ConstantDistribution(2)) 
+  bolus <- Bolus(time=0, amount=1000, f=0.6, lag=ConstantDistribution(2)) 
   res <- bolus %>% sample(n=as.integer(10))
   expect_equal(res$ID, seq_len(10))
   expect_equal(unique(res$AMT), 1000*0.6)
