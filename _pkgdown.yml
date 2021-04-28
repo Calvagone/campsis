@@ -1,0 +1,24 @@
+## This file configures the building process for pkgdown::build_site()
+template:
+  params:
+    noindex: false # tells search engines to index the site
+
+home:
+  strip_header: true
+
+development:
+  mode: auto  # detect based on version number
+  version_label: warning
+  version_tooltip: ""
+
+navbar:
+  structure:
+    left:
+    - home
+    - intro
+    - reference
+    - articles
+    - news
+    right: github
+    
+reference:

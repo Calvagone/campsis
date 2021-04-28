@@ -1,0 +1,35 @@
+---
+title: "Create your dataset"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Create your dataset}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(pmxmod)
+library(pmxsim)
+```
+
+### Instantiate a dataset
+
+Create a dataset of 50 subjects:
+
+```{r}
+ds <- Dataset(subjects=50)
+```
+
+Or shortly:
+
+```{r}
+ds <- Dataset(50)
+```
+
+Check how many subjects are part of this dataset:
+
+```{r}
+ds %>% length()
+```

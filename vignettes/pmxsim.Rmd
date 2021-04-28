@@ -1,0 +1,93 @@
+---
+title: "Get started with pmxsim"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get started with pmxsim}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+### Library import
+
+First import the `pmxmod` and `pmxsim` packages:
+
+```{r, message=FALSE}
+library(pmxmod)
+library(pmxsim)
+```
+
+### Load model
+
+Load 2-compartment PK model from built-in model library:
+
+```{r}
+model <- model_library$advan4_trans4
+```
+
+### Create dataset
+
+Create your dataset using `pmxsim`. For instance, let's give 1000mg QD for 3 days and observe every hour.
+
+```{r}
+dataset <- Dataset(10)
+dataset <- dataset %>% add(Bolus(time=0, amount=1000))
+dataset <- dataset %>% add(Bolus(time=24, amount=1000))
+dataset <- dataset %>% add(Bolus(time=48, amount=1000))
+dataset <- dataset %>% add(Observations(times=seq(0,72, by=1)))
+```
+
+See all methods that can be applied on a dataset:
+
+```{r}
+methods(class=class(dataset))
+showMethods("add", classes=class(dataset))
+```
+
+### Simulate
+
+Simulate this very simple protocol:
+
+```{r}
+results <- model %>% simulate(dataset, dest="RxODE", seed=1)
+head(results)
+```
+
+### Plot results
+
+Plot these results:
+
+```{r get_started_spaguetti_plot, fig.align='center', fig.height=4, fig.width=8}
+spaguettiPlot(results, "CP")
+```
+
+A shaded plot may also be used:
+
+```{r get_started_shaded_plot, fig.align='center', fig.height=4, fig.width=8}
+shadedPlot(results, "CP")
+```
+
+### Simulate 2 arms
+
+We can also simulate two different treatment arms. Say the first arm receives 1000mg QD and the second arm 2000mg QD.
+
+```{r get_started_2arms_plot, fig.align='center', fig.height=4, fig.width=8}
+arm1 <- Arm(id=1, subjects=50)
+arm2 <- Arm(id=2, subjects=50)
+
+arm1 <- arm1 %>% add(Bolus(time=0, amount=1000))
+arm1 <- arm1 %>% add(Bolus(time=24, amount=1000))
+arm1 <- arm1 %>% add(Bolus(time=48, amount=1000))
+arm1 <- arm1 %>% add(Observations(times=seq(0,72, by=1)))
+
+arm2 <- arm2 %>% add(Bolus(time=0, amount=2000))
+arm2 <- arm2 %>% add(Bolus(time=24, amount=2000))
+arm2 <- arm2 %>% add(Bolus(time=48, amount=2000))
+arm2 <- arm2 %>% add(Observations(times=seq(0,72, by=1)))
+
+dataset <- Dataset() %>% add(arm1) %>% add(arm2)
+
+results <- model %>% simulate(dataset, dest="RxODE", seed=1)
+shadedPlot(results, "CP", scenarios="ARM")
+```
