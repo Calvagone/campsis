@@ -1,0 +1,82 @@
+---
+title: "Simulate with uncertainties"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Simulate with uncertainties}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(pmxmod)
+library(pmxsim)
+```
+
+### Simulate with all uncertainties
+
+Let's use a simple 1-compartment model with absorption compartment to illustrate the different levels of uncertainties.
+
+```{r}
+getModel <- function() {
+  model_library$advan2_trans2
+}
+model <- getModel()
+model
+```
+
+We're going to use a very basic dataset. 1000 mg QD shall be administered for a week.
+
+```{r}
+getDataset <- function() {
+  ds <- Dataset(25)
+  for (day in 0:6) {
+    ds <- ds %>% add(Bolus(time=day*24, amount=1000))
+  }
+  ds <- ds %>% add(Observations(times=seq(0,24*7,by=4)))
+}
+```
+
+All subjects are different due to IIV and RUV.
+
+```{r uncertainties_all_enabled , fig.align='center', fig.height=4, fig.width=8}
+results <- model %>% simulate(dataset=getDataset(), dest="RxODE", seed=1)
+spaguettiPlot(results, "Y")
+```
+
+### Simulate without RUV
+
+Disabling RUV is done as follows:
+
+```{r}
+model <- getModel() %>% disable(c("RUV"))
+model@parameters
+```
+
+In that case, Y (the observed concentration) is identical as CP (the model-simulated plasma concentration).
+
+```{r uncertainties_no_ruv_y , fig.align='center', fig.height=4, fig.width=8}
+results <- model %>% simulate(dataset=getDataset(), dest="RxODE", seed=1)
+spaguettiPlot(results, "Y")
+```
+
+```{r uncertainties_no_ruv_cp , fig.align='center', fig.height=4, fig.width=8}
+spaguettiPlot(results, "CP")
+```
+
+### Simulate without RUV and IIV
+
+Disabling RUV and IIV is done as follows:
+
+```{r}
+model <- getModel() %>% disable(c("IIV", "RUV"))
+model@parameters
+```
+
+Now, the typical profile is shown for all subjects.
+
+```{r uncertainties_no_ruv_no_iiv , fig.align='center', fig.height=4, fig.width=8}
+results <- model %>% simulate(dataset=getDataset(), dest="RxODE", seed=1)
+spaguettiPlot(results, "Y")
+```

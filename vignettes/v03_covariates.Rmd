@@ -1,0 +1,80 @@
+---
+title: "Simulate covariates"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Simulate covariates}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(pmxmod)
+library(pmxsim)
+```
+
+### Add a BW covariate into the model
+
+Let's use a simple 1-compartment model to illustrate how covariates are managed in `pmxsim`.
+
+```{r}
+model <- model_library$advan1_trans2
+```
+
+For this example, we're going to add allometric scaling on the clearance parameter.
+
+```{r}
+model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
+model
+```
+
+We will infuse 1000 mg with a rate of 200 mg/hour into the central compartment and observe for a day.
+The corresponding dataset is as follows:
+
+```{r}
+getDataset <- function() {
+  ds <- Dataset(5)
+  ds <- ds %>% add(Infusion(time=0, amount=1000, rate=200))
+  ds <- ds %>% add(Observations(times=seq(0,24,by=0.5)))
+}
+```
+
+To visualise clearly the effect of the covariates, we will disable the inter-individual variability on the model.
+
+```{r}
+model <- model %>% disable("IIV")
+```
+
+### Constant BW in dataset
+
+Let's define a constant covariate into the dataset. This is done as follows.
+
+```{r}
+ds <- getDataset()
+ds <- ds %>% add(Covariate("BW", 70))
+```
+
+All simulated subjects will be exacty the same, as IIV was removed.
+
+```{r covariates_constant_bw , fig.align='center', fig.height=4, fig.width=8}
+results <- model %>% simulate(dataset=ds, dest="RxODE")
+spaguettiPlot(results, "CP")
+```
+
+### Fix BW values (1/subject) in dataset
+
+Let's now define 1 body weight per subject. This is done as follows.
+
+```{r}
+ds <- getDataset()
+ds <- ds %>% add(Covariate("BW", c(50,60,70,80,90)))
+```
+
+Simulated subjects should now be different.
+
+```{r covariates_fixed_bw , fig.align='center', fig.height=4, fig.width=8}
+results <- model %>% simulate(dataset=ds, dest="RxODE")
+spaguettiPlot(results, "CP")
+```
+
