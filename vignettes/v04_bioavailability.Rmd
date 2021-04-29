@@ -22,7 +22,7 @@ There are 2 ways to implement bioavailability in `pmxsim`:
 In the first case, the simulation engine will take care of the bioavailability.
 In the second case, `pmxsim` will adapt automatically the amount injected through the dataset (AMT column).
 
-### Bioavailability implement in model
+### Bioavailability implemented in model
 
 Let's use a 2-compartment model with absorption compartment to illustrate how this can be achieved.
 
@@ -32,11 +32,11 @@ model <- model_library$advan4_trans4
 
 For this example, we're going to define a bioavailability `F1` for this absorption compartment.
 
-First let's create a new parameter `F1`, log-normally distributed with a median of 0.75 and 20% CV.
+First let's create a new parameter `F1`, log-normally distributed with a median of 0.75 and 10% CV.
 
 ```{r}
 model <- model %>% add(Theta(name="F1", index=6, value=0.75))
-model <- model %>% add(Omega(name="F1", index=6, index2=6, value=20, type="cv%"))
+model <- model %>% add(Omega(name="F1", index=6, index2=6, value=10, type="cv%"))
 ```
 
 Now, let's add an equation to the drug model to define `F1`.
@@ -74,17 +74,15 @@ gridExtra::grid.arrange(shadedPlot(results_f1, "CP"), shadedPlot(results_no_f1, 
 ### Bioavailability inplemented in dataset
 
 The same simulation can be performed by adapting the column `AMT` in the dataset.
-Let's redefine the dataset.
 
-We need to sample `F1` values. This can be done as follows:
+First, we need to sample `F1` values. This can be done as follows:
 
 ```{r}
 distribution <- ParameterDistribution(model=model, theta="F1", omega="F1")
 f1Values <- (distribution %>% sample(as.integer(50)))@sampled_values
-f1Values
 ```
 
-Then, we can inject them into the dataset and simulate.
+Then, we can inject these values into the dataset.
 
 ```{r}
 ds2 <- Dataset(50)
@@ -92,9 +90,15 @@ ds2 <- ds2 %>% add(Bolus(time=0, amount=1000, f=f1Values))
 ds2 <- ds2 %>% add(Observations(times=seq(0,24,by=0.5)))
 ```
 
+Let's have a look at the dataset, in its table form, and if we look at the doses only:
+
+```{r}
+ds2 %>% export(dest="RxODE") %>% dplyr::filter(EVID==1) %>% head()
+```
+
+Finally, we can simulate the original model using this new dataset.
+
 ```{r bioavailability_dataset , fig.align='center', fig.height=4, fig.width=8}
 results_f1 <- model_library$advan4_trans4 %>% simulate(dataset=ds2, dest="RxODE", seed=1)
 shadedPlot(results_f1, "CP")
 ```
-
-The result is identical.

@@ -1,8 +1,8 @@
 ---
-title: "Simulate covariates"
+title: "Covariates"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Simulate covariates}
+  %\VignetteIndexEntry{Covariates}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
