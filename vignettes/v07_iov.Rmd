@@ -1,0 +1,60 @@
+---
+title: "Inter-occasion variability"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Inter-occasion variability}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(pmxmod)
+library(pmxsim)
+```
+
+This vignette shows how inter-occasion variability can be added on a parameter at each administration.
+
+### Treatment IOV on KA
+
+Let's use a 2-compartment model with absorption compartment for this example.
+
+```{r}
+model <- model_library$advan4_trans4
+```
+
+We're going to add a term `IOV_KA` on `KA`. This can be done as follows:
+
+```{r}
+model <- model %>% replaceEquation("KA", rhs="THETA_KA*exp(ETA_KA + IOV_KA)")
+```
+
+This model will not run unless we give some values for `IOV_KA`. This can achieved by adding `IOV` to the dataset.
+The following function will create a simple dataset with or without `IOV` on demand.
+
+```{r}
+getDataset <- function(iov=FALSE) {
+  ds <- Dataset(50)
+  ds <- ds %>% add(Bolus(time=0, amount=1000, compartment=1))
+  ds <- ds %>% add(Bolus(time=24, amount=1000, compartment=1))
+  ds <- ds %>% add(Bolus(time=48, amount=1000, compartment=1))
+  ds <- ds %>% add(Observations(times=seq(0,72, by=0.5)))
+  if (iov) {
+    # Add 100% CV to KA
+    ds <- ds %>% add(IOV(colname="IOV_KA", distribution=NormalDistribution(mean=0, sd=1)))
+  } else {
+    # Add zero IOV or covariate
+    ds <- ds %>% add(IOV(colname="IOV_KA", distribution=0))
+  }
+  return(ds)
+}
+```
+
+We can now run the model with `IOV` on `KA` and without.
+
+```{r lag_time_model , fig.align='center', fig.height=4, fig.width=8}
+results_iov <- model %>% simulate(dataset=getDataset(TRUE), dest="RxODE", seed=1)
+results_no_iov <- model %>% simulate(dataset=getDataset(FALSE), dest="RxODE", seed=1)
+gridExtra::grid.arrange(shadedPlot(results_iov, "CP"), shadedPlot(results_no_iov, "CP"), nrow=1)
+```

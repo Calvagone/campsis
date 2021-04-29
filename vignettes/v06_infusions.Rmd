@@ -65,7 +65,7 @@ ds1 <- ds1 %>% add(Observations(times=seq(0,24,by=0.5)))
 ```
 
 
-```{r lag_time_model , fig.align='center', fig.height=4, fig.width=8}
+```{r infusion_model , fig.align='center', fig.height=4, fig.width=8}
 results_d1 <- model %>% simulate(dataset=ds1, dest="RxODE", seed=1)
 shadedPlot(results_d1, "CP")
 ```
@@ -97,7 +97,7 @@ ds2 %>% export(dest="RxODE") %>% dplyr::filter(EVID==1) %>% head()
 
 Let's now simulate this dataset using the original model.
 
-```{r lag_time_dataset , fig.align='center', fig.height=4, fig.width=8}
+```{r infusion_dataset , fig.align='center', fig.height=4, fig.width=8}
 results_d1 <- model_library$advan4_trans4 %>% simulate(dataset=ds2, dest="RxODE", seed=1)
 shadedPlot(results_d1, "CP")
 ```
