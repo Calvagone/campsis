@@ -52,7 +52,8 @@ setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), de
   # Variables to declare in the mrgsolve model
   iovNames <- dataset %>% getIOVNames()
   covariateNames <- dataset %>% getCovariateNames()
-  declare <- c(iovNames, covariateNames)
+  user_declare <- processExtraArg(list(...), name="declare")
+  declare <- c(iovNames, covariateNames, user_declare)
   
   return(simulate(model=model, dataset=table, dest=dest, declare=declare, ...))
 })
@@ -282,7 +283,7 @@ preprocessSimulateArguments <- function(model, dataset, dest, ...) {
   
   # Variables to declare (mrgsolve only)
   declare <- processExtraArg(args, name="declare")
-  
+
   # Export PMX model
   if (is(dest, "rxode_engine")) {
     engineModel <- model %>% pmxmod::export(dest="RxODE")
