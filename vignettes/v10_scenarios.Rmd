@@ -1,8 +1,8 @@
 ---
-title: "Simulate scenarios"
+title: "Scenarios"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Simulate scenarios}
+  %\VignetteIndexEntry{Scenarios}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 

@@ -1,20 +1,3 @@
-#_______________________________________________________________________________
-#----                            convert                                    ----
-#_______________________________________________________________________________
-
-#' #' Convert generic object according to given configuration.
-#' #' 
-#' #' @param object generic object
-#' #' @param config specified configuration
-#' #' @return conversion output
-#' #' @export
-#' convert <- function(object, config) {
-#'   stop("No default function is provided")
-#' }
-#' 
-#' setGeneric("convert", function(object, config) {
-#'   standardGeneric("convert")
-#' })
 
 #_______________________________________________________________________________
 #----                             simulate                                  ----

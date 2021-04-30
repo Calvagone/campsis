@@ -8,7 +8,9 @@
 #' - all available types of distribution. In this case, no conversion is applied.
 #' 
 #' @param distribution user-given distribution
-#' @return a distribution object  
+#' @return a distribution object
+#' @keywords internal
+#' 
 toExplicitDistribution <- function(distribution) {
   if (is.null(distribution)) {
     return(new("undefined_distribution"))

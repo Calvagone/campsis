@@ -1,8 +1,8 @@
 ---
-title: "Simulate with uncertainties"
+title: "Uncertainty levels"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Simulate with uncertainties}
+  %\VignetteIndexEntry{Uncertainty levels}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 

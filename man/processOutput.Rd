@@ -17,3 +17,4 @@ processed data frame
 \description{
 Process the data frame returned by mrgsolve or RxODE.
 }
+\keyword{internal}

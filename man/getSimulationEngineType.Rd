@@ -15,3 +15,4 @@ simulation engine type
 \description{
 Get simulation engine type.
 }
+\keyword{internal}

@@ -15,3 +15,4 @@ updated treatment object
 \description{
 Assign dose number to each treatment entry.
 }
+\keyword{internal}

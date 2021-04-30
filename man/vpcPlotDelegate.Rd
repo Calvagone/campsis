@@ -15,3 +15,4 @@ plot
 \description{
 VPC plot delegate.
 }
+\keyword{internal}

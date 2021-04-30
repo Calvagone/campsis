@@ -21,3 +21,4 @@ a simulation configuration
 \description{
 Preprocess arguments of the simulate method.
 }
+\keyword{internal}

@@ -17,3 +17,4 @@ a new seed value for this replicate
 \description{
 Get seed for replicate.
 }
+\keyword{internal}

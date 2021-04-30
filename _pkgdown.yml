@@ -22,3 +22,63 @@ navbar:
     right: github
     
 reference:
+
+- title: "Dataset elements"
+  contents:
+  - Arm
+  - Bolus
+  - Covariate
+  - Dataset
+  - DatasetConfig
+  - Infusion
+  - IOV
+  - Observations
+  
+- title: "Distributions"
+  contents:
+  - BootstrapDistribution
+  - ConstantDistribution
+  - DiscreteDistribution
+  - EtaDistribution
+  - FixedDistribution
+  - FunctionDistribution
+  - LogNormalDistribution
+  - NormalDistribution
+  - ParameterDistribution
+  - UniformDistribution
+  
+- title: "Sample distributions"
+  contents:
+  - sample
+  
+- title: "Summarise data and plots"
+  contents:
+  - PI
+  - VPC
+  - shadedPlot
+  - spaguettiPlot
+  - vpcPlot
+  
+- title: "Simulate"
+  contents:
+  - simulate
+
+- title: "Exported classes"
+  contents:
+  - arms-class
+  - covariates-class
+  - protocol-class
+  - treatment-class
+  - treatment_iov-class
+
+- title: "For advanced use"
+  contents:
+  - generateIIV
+  - getColumnName
+  - getCovariateNames
+  - getIOVNames
+  - retrieveParameterValue
+
+- title: "For use in external packages"
+  contents:
+  - applyCompartmentCharacteristics

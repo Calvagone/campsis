@@ -17,3 +17,4 @@ a dataframe of n rows, 1 column per covariate
 \description{
 Sample covariates list.
 }
+\keyword{internal}

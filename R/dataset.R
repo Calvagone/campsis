@@ -138,6 +138,7 @@ generateIIV <- function(omega, n) {
 #' 
 #' @param list list of distribution-derived objects
 #' @return a list of covariates that can be easily processed
+#' @keywords internal
 #' 
 processAsCovariate <- function(list) {
   covariates <- new("covariates")
@@ -158,6 +159,7 @@ processAsCovariate <- function(list) {
 #' @param covariates list of covariates to sample
 #' @param n number of desired samples
 #' @return a dataframe of n rows, 1 column per covariate
+#' @keywords internal
 #' 
 sampleCovariatesList <- function(covariates, n) {
   retValue <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {

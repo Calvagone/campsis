@@ -15,3 +15,4 @@ a seed value
 \description{
 Get seed value.
 }
+\keyword{internal}

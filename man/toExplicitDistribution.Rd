@@ -25,3 +25,4 @@ Passed distribution can be:
 - a numeric vector. In that case, it will be converted into is a 'FixedDistribution'.
 - all available types of distribution. In this case, no conversion is applied.
 }
+\keyword{internal}

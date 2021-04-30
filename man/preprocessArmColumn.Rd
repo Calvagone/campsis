@@ -15,3 +15,4 @@ updated model
 \description{
 Preprocess ARM column. Add ARM equation in model automatically.
 }
+\keyword{internal}
