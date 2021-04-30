@@ -54,7 +54,7 @@ ds <- ds %>% add(Bolus(time=0, amount=1000))
 ds <- ds %>% add(Observations(times=seq(0, 24, by=0.1))) 
 
 fun <- function(thetaKA) {
-  model <- model %>% replace(Theta(name="KA", index=1, value=thetaKA))
+  model <- model %>% replace(Theta(name="KA", value=thetaKA))
   model %>% simulate(dataset=ds, dest="RxODE", seed=1) %>% cbind(THETA_KA=thetaKA)
 }
 
@@ -74,7 +74,7 @@ getDataset <- function(f1) {
 }
 
 fun <- function(combi) {
-  model <- model %>% replace(Theta(name="KA", index=1, value=combi$THETA_KA))
+  model <- model %>% replace(Theta(name="KA", value=combi$THETA_KA))
   model %>% simulate(dataset=getDataset(combi$F1), dest="RxODE", seed=1) %>% cbind(THETA_KA=combi$THETA_KA, F1=combi$F1)
 }
 
