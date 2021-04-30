@@ -38,7 +38,7 @@ setMethod("getName", signature = c("observations"), definition = function(x) {
 })
 
 #_______________________________________________________________________________
-#----                            convert                                    ----
+#----                             sample                                    ----
 #_______________________________________________________________________________
 
 setMethod("sample", signature = c("observations", "integer"), definition = function(object, n, ...) {

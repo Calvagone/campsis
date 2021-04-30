@@ -21,6 +21,9 @@ getSimulationEngineType <- function(dest) {
 }
 
 setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
+  # First check PMX model is valid
+  validObject(model)
+  
   dest <- getSimulationEngineType(dest)
   originalSeed <- getSeed(seed)
   replicates <- preprocessReplicates(replicates)
@@ -55,6 +58,9 @@ setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), de
 })
 
 setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), definition=function(model, dataset, dest, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
+  # First check PMX model is valid
+  validObject(model)
+  
   dest <- getSimulationEngineType(dest)
   originalSeed <- getSeed(seed)
   replicates <- preprocessReplicates(replicates)
