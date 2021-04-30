@@ -35,8 +35,8 @@ For this example, we're going to define a lag time `D1` for this absorption comp
 First let's create a new parameter `D1`, log-normally distributed with a median of 5 hours and 20% CV.
 
 ```{r}
-model <- model %>% add(Theta(name="D1", index=5, value=5))
-model <- model %>% add(Omega(name="D1", index=5, index2=5, value=20, type="cv%"))
+model <- model %>% add(Theta(name="D1", value=5))
+model <- model %>% add(Omega(name="D1", value=20, type="cv%"))
 ```
 
 Now, let's add an equation to the drug model to define `D1`.

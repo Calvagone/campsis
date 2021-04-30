@@ -35,8 +35,8 @@ For this example, we're going to define a bioavailability `F1` for this absorpti
 First let's create a new parameter `F1`, log-normally distributed with a median of 0.75 and 10% CV.
 
 ```{r}
-model <- model %>% add(Theta(name="F1", index=6, value=0.75))
-model <- model %>% add(Omega(name="F1", index=6, index2=6, value=10, type="cv%"))
+model <- model %>% add(Theta(name="F1", value=0.75))
+model <- model %>% add(Omega(name="F1", value=10, type="cv%"))
 ```
 
 Now, let's add an equation to the drug model to define `F1`.
