@@ -1,0 +1,55 @@
+---
+title: "Initial conditions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Initial conditions}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(pmxmod)
+library(pmxsim)
+```
+
+This vignette shows how initial conditions may be used in `pmxsim`.
+
+### Init central compartment
+
+Assume the following 2-compartment model is used.
+
+```{r}
+model <- model_library$advan3_trans4
+```
+
+We'd like to init the central compartment to a predefined value, e.g. 1000.  
+This can be achieved as follows.
+
+```{r}
+model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
+```
+
+The resulting model has now a new block `[INIT]` which describes the initial condition:
+
+```{r}
+model
+```
+
+Let's now create a dataset with observations-only.
+
+```{r}
+getDataset <- function() {
+  ds <- Dataset(50)
+  ds <- ds %>% add(Observations(times=seq(0,72, by=0.5)))
+  return(ds)
+}
+```
+
+We can now simulate this model:
+
+```{r initial_condition , fig.align='center', fig.height=4, fig.width=8}
+results <- model %>% simulate(dataset=getDataset(), dest="RxODE", seed=1)
+shadedPlot(results, "CP")
+```

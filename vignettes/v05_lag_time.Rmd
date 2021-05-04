@@ -1,0 +1,104 @@
+---
+title: "Lag time"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Lag time}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(pmxmod)
+library(pmxsim)
+```
+
+There are 2 ways to implement a lag time in `pmxsim`:
+
+* in the model: lag time is defined for each compartment
+* in the dataset: lag time is defined for each bolus or infusion
+
+In the first case, the simulation engine will take care of the lag time
+In the second case, `pmxsim` will adapt automatically the time of the dose(s)
+
+### Lag time implemented in model
+
+Let's use a 2-compartment model with absorption compartment to illustrate how this can be achieved.
+
+```{r}
+model <- model_library$advan4_trans4
+```
+
+For this example, we're going to define a lag time `ALAG1` for this absorption compartment.
+
+First let's create a new parameter `ALAG1`, log-normally distributed with a median of 2 hours and 20% CV.
+
+```{r}
+model <- model %>% add(Theta(name="ALAG1", value=2))
+model <- model %>% add(Omega(name="ALAG1", value=20, type="cv%"))
+```
+
+Now, let's add an equation to the drug model to define `ALAG1`.
+```{r}
+model <- model %>% addEquation("ALAG1", rhs="THETA_ALAG1*exp(ETA_ALAG1)")
+```
+
+Finally, we need to tell `pmxsim` that `ALAG1` corresponds to a lag time.
+
+```{r}
+model <- model %>% add(LagTime(compartment=1, rhs="ALAG1"))
+```
+
+Our persisted drug model would look like this:
+
+```{r}
+model
+```
+
+Now, let's now give a simple bolus and simulate with and without `ALAG1`.
+
+```{r}
+ds1 <- Dataset(50)
+ds1 <- ds1 %>% add(Bolus(time=0, amount=1000))
+ds1 <- ds1 %>% add(Observations(times=seq(0,24,by=0.5)))
+```
+
+
+```{r lag_time_model , fig.align='center', fig.height=4, fig.width=8}
+results_alag <- model %>% simulate(dataset=ds1, dest="RxODE", seed=1)
+results_no_alag <- model_library$advan4_trans4 %>% simulate(dataset=ds1, dest="RxODE", seed=1)
+gridExtra::grid.arrange(shadedPlot(results_alag, "CP"), shadedPlot(results_no_alag, "CP"), nrow=1)
+```
+
+### Lag time inplemented in dataset
+
+The same simulation can be performed by defining a lag time to the bolus in the dataset.
+
+For this, we need to sample `ALAG1` values. This can be done as follows:
+
+```{r}
+distribution <- ParameterDistribution(model=model, theta="ALAG1", omega="ALAG1")
+alagValues <- (distribution %>% sample(as.integer(50)))@sampled_values
+```
+
+Then, we can inject them into the dataset.
+
+```{r}
+ds2 <- Dataset(50)
+ds2 <- ds2 %>% add(Bolus(time=0, amount=1000, lag=alagValues))
+ds2 <- ds2 %>% add(Observations(times=seq(0,24,by=0.5)))
+```
+
+Here is an overview of the dataset in its table form if we filter on the doses:
+
+```{r}
+ds2 %>% export(dest="RxODE") %>% dplyr::filter(EVID==1) %>% head()
+```
+
+Let's now simulate this dataset using the original model.
+
+```{r lag_time_dataset , fig.align='center', fig.height=4, fig.width=8}
+results_alag <- model_library$advan4_trans4 %>% simulate(dataset=ds2, dest="RxODE", seed=1)
+shadedPlot(results_alag, "CP")
+```

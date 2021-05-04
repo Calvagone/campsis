@@ -40,7 +40,7 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
   regFilename <- "3_boluses_iov_ka_2"
   model <- model_library$advan4_trans4
   model <- model %>% replaceEquation("KA", rhs="THETA_KA*exp(ETA_KA + IOV_KA)")
-  model <- model %>% add(Omega("IOV_KA", index=6, index2=6, value=0.2^2))
+  model <- model %>% add(Omega("IOV_KA", value=0.2^2))
 
   dataset <- Dataset(10)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
@@ -65,8 +65,8 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
 test_that("Simulate IOV on F1", {
   # Model with IIV and IOV on F1
   model <- model_library$advan4_trans4
-  model <- model %>% add(Theta("F1", index=6, value=0.75))
-  model <- model %>% add(Omega("F1", index=6, index2=6, value=0.2^2))
+  model <- model %>% add(Theta("F1", value=0.75))
+  model <- model %>% add(Omega("F1", value=0.2^2))
   model <- model %>% add(Omega("IOV_F1", index=7, index2=7, value=0.2^2, same=FALSE)) # 20% IOV
   model <- model %>% add(Bioavailability(compartment=1, rhs="F1"))
   model <- model %>% addEquation("F1", rhs="THETA_F1*exp(ETA_F1 + IOV_F1)", after="Q")
@@ -102,9 +102,9 @@ test_that("Simulate IOV on F1", {
 test_that("Simulate IOV on ALAG1", {
   # Model with IIV on ALAG1
   model <- model_library$advan4_trans4
-  model <- model %>% add(Theta("ALAG1", index=6, value=5))
-  model <- model %>% add(Omega("ALAG1", index=6, index2=6, value=0.2^2))
-  model <- model %>% add(Omega("IOV_ALAG1", index=7, index2=7, value=0.2^2, same=FALSE)) # 20% IOV
+  model <- model %>% add(Theta("ALAG1", value=5))
+  model <- model %>% add(Omega("ALAG1", value=0.2^2))
+  model <- model %>% add(Omega("IOV_ALAG1", value=0.2^2, same=FALSE)) # 20% IOV
   model <- model %>% add(LagTime(compartment=1, rhs="ALAG1"))
   model <- model %>% addEquation("ALAG1", rhs="THETA_ALAG1*exp(ETA_ALAG1 + IOV_ALAG1)")
   
@@ -139,9 +139,9 @@ test_that("Simulate IOV on ALAG1", {
 test_that("Simulate IOV on D1", {
   # Model with IIV on D1
   model <- model_library$advan3_trans4
-  model <- model %>% add(Theta("D1", index=5, value=5))
-  model <- model %>% add(Omega("D1", index=5, index2=5, value=0.2^2))
-  model <- model %>% add(Omega("IOV_D1", index=6, index2=6, value=0.5^2, same=FALSE)) # 50% IOV
+  model <- model %>% add(Theta("D1", value=5))
+  model <- model %>% add(Omega("D1", value=0.2^2))
+  model <- model %>% add(Omega("IOV_D1", value=0.5^2, same=FALSE)) # 50% IOV
   model <- model %>% add(InfusionDuration(compartment=1, rhs="D1"))
   model <- model %>% addEquation("D1", rhs="THETA_D1*exp(ETA_D1 + IOV_D1)")
   

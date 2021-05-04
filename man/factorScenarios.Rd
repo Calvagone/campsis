@@ -14,3 +14,4 @@ factorScenarios(x, scenarios = NULL)
 \description{
 Factor scenarios columns if not done yet.
 }
+\keyword{internal}

@@ -17,3 +17,4 @@ outfun
 Preprocess 'outfun' argument. Outfun is a function (or predicate) that will be
 call on the resulting output (at end of replicate simulation).
 }
+\keyword{internal}

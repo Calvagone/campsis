@@ -15,3 +15,4 @@ a list of covariates that can be easily processed
 \description{
 Process distribution-derived objects as covariates.
 }
+\keyword{internal}

@@ -1,0 +1,86 @@
+---
+title: "Scenarios"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Scenarios}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(pmxmod)
+library(pmxsim)
+```
+
+This vignette shows how scenarios can be implemented.
+
+### Scenarios using arms
+
+Simulate different treatment arms:
+
+```{r scenario_generic_1_param, fig.align='center', fig.height=4, fig.width=8}
+model <- model_library$advan4_trans4
+
+dataset <- Dataset()
+
+getArm <- function(params) {
+  arm <- Arm(id=params$id, subjects=params$subjects)
+  arm <- arm %>% add(Bolus(time=0, amount=params$amt))
+  arm <- arm %>% add(Observations(times=seq(0, 24, by=0.1))) 
+}
+
+paramsList <- list(list(id=1, subjects=3, amt=1000),
+                   list(id=2, subjects=5, amt=1500),
+                   list(id=3, subjects=10, amt=2000))
+
+for (params in paramsList) {
+  dataset <- dataset %>% add(getArm(params))
+}
+
+results <- model %>% simulate(dataset=dataset, dest="RxODE", seed=1)
+spaguettiPlot(results, "CP", scenarios="ARM") + ggplot2::facet_wrap(~ARM)
+```
+
+### Generic implementation of scenarios
+
+Make a parameter / variable vary (e.g. make THETA_KA vary):
+
+```{r scenario_several_arms, fig.align='center', fig.height=4, fig.width=8}
+model <- model_library$advan4_trans4
+ds <- Dataset(50)
+ds <- ds %>% add(Bolus(time=0, amount=1000))
+ds <- ds %>% add(Observations(times=seq(0, 24, by=0.1))) 
+
+fun <- function(thetaKA) {
+  model <- model %>% replace(Theta(name="KA", value=thetaKA))
+  model %>% simulate(dataset=ds, dest="RxODE", seed=1) %>% cbind(THETA_KA=thetaKA)
+}
+
+thetaKAScenarios <- c(1, 3, 6)
+results <- thetaKAScenarios %>% purrr::map_df(.f=fun)
+shadedPlot(results, "CP", scenarios="THETA_KA")
+```
+
+Test all combinations of 2 parameters / variables (e.g. combine THETA_KA with F1 scenarios):
+
+```{r scenario_generic_combine_2_params , fig.align='center', fig.height=6, fig.width=8}
+model <- model_library$advan4_trans4
+getDataset <- function(f1) {
+  ds <- Dataset(50)
+  ds <- ds %>% add(Bolus(time=0, amount=1000, f=f1))
+  ds <- ds %>% add(Observations(times=seq(0, 24, by=0.1)))
+}
+
+fun <- function(combi) {
+  model <- model %>% replace(Theta(name="KA", value=combi$THETA_KA))
+  model %>% simulate(dataset=getDataset(combi$F1), dest="RxODE", seed=1) %>% cbind(THETA_KA=combi$THETA_KA, F1=combi$F1)
+}
+
+thetaKAScenarios <- c(1, 3, 6)
+f1Scenarios <- c(0.5, 0.75, 1)
+combinations <- purrr::cross2(thetaKAScenarios, f1Scenarios) %>% purrr::map(setNames, c("THETA_KA", "F1"))
+results <- combinations %>% purrr::map_df(.f=fun)
+shadedPlot(results, "CP", scenarios=c("THETA_KA", "F1")) + ggplot2::facet_grid(THETA_KA~F1)
+```

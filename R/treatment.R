@@ -50,7 +50,7 @@ setMethod("sort", signature=c("treatment"), definition=function(x, decreasing=FA
 #' 
 #' @param object treatment
 #' @return updated treatment object
-#' @export
+#' @keywords internal
 assignDoseNumber <- function(object) {
   stop("No default function is provided")
 }

@@ -4,7 +4,7 @@
 #' @param x data frame
 #' @param scenarios scenarios
 #' @importFrom dplyr mutate_at
-#' @export
+#' @keywords internal
 factorScenarios <- function(x, scenarios=NULL) {
   if (length(scenarios) > 0) {
     return(x %>% dplyr::mutate_at(.vars=scenarios, .funs=function(col){
@@ -101,7 +101,8 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90) {
 #' 
 #' @param summary from vpcPlot
 #' @return plot
-#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon ylab
+#' @importFrom ggplot2 aes ggplot geom_line geom_ribbon ylab
+#' @keywords internal
 #' 
 vpcPlotDelegate <- function(summary) {
   summary.low <- summary %>% dplyr::filter(metric=="low")

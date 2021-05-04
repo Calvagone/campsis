@@ -7,6 +7,7 @@
 #' 
 #' @param dest destination engine, string form
 #' @return simulation engine type
+#' @keywords internal
 #' 
 getSimulationEngineType <- function(dest) {
   if (dest=="RxODE") {
@@ -20,6 +21,9 @@ getSimulationEngineType <- function(dest) {
 }
 
 setMethod("simulate", signature=c("pmx_model", "dataset", "character"), definition=function(model, dataset, dest, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
+  # First check PMX model is valid
+  validObject(model)
+  
   dest <- getSimulationEngineType(dest)
   originalSeed <- getSeed(seed)
   replicates <- preprocessReplicates(replicates)
@@ -48,12 +52,16 @@ setMethod("simulate", signature=c("pmx_model", "dataset" ,"mrgsolve_engine"), de
   # Variables to declare in the mrgsolve model
   iovNames <- dataset %>% getIOVNames()
   covariateNames <- dataset %>% getCovariateNames()
-  declare <- c(iovNames, covariateNames)
+  user_declare <- processExtraArg(list(...), name="declare")
+  declare <- c(iovNames, covariateNames, user_declare)
   
   return(simulate(model=model, dataset=table, dest=dest, declare=declare, ...))
 })
 
 setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), definition=function(model, dataset, dest, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
+  # First check PMX model is valid
+  validObject(model)
+  
   dest <- getSimulationEngineType(dest)
   originalSeed <- getSeed(seed)
   replicates <- preprocessReplicates(replicates)
@@ -74,6 +82,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "character"), defin
 #' @param dataset current dataset, data frame form
 #' @return list of consecutive ID's
 #' @importFrom assertthat assert_that
+#' @keywords internal
 #' 
 preprocessIds <- function(dataset) {
   ids <- unique(dataset$ID)
@@ -87,6 +96,7 @@ preprocessIds <- function(dataset) {
 #' @param dataset current dataset, data frame form
 #' @return updated model
 #' @importFrom assertthat assert_that
+#' @keywords internal
 #' 
 preprocessArmColumn <- function(dataset, model) {
   if ("ARM" %in% colnames(dataset)) {
@@ -102,6 +112,7 @@ preprocessArmColumn <- function(dataset, model) {
 #' @param slices slices argument corresponding to the number of subjects simulated at once
 #' @return slices if not NULL, otherwise total number of subjects
 #' @importFrom assertthat assert_that
+#' @keywords internal
 #' 
 preprocessSlices <- function(slices, maxID) {
   if (is.null(slices)) {
@@ -118,6 +129,7 @@ preprocessSlices <- function(slices, maxID) {
 #' @param replicates number of replicates
 #' @return same number
 #' @importFrom assertthat assert_that
+#' @keywords internal
 #' 
 preprocessReplicates <- function(replicates) {
   assertthat::assert_that(is.numeric(replicates) && replicates%%1==0 && replicates > 0,
@@ -129,7 +141,8 @@ preprocessReplicates <- function(replicates) {
 #' RxODE/mrgsolve to drop all others variables that are usually output in the resulting data frame.
 #' 
 #' @return a character value
-#'
+#' @keywords internal
+#' 
 dropOthers <- function() {
   return("DROP_OTHERS")
 }
@@ -140,7 +153,8 @@ dropOthers <- function() {
 #' @param outvars character vector or function
 #' @return outvars
 #' @importFrom assertthat assert_that
-#'
+#' @keywords internal
+#' 
 preprocessOutvars <- function(outvars) {
   assertthat::assert_that(is.null(outvars) || is.character(outvars),
                           msg="outvars must be a character vector with the column names to keep")
@@ -162,7 +176,8 @@ preprocessOutvars <- function(outvars) {
 #' @return outfun
 #' @importFrom assertthat assert_that
 #' @importFrom plyr is.formula
-#'
+#' @keywords internal
+#' 
 preprocessOutfun <- function(outfun) {
   if (!is.null(outfun)) {
     assertthat::assert_that(is.function(outfun) || plyr::is.formula(outfun),
@@ -178,7 +193,8 @@ preprocessOutfun <- function(outfun) {
 #' @return processed data frame
 #' @importFrom dplyr all_of select
 #' @importFrom rlang as_function
-#'
+#' @keywords internal
+#' 
 processOutput <- function(x, outfun=NULL) {
   if (!is.null(outfun)) {
     if (plyr::is.formula(outfun)) {
@@ -197,7 +213,8 @@ processOutput <- function(x, outfun=NULL) {
 #' @param outvars variables to keep
 #' @param dropOthers logical value
 #' @return processed data frame
-#'
+#' @keywords internal
+#' 
 processDropOthers <- function(x, outvars=NULL, dropOthers) {
   if (!dropOthers) {
     return(x)
@@ -214,7 +231,8 @@ processDropOthers <- function(x, outvars=NULL, dropOthers) {
 #' @return processed data set, table form
 #' @importFrom assertthat assert_that
 #' @importFrom plyr is.formula
-#'
+#' @keywords internal
+#' 
 processTable <- function(x, tablefun=NULL) {
   if (!is.null(tablefun)) {
     assertthat::assert_that(is.function(tablefun) || plyr::is.formula(tablefun),
@@ -237,6 +255,7 @@ processTable <- function(x, tablefun=NULL) {
 #' @param ... all other arguments
 #' @return a simulation configuration
 #' @importFrom purrr map2
+#' @keywords internal
 #' 
 preprocessSimulateArguments <- function(model, dataset, dest, ...) {
   # Check extra arguments
@@ -264,7 +283,7 @@ preprocessSimulateArguments <- function(model, dataset, dest, ...) {
   
   # Variables to declare (mrgsolve only)
   declare <- processExtraArg(args, name="declare")
-  
+
   # Export PMX model
   if (is(dest, "rxode_engine")) {
     engineModel <- model %>% pmxmod::export(dest="RxODE")

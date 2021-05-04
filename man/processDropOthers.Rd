@@ -19,3 +19,4 @@ processed data frame
 \description{
 Process 'DROP_OTHERS'.
 }
+\keyword{internal}

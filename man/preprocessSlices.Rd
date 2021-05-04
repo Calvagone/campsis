@@ -15,3 +15,4 @@ slices if not NULL, otherwise total number of subjects
 \description{
 Preprocess 'slices' argument.
 }
+\keyword{internal}

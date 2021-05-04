@@ -1,0 +1,62 @@
+---
+title: "Replicate your study"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Replicate your study}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(pmxmod)
+library(pmxsim)
+```
+
+This vignette shows how a simulation can be replicated.
+
+### Simulate uncertainty on percentiles
+
+Assume the following model is used. This model is a 2-compartment model without absorption compartment which has been fitted on some data.
+
+```{r}
+model <- model_library$my_model1
+```
+
+It contains a variance-covariance matrix with the uncertainty on all the estimated parameters.
+
+```{r}
+model
+```
+
+We are interested to see the uncertainty on the simulated concentration percentiles over time.
+Let's mimic the protocol that was implemented in the study.
+
+```{r}
+ds <- Dataset(50)
+for (day in 0:6) {
+  ds <- ds %>% add(Infusion(time=day*24, amount=1000, compartment=1))
+}
+ds <- ds %>% add(Observations(times=seq(0, 7*24)))
+```
+
+Let's now simulate this model with or without parameter uncertainty.  
+Argument `replicates` specifies how many times the simulation will be replicated.  
+Argument `outfun` is a function that is going to be called after each simulation on the output data frame.
+
+```{r}
+results_with_varcov <- model %>% simulate(dataset=ds, dest="RxODE", replicates=50, outfun=~PI(.x, output="Y"), seed=1)
+results_with_varcov %>% head()
+results_without_varcov <- model %>% disable("VARCOV") %>% simulate(dataset=ds, dest="RxODE", replicates=50, outfun=~PI(.x, output="Y"), seed=1)
+```
+
+Function `vpcPlot` allows to quickly visualize such results.
+
+```{r replicate_your_study_varcov , fig.align='center', fig.height=4, fig.width=8}
+vpcPlot(results_with_varcov)
+```
+
+```{r replicate_your_study_no_varcov , fig.align='center', fig.height=4, fig.width=8}
+vpcPlot(results_without_varcov)
+```

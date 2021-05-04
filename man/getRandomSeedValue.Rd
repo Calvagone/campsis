@@ -12,3 +12,4 @@ random seed value generated based on time
 \description{
 Get random seed value.
 }
+\keyword{internal}

@@ -2,7 +2,7 @@
 #' Get random seed value.
 #' 
 #' @return random seed value generated based on time
-#' 
+#' @keywords internal
 getRandomSeedValue <- function() {
   seed <- as.numeric(Sys.time())
   return(seed)
@@ -12,6 +12,7 @@ getRandomSeedValue <- function() {
 #' 
 #' @param seed user-input seed, NULL it not specified
 #' @return a seed value
+#' @keywords internal
 #' 
 getSeed <- function(seed=NULL) {
   if (is.null(seed)) {
@@ -27,6 +28,7 @@ getSeed <- function(seed=NULL) {
 #' @param originalSeed original seed
 #' @param replicate the replicate number
 #' @return a new seed value for this replicate
+#' @keywords internal
 #' 
 getSeedForReplicate <- function(originalSeed, replicate) {
   return(originalSeed + 31*replicate)
@@ -36,6 +38,7 @@ getSeedForReplicate <- function(originalSeed, replicate) {
 #' the R method 'set.seed'.
 #' 
 #' @param seed seed value, not NULL
+#' @keywords internal
 #' 
 setSeed <- function(seed) {
   assertthat::assert_that(is.numeric(seed), msg="seed not numeric")
