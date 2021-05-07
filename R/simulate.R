@@ -328,24 +328,15 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "fu
   # Launch RxODE
   eventsList <- config$eventsList
   dropOthers <- config$dropOthers
-  covariatesToOutput <- outvars[outvars %in% c(config$covariateNames, colnames(rxmod@omega))]
+  keep <- outvars[outvars %in% c(config$covariateNames, config$iovNames, colnames(rxmod@omega))]
 
   results <- eventsList %>% purrr::map_df(.f=function(events){
-    tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=events, returnType="tibble")
+    tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=events, returnType="tibble", keep=keep)
     
     # RxODE does not add the 'id' column if only 1 subject
     uniqueID <- unique(events$ID)
     if (length(uniqueID)==1) {
       tmp <- tmp %>% tibble::add_column(id=uniqueID, .before=1)
-    }
-    # Output covariates from outvars
-    if (length(covariatesToOutput) > 0) {
-      covs <- events %>% dplyr::select(dplyr::all_of(c("ID", covariatesToOutput))) %>% dplyr::rename(id=ID) %>% dplyr::distinct()
-      if (nrow(covs)==length(uniqueID)) {
-        tmp <- tmp %>% dplyr::left_join(covs, by="id")
-      } else {
-        warning("Covariates or ETA's cannot be merged.")
-      }
     }
     return(processDropOthers(tmp, outvars=outvars, dropOthers=dropOthers))
   })
