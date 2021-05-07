@@ -1,25 +1,5 @@
 
 #_______________________________________________________________________________
-#----                             simulate                                  ----
-#_______________________________________________________________________________
-
-#' Simulate function.
-#' 
-#' @param model generic model
-#' @param dataset generic dataset
-#' @param dest destination simulation engine
-#' @param ... optional arguments
-#' @return specific object depending on given destination
-#' @export
-simulate <- function(object, dataset, dest, ...) {
-  stop("No default function is provided")
-}
-
-setGeneric("simulate", function(model, dataset, dest, ...) {
-  standardGeneric("simulate")
-})
-
-#_______________________________________________________________________________
 #----                             sample                                    ----
 #_______________________________________________________________________________
 

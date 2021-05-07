@@ -4,21 +4,22 @@
 #' @return random seed value generated based on time
 #' @keywords internal
 getRandomSeedValue <- function() {
-  seed <- as.numeric(Sys.time())
+  seed <- as.integer(Sys.time())
   return(seed)
 }
 
 #' Get seed value.
 #' 
 #' @param seed user-input seed, NULL it not specified
-#' @return a seed value
+#' @return a seed value, integer
 #' @keywords internal
 #' 
 getSeed <- function(seed=NULL) {
   if (is.null(seed)) {
     retValue <- getRandomSeedValue()
   } else {
-    retValue <- seed
+    assertthat::assert_that(is.numeric(seed) && seed%%1==0, msg="seed is not integer")
+    retValue <- as.integer(seed)
   }
   return(retValue)
 }
@@ -31,7 +32,7 @@ getSeed <- function(seed=NULL) {
 #' @keywords internal
 #' 
 getSeedForReplicate <- function(originalSeed, replicate) {
-  return(originalSeed + 31*replicate)
+  return(as.integer(originalSeed + 31*(replicate - 1)))
 }
 
 #' Set the seed. The goal of this method is to centralise all calls to

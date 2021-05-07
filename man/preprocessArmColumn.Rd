@@ -8,6 +8,8 @@ preprocessArmColumn(dataset, model)
 }
 \arguments{
 \item{dataset}{current dataset, data frame form}
+
+\item{model}{model}
 }
 \value{
 updated model

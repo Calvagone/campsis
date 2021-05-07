@@ -4,7 +4,7 @@
 \alias{processDropOthers}
 \title{Process 'DROP_OTHERS'.}
 \usage{
-processDropOthers(x, outvars = NULL, dropOthers)
+processDropOthers(x, outvars = character(0), dropOthers)
 }
 \arguments{
 \item{x}{the current data frame}

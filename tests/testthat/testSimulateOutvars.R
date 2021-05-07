@@ -2,7 +2,7 @@ library(testthat)
 library(pmxmod)
 
 context("Test the outvars argument of the simulate function")
-seed <<- 1
+seed <- 1
 
 test_that("NULL outvars (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4

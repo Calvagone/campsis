@@ -10,7 +10,7 @@ preprocessReplicates(replicates)
 \item{replicates}{number of replicates}
 }
 \value{
-same number
+same number, but as integer
 }
 \description{
 Preprocess 'replicates' argument.
