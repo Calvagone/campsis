@@ -7,6 +7,7 @@
 #' @param model generic PMX model
 #' @param dataset PMX dataset or 2-dimensional table
 #' @param dest destination simulation engine, default is 'RxODE'
+#' @param events interruption events
 #' @param tablefun function or lambda formula to apply on exported 2-dimensional dataset
 #' @param outvars variables to output in resulting dataframe
 #' @param outfun function or lambda formula to apply on resulting dataframe after each replicate
@@ -15,12 +16,13 @@
 #' @param ... optional arguments like declare
 #' @return dataframe with all results
 #' @export
-simulate <- function(model, dataset, dest=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
+simulate <- function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
   stop("No default function is provided")
 }
 
-setGeneric("simulate", function(model, dataset, dest=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
+setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
   dest <- if (is.null(dest)) "RxODE" else dest
+  events <- preprocessEvents(events)
   tablefun <- preprocessFunction(tablefun, "tablefun")
   outvars <- preprocessOutvars(outvars)
   outfun <- preprocessFunction(outfun, "outfun")
@@ -29,6 +31,18 @@ setGeneric("simulate", function(model, dataset, dest=NULL, tablefun=NULL, outvar
   standardGeneric("simulate")
 })
 
+#' Pre-process events.
+#'
+#' @param events interruption events
+#' @keywords internal
+#' 
+preprocessEvents <- function(events) {
+  if (is.null(events)) {
+    return(Events())
+  } else {
+    return(events)
+  }
+}
 
 #' Pre-process function argument.
 #'
@@ -114,7 +128,7 @@ getSimulationEngineType <- function(dest) {
 #' @inheritParams simulate
 #' @keywords internal
 #' 
-exportTableDelegate <- function(model, dataset, dest, seed, tablefun) {
+exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
   if (is(dataset, "dataset")) {
     table <- dataset %>% export(dest=dest, model=model, seed=seed)
   } else {
@@ -129,12 +143,12 @@ exportTableDelegate <- function(model, dataset, dest, seed, tablefun) {
 #' @inheritParams simulate
 #' @keywords internal
 #' 
-simulateDelegate <- function(model, dataset, dest, tablefun, outvars, outfun, seed, replicates, ...) {
+simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   validObject(model)
   destEngine <- getSimulationEngineType(dest)
   if (replicates==1) {
-    table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, seed=seed, tablefun=tablefun)
-    return(simulate(model=model, dataset=table, dest=destEngine, tablefun=tablefun,
+    table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
+    return(simulate(model=model, dataset=table, dest=destEngine, events=events, tablefun=tablefun,
                     outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, ...))
   } else {
     # Get as many models as replicates
@@ -144,27 +158,27 @@ simulateDelegate <- function(model, dataset, dest, tablefun, outvars, outfun, se
     # Run all models
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
       seedInRep <- getSeedForReplicate(seed, replicate)
-      table <- exportTableDelegate(model=model_, dataset=dataset, dest=dest, seed=seedInRep, tablefun=tablefun)
-      return(simulate(model=model_, dataset=table, dest=destEngine, tablefun=tablefun,
+      table <- exportTableDelegate(model=model_, dataset=dataset, dest=dest, events=events, seed=seedInRep, tablefun=tablefun)
+      return(simulate(model=model_, dataset=table, dest=destEngine, events=events, tablefun=tablefun,
                       outvars=outvars, outfun=outfun, seed=seedInRep, replicates=replicates, ...))
     }, .id="replicate"))
   }
 }
 
-setMethod("simulate", signature=c("pmx_model", "dataset", "character", "function", "character", "function", "integer", "integer"),
-          definition=function(model, dataset, dest, tablefun, outvars, outfun, seed, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "dataset", "character", "events", "function", "character", "function", "integer", "integer"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   iovNames <- dataset %>% getIOVNames()
   covariateNames <- dataset %>% getCovariateNames()
-  return(simulateDelegate(model=model, dataset=dataset, dest=dest, tablefun=tablefun,
+  return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun,
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
                           iovNames=iovNames, covariateNames=covariateNames, ...))
 })
 
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "character", "function", "character", "function", "integer", "integer"),
-          definition=function(model, dataset, dest, tablefun, outvars, outfun, seed, replicates, ...) {
-  return(simulateDelegate(model=model, dataset=dataset, dest=dest, tablefun=tablefun, outvars=outvars,
-                          outfun=outfun, seed=seed, replicates=replicates, ...))
+setMethod("simulate", signature=c("pmx_model", "data.frame", "character", "events", "function", "character", "function", "integer", "integer"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
+  return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun, 
+                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, ...))
 })
 
 #' Preprocess subjects ID's.
@@ -300,8 +314,8 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
               dropOthers=dropOthers, iovNames=iovNames, covariateNames=covariateNames))
 }
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "function", "character", "function", "integer", "integer"),
-          definition=function(model, dataset, dest, tablefun, outvars, outfun, seed, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "events", "function", "character", "function", "integer", "integer"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   
   # Add ARM equation in model
   model <- preprocessArmColumn(dataset, model)
@@ -343,8 +357,8 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "fu
   return(outfun(results))
 })
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", "function", "character", "function", "integer", "integer"),
-          definition=function(model, dataset, dest, tablefun, outvars, outfun, seed, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", "events", "function", "character", "function", "integer", "integer"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   
   # Retrieve simulation config
   config <- preprocessSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)

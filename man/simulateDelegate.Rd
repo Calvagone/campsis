@@ -8,6 +8,7 @@ simulateDelegate(
   model,
   dataset,
   dest,
+  events,
   tablefun,
   outvars,
   outfun,
@@ -22,6 +23,8 @@ simulateDelegate(
 \item{dataset}{PMX dataset or 2-dimensional table}
 
 \item{dest}{destination simulation engine, default is 'RxODE'}
+
+\item{events}{interruption events}
 
 \item{tablefun}{function or lambda formula to apply on exported 2-dimensional dataset}
 

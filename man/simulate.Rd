@@ -8,6 +8,7 @@ simulate(
   model,
   dataset,
   dest = NULL,
+  events = NULL,
   tablefun = NULL,
   outvars = NULL,
   outfun = NULL,
@@ -22,6 +23,8 @@ simulate(
 \item{dataset}{PMX dataset or 2-dimensional table}
 
 \item{dest}{destination simulation engine, default is 'RxODE'}
+
+\item{events}{interruption events}
 
 \item{tablefun}{function or lambda formula to apply on exported 2-dimensional dataset}
 

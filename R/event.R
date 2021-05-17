@@ -39,3 +39,11 @@ Event <- function(name=NULL, times, fun, debug=FALSE) {
   }
   return(new("event", name=name, times=times, fun=fun, debug=debug))
 }
+
+#_______________________________________________________________________________
+#----                           getName                                     ----
+#_______________________________________________________________________________
+
+setMethod("getName", signature = c("event"), definition = function(x) {
+  return(paste0("EVENT (", x@name, ")"))
+})

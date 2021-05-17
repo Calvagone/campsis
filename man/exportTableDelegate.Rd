@@ -4,7 +4,7 @@
 \alias{exportTableDelegate}
 \title{Export table delegate.}
 \usage{
-exportTableDelegate(model, dataset, dest, seed, tablefun)
+exportTableDelegate(model, dataset, dest, events, seed, tablefun)
 }
 \arguments{
 \item{model}{generic PMX model}
@@ -12,6 +12,8 @@ exportTableDelegate(model, dataset, dest, seed, tablefun)
 \item{dataset}{PMX dataset or 2-dimensional table}
 
 \item{dest}{destination simulation engine, default is 'RxODE'}
+
+\item{events}{interruption events}
 
 \item{seed}{seed value}
 
