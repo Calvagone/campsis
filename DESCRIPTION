@@ -20,6 +20,8 @@ Collate:
     'protocol.R'
     'arm.R'
     'arms.R'
+    'event.R'
+    'events.R'
     'simulation_engine.R'
     'dataset.R'
     'parameter_uncertainty.R'
