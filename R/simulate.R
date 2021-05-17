@@ -146,10 +146,15 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
 simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   validObject(model)
   destEngine <- getSimulationEngineType(dest)
+  eventTimes <- events %>% getTimes()
   if (replicates==1) {
     table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
-    return(simulate(model=model, dataset=table, dest=destEngine, events=events, tablefun=tablefun,
-                    outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, ...))
+    eventTimes_ <- eventTimes %>% append(c(0, max(table$TIME))) %>% base::sort()
+    return(purrr::map2_df(.x=eventTimes_[-length(eventTimes_)], .y=eventTimes_[-1], .f=function(start, end) {
+      table_ <- table %>% dplyr::filter((EVID==1 & TIME >= start & TIME < end) | (EVID==0 & TIME > start & TIME <= end) | (EVID==0 & start==0 & TIME==0))
+      return(simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
+                      outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, start=start, end=end, ...))
+    }))
   } else {
     # Get as many models as replicates
     setSeed(seed - 1) # Set seed before sampling parameters uncertainty
@@ -159,8 +164,12 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
       seedInRep <- getSeedForReplicate(seed, replicate)
       table <- exportTableDelegate(model=model_, dataset=dataset, dest=dest, events=events, seed=seedInRep, tablefun=tablefun)
-      return(simulate(model=model_, dataset=table, dest=destEngine, events=events, tablefun=tablefun,
-                      outvars=outvars, outfun=outfun, seed=seedInRep, replicates=replicates, ...))
+      if (eventTimes %>% length() == 0) {
+        return(simulate(model=model_, dataset=table, dest=destEngine, events=events, tablefun=tablefun,
+                        outvars=outvars, outfun=outfun, seed=seedInRep, replicates=replicates, ...))
+      } else {
+        stop("To be implemented")
+      }
     }, .id="replicate"))
   }
 }
@@ -271,6 +280,8 @@ processDropOthers <- function(x, outvars=character(0), dropOthers) {
 preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # Check extra arguments
   args <- list(...)
+  cat("START", args$start, "\n")
+  cat("END", args$end, "\n")
   
   # IDs
   ids <- preprocessIds(dataset)
