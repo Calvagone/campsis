@@ -4,14 +4,12 @@
 \alias{cutTableForEvent}
 \title{Cut table for event starting at 'start' and ending at 'end'.}
 \usage{
-cutTableForEvent(table, start, end)
+cutTableForEvent(table, current_event)
 }
 \arguments{
 \item{table}{whole table, data frame}
 
-\item{start}{event start time, numeric value}
-
-\item{end}{event end time, numeric value}
+\item{current_event}{current event being processed}
 }
 \description{
 Cut table for event starting at 'start' and ending at 'end'.

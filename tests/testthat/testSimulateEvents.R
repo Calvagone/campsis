@@ -12,7 +12,7 @@ source(paste0(testFolder, "testUtils.R"))
 test_that("Simulate simple events (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4
 
-  dataset <- Dataset(2)
+  dataset <- Dataset(1)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
   dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
@@ -26,6 +26,9 @@ test_that("Simulate simple events (RxODE/mrgsolve)", {
   
   results1 <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed)
   spaguettiPlot(results1, "CP")
+  
+  results1b <- model %>% simulate(dataset, dest="RxODE", events=NULL, seed=seed)
+  spaguettiPlot(results1b, "CP")
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed)
   spaguettiPlot(results2, "CP")
