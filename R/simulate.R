@@ -138,6 +138,35 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
   return(table)
 }
 
+#' Cut table for event starting at 'start' and ending at 'end'.
+#' 
+#' @param table whole table, data frame
+#' @param start event start time, numeric value
+#' @param end event end time, numeric value
+#' @keywords internal
+#' 
+cutTableForEvent <- function(table, start, end) {
+  table_ <- table %>% dplyr::filter((EVID==1 & TIME >= start & TIME < end) |
+                                    (EVID==0 & TIME > start & TIME <= end) |
+                                    (EVID==0 & start==0 & TIME==0))
+  # All the current information is not related to events
+  table_ <- table_ %>% dplyr::mutate(EVENT_RELATED=as.numeric(0))
+  
+  # Make sure there is an ending observation
+  table_ <- table_ %>% dplyr::group_by(ID) %>% dplyr::group_modify(.f=function(x, y) {
+    if (x %>% dplyr::filter(EVID==0 & TIME==end) %>% nrow() == 0) {
+      # Take last row, this way all covariates / IIV / IOV is copied
+      # Replace only needed info
+      lastRowCopy <- x %>% dplyr::slice(which.max(TIME))
+      lastRowCopy <- lastRowCopy %>% dplyr::mutate(TIME=end, EVID=as.integer(0), MDV=as.integer(0), AMT=as.numeric(NA),
+                                            CMT=as.integer(1), RATE=as.numeric(0), DOSENO=as.integer(NA),
+                                            EVENT_RELATED=as.numeric(1))
+    }
+    return(x)
+  })
+  return(table_)
+}
+  
 #' Simulation delegate.
 #' 
 #' @inheritParams simulate
@@ -150,10 +179,14 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
   if (replicates==1) {
     table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
     eventTimes_ <- eventTimes %>% append(c(0, max(table$TIME))) %>% base::sort()
+    cmtNames <- model@compartments %>% getNames()
     return(purrr::map2_df(.x=eventTimes_[-length(eventTimes_)], .y=eventTimes_[-1], .f=function(start, end) {
-      table_ <- table %>% dplyr::filter((EVID==1 & TIME >= start & TIME < end) | (EVID==0 & TIME > start & TIME <= end) | (EVID==0 & start==0 & TIME==0))
-      return(simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
-                      outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, start=start, end=end, ...))
+      table_ <- cutTableForEvent(table, start, end)
+      results <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
+                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, start=start, end=end, ...)
+      inits <- results %>% dplyr::group_by(id) %>% dplyr::slice(which.max(time))
+      print(inits)
+      return(results)
     }))
   } else {
     # Get as many models as replicates
@@ -216,6 +249,11 @@ preprocessArmColumn <- function(dataset, model) {
   if ("ARM" %in% colnames(dataset)) {
     pkRecord <- model@model %>% pmxmod::getByName("MAIN")
     pkRecord@code <- c(pkRecord@code, "ARM=ARM")
+    model@model <- model@model %>% pmxmod::replace(pkRecord)
+  }
+  if ("EVENT_RELATED" %in% colnames(dataset)) {
+    pkRecord <- model@model %>% pmxmod::getByName("MAIN")
+    pkRecord@code <- c(pkRecord@code, "EVENT_RELATED=EVENT_RELATED")
     model@model <- model@model %>% pmxmod::replace(pkRecord)
   }
   return(model)
@@ -301,14 +339,14 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   user_declare <- processExtraArg(args, name="declare", mandatory=FALSE)
   iovNames <- processExtraArg(args, name="iovNames", mandatory=FALSE)
   covariateNames <- processExtraArg(args, name="covariateNames", mandatory=FALSE)
-  declare <- unique(c(iovNames, covariateNames, user_declare, "ARM"))    
+  declare <- unique(c(iovNames, covariateNames, user_declare, "ARM", "EVENT_RELATED"))    
 
   # Export PMX model
   if (is(dest, "rxode_engine")) {
     engineModel <- model %>% pmxmod::export(dest="RxODE")
   } else if (is(dest, "mrgsolve_engine")) {
     outvars_ <- outvars[!(outvars %in% dropOthers())]
-    outvars_ <- unique(c(outvars_, "ARM"))
+    outvars_ <- unique(c(outvars_, "ARM", "EVENT_RELATED"))
     engineModel <- model %>% pmxmod::export(dest="mrgsolve", outvars=outvars_)
   }
   
