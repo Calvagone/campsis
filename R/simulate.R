@@ -166,6 +166,10 @@ cutTableForEvent <- function(table, current_event) {
     }
     return(x)
   })
+  
+  # Substrat starting time to start at 0
+  table_$TIME <- table_$TIME - start
+  
   return(table_)
 }
 
@@ -183,7 +187,6 @@ getEventTimes <- function(events, maxTime) {
   eventTimes_ <- purrr::map2(eventTimes[-length(eventTimes)], eventTimes[-1], .f=function(.x, .y){
     return(list(start=.x, end=.y))
   })
-  
   return(eventTimes_)
 }
   
@@ -198,21 +201,29 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
   
   if (replicates==1) {
     table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
-    cmtNames <- model@compartments %>% getNames()
     eventTimes <- getEventTimes(events, max(table$TIME))
     inits <- NULL
     results <- NULL
-    current_event <- NULL
     for (eventIndex in seq_along(eventTimes)) {
-      current_event <-  eventTimes[[eventIndex]]
+      current_event <- eventTimes[[eventIndex]]
       current_event$inits <- inits
       current_event$multiple_events <- eventTimes %>% length() > 1
-      current_event$cmtNames <- cmtNames
+      current_event$cmtNames <- model@compartments %>% getNames()
       table_ <- cutTableForEvent(table, current_event)
       results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, current_event=current_event, ...)
+      # Shift times back to their original value
+      results_$time <- results_$time + current_event$start
+      
+      # Store initial values for next iteration
       inits <- results_ %>% dplyr::group_by(id) %>% dplyr::slice(which.max(time))
+      
+      # Get rid of event related observations
+      results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0)
+      
+      # Append simulation results to global results
       results <- results %>% dplyr::bind_rows(results_)
+      
     }
     return(results)
   } else {
@@ -396,6 +407,22 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
               dropOthers=dropOthers, iovNames=iovNames, covariateNames=covariateNames, currentEvent=currentEvent))
 }
 
+getInitialConditions <- function(events, currentEvent) {
+  eInits <- currentEvent$inits
+  eCmt <- currentEvent$cmtNames
+  
+  # Current ID is of length 1 or 6
+  currentID <- unique(events$ID) %>% as.integer()
+  if (is.null(eInits)) {
+    inits <- NULL
+  } else {
+    assertthat::assert_that(currentID %>% length()==1, msg="eInits not null, slices must be 1")
+    inits <- eInits %>% dplyr::filter(id==currentID) %>% unlist()
+    inits <- inits[eCmt]
+  }
+  return(inits)
+}
+
 setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "events", "function", "character", "function", "integer", "integer"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   
@@ -425,28 +452,14 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   eventsList <- config$eventsList
   dropOthers <- config$dropOthers
   keep <- outvars[outvars %in% c(config$covariateNames, config$iovNames, colnames(rxmod@omega))]
-  eInits <- config$currentEvent$inits
-  eCmt <- config$currentEvent$cmtNames
-  eStart <- config$currentEvent$start
-  eEnd <- config$currentEvent$end
 
   results <- eventsList %>% purrr::map_df(.f=function(events) {
-    # Current ID is of length 1 or 6
-    currentID <- unique(events$ID) %>% as.integer()
-    if (is.null(eInits)) {
-      inits <- NULL
-    } else {
-      assertthat::assert_that(currentID %>% length()==1, msg="eInits not null, slices must be 1")
-      inits <- eInits %>% dplyr::filter(id==currentID) %>% unlist()
-      inits <- inits[eCmt]
-      print(inits)
-    }
-    browser()
-    tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=events, returnType="tibble", keep=keep, inits=inits, from=eStart, to=eEnd)
+    inits <- getInitialConditions(events, config$currentEvent)
+    tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=events, returnType="tibble", keep=keep, inits=inits)
     
     # RxODE does not add the 'id' column if only 1 subject
-    if (length(currentID)==1) {
-      tmp <- tmp %>% tibble::add_column(id=currentID, .before=1)
+    if (!("id" %in% colnames(tmp))) {
+      tmp <- tmp %>% tibble::add_column(id=unique(events$ID), .before=1)
     }
     return(processDropOthers(tmp, outvars=outvars, dropOthers=dropOthers))
   })
@@ -487,6 +500,13 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
   dropOthers <- config$dropOthers
   
   results <- eventsList %>% purrr::map_df(.f=function(events){
+    inits <- getInitialConditions(events, config$currentEvent)
+    #browser()
+    # Update init vector (see mrgsolve script: 'update.R')
+    if (!is.null(inits)) {
+      mod <- mod %>% mrgsolve::update(init=inits)
+    }
+    
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=events) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df")
     
