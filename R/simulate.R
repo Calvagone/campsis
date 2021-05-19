@@ -153,10 +153,13 @@ cutTableForEvent <- function(table, current_event) {
   # All the current information is not related to events
   table_ <- table_ %>% dplyr::mutate(EVENT_RELATED=as.numeric(0))
   
-  # Make sure there is an ending observation
+  # Make sure there is an starting and an ending observation
   table_ <- table_ %>% dplyr::group_by(ID) %>% dplyr::group_modify(.f=function(x, y) {
     if (x %>% dplyr::filter(EVID==0 & TIME==start) %>% nrow() == 0) {
       # Copy first row
+      # Please note this first observation is only 'useful' to mrgsolve
+      # If no observation at time 'start' (i.e. 0 after time substraction), initial conditions will apply to first observation in dataset...
+      # While in RxODE, simulation/initial conditions always start at 0
       firstRowCopy <- x %>% dplyr::slice(which.min(TIME))
       firstRowCopy <- firstRowCopy %>% dplyr::mutate(TIME=start, EVID=as.integer(0), MDV=as.integer(0), AMT=as.numeric(NA),
                                                    CMT=as.integer(1), RATE=as.numeric(0), DOSENO=as.integer(NA),
@@ -196,43 +199,52 @@ getEventTimes <- function(events, maxTime) {
   })
   return(eventTimes_)
 }
-  
-#' Simulation delegate.
+
+#' Simulation delegate core (single replicate).
+#' 
+#' @inheritParams simulate
+#' @keywords internal
+#' 
+simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
+  destEngine <- getSimulationEngineType(dest)
+  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
+  eventTimes <- getEventTimes(events, max(table$TIME))
+  inits <- NULL
+  results <- NULL
+  for (eventIndex in seq_along(eventTimes)) {
+    current_event <- eventTimes[[eventIndex]]
+    current_event$inits <- inits
+    current_event$multiple_events <- eventTimes %>% length() > 1
+    current_event$cmtNames <- model@compartments %>% getNames()
+    table_ <- cutTableForEvent(table, current_event)
+    results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
+                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, current_event=current_event, ...)
+    # Shift times back to their original value
+    results_$time <- results_$time + current_event$start
+    
+    # Store initial values for next iteration
+    inits <- results_ %>% dplyr::group_by(id) %>% dplyr::slice(which.max(time))
+    
+    # Get rid of event related observations and remove column
+    results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0) %>% dplyr::select(-EVENT_RELATED)
+    
+    # Append simulation results to global results
+    results <- results %>% dplyr::bind_rows(results_)
+  }
+  return(outfun(results))
+}
+
+#' Simulation delegate (several replicates).
 #' 
 #' @inheritParams simulate
 #' @keywords internal
 #' 
 simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   validObject(model)
-  destEngine <- getSimulationEngineType(dest)
   
   if (replicates==1) {
-    table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
-    eventTimes <- getEventTimes(events, max(table$TIME))
-    inits <- NULL
-    results <- NULL
-    for (eventIndex in seq_along(eventTimes)) {
-      current_event <- eventTimes[[eventIndex]]
-      current_event$inits <- inits
-      current_event$multiple_events <- eventTimes %>% length() > 1
-      current_event$cmtNames <- model@compartments %>% getNames()
-      table_ <- cutTableForEvent(table, current_event)
-      results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
-                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, current_event=current_event, ...)
-      # Shift times back to their original value
-      results_$time <- results_$time + current_event$start
-      
-      # Store initial values for next iteration
-      inits <- results_ %>% dplyr::group_by(id) %>% dplyr::slice(which.max(time))
-      
-      # Get rid of event related observations and remove column
-      results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0) %>% dplyr::select(-EVENT_RELATED)
-      
-      # Append simulation results to global results
-      results <- results %>% dplyr::bind_rows(results_)
-      
-    }
-    return(results)
+    return(simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
+                                tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, ...))
   } else {
     # Get as many models as replicates
     setSeed(seed - 1) # Set seed before sampling parameters uncertainty
@@ -242,13 +254,10 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
       seedInRep <- getSeedForReplicate(seed, replicate)
       table <- exportTableDelegate(model=model_, dataset=dataset, dest=dest, events=events, seed=seedInRep, tablefun=tablefun)
-      # TMP
-      current_event <- list()
-      current_event$inits <- NULL
-      current_event$multiple_events <- FALSE
-      return(simulate(model=model_, dataset=table, dest=destEngine, events=events, tablefun=tablefun,
-                      outvars=outvars, outfun=outfun, seed=seedInRep, replicates=replicates, current_event=current_event, ...))
-    }, .id="replicate"))
+      
+      return(simulateDelegateCore(model=model_, dataset=dataset, dest=dest, events=events,
+                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seedInRep, replicates=replicates, ...))
+    }, .id="replicate") %>% dplyr::mutate(replicate=as.integer(replicate)))
   }
 }
 
@@ -469,7 +478,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
     }
     return(processDropOthers(tmp, outvars=outvars, dropOthers=dropOthers))
   })
-  return(outfun(results))
+  return(results)
 })
 
 setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", "events", "function", "character", "function", "integer", "integer"),
@@ -520,5 +529,5 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
     return(processDropOthers(tmp, outvars=outvars, dropOthers=dropOthers))
   })
-  return(outfun(results))
+  return(results)
 })
