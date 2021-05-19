@@ -138,68 +138,6 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
   return(table)
 }
 
-#' Cut table for event starting at 'start' and ending at 'end'.
-#' 
-#' @param table whole table, data frame
-#' @param current_event current event being processed
-#' @keywords internal
-#' 
-cutTableForEvent <- function(table, current_event) {
-  start <- current_event$start
-  end <- current_event$end
-  table_ <- table %>% dplyr::filter((EVID==1 & TIME >= start & TIME < end) |
-                                    (EVID==0 & TIME > start & TIME <= end) |
-                                    (EVID==0 & start==0 & TIME==0))
-  # All the current information is not related to events
-  table_ <- table_ %>% dplyr::mutate(EVENT_RELATED=as.numeric(0))
-  
-  # Make sure there is an starting and an ending observation
-  table_ <- table_ %>% dplyr::group_by(ID) %>% dplyr::group_modify(.f=function(x, y) {
-    if (x %>% dplyr::filter(EVID==0 & TIME==start) %>% nrow() == 0) {
-      # Copy first row
-      # Please note this first observation is only 'useful' to mrgsolve
-      # If no observation at time 'start' (i.e. 0 after time substraction), initial conditions will apply to first observation in dataset...
-      # While in RxODE, simulation/initial conditions always start at 0
-      firstRowCopy <- x %>% dplyr::slice(which.min(TIME))
-      firstRowCopy <- firstRowCopy %>% dplyr::mutate(TIME=start, EVID=as.integer(0), MDV=as.integer(0), AMT=as.numeric(NA),
-                                                   CMT=as.integer(1), RATE=as.numeric(0), DOSENO=as.integer(NA),
-                                                   EVENT_RELATED=as.numeric(1))
-      x <- firstRowCopy %>% dplyr::bind_rows(x)
-    }
-    if (x %>% dplyr::filter(EVID==0 & TIME==end) %>% nrow() == 0) {
-      # Copy last row
-      lastRowCopy <- x %>% dplyr::slice(which.max(TIME))
-      lastRowCopy <- lastRowCopy %>% dplyr::mutate(TIME=end, EVID=as.integer(0), MDV=as.integer(0), AMT=as.numeric(NA),
-                                            CMT=as.integer(1), RATE=as.numeric(0), DOSENO=as.integer(NA),
-                                            EVENT_RELATED=as.numeric(1))
-      x <- x %>% dplyr::bind_rows(lastRowCopy)
-    }
-    return(x)
-  })
-  
-  # Substract starting time to start at 0
-  table_$TIME <- table_$TIME - start
-  
-  return(table_)
-}
-
-#' Get list of event times.
-#' 
-#' @param events events
-#' @param maxTime simulation max time
-#' @return a list of numeric lists with names 'start' and 'end'
-#' @keywords internal
-#'
-getEventTimes <- function(events, maxTime) {
-  eventTimes <- events %>% getTimes()
-  eventTimes <- eventTimes %>% append(c(0, maxTime)) %>% unique() %>% base::sort()
-  # Transform into list
-  eventTimes_ <- purrr::map2(eventTimes[-length(eventTimes)], eventTimes[-1], .f=function(.x, .y){
-    return(list(start=.x, end=.y))
-  })
-  return(eventTimes_)
-}
-
 #' Simulation delegate core (single replicate).
 #' 
 #' @inheritParams simulate
@@ -208,19 +146,16 @@ getEventTimes <- function(events, maxTime) {
 simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   destEngine <- getSimulationEngineType(dest)
   table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
-  eventTimes <- getEventTimes(events, max(table$TIME))
-  inits <- NULL
+  iterations <- getEventIterations(events, max(table$TIME))
+  inits <- data.frame()
   results <- NULL
-  for (eventIndex in seq_along(eventTimes)) {
-    current_event <- eventTimes[[eventIndex]]
-    current_event$inits <- inits
-    current_event$multiple_events <- eventTimes %>% length() > 1
-    current_event$cmtNames <- model@compartments %>% getNames()
-    table_ <- cutTableForEvent(table, current_event)
+  for (iteration in iterations) {
+    iteration@inits <- inits
+    table_ <- cutTableForEvent(table, iteration)
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
-                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, current_event=current_event, ...)
+                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, iteration=iteration, ...)
     # Shift times back to their original value
-    results_$time <- results_$time + current_event$start
+    results_$time <- results_$time + iteration@start
     
     # Store initial values for next iteration
     inits <- results_ %>% dplyr::group_by(id) %>% dplyr::slice(which.max(time))
@@ -372,7 +307,7 @@ processDropOthers <- function(x, outvars=character(0), dropOthers) {
 preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # Check extra arguments
   args <- list(...)
-  currentEvent <- args$current_event
+  iteration <- args$iteration
 
   # IDs
   ids <- preprocessIds(dataset)
@@ -383,7 +318,7 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # This should be set as static information (not in simulate method)
   # Note that mrgsolve does not seem to have parallelisation (to check)
   # It may also be interesting to parallelise the replicates (see later on)
-  if (currentEvent$multiple_events) {
+  if (iteration@multiple) {
     slices <- 1
     #print("Multiple events")
   } else {
@@ -412,28 +347,28 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # Compute all slice rounds to perform
   sliceRounds <- list(start=seq(1, maxID, by=slices), end=seq(0, maxID-1, by=slices) + slices)
   
-  # Prepare list of events (1 event dataframe per slice/round)
-  eventsList <- purrr::map2(sliceRounds$start, sliceRounds$end, .f=function(.x, .y){
-    events <- dataset %>% dplyr::filter(ID >= .x & ID <= .y)
-    return(events)
+  # Prepare all subdatasets (1 event dataframe per slice/round)
+  subdatasets <- purrr::map2(sliceRounds$start, sliceRounds$end, .f=function(.x, .y){
+    subdataset <- dataset %>% dplyr::filter(ID >= .x & ID <= .y)
+    return(subdataset)
   })
   
-  return(list(declare=declare, engineModel=engineModel, eventsList=eventsList,
-              dropOthers=dropOthers, iovNames=iovNames, covariateNames=covariateNames, currentEvent=currentEvent))
+  # Compartment names
+  cmtNames <- model@compartments %>% getNames()
+  
+  return(list(declare=declare, engineModel=engineModel, subdatasets=subdatasets,
+              dropOthers=dropOthers, iovNames=iovNames, covariateNames=covariateNames, cmtNames=cmtNames, iteration=iteration))
 }
 
-getInitialConditions <- function(events, currentEvent) {
-  eInits <- currentEvent$inits
-  eCmt <- currentEvent$cmtNames
-  
+getInitialConditions <- function(events, iteration, cmtNames) {
   # Current ID is of length 1 or 6
   currentID <- unique(events$ID) %>% as.integer()
-  if (is.null(eInits)) {
+  if (iteration@inits %>% nrow() == 0) {
     inits <- NULL
   } else {
-    assertthat::assert_that(currentID %>% length()==1, msg="eInits not null, slices must be 1")
-    inits <- eInits %>% dplyr::filter(id==currentID) %>% unlist()
-    inits <- inits[eCmt]
+    assertthat::assert_that(currentID %>% length()==1, msg="inits not null, slices must be 1")
+    inits <- iteration@inits %>% dplyr::filter(id==currentID) %>% unlist()
+    inits <- inits[cmtNames]
   }
   return(inits)
 }
@@ -463,20 +398,20 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   rownames(omega) <- fakeEtaName
   colnames(omega) <- fakeEtaName
   
-  # Launch RxODE
-  eventsList <- config$eventsList
-  dropOthers <- config$dropOthers
+  # Prepare simulation
   keep <- outvars[outvars %in% c(config$covariateNames, config$iovNames, colnames(rxmod@omega))]
 
-  results <- eventsList %>% purrr::map_df(.f=function(events) {
-    inits <- getInitialConditions(events, config$currentEvent)
+  results <- config$subdatasets %>% purrr::map_df(.f=function(events) {
+    inits <- getInitialConditions(events, config$iteration, config$cmtNames)
+    
+    # Launch simulation with RxODE
     tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=events, returnType="tibble", keep=keep, inits=inits)
     
     # RxODE does not add the 'id' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
       tmp <- tmp %>% tibble::add_column(id=unique(events$ID), .before=1)
     }
-    return(processDropOthers(tmp, outvars=outvars, dropOthers=dropOthers))
+    return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   })
   return(results)
 })
@@ -510,24 +445,21 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
   # Instantiate mrgsolve model
   mod <- mrgsolve::mcode("model", mrgmod %>% pmxmod::toString())
   
-  # Launch mrgsolve
-  eventsList <- config$eventsList
-  dropOthers <- config$dropOthers
-  
-  results <- eventsList %>% purrr::map_df(.f=function(events){
-    inits <- getInitialConditions(events, config$currentEvent)
+  results <- config$subdatasets %>% purrr::map_df(.f=function(events){
+    inits <- getInitialConditions(events, config$iteration, config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {
       mod <- mod %>% mrgsolve::update(init=inits)
     }
     
+    # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=events) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df")
     
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
-    return(processDropOthers(tmp, outvars=outvars, dropOthers=dropOthers))
+    return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   })
   return(results)
 })
