@@ -155,9 +155,16 @@ cutTableForEvent <- function(table, current_event) {
   
   # Make sure there is an ending observation
   table_ <- table_ %>% dplyr::group_by(ID) %>% dplyr::group_modify(.f=function(x, y) {
+    if (x %>% dplyr::filter(EVID==0 & TIME==start) %>% nrow() == 0) {
+      # Copy first row
+      firstRowCopy <- x %>% dplyr::slice(which.min(TIME))
+      firstRowCopy <- firstRowCopy %>% dplyr::mutate(TIME=start, EVID=as.integer(0), MDV=as.integer(0), AMT=as.numeric(NA),
+                                                   CMT=as.integer(1), RATE=as.numeric(0), DOSENO=as.integer(NA),
+                                                   EVENT_RELATED=as.numeric(1))
+      x <- firstRowCopy %>% dplyr::bind_rows(x)
+    }
     if (x %>% dplyr::filter(EVID==0 & TIME==end) %>% nrow() == 0) {
-      # Take last row, this way all covariates / IIV / IOV is copied
-      # Replace only needed info
+      # Copy last row
       lastRowCopy <- x %>% dplyr::slice(which.max(TIME))
       lastRowCopy <- lastRowCopy %>% dplyr::mutate(TIME=end, EVID=as.integer(0), MDV=as.integer(0), AMT=as.numeric(NA),
                                             CMT=as.integer(1), RATE=as.numeric(0), DOSENO=as.integer(NA),
@@ -167,7 +174,7 @@ cutTableForEvent <- function(table, current_event) {
     return(x)
   })
   
-  # Substrat starting time to start at 0
+  # Substract starting time to start at 0
   table_$TIME <- table_$TIME - start
   
   return(table_)
@@ -218,8 +225,8 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
       # Store initial values for next iteration
       inits <- results_ %>% dplyr::group_by(id) %>% dplyr::slice(which.max(time))
       
-      # Get rid of event related observations
-      results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0)
+      # Get rid of event related observations and remove column
+      results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0) %>% dplyr::select(-EVENT_RELATED)
       
       # Append simulation results to global results
       results <- results %>% dplyr::bind_rows(results_)
@@ -235,12 +242,12 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
       seedInRep <- getSeedForReplicate(seed, replicate)
       table <- exportTableDelegate(model=model_, dataset=dataset, dest=dest, events=events, seed=seedInRep, tablefun=tablefun)
-      if (eventTimes %>% length() == 0) {
-        return(simulate(model=model_, dataset=table, dest=destEngine, events=events, tablefun=tablefun,
-                        outvars=outvars, outfun=outfun, seed=seedInRep, replicates=replicates, ...))
-      } else {
-        stop("To be implemented")
-      }
+      # TMP
+      current_event <- list()
+      current_event$inits <- NULL
+      current_event$multiple_events <- FALSE
+      return(simulate(model=model_, dataset=table, dest=destEngine, events=events, tablefun=tablefun,
+                      outvars=outvars, outfun=outfun, seed=seedInRep, replicates=replicates, current_event=current_event, ...))
     }, .id="replicate"))
   }
 }
@@ -337,7 +344,7 @@ processDropOthers <- function(x, outvars=character(0), dropOthers) {
     return(x)
   }
   outvars_ <- outvars[!(outvars %in% dropOthers())]
-  out <- c("id", "time", "ARM", outvars_)
+  out <- c("id", "time", "ARM", "EVENT_RELATED", outvars_)
   names <- colnames(x)
   return(x[, names[names %in% out]])
 }
@@ -357,8 +364,7 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # Check extra arguments
   args <- list(...)
   currentEvent <- args$current_event
-  #print(currentEvent$inits)
-  
+
   # IDs
   ids <- preprocessIds(dataset)
   maxID <- max(ids)
@@ -370,10 +376,10 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # It may also be interesting to parallelise the replicates (see later on)
   if (currentEvent$multiple_events) {
     slices <- 1
-    print("Multiple events")
+    #print("Multiple events")
   } else {
     slices <- preprocessSlices(6, maxID=maxID)
-    print("Single event")
+    #print("Single event")
   }
   
   # Drop others 'argument'
@@ -501,7 +507,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
   
   results <- eventsList %>% purrr::map_df(.f=function(events){
     inits <- getInitialConditions(events, config$currentEvent)
-    #browser()
+
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {
       mod <- mod %>% mrgsolve::update(init=inits)
