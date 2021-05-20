@@ -160,6 +160,13 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     # Store initial values for next iteration
     inits <- results_ %>% dplyr::group_by(id) %>% dplyr::slice(which.max(time))
     
+    # Calling events
+    for (event in events@list) {
+      if (iteration@end %in% event@times) {
+        inits <- event@fun(inits)
+      }
+    }
+    
     # Get rid of event related observations and remove column
     results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0) %>% dplyr::select(-EVENT_RELATED)
     
@@ -366,7 +373,7 @@ getInitialConditions <- function(events, iteration, cmtNames) {
   if (iteration@inits %>% nrow() == 0) {
     inits <- NULL
   } else {
-    assertthat::assert_that(currentID %>% length()==1, msg="inits not null, slices must be 1")
+    assertthat::assert_that(currentID %>% length()==1, msg=paste0("Not a single ID: ", paste0(currentID, collapse=",")))
     inits <- iteration@inits %>% dplyr::filter(id==currentID) %>% unlist()
     inits <- inits[cmtNames]
   }

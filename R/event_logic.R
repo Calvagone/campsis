@@ -39,7 +39,7 @@ EventIteration <- function(start, end, inits=data.frame(), multiple=FALSE) {
 #'
 getEventIterations <- function(events, maxTime) {
   eventTimes <- events %>% getTimes()
-  multiple <- eventTimes %>% length() > 1
+  multiple <- eventTimes %>% length() > 0
   eventTimes <- eventTimes %>% append(c(0, maxTime)) %>% unique() %>% base::sort()
   retValue <- purrr::map2(eventTimes[-length(eventTimes)], eventTimes[-1], .f=function(.x, .y){
     return(EventIteration(start=.x, end=.y, multiple=multiple))
