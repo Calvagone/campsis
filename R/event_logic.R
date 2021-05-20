@@ -38,9 +38,13 @@ EventIteration <- function(start, end, inits=data.frame(), multiple=FALSE) {
 #' @keywords internal
 #'
 getEventIterations <- function(events, maxTime) {
-  eventTimes <- events %>% getTimes()
-  multiple <- eventTimes %>% length() > 0
-  eventTimes <- eventTimes %>% append(c(0, maxTime)) %>% unique() %>% base::sort()
+  userEventTimes <- events %>% getTimes()
+  multiple <- userEventTimes %>% length() > 0
+  eventTimes <- userEventTimes %>% append(c(0, maxTime)) %>% unique() %>% base::sort()
+  if (0 %in% userEventTimes) {
+    # Add 'second' zero at the beginning of time vector
+    eventTimes <- eventTimes %>% append(0, after=0)
+  }
   retValue <- purrr::map2(eventTimes[-length(eventTimes)], eventTimes[-1], .f=function(.x, .y){
     return(EventIteration(start=.x, end=.y, multiple=multiple))
   })
