@@ -96,6 +96,14 @@ setMethod("getCovariateNames", signature = c("dataset"), definition = function(o
 })
 
 #_______________________________________________________________________________
+#----                     getTimeVaryingCovariateNames                      ----
+#_______________________________________________________________________________
+
+setMethod("getTimeVaryingCovariateNames", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getTimeVaryingCovariateNames())
+})
+
+#_______________________________________________________________________________
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 

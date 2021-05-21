@@ -37,6 +37,14 @@ setMethod("getCovariateNames", signature = c("arms"), definition = function(obje
 })
 
 #_______________________________________________________________________________
+#----                     getTimeVaryingCovariateNames                      ----
+#_______________________________________________________________________________
+
+setMethod("getTimeVaryingCovariateNames", signature = c("arms"), definition = function(object) {
+  return(object@list %>% purrr::map(.f=~.x %>% getTimeVaryingCovariateNames()) %>% purrr::flatten_chr() %>% unique())
+})
+
+#_______________________________________________________________________________
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 

@@ -205,11 +205,9 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
 
 setMethod("simulate", signature=c("pmx_model", "dataset", "character", "events", "function", "character", "function", "integer", "integer"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
-  iovNames <- dataset %>% getIOVNames()
-  covariateNames <- dataset %>% getCovariateNames()
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun,
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                          iovNames=iovNames, covariateNames=covariateNames, ...))
+                          summary=toDatasetSummary(dataset), ...))
 })
 
 
@@ -338,9 +336,8 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
 
   # Extra argument declare (for mrgsolve only)
   user_declare <- processExtraArg(args, name="declare", mandatory=FALSE)
-  iovNames <- processExtraArg(args, name="iovNames", mandatory=FALSE)
-  covariateNames <- processExtraArg(args, name="covariateNames", mandatory=FALSE)
-  declare <- unique(c(iovNames, covariateNames, user_declare, "ARM", "EVENT_RELATED"))    
+  summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
+  declare <- unique(c(summary@iov_names, summary@covariate_names, user_declare, "ARM", "EVENT_RELATED"))    
 
   # Export PMX model
   if (is(dest, "rxode_engine")) {
@@ -364,7 +361,7 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   cmtNames <- model@compartments %>% getNames()
   
   return(list(declare=declare, engineModel=engineModel, subdatasets=subdatasets,
-              dropOthers=dropOthers, iovNames=iovNames, covariateNames=covariateNames, cmtNames=cmtNames, iteration=iteration))
+              dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames))
 }
 
 getInitialConditions <- function(events, iteration, cmtNames) {
@@ -385,6 +382,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   
   # Add ARM equation in model
   model <- preprocessArmColumn(dataset, model)
+  summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
   
   # Retrieve simulation config
   config <- preprocessSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)
@@ -406,7 +404,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   colnames(omega) <- fakeEtaName
   
   # Prepare simulation
-  keep <- outvars[outvars %in% c(config$covariateNames, config$iovNames, colnames(rxmod@omega))]
+  keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
 
   results <- config$subdatasets %>% purrr::map_df(.f=function(events) {
     inits <- getInitialConditions(events, config$iteration, config$cmtNames)

@@ -56,7 +56,7 @@ setGeneric("getIOVNames", function(object) {
 #----                         getCovariateNames                             ----
 #_______________________________________________________________________________
 
-#' Get covariate names.
+#' Get all covariate names (fixed covariates + time-varying covariates).
 #' 
 #' @param object any object
 #' @return character vector
@@ -67,5 +67,22 @@ getCovariateNames <- function(object) {
 
 setGeneric("getCovariateNames", function(object) {
   standardGeneric("getCovariateNames")
+})
+
+#_______________________________________________________________________________
+#----                     getTimeVaryingCovariateNames                      ----
+#_______________________________________________________________________________
+
+#' Get all time-varying covariate names.
+#' 
+#' @param object any object
+#' @return character vector
+#' @export
+getTimeVaryingCovariateNames <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getTimeVaryingCovariateNames", function(object) {
+  standardGeneric("getTimeVaryingCovariateNames")
 })
 
