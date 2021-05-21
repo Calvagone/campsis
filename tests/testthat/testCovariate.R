@@ -8,6 +8,7 @@ test_that("Constant covariate", {
   covariate <- Covariate("WT", ConstantDistribution(70)) 
   expect_equal(covariate@name, "WT")
   expect_equal(covariate@distribution@value, 70)
+  expect_equal(covariate@time_varying, FALSE)
   
   # No distribution argument is provided
   expect_error(Covariate("WT"))
@@ -91,8 +92,16 @@ test_that("Bootstrap covariate", {
   expect_equal(covariate@distribution@random, TRUE)
   covariate <- covariate %>% sample(n=as.integer(12))
   expect_equal(covariate@distribution@sampled_values, data[c(9,4,7,1,2,7,2,3,1,5,5,10)]) # match(covariate@values, data) 
-  
+})
 
+test_that("Time-varying covariate", {
+  covariate <- TimeVaryingCovariate("DOSE", 100) 
+  expect_equal(covariate@name, "DOSE")
+  expect_equal(covariate@distribution@value, 100)
+  expect_equal(covariate@time_varying, TRUE)
+  
+  # No initial distribution argument is provided
+  expect_error(TimeVaryingCovariate("DOSE"))
 })
 
 
