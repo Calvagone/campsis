@@ -382,7 +382,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   
   # Add ARM equation in model
   model <- preprocessArmColumn(dataset, model)
-  summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
+  summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
   
   # Retrieve simulation config
   config <- preprocessSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)
