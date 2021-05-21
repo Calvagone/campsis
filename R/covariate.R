@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkCovariate <- function(object) {
-  return(expectOneForAll(object, c("name", "distribution", "time_varying")))
+  return(expectOneForAll(object, c("name", "distribution")))
 }
 
 #' @export
@@ -12,11 +12,9 @@ setClass(
   "covariate",
   representation(
     name = "character",
-    distribution = "distribution",
-    time_varying = "logical"
+    distribution = "distribution"
   ),
   contains="pmx_element",
-  prototype=prototype(time_varying=FALSE),
   validity=checkCovariate
 )
 
@@ -35,6 +33,18 @@ Covariate <- function(name, distribution) {
   return(new("covariate", name=name, distribution=toExplicitDistribution(distribution)))
 }
 
+#_______________________________________________________________________________
+#----                     time_varying_covariate class                      ----
+#_______________________________________________________________________________
+
+#' @export
+setClass(
+  "time_varying_covariate",
+  representation(
+  ),
+  contains="covariate"
+)
+
 #' 
 #' Create a time-varying covariate.
 #' 
@@ -43,7 +53,7 @@ Covariate <- function(name, distribution) {
 #' @return a time-varying covariate  
 #' @export
 TimeVaryingCovariate <- function(name, distribution) {
-  return(new("covariate", name=name, distribution=toExplicitDistribution(distribution), time_varying=TRUE))
+  return(new("time_varying_covariate", name=name, distribution=toExplicitDistribution(distribution)))
 }
 
 #_______________________________________________________________________________
@@ -54,5 +64,4 @@ setMethod("sample", signature = c("covariate", "integer"), definition = function
   object@distribution <- object@distribution %>% sample(n)
   return(object)
 })
-
 
