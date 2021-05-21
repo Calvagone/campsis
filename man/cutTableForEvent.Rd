@@ -4,12 +4,14 @@
 \alias{cutTableForEvent}
 \title{Cut table according to given iteration.}
 \usage{
-cutTableForEvent(table, iteration)
+cutTableForEvent(table, iteration, summary)
 }
 \arguments{
 \item{table}{whole table, data frame}
 
 \item{iteration}{current iteration being processed}
+
+\item{summary}{dataset summary}
 }
 \description{
 Cut table according to given iteration.

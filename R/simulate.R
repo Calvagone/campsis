@@ -147,11 +147,12 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   destEngine <- getSimulationEngineType(dest)
   table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
   iterations <- getEventIterations(events, max(table$TIME))
+  summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
   inits <- data.frame()
   results <- NULL
   for (iteration in iterations) {
     iteration@inits <- inits
-    table_ <- cutTableForEvent(table, iteration)
+    table_ <- cutTableForEvent(table, iteration, summary)
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, iteration=iteration, ...)
     # Shift times back to their original value

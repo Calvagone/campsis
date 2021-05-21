@@ -89,3 +89,36 @@ test_that("Give daily dose in absortion (RxODE/mrgsolve)", {
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
+
+test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
+  model <- model_library$advan2_trans2
+  model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
+  regFilename <- "event_varying_bw"
+  
+  dataset <- Dataset(3)
+  for (day in 0:2) {
+    dataset <- dataset %>% add(Bolus(time=day*24, amount=1000))
+  }
+  dataset <- dataset %>% add(Observations(times=seq(0,24*2, by=1)))
+  dataset <- dataset %>% add(TimeVaryingCovariate("BW", 100))
+  
+  events <- Events()
+  event1 <- Event(name="Event 1", times=15, fun=function(inits) {
+    inits$BW <- 60
+    return(inits)
+  })
+  event2 <- Event(name="Event 2", times=30, fun=function(inits) {
+    inits$BW <- 30
+    return(inits)
+  })
+  events <- events %>% add(event1) %>% add(event2)
+  
+  results1 <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed, outvars="BW")
+  spaguettiPlot(results1, "CP")
+  
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed, outvars="BW")
+  spaguettiPlot(results2, "CP")
+  
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
+})

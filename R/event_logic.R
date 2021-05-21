@@ -55,11 +55,14 @@ getEventIterations <- function(events, maxTime) {
 #' 
 #' @param table whole table, data frame
 #' @param iteration current iteration being processed
+#' @param summary dataset summary
 #' @keywords internal
 #' 
-cutTableForEvent <- function(table, iteration) {
+cutTableForEvent <- function(table, iteration, summary) {
   start <- iteration@start
   end <- iteration@end
+  inits <- iteration@inits
+  
   table_ <- table %>% dplyr::filter((EVID==1 & TIME >= start & TIME < end) |
                                       (EVID==0 & TIME > start & TIME <= end) |
                                       (EVID==0 & start==0 & TIME==0))
@@ -89,6 +92,14 @@ cutTableForEvent <- function(table, iteration) {
     }
     return(x)
   })
+  
+  # Update time-varying covariates
+  vars <- summary@time_varying_covariate_names
+  if (vars %>% length() > 0 && inits %>% nrow() > 0) {
+    update <- inits %>% dplyr::select(dplyr::all_of(c("id", vars))) %>% dplyr::rename(ID=id)
+    # Remove old values and left join new values
+    table_ <- table_ %>% dplyr::select(-dplyr::all_of(vars)) %>% dplyr::left_join(update, by="ID")
+  }
   
   # Substract starting time to start at 0
   table_$TIME <- table_$TIME - start
