@@ -1,0 +1,74 @@
+---
+title: "Events"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Events}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(pmxmod)
+library(pmxsim)
+```
+
+This vignette shows how interruption events can be implemented.
+
+### Body weight as a time varying covariate
+
+Assume `BW` vary over time. Events allow you to implement such time-varying covariates without modifying the dataset.
+In the example below, `BW` progressively decreases over time.
+
+```{r event_bw_as_time_varying_covariate, fig.align='center', fig.height=4, fig.width=8}
+model <- model_library$advan2_trans2
+model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
+
+dataset <- Dataset(1)
+for (day in 0:2) {
+  dataset <- dataset %>% add(Bolus(time=day*24, amount=1000))
+}
+dataset <- dataset %>% add(Observations(times=seq(0,24*2, by=1)))
+dataset <- dataset %>% add(TimeVaryingCovariate("BW", 100))
+
+events <- Events()
+event1 <- Event(name="New weight of 60", times=15, fun=function(inits) {
+  inits$BW <- 60
+  return(inits)
+})
+event2 <- Event(name="New weight of 30", times=30, fun=function(inits) {
+  inits$BW <- 30
+  return(inits)
+})
+events <- events %>% add(event1) %>% add(event2)
+
+results <- model %>% simulate(dataset, dest="RxODE", events=events, seed=1, outvars="BW")
+
+gridExtra::grid.arrange(spaguettiPlot(results, "CP"), spaguettiPlot(results, "BW"), ncol=1)
+```
+
+### Dose adaptation based on Ctrough value
+
+For this first example of dose adaptation, we're going to adapt the dose based on `Ctrough`. Say we'd like `Ctrough` not to exceed an arbitrary safety limit of 5 mg/L. The rule could be as follows: if `Ctrough` is greater than 5, multiply the last dose by 0.75, otherwise continue with the same dose. Let's illustrate this simple rule using events. We will use the first compartment model with absorption from the model library for this purpose.
+
+```{r event_dose_adaptation_ctrough, fig.align='center', fig.height=4, fig.width=8}
+model <- model_library$advan2_trans2
+
+dataset <- Dataset(10)
+days <- 7
+dataset <- dataset %>% add(Observations(times=seq(0,24*days, by=1)))
+dataset <- dataset %>% add(TimeVaryingCovariate("DOSE", 1500))
+
+events <- Events()
+event1 <- Event(name="Dose adaptation", times=(seq_len(days)-1)*24, fun=function(inits) {
+  inits$DOSE <- ifelse(inits$CP > 5, inits$DOSE*0.75, inits$DOSE)
+  inits$A_DEPOT <- inits$A_DEPOT + inits$DOSE
+  return(inits)
+})
+events <- events %>% add(event1)
+
+results <- model %>% simulate(dataset, dest="RxODE", events=events, seed=1, outvars="DOSE")
+
+gridExtra::grid.arrange(spaguettiPlot(results, "CP"), spaguettiPlot(results, "DOSE"), ncol=1)
+```

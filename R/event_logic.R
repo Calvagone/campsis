@@ -26,6 +26,7 @@ setClass(
 #' @param inits initial values for all subjects, data frame
 #' @param multiple TRUE if multiple iterations (i.e. simulation needs to stopped at least once), FALSE otherwise
 #' @return an event iteration object
+#' @keywords internal
 EventIteration <- function(start, end, inits=data.frame(), multiple=FALSE) {
   return(new("event_iteration", start=start, end=end, inits=inits, multiple=multiple))
 }

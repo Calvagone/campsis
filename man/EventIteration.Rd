@@ -21,3 +21,4 @@ an event iteration object
 \description{
 Create an event iteration object.
 }
+\keyword{internal}

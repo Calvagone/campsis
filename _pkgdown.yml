@@ -33,6 +33,7 @@ reference:
   - Infusion
   - IOV
   - Observations
+  - TimeVaryingCovariate
   
 - title: "Distributions"
   contents:
@@ -46,6 +47,11 @@ reference:
   - NormalDistribution
   - ParameterDistribution
   - UniformDistribution
+  
+- title: "Events"
+  contents:
+  - Event
+  - Events
   
 - title: "Sample distributions"
   contents:
@@ -77,6 +83,8 @@ reference:
   - getColumnName
   - getCovariateNames
   - getIOVNames
+  - getTimes
+  - getTimeVaryingCovariateNames
   - retrieveParameterValue
 
 - title: "For use in external packages"
