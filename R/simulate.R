@@ -153,7 +153,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "character", "event
 #' @importFrom purrr map2
 #' @keywords internal
 #' 
-preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
+processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # Check extra arguments
   args <- list(...)
   iteration <- args$iteration
@@ -208,9 +208,17 @@ preprocessSimulateArguments <- function(model, dataset, dest, outvars, ...) {
               dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames))
 }
 
-getInitialConditions <- function(events, iteration, cmtNames) {
+#' Get initial conditions at simulation start-up.
+#' 
+#' @param subdataset subdataset to simulate
+#' @param iteration current iteration
+#' @param cmtNames compartment names
+#' @return named numeric vector with the new initial conditions
+#' @keywords internal
+#' 
+getInitialConditions <- function(subdataset, iteration, cmtNames) {
   # Current ID is of length 1 or 6
-  currentID <- unique(events$ID) %>% as.integer()
+  currentID <- unique(subdataset$ID) %>% as.integer()
   if (iteration@inits %>% nrow() == 0) {
     inits <- NULL
   } else {
@@ -229,7 +237,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
   
   # Retrieve simulation config
-  config <- preprocessSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)
+  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)
 
   # Instantiate RxODE model
   rxmod <- config$engineModel
@@ -250,15 +258,15 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   # Prepare simulation
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
 
-  results <- config$subdatasets %>% purrr::map_df(.f=function(events) {
-    inits <- getInitialConditions(events, config$iteration, config$cmtNames)
+  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
+    inits <- getInitialConditions(subdataset, config$iteration, config$cmtNames)
     
     # Launch simulation with RxODE
-    tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=events, returnType="tibble", keep=keep, inits=inits)
+    tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble", keep=keep, inits=inits)
     
     # RxODE does not add the 'id' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
-      tmp <- tmp %>% tibble::add_column(id=unique(events$ID), .before=1)
+      tmp <- tmp %>% tibble::add_column(id=unique(subdataset$ID), .before=1)
     }
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   })
@@ -269,7 +277,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   
   # Retrieve simulation config
-  config <- preprocessSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)
+  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)
   
   # Export PMX model to RxODE
   mrgmod <- config$engineModel
@@ -294,8 +302,8 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
   # Instantiate mrgsolve model
   mod <- mrgsolve::mcode("model", mrgmod %>% pmxmod::toString())
   
-  results <- config$subdatasets %>% purrr::map_df(.f=function(events){
-    inits <- getInitialConditions(events, config$iteration, config$cmtNames)
+  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset){
+    inits <- getInitialConditions(subdataset, config$iteration, config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {
@@ -304,7 +312,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
     
     # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
-    tmp <- mod %>% mrgsolve::data_set(data=events) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df")
+    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df")
     
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
