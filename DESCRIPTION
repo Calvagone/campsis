@@ -31,7 +31,7 @@ Collate:
     'results_processing.R'
     'default_plot.R'
 Title: Pmxsim package
-Version: 0.2
+Version: 0.3
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
