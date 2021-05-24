@@ -45,6 +45,13 @@ createDefaultArmIfNotExists <- function(object) {
   return(object)
 }
 
+setMethod("add", signature = c("dataset", "list"), definition = function(object, x) {
+  for (element in x) {
+    object <- object %>% add(element)
+  }
+  return(object)
+})
+
 setMethod("add", signature = c("dataset", "arm"), definition = function(object, x) {
   object@arms <- object@arms %>% add(x) 
   return(object)
