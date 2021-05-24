@@ -27,6 +27,7 @@ Collate:
     'parameter_uncertainty.R'
     'event_logic.R'
     'dataset_summary.R'
+    'simulate_preprocess.R'
     'simulate.R'
     'results_processing.R'
     'default_plot.R'
