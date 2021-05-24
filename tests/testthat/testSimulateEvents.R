@@ -41,6 +41,7 @@ test_that("No-effect events (RxODE/mrgsolve)", {
   outputRegressionTest(results2b, output="CP", filename=regFilename)
 })
 
+
 test_that("Clear central compartment events (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4
   regFilename <- "clear_central_event"
@@ -66,6 +67,7 @@ test_that("Clear central compartment events (RxODE/mrgsolve)", {
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
 
+
 test_that("Give daily dose in absortion (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4
   regFilename <- "event_daily_dose"
@@ -89,6 +91,7 @@ test_that("Give daily dose in absortion (RxODE/mrgsolve)", {
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
+
 
 test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
   model <- model_library$advan2_trans2
@@ -121,4 +124,34 @@ test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
   
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
+})
+
+
+test_that("Dose adaptation based on Ctrough (RxODE/mrgsolve)", {
+  model <- model_library$advan2_trans2
+  regFilename <- "dose_adaptation_ctrough"
+  
+  dataset <- Dataset(5)
+  days <- 7
+  dataset <- dataset %>% add(Observations(times=seq(0,24*days, by=1)))
+  dataset <- dataset %>% add(TimeVaryingCovariate("DOSE", 1500))
+  
+  events <- Events()
+  event1 <- Event(name="Dose adaptation", times=(seq_len(days)-1)*24, fun=function(inits) {
+    inits$DOSE <- ifelse(inits$CP > 5, inits$DOSE*0.75, inits$DOSE)
+    inits$A_DEPOT <- inits$A_DEPOT + inits$DOSE
+    return(inits)
+  })
+  events <- events %>% add(event1)
+  
+  results1 <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed, outvars="DOSE")
+  spaguettiPlot(results1, "CP")
+  spaguettiPlot(results1, "DOSE")
+  
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed, outvars="DOSE")
+  spaguettiPlot(results2, "CP")
+  spaguettiPlot(results2, "DOSE")
+  
+  outputRegressionTest(results1, output=c("CP", "DOSE"), filename=regFilename)
+  outputRegressionTest(results2, output=c("CP", "DOSE"), filename=regFilename)
 })
