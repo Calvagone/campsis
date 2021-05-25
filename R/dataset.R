@@ -233,7 +233,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     rxmod <- model %>% pmxmod::export(dest="RxODE")
     subjects <- object %>% length()
     iiv <- generateIIV(omega=rxmod@omega, n=subjects)
-    iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
+    if (nrow(iiv) > 0) {
+      iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
+    }
   }
 
   # Retrieve dataset configuration
