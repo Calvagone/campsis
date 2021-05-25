@@ -18,11 +18,11 @@ test_that("Simulate a bolus (RxODE/mrgsolve)", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), 49)
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), 49)
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
@@ -44,12 +44,12 @@ test_that("Simulate a bolus, 2 arms (RxODE/mrgsolve)", {
   dataset <- Dataset() %>% add(arm1) %>% add(arm2)
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP", "ARM")
+  spaghettiPlot(results1, "CP", "ARM")
   shadedPlot(results1, "CP", "ARM")
   expect_equal(nrow(results1), dataset %>% length() * 49)
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP", "ARM")
+  spaghettiPlot(results2, "CP", "ARM")
   shadedPlot(results2, "CP", "ARM")
   expect_equal(nrow(results2), dataset %>% length() * 49)
   

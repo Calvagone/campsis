@@ -52,7 +52,7 @@ head(results)
 Plot these results:
 
 ```{r get_started_spaguetti_plot, fig.align='center', fig.height=4, fig.width=8}
-spaguettiPlot(results, "CP")
+spaghettiPlot(results, "CP")
 ```
 
 A shaded plot may also be used:

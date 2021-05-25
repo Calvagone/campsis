@@ -19,10 +19,10 @@ test_that("Simulate initial conditions, observations starting at 0 (RxODE/mrgsol
   dataset <- dataset %>% add(Observations(times=seq(0,72, by=1)))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
 
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
 
   outputRegressionTest(results1 %>% dplyr::filter(time >=5), output="CP", filename=regFilename)
   outputRegressionTest(results2 %>% dplyr::filter(time >=5), output="CP", filename=regFilename)
@@ -38,10 +38,10 @@ test_that("Simulate initial conditions, observations starting at 5 (RxODE/mrgsol
   dataset <- dataset %>% add(Observations(times=seq(5,72, by=1)))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
 
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
 
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)

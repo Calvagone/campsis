@@ -42,7 +42,7 @@ All subjects are different due to IIV and RUV.
 
 ```{r uncertainties_all_enabled , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=getDataset(), dest="RxODE", seed=1)
-spaguettiPlot(results, "Y")
+spaghettiPlot(results, "Y")
 ```
 
 ### Simulate without RUV
@@ -58,11 +58,11 @@ In that case, Y (the observed concentration) is identical as CP (the model-simul
 
 ```{r uncertainties_no_ruv_y , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=getDataset(), dest="RxODE", seed=1)
-spaguettiPlot(results, "Y")
+spaghettiPlot(results, "Y")
 ```
 
 ```{r uncertainties_no_ruv_cp , fig.align='center', fig.height=4, fig.width=8}
-spaguettiPlot(results, "CP")
+spaghettiPlot(results, "CP")
 ```
 
 ### Simulate without RUV and IIV
@@ -78,5 +78,5 @@ Now, the typical profile is shown for all subjects.
 
 ```{r uncertainties_no_ruv_no_iiv , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=getDataset(), dest="RxODE", seed=1)
-spaguettiPlot(results, "Y")
+spaghettiPlot(results, "Y")
 ```

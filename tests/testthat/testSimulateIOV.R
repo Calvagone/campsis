@@ -24,11 +24,11 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
   expect_equal(dataset %>% getIOVNames(), "IOV_KA")
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), 145*dataset %>% length())
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), 145*dataset %>% length())
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
@@ -50,11 +50,11 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
   dataset <- dataset %>% add(IOV(colname="IOV_KA", distribution=EtaDistribution(model, omega="IOV_KA")))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), 145*dataset %>% length())
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), 145*dataset %>% length())
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
@@ -95,7 +95,7 @@ test_that("Simulate IOV on F1", {
   results2$ARM <- "IIV + IOV"
   datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_iov_f1")
   
-  spaguettiPlot(rbind(results1, results2), "CP", "ARM")
+  spaghettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")
 })
 
@@ -132,7 +132,7 @@ test_that("Simulate IOV on ALAG1", {
   results2$ARM <- "IIV + IOV"
   datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_iov_alag1")
   
-  spaguettiPlot(rbind(results1, results2), "CP", "ARM")
+  spaghettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")
 })
 
@@ -169,6 +169,6 @@ test_that("Simulate IOV on D1", {
   results2$ARM <- "IIV + IOV"
   datasetRegressionTest(dataset, model, seed=seed, filename="3_infusions_iiv_iov_d1")
   
-  spaguettiPlot(rbind(results1, results2), "CP", "ARM")
+  spaghettiPlot(rbind(results1, results2), "CP", "ARM")
   shadedPlot(rbind(results1, results2), "CP", "ARM")
 })

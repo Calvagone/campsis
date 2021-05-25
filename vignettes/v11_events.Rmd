@@ -45,7 +45,7 @@ events <- events %>% add(event1) %>% add(event2)
 
 results <- model %>% simulate(dataset, dest="RxODE", events=events, seed=1, outvars="BW")
 
-gridExtra::grid.arrange(spaguettiPlot(results, "CP"), spaguettiPlot(results, "BW"), ncol=1)
+gridExtra::grid.arrange(spaghettiPlot(results, "CP"), spaghettiPlot(results, "BW"), ncol=1)
 ```
 
 ### Dose adaptation based on Ctrough value
@@ -70,5 +70,5 @@ events <- events %>% add(event1)
 
 results <- model %>% simulate(dataset, dest="RxODE", events=events, seed=1, outvars="DOSE")
 
-gridExtra::grid.arrange(spaguettiPlot(results, "CP"), spaguettiPlot(results, "DOSE"), ncol=1)
+gridExtra::grid.arrange(spaghettiPlot(results, "CP"), spaghettiPlot(results, "DOSE"), ncol=1)
 ```

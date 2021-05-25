@@ -19,11 +19,11 @@ test_that("Simulate infusion using duration in dataset, then in model", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), 49)
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), 49)
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
@@ -38,11 +38,11 @@ test_that("Simulate infusion using duration in dataset, then in model", {
   model <- model %>% add(InfusionDuration(compartment=1, rhs="5"))
   
   results3 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results3, "CP")
+  spaghettiPlot(results3, "CP")
   expect_equal(nrow(results3), 49)
   
   results4 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results4, "CP")
+  spaghettiPlot(results4, "CP")
   expect_equal(nrow(results4), 49)
   
   outputRegressionTest(results3, output="CP", filename=regFilename)
@@ -59,11 +59,11 @@ test_that("Simulate infusion using rate in dataset", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), 49)
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), 49)
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
@@ -78,11 +78,11 @@ test_that("Simulate infusion using rate in dataset", {
   model <- model %>% add(InfusionRate(compartment=1, rhs="200"))
   
   results3 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results3, "CP")
+  spaghettiPlot(results3, "CP")
   expect_equal(nrow(results3), 49)
   
   results4 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results4, "CP")
+  spaghettiPlot(results4, "CP")
   expect_equal(nrow(results4), 49)
   
   outputRegressionTest(results3, output="CP", filename=regFilename)
@@ -103,11 +103,11 @@ test_that("Simulate infusion using rate and lag time in dataset", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), dataset %>% length() * 49)
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), dataset %>% length() * 49)
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
@@ -127,11 +127,11 @@ test_that("Simulate infusion using rate and lag time (parameter distribution) in
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), dataset %>% length() * 49)
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), dataset %>% length() * 49)
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)

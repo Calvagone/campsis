@@ -22,7 +22,7 @@ test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
   dataset <- Dataset() %>% add(arm1) %>% add(arm2)
   
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP", "ARM")
+  spaghettiPlot(results, "CP", "ARM")
   shadedPlot(results, "CP", "ARM")
   
   expect_equal(nrow(results), dataset %>% length() * 49)
@@ -40,11 +40,11 @@ test_that("Simulate a simple bolus with bioavailability (dataset versus model)",
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), 49 * dataset %>% length())
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), 49 * dataset %>% length())
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
@@ -59,11 +59,11 @@ test_that("Simulate a simple bolus with bioavailability (dataset versus model)",
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   results3 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results3, "CP")
+  spaghettiPlot(results3, "CP")
   expect_equal(nrow(results3), 49 * dataset %>% length())
   
   results4 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results4, "CP")
+  spaghettiPlot(results4, "CP")
   expect_equal(nrow(results4), 49 * dataset %>% length())
   
   outputRegressionTest(results3, output="CP", filename=regFilename)
@@ -80,7 +80,7 @@ test_that("Simulate several fixed fs at once", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   results <- model %>% disable("IIV") %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
+  spaghettiPlot(results, "CP")
   
   cmax <- results %>% dplyr::filter(time==2.5) %>% dplyr::pull(CP)
   expect_equal(round(cmax, 2), c(2.89, 5.77, 8.66, 9.62))

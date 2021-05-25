@@ -59,7 +59,7 @@ All simulated subjects will be exacty the same, as IIV was removed.
 
 ```{r covariates_constant_bw , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=ds, dest="mrgsolve")
-spaguettiPlot(results, "CP")
+spaghettiPlot(results, "CP")
 ```
 
 ### Fix body weight values (1/subject)
@@ -75,7 +75,7 @@ Simulated subjects should now be different.
 
 ```{r covariates_fixed_bw , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=ds, dest="mrgsolve")
-spaguettiPlot(results, "CP")
+spaghettiPlot(results, "CP")
 ```
 
 ### Uniform distribution
@@ -91,7 +91,7 @@ Simulated weights will then be sampled from a uniform distribution with a min va
 
 ```{r covariates_uniform_distribution , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=ds, dest="mrgsolve", outvars=c("CP", "BW"), seed=1)
-gridExtra::grid.arrange(spaguettiPlot(results, "BW"), spaguettiPlot(results, "CP"), nrow=1)
+gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP"), nrow=1)
 ```
 
 ### Normal distribution
@@ -107,7 +107,7 @@ Simulated weights will then be sampled from a normal distribution with a mean of
 
 ```{r covariates_normal_distribution , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=ds, dest="mrgsolve", outvars=c("CP", "BW"), seed=1)
-gridExtra::grid.arrange(spaguettiPlot(results, "BW"), spaguettiPlot(results, "CP"), nrow=1)
+gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP"), nrow=1)
 ```
 
 ### Log-normal distribution
@@ -123,7 +123,7 @@ Simulated weights will then be sampled from a log-normal distribution with a med
 
 ```{r covariates_lognormal_distribution , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=ds, dest="mrgsolve", outvars=c("CP", "BW"), seed=1)
-gridExtra::grid.arrange(spaguettiPlot(results, "BW"), spaguettiPlot(results, "CP"), nrow=1)
+gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP"), nrow=1)
 ```
 
 ### Boostrap
@@ -144,6 +144,6 @@ Simulated weights will then be sampled from a log-normal distribution with a med
 
 ```{r covariates_bootstrap , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=ds, dest="mrgsolve", outvars=c("CP", "BW"), seed=2)
-gridExtra::grid.arrange(spaguettiPlot(results, "BW"), spaguettiPlot(results, "CP"), nrow=1)
+gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP"), nrow=1)
 ```
 

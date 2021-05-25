@@ -19,7 +19,7 @@ factorScenarios <- function(x, scenarios=NULL) {
   }
 }
 
-#' Spaguetti plot.
+#' Spaghetti plot.
 #' 
 #' @param x data frame
 #' @param output variable to show
@@ -27,7 +27,7 @@ factorScenarios <- function(x, scenarios=NULL) {
 #' @return plot
 #' @importFrom ggplot2 aes_string ggplot geom_line
 #' @export
-spaguettiPlot <- function(x, output, scenarios=NULL) {
+spaghettiPlot <- function(x, output, scenarios=NULL) {
   hasId <- "id" %in% colnames(x)
   x <- factorScenarios(x, scenarios=scenarios)
   if (hasId) {

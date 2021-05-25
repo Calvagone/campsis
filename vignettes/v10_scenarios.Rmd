@@ -40,7 +40,7 @@ for (params in paramsList) {
 }
 
 results <- model %>% simulate(dataset=dataset, dest="RxODE", seed=1)
-spaguettiPlot(results, "CP", scenarios="ARM") + ggplot2::facet_wrap(~ARM)
+spaghettiPlot(results, "CP", scenarios="ARM") + ggplot2::facet_wrap(~ARM)
 ```
 
 ### Generic implementation of scenarios
