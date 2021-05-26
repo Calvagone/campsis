@@ -64,7 +64,7 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
         dataset@arms@list[[armIndex]] <- dataset@arms@list[[armIndex]] %>% add(eventRelatedObs)
       }
     }
-    table <- dataset %>% export(dest=dest, model=model, seed=seed)
+    table <- dataset %>% export(dest=dest, model=model, seed=seed, event_related_column=TRUE)
   } else {
     table <- dataset
   }

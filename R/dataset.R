@@ -218,9 +218,13 @@ applyCompartmentCharacteristics <- function(table, properties) {
   return(table)
 }
 
-setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, ...) {
+setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, event_related_column=FALSE, ...) {
   destinationEngine <- getSimulationEngineType(dest)
-  return(object %>% export(destinationEngine, seed=seed, ...))
+  table <- object %>% export(destinationEngine, seed=seed, ...)
+  if (!event_related_column) {
+    table <- table %>% dplyr::select(-EVENT_RELATED)
+  }
+  return(table)
 })
 
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
