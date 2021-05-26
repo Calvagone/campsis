@@ -10,3 +10,11 @@ setClass(
   contains="pmx_list",
   prototype = prototype(type="observations")
 )
+
+#_______________________________________________________________________________
+#----                             getTimes                                  ----
+#_______________________________________________________________________________
+
+setMethod("getTimes", signature = c("observations_set"), definition = function(object) {
+  return(object@list %>% purrr::map(.f=~.x@times) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
+})

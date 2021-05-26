@@ -45,6 +45,14 @@ setMethod("getTimeVaryingCovariateNames", signature = c("arms"), definition = fu
 })
 
 #_______________________________________________________________________________
+#----                             getTimes                                  ----
+#_______________________________________________________________________________
+
+setMethod("getTimes", signature = c("arms"), definition = function(object) {
+  return(object@list %>% purrr::map(.f=~.x %>% getTimes()) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
+})
+
+#_______________________________________________________________________________
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 

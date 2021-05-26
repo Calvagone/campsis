@@ -17,8 +17,10 @@ test_that("Add entry, order, filter (simple example)", {
   
   # Export to RxODE
   table <- dataset %>% export(dest="RxODE")
-  
   expect_equal(nrow(table), 16)
+  
+  # Get times
+  expect_equal(dataset %>% getTimes(), seq(0, 48, by=4))
 })
 
 test_that("Two arms example", {

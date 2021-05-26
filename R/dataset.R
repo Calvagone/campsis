@@ -111,6 +111,14 @@ setMethod("getTimeVaryingCovariateNames", signature = c("dataset"), definition =
 })
 
 #_______________________________________________________________________________
+#----                             getTimes                                  ----
+#_______________________________________________________________________________
+
+setMethod("getTimes", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getTimes())
+})
+
+#_______________________________________________________________________________
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 
@@ -303,7 +311,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   
   # Remove IS_INFUSION column
   retValue <- retValue %>% dplyr::select(-IS_INFUSION)
-  
+
   return(retValue)
 })
 
@@ -311,12 +319,14 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   
   # First export dataset for RxODE, then, make some modifications
   table <- object %>% export(dest=getSimulationEngineType("RxODE"), seed=seed, ...)
-  
+
   # Mrgsolve complains if treatment IOV has NA's for observations
   # Warning: Parameter column IOV_KA must not contain missing values
-  for (iovName in object %>% getIOVNames()) {
-    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovName), .direction="downup")
-  }
+  # IOV columns: fill in NA's (first DOWN (by ID), then UP (by ID and TIME), then 0 for remaining NA's)
+  iovNames <- object %>% getIOVNames()
+  table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="down")
+  table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="up")
+  table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovNames, .funs=~ifelse(is.na(.x), 0, .x))
   
   return(table)
 })

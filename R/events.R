@@ -25,19 +25,6 @@ Events <- function() {
 #----                             getTimes                                  ----
 #_______________________________________________________________________________
 
-#' Get all distinct times across the events list.
-#' 
-#' @param object any object
-#' @return numeric vector with all unique times, sorted
-#' @export
-getTimes <- function(object) {
-  stop("No default function is provided")
-}
-
-setGeneric("getTimes", function(object) {
-  standardGeneric("getTimes")
-})
-
 setMethod("getTimes", signature = c("events"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x@times) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
 })

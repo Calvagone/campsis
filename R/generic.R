@@ -86,3 +86,20 @@ setGeneric("getTimeVaryingCovariateNames", function(object) {
   standardGeneric("getTimeVaryingCovariateNames")
 })
 
+#_______________________________________________________________________________
+#----                             getTimes                                  ----
+#_______________________________________________________________________________
+
+#' Get all distinct times for the specified object.
+#' 
+#' @param object any object
+#' @return numeric vector with all unique times, sorted
+#' @export
+getTimes <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getTimes", function(object) {
+  standardGeneric("getTimes")
+})
+

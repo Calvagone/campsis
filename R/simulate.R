@@ -55,6 +55,15 @@ getSimulationEngineType <- function(dest) {
 #' 
 exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
   if (is(dataset, "dataset")) {
+    eventTimes <- c(0, events %>% getTimes()) %>% unique()
+    obsTimes <- dataset %>% getTimes()
+    eventRelatedTimes <- eventTimes[!(eventTimes %in% obsTimes)]
+    if (eventRelatedTimes %>% length() > 0) {
+      eventRelatedObs <- EventRelatedObservations(times=eventRelatedTimes, compartment=NA)
+      for (armIndex in seq_len(dataset@arms %>% length())) {
+        dataset@arms@list[[armIndex]] <- dataset@arms@list[[armIndex]] %>% add(eventRelatedObs)
+      }
+    }
     table <- dataset %>% export(dest=dest, model=model, seed=seed)
   } else {
     table <- dataset
@@ -67,12 +76,13 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
 #' 
 #' @inheritParams simulate
 #' @keywords internal
+#' @export
 #' 
 simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   destEngine <- getSimulationEngineType(dest)
   table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
-  iterations <- getEventIterations(events, max(table$TIME))
   summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
+  iterations <- getEventIterations(events, max(table$TIME))
   inits <- data.frame()
   results <- NULL
   for (iteration in iterations) {
