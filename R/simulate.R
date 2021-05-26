@@ -99,6 +99,11 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     # Append simulation results to global results
     results <- results %>% dplyr::bind_rows(results_)
   }
+  # Reorder results dataframe if at least 1 interruption in order to group results by ID
+  # Otherwise, the dataframe is already ordered
+  if (iterations[[1]]@multiple) {
+    results <- results %>% dplyr::arrange(id)
+  }
   return(outfun(results))
 }
 
