@@ -58,6 +58,8 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
     eventTimes <- c(0, events %>% getTimes()) %>% unique()
     obsTimes <- dataset %>% getTimes()
     eventRelatedTimes <- eventTimes[!(eventTimes %in% obsTimes)]
+    
+    # Add all the 'event-related' times in each arm
     if (eventRelatedTimes %>% length() > 0) {
       eventRelatedObs <- EventRelatedObservations(times=eventRelatedTimes, compartment=NA)
       for (armIndex in seq_len(dataset@arms %>% length())) {
@@ -67,6 +69,9 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
     table <- dataset %>% export(dest=dest, model=model, seed=seed, event_related_column=TRUE)
   } else {
     table <- dataset
+    if (!("EVENT_RELATED" %in% colnames(table))) {
+      table <- table %>% dplyr::mutate(EVENT_RELATED=as.integer(FALSE))
+    }
   }
   table <- tablefun(table)
   return(table)
@@ -177,7 +182,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   ids <- preprocessIds(dataset)
   maxID <- max(ids)
   
-  # Slice number, put to 6, as the default number of threads in RxoDE
+  # Slice number, set to 6, as the default number of threads in RxoDE
   # This number must correspond to the number of cores available
   # This should be set as static information (not in simulate method)
   # Note that mrgsolve does not seem to have parallelisation (to check)

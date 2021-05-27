@@ -17,17 +17,29 @@ test_that("Simulate a bolus (RxODE/mrgsolve)", {
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaghettiPlot(results1, "CP")
-  expect_equal(nrow(results1), 49)
+  # RxODE
+  results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  spaghettiPlot(results1a, "CP")
+  expect_equal(nrow(results1a), 49)
   
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaghettiPlot(results2, "CP")
-  expect_equal(nrow(results2), 49)
+  # Mrgsolve
+  results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  spaghettiPlot(results2a, "CP")
+  expect_equal(nrow(results2a), 49)
+  
+  # RxODE, via exported table
+  table <- dataset %>% export(dest="RxODE", model=model)
+  results1b <- model %>% simulate(table, dest="RxODE", seed=seed)
+  
+  # Mrgsolve, via exported table
+  table <- dataset %>% export(dest="mrgsolve", model=model)
+  results2b <- model %>% simulate(table, dest="mrgsolve", seed=seed)
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
-  outputRegressionTest(results1, output="CP", filename=regFilename)
-  outputRegressionTest(results2, output="CP", filename=regFilename)
+  outputRegressionTest(results1a, output="CP", filename=regFilename)
+  outputRegressionTest(results1b, output="CP", filename=regFilename)
+  outputRegressionTest(results2a, output="CP", filename=regFilename)
+  outputRegressionTest(results2b, output="CP", filename=regFilename)
 })
 
 test_that("Simulate a bolus, 2 arms (RxODE/mrgsolve)", {
