@@ -57,6 +57,9 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
   if (is(dataset, "dataset")) {
     eventTimes <- c(0, events %>% getTimes()) %>% unique()
     obsTimes <- dataset %>% getTimes()
+    if (obsTimes %>% length()==0) {
+      stop("Dataset does not contain any observation.")
+    }
     eventRelatedTimes <- eventTimes[!(eventTimes %in% obsTimes)]
     
     # Add all the 'event-related' times in each arm
@@ -116,7 +119,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   }
   # Reorder results dataframe if at least 1 interruption in order to group results by ID
   # Otherwise, the dataframe is already ordered
-  if (iterations[[1]]@multiple) {
+  if (iterations %>% length() > 0 && iterations[[1]]@multiple) {
     results <- results %>% dplyr::arrange(id)
   }
   return(outfun(results))

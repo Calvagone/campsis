@@ -5,10 +5,11 @@
 
 checkEvent <- function(object) {
   checkName <- expectOne(object, "name")
-  checkTimes <- expectOneOrMore(times, "times")
+  checkTimes <- expectOneOrMore(object, "times")
+  checkTimesPositive <- expectPositiveTimes(object@times)
   checkFunction <- expectOne(object, "fun")
   checkDebug <- expectOne(object, "debug")
-  return(c(checkName, checkTimes, checkFunction, checkDebug))
+  return(c(checkName, checkTimes, checkTimesPositive, checkFunction, checkDebug))
 }
 
 #' @export
@@ -21,7 +22,8 @@ setClass(
     debug = "logical"
   ),
   contains="pmx_element",
-  prototype=prototype(name="", debug=FALSE)
+  prototype=prototype(name="", debug=FALSE),
+  validity=checkEvent
 )
 
 #' 

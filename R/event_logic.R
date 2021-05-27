@@ -42,7 +42,7 @@ getEventIterations <- function(events, maxTime) {
   userEventTimes <- events %>% getTimes()
   multiple <- userEventTimes %>% length() > 0
   eventTimes <- userEventTimes %>% append(c(0, maxTime)) %>% unique() %>% base::sort()
-  if (0 %in% userEventTimes) {
+  if (0 %in% userEventTimes || maxTime==0) {
     # Add 'second' zero at the beginning of time vector
     eventTimes <- eventTimes %>% append(0, after=0)
   }

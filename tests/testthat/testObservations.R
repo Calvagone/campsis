@@ -12,7 +12,11 @@ test_that("Observations are working well", {
 
 test_that("Observations exceptions are working well", {
   expect_error(Observations(times=NULL))
-  expect_error(Observations(times=numeric(0))) # times is length 0. Should be at least 1.
+  expect_error(Observations(times=numeric(0)), regexp="times is length 0")
+})
+
+test_that("Negative times cannot be accepted", {
+  expect_error(Observations(times=c(-1, 2)), regexp="Some time values are negative")
 })
 
 test_that("Observations set is working as expected", {
