@@ -28,13 +28,13 @@ test_that("Simulate a bolus (RxODE/mrgsolve)", {
   expect_equal(nrow(results2a), 49)
   
   # RxODE, via exported table
-  table <- dataset %>% export(dest="RxODE", model=model)
+  table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
   results1b <- model %>% simulate(table, dest="RxODE", seed=seed)
-  
+
   # Mrgsolve, via exported table
-  table <- dataset %>% export(dest="mrgsolve", model=model)
+  table <- dataset %>% export(dest="mrgsolve", model=model, seed=seed)
   results2b <- model %>% simulate(table, dest="mrgsolve", seed=seed)
-  
+
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
   outputRegressionTest(results1a, output="CP", filename=regFilename)
   outputRegressionTest(results1b, output="CP", filename=regFilename)
