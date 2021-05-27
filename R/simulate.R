@@ -66,7 +66,7 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
         dataset@arms@list[[armIndex]] <- dataset@arms@list[[armIndex]] %>% add(eventRelatedObs)
       }
     }
-    table <- dataset %>% export(dest=dest, model=model, seed=seed, event_related_column=TRUE)
+    table <- dataset %>% pmxmod::export(dest=dest, model=model, seed=seed, event_related_column=TRUE)
   } else {
     table <- dataset
     if (!("EVENT_RELATED" %in% colnames(table))) {
@@ -222,7 +222,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   })
   
   # Compartment names
-  cmtNames <- model@compartments %>% getNames()
+  cmtNames <- model@compartments %>% pmxmod::getNames()
   
   return(list(declare=declare, engineModel=engineModel, subdatasets=subdatasets,
               dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames))

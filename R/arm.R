@@ -44,7 +44,7 @@ setMethod("getCovariateNames", signature = c("arm"), definition = function(objec
 #_______________________________________________________________________________
 
 setMethod("getTimeVaryingCovariateNames", signature = c("arm"), definition = function(object) {
-  return((object@covariates %>% select("time_varying_covariate"))@list %>% purrr::map_chr(.f=~.x@name))
+  return((object@covariates %>% pmxmod::select("time_varying_covariate"))@list %>% purrr::map_chr(.f=~.x@name))
 })
 
 #_______________________________________________________________________________
