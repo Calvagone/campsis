@@ -55,7 +55,7 @@ setClass(
 #' @param times observation times, numeric vector
 #' @param compartment compartment index, integer
 #' @return observations
-#' @export
+#' @keywords internal
 EventRelatedObservations <- function(times, compartment=NA) {
   return(new("event_related_observations", times=base::sort(unique(times)), compartment=as.integer(compartment)))
 }

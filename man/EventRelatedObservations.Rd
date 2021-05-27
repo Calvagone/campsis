@@ -19,3 +19,4 @@ observations
 Create an event-related observations list. Please note that the provided 'times' will 
 automatically be sorted. Duplicated times will be removed.
 }
+\keyword{internal}
