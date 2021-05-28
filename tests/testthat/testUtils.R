@@ -3,9 +3,6 @@
 # roxygen2::roxygenise()
 # setwd("C:/prj/pmxsim/tests/")
 # testFolder <<- "C:/prj/pmxsim/tests/testthat/"
-# reticulate::use_python("C:/PsN-5.0.0/python/python-3.7.7.amd64/python.exe", required=TRUE)
-# reticulate::py_config()
-# version <- pharmpy["__version__"]
 
 datasetInMemory <- function(dataset, model, seed, doseOnly=TRUE) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
@@ -47,6 +44,33 @@ datasetRegressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename)
 outputRegressionTest <- function(results, output, filename) {
   selectedColumns <- unique(c("id", "time", output))
   results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)  %>% as.data.frame()
+  suffix <- paste0(output, collapse="_") %>% tolower()
+  
+  file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
+  
+  if (overwriteNonRegressionFiles) {
+    write.table(results1, file=file, sep=",", row.names=FALSE)
+  }
+  
+  results2 <- read.csv(file=file) %>% as.data.frame()
+  expect_equal(results1, results2)
+}
+
+#' Test there is no regression in the simulated output.
+#' 
+#' @param results newly generated results
+#' @param output variables to compare
+#' @param filename reference file (output will be appended automatically)
+#' @export
+vpcOutputRegressionTest <- function(results, output, filename) {
+  selectedColumns <- unique(c("replicate", "time", "metric", "value"))
+  if ("output" %in% colnames(results)) {
+    results <- results %>% dplyr::rename(output2="output")
+    results <- results %>% dplyr::filter(output2 %in% output)
+    results <- results %>% dplyr::select(-output2)
+  }
+  
+  results1 <- results %>% dplyr::mutate_if(is.numeric, round, digits=2)  %>% as.data.frame()
   suffix <- paste0(output, collapse="_") %>% tolower()
   
   file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))

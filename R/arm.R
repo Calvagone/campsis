@@ -40,6 +40,14 @@ setMethod("getCovariateNames", signature = c("arm"), definition = function(objec
 })
 
 #_______________________________________________________________________________
+#----                     getTimeVaryingCovariateNames                      ----
+#_______________________________________________________________________________
+
+setMethod("getTimeVaryingCovariateNames", signature = c("arm"), definition = function(object) {
+  return((object@covariates %>% pmxmod::select("time_varying_covariate"))@list %>% purrr::map_chr(.f=~.x@name))
+})
+
+#_______________________________________________________________________________
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 
@@ -53,6 +61,14 @@ setMethod("getIOVNames", signature = c("arm"), definition = function(object) {
 
 setMethod("getName", signature = c("arm"), definition = function(x) {
   return(paste("ARM", x@id))
+})
+
+#_______________________________________________________________________________
+#----                             getTimes                                  ----
+#_______________________________________________________________________________
+
+setMethod("getTimes", signature = c("arm"), definition = function(object) {
+  return(object@protocol@observations %>% getTimes())
 })
 
 #_______________________________________________________________________________

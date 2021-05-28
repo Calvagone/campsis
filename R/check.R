@@ -85,3 +85,11 @@ expectSingleNumericValue <- function(value, name) {
   assertthat::assert_that(is.numeric(value) && length(value)==1, msg=paste0(name, " not a single numeric value"))
 }
 
+expectPositiveTimes <- function(times) {
+  error <- character()
+  if (!all(times >= 0)) {
+    error <- "Some time values are negative"
+  }
+  return(error)
+}
+

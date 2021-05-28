@@ -10,7 +10,7 @@ getSeed(seed = NULL)
 \item{seed}{user-input seed, NULL it not specified}
 }
 \value{
-a seed value
+a seed value, integer
 }
 \description{
 Get seed value.

@@ -7,7 +7,7 @@
 Bolus(time, amount, compartment = NA, f = NULL, lag = NULL)
 }
 \arguments{
-\item{time}{treatment time, numeric}
+\item{time}{treatment time(s), numeric value or vector}
 
 \item{amount}{amount to give as bolus, numeric}
 

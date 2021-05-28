@@ -5,7 +5,7 @@ context("Test the declare argument of the simulate function")
 
 overwriteNonRegressionFiles <<- FALSE
 testFolder <<- ""
-seed <<- 1
+seed <- 1
 
 source(paste0(testFolder, "testUtils.R"))
 

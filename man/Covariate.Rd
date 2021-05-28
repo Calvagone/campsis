@@ -2,7 +2,7 @@
 % Please edit documentation in R/covariate.R
 \name{Covariate}
 \alias{Covariate}
-\title{Create a covariate.}
+\title{Create a fixed covariate.}
 \usage{
 Covariate(name, distribution)
 }
@@ -12,8 +12,8 @@ Covariate(name, distribution)
 \item{distribution}{covariate distribution}
 }
 \value{
-a covariate
+a fixed covariate
 }
 \description{
-Create a covariate.
+Create a fixed covariate.
 }

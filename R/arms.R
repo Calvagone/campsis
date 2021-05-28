@@ -1,6 +1,6 @@
 
 #_______________________________________________________________________________
-#----                        arms class                               ----
+#----                            arms class                                 ----
 #_______________________________________________________________________________
 
 #' 
@@ -34,6 +34,22 @@ setMethod("default", signature=c("arms"), definition=function(object, ...) {
 
 setMethod("getCovariateNames", signature = c("arms"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x %>% getCovariateNames()) %>% purrr::flatten_chr() %>% unique())
+})
+
+#_______________________________________________________________________________
+#----                     getTimeVaryingCovariateNames                      ----
+#_______________________________________________________________________________
+
+setMethod("getTimeVaryingCovariateNames", signature = c("arms"), definition = function(object) {
+  return(object@list %>% purrr::map(.f=~.x %>% getTimeVaryingCovariateNames()) %>% purrr::flatten_chr() %>% unique())
+})
+
+#_______________________________________________________________________________
+#----                             getTimes                                  ----
+#_______________________________________________________________________________
+
+setMethod("getTimes", signature = c("arms"), definition = function(object) {
+  return(object@list %>% purrr::map(.f=~.x %>% getTimes()) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
 })
 
 #_______________________________________________________________________________

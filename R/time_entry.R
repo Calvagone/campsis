@@ -3,7 +3,9 @@
 #_______________________________________________________________________________
 
 checkTimeEntry <- function(object) {
-  return(expectOne(object, "time"))
+  check1 <- expectOne(object, "time")
+  check2 <- expectPositiveTimes(object@time)
+  return(c(check1, check2))
 }
 
 setClass(

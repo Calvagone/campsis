@@ -5,8 +5,9 @@
 
 checkObservations <- function(object) {
   check1 <- expectOneOrMore(object, "times")
-  check2 <- expectOne(object, "compartment")
-  return(c(check1, check2))
+  check2 <- expectPositiveTimes(object@times)
+  check3 <- expectOne(object, "compartment")
+  return(c(check1, check2, check3))
 }
 
 #' @export
@@ -38,6 +39,29 @@ setMethod("getName", signature = c("observations"), definition = function(x) {
 })
 
 #_______________________________________________________________________________
+#----                     event_related_observations class                  ----
+#_______________________________________________________________________________
+
+setClass(
+  "event_related_observations",
+  representation(
+  ),
+  contains = "observations"
+)
+
+#'
+#' Create an event-related observations list. Please note that the provided 'times' will 
+#' automatically be sorted. Duplicated times will be removed.
+#'
+#' @param times observation times, numeric vector
+#' @param compartment compartment index, integer
+#' @return observations
+#' @keywords internal
+EventRelatedObservations <- function(times, compartment=NA) {
+  return(new("event_related_observations", times=base::sort(unique(times)), compartment=as.integer(compartment)))
+}
+
+#_______________________________________________________________________________
 #----                             sample                                    ----
 #_______________________________________________________________________________
 
@@ -52,6 +76,7 @@ setMethod("sample", signature = c("observations", "integer"), definition = funct
   } else {
     obsCmt <- object@compartment
   }
+  isEventRelated <- is(object, "event_related_observations")
   return(data.frame(ID=rep(ids, each=length(object@times)), ARM=as.integer(armID), TIME=rep(object@times, n), EVID=as.integer(0), MDV=as.integer(0),
-                    AMT=as.numeric(NA), CMT=obsCmt, RATE=as.numeric(0), DOSENO=as.integer(NA), IS_INFUSION=as.logical(NA)))
+                    AMT=as.numeric(NA), CMT=obsCmt, RATE=as.numeric(0), DOSENO=as.integer(NA), IS_INFUSION=as.logical(NA), EVENT_RELATED=as.integer(isEventRelated)))
 })

@@ -1,25 +1,5 @@
 
 #_______________________________________________________________________________
-#----                             simulate                                  ----
-#_______________________________________________________________________________
-
-#' Simulate function.
-#' 
-#' @param model generic model
-#' @param dataset generic dataset
-#' @param dest destination simulation engine
-#' @param ... optional arguments
-#' @return specific object depending on given destination
-#' @export
-simulate <- function(object, dataset, dest, ...) {
-  stop("No default function is provided")
-}
-
-setGeneric("simulate", function(model, dataset, dest, ...) {
-  standardGeneric("simulate")
-})
-
-#_______________________________________________________________________________
 #----                             sample                                    ----
 #_______________________________________________________________________________
 
@@ -76,7 +56,7 @@ setGeneric("getIOVNames", function(object) {
 #----                         getCovariateNames                             ----
 #_______________________________________________________________________________
 
-#' Get covariate names.
+#' Get all covariate names (fixed covariates + time-varying covariates).
 #' 
 #' @param object any object
 #' @return character vector
@@ -87,5 +67,39 @@ getCovariateNames <- function(object) {
 
 setGeneric("getCovariateNames", function(object) {
   standardGeneric("getCovariateNames")
+})
+
+#_______________________________________________________________________________
+#----                     getTimeVaryingCovariateNames                      ----
+#_______________________________________________________________________________
+
+#' Get all time-varying covariate names.
+#' 
+#' @param object any object
+#' @return character vector
+#' @export
+getTimeVaryingCovariateNames <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getTimeVaryingCovariateNames", function(object) {
+  standardGeneric("getTimeVaryingCovariateNames")
+})
+
+#_______________________________________________________________________________
+#----                             getTimes                                  ----
+#_______________________________________________________________________________
+
+#' Get all distinct times for the specified object.
+#' 
+#' @param object any object
+#' @return numeric vector with all unique times, sorted
+#' @export
+getTimes <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getTimes", function(object) {
+  standardGeneric("getTimes")
 })
 

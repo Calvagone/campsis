@@ -13,7 +13,7 @@ test_that("Add lag time to model", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
+  spaghettiPlot(results, "CP")
   
 })
 
@@ -29,7 +29,7 @@ test_that("Add bioavailability to model", {
   dataset <- dataset %>% add(IOV("IOV_F1", distribution=NormalDistribution(0, 0.05)))
   
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
+  spaghettiPlot(results, "CP")
   
 })
 
@@ -42,7 +42,7 @@ test_that("Add infusion rate to model", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
+  spaghettiPlot(results, "CP")
 })
 
 test_that("Add infusion duration to model", {
@@ -54,7 +54,7 @@ test_that("Add infusion duration to model", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
+  spaghettiPlot(results, "CP")
 })
 
 test_that("Reproduce RxODE bug with a minimalist example", {
@@ -70,6 +70,6 @@ test_that("Reproduce RxODE bug with a minimalist example", {
   dataset <- dataset %>% add(IOV("IOV_F1", distribution=NormalDistribution(0, 0.05)))
   
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results, "CP")
+  spaghettiPlot(results, "CP")
   
 })

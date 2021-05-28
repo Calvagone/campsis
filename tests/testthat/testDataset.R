@@ -17,8 +17,10 @@ test_that("Add entry, order, filter (simple example)", {
   
   # Export to RxODE
   table <- dataset %>% export(dest="RxODE")
-  
   expect_equal(nrow(table), 16)
+  
+  # Get times
+  expect_equal(dataset %>% getTimes(), seq(0, 48, by=4))
 })
 
 test_that("Two arms example", {
@@ -86,9 +88,12 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   dataset <- dataset %>% add(Bolus(time=48, amount=100))
   
   # Add covariate
-  dataset <- dataset %>% add(Covariate(name="WT", ConstantDistribution(value=70)))
-  dataset <- dataset %>% add(Covariate(name="HT", ConstantDistribution(value=180)))
-  expect_equal(dataset %>% getCovariateNames(), c("WT", "HT"))
+  dataset <- dataset %>% add(Covariate(name="WT", 70))
+  dataset <- dataset %>% add(Covariate(name="HT", 180))
+  dataset <- dataset %>% add(TimeVaryingCovariate(name="DOSE", 100))
+  
+  expect_equal(dataset %>% getCovariateNames(), c("WT", "HT", "DOSE"))
+  expect_equal(dataset %>% getTimeVaryingCovariateNames(), c("DOSE"))
   
   # Add observations
   dataset <- dataset %>% add(Observations(times=seq(0, 48, by=10)))
@@ -100,6 +105,7 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   
   expect_true(all(table$WT==70))
   expect_true(all(table$HT==180))
+  expect_true(all(table$DOSE==100)) # Even if covariate can be adapted by events
   
   # Export to RxODE N=2
   arm <- dataset@arms %>% default()
@@ -111,6 +117,7 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   
   expect_true(all(table$WT==70))
   expect_true(all(table$HT==180))
+  expect_true(all(table$DOSE==100)) # Even if covariate can be adapted by events
   
 })
 

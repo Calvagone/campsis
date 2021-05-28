@@ -45,6 +45,13 @@ createDefaultArmIfNotExists <- function(object) {
   return(object)
 }
 
+setMethod("add", signature = c("dataset", "list"), definition = function(object, x) {
+  for (element in x) {
+    object <- object %>% add(element)
+  }
+  return(object)
+})
+
 setMethod("add", signature = c("dataset", "arm"), definition = function(object, x) {
   object@arms <- object@arms %>% add(x) 
   return(object)
@@ -93,6 +100,22 @@ setMethod("add", signature = c("dataset", "dataset_config"), definition = functi
 
 setMethod("getCovariateNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getCovariateNames())
+})
+
+#_______________________________________________________________________________
+#----                     getTimeVaryingCovariateNames                      ----
+#_______________________________________________________________________________
+
+setMethod("getTimeVaryingCovariateNames", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getTimeVaryingCovariateNames())
+})
+
+#_______________________________________________________________________________
+#----                             getTimes                                  ----
+#_______________________________________________________________________________
+
+setMethod("getTimes", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getTimes())
 })
 
 #_______________________________________________________________________________
@@ -195,9 +218,13 @@ applyCompartmentCharacteristics <- function(table, properties) {
   return(table)
 }
 
-setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, ...) {
+setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, event_related_column=FALSE, ...) {
   destinationEngine <- getSimulationEngineType(dest)
-  return(object %>% export(destinationEngine, seed=seed, ...))
+  table <- object %>% export(destinationEngine, seed=seed, ...)
+  if (!event_related_column) {
+    table <- table %>% dplyr::select(-EVENT_RELATED)
+  }
+  return(table)
 })
 
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
@@ -218,7 +245,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     rxmod <- model %>% pmxmod::export(dest="RxODE")
     subjects <- object %>% length()
     iiv <- generateIIV(omega=rxmod@omega, n=subjects)
-    iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
+    if (nrow(iiv) > 0) {
+      iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
+    }
   }
 
   # Retrieve dataset configuration
@@ -286,7 +315,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   
   # Remove IS_INFUSION column
   retValue <- retValue %>% dplyr::select(-IS_INFUSION)
-  
+
   return(retValue)
 })
 
@@ -294,12 +323,14 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   
   # First export dataset for RxODE, then, make some modifications
   table <- object %>% export(dest=getSimulationEngineType("RxODE"), seed=seed, ...)
-  
+
   # Mrgsolve complains if treatment IOV has NA's for observations
   # Warning: Parameter column IOV_KA must not contain missing values
-  for (iovName in object %>% getIOVNames()) {
-    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovName), .direction="downup")
-  }
+  # IOV columns: fill in NA's (first DOWN (by ID), then UP (by ID and TIME), then 0 for remaining NA's)
+  iovNames <- object %>% getIOVNames()
+  table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="down")
+  table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="up")
+  table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovNames, .funs=~ifelse(is.na(.x), 0, .x))
   
   return(table)
 })

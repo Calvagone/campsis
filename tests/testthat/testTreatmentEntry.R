@@ -22,6 +22,10 @@ test_that("Infusion errors", {
   expect_error(Infusion(time=0)) # amount is missing
 })
 
+test_that("Infusion time is negative", {
+  expect_error(Infusion(time=-1, amount=100), regexp="Some time values are negative")
+})
+
 
 test_that("Is treatment entry test", {
   expect_true(is(new("bolus", time=0, amount=100), "treatment_entry"))

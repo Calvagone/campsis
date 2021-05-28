@@ -41,7 +41,7 @@ setClass(
 #'
 #' Create a bolus.
 #'
-#' @param time treatment time, numeric
+#' @param time treatment time(s), numeric value or vector
 #' @param amount amount to give as bolus, numeric
 #' @param compartment compartment index, integer
 #' @param f fraction of dose amount, distribution
@@ -49,8 +49,14 @@ setClass(
 #' @return an observation
 #' @export
 Bolus <- function(time, amount, compartment=NA, f=NULL, lag=NULL) {
-  return(new("bolus", time=time, amount=amount, compartment=as.integer(compartment),
-             f=toExplicitDistribution(f), lag=toExplicitDistribution(lag)))
+  if (time %>% length() > 1) {
+    return(time %>% purrr::map(
+       .f=~new("bolus", time=.x, amount=amount, compartment=as.integer(compartment),
+               f=toExplicitDistribution(f), lag=toExplicitDistribution(lag))))
+  } else {
+    return(new("bolus", time=time, amount=amount, compartment=as.integer(compartment),
+               f=toExplicitDistribution(f), lag=toExplicitDistribution(lag)))
+  }
 }
 
 setMethod("getName", signature = c("bolus"), definition = function(x) {
@@ -89,9 +95,16 @@ setClass(
 #' @return an infusion.
 #' @export
 Infusion <- function(time, amount, compartment=NA, f=NULL, lag=NULL, duration=NULL, rate=NULL) {
-  return(new("infusion", time=time, amount=amount, compartment=as.integer(compartment),
-             f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
-             duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate)))
+  if (time %>% length() > 1) {
+    return(time %>% purrr::map(
+      .f=~new("infusion", time=.x, amount=amount, compartment=as.integer(compartment),
+              f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
+              duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate))))
+  } else {
+    return(new("infusion", time=time, amount=amount, compartment=as.integer(compartment),
+               f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
+               duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate)))
+  }
 }
 
 setMethod("getName", signature = c("infusion"), definition = function(x) {
@@ -125,7 +138,7 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   }
 
   return(data.frame(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
-                    AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number, IS_INFUSION=FALSE))
+                    AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number, IS_INFUSION=FALSE, EVENT_RELATED=as.integer(FALSE)))
 })
 
 setMethod("sample", signature = c("infusion", "integer"), definition = function(object, n, ...) {
@@ -143,7 +156,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
     depotCmt <- object@compartment
   }
   retValue <- data.frame(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
-                         AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number, IS_INFUSION=TRUE)
+                         AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number, IS_INFUSION=TRUE, EVENT_RELATED=as.integer(FALSE))
   
   # Duration or rate
   if (!is(object@duration, "undefined_distribution")) {

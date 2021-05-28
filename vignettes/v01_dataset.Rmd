@@ -81,7 +81,7 @@ Infusion rate (`rate` argument) or duration (`duration` argument), bioavailabili
 Observations can be created using the constructor `Observations` and added to the dataset:
 
 ```{r}
-ds <- ds %>% add(Observations(time=c(0.5, 1)))
+ds <- ds %>% add(Observations(times=c(0.5, 1)))
 ```
 
 The default compartment is the first one. Although the compartment number is not useful for simulations (as simulation engines are able to look at all `DV` at once), it can still be useful when exporting a table for a modeling tool.
@@ -124,14 +124,14 @@ arm2 <- arm2 %>% add(Bolus(time=0, amount=2000))
 Observations may also differ:
 
 ```{r}
-arm1 <- arm1 %>% add(Observations(time=c(0.5, 1)))
-arm2 <- arm2 %>% add(Observations(time=c(1, 1.5)))
+arm1 <- arm1 %>% add(Observations(times=c(0.5, 1)))
+arm2 <- arm2 %>% add(Observations(times=c(1, 1.5)))
 ```
 
 Let's now add these 2 arms into a fresh dataset:
 
 ```{r}
-ds <- Dataset() %>% add(arm1) %>% add(arm2)
+ds <- Dataset() %>% add(c(arm1, arm2))
 ```
 
 We can check how many subjects are part of this dataset:

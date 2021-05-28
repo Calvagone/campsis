@@ -18,11 +18,11 @@ test_that("Simulate a bolus with fixed lag time in dataset", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), dataset %>% length() * 49)
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), dataset %>% length() * 49)
   
   datasetRegressionTest(dataset, model, seed=seed, filename=paste0(regFilename, "_dataset"))
@@ -42,11 +42,11 @@ test_that("Simulate a bolus with fixed lag time in model", {
   model <- model %>% add(LagTime(compartment=1, rhs="2"))
 
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  spaguettiPlot(results1, "CP")
+  spaghettiPlot(results1, "CP")
   expect_equal(nrow(results1), dataset %>% length() * 49)
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  spaguettiPlot(results2, "CP")
+  spaghettiPlot(results2, "CP")
   expect_equal(nrow(results2), dataset %>% length() * 49)
   
   datasetRegressionTest(dataset, model, seed=seed, filename=paste0(regFilename, "_model"))

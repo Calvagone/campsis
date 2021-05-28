@@ -2,7 +2,7 @@
 % Please edit documentation in R/generic.R
 \name{getCovariateNames}
 \alias{getCovariateNames}
-\title{Get covariate names.}
+\title{Get all covariate names (fixed covariates + time-varying covariates).}
 \usage{
 getCovariateNames(object)
 }
@@ -13,5 +13,5 @@ getCovariateNames(object)
 character vector
 }
 \description{
-Get covariate names.
+Get all covariate names (fixed covariates + time-varying covariates).
 }

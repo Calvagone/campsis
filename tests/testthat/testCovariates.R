@@ -25,3 +25,16 @@ test_that("Add, length, getNames methods", {
   expect_equal(covariates %>% getNames(), c("WT", "BW"))
   
 })
+
+test_that("Select method", {
+  
+  covariates <- new("covariates")
+  
+  covariates <- covariates %>% add(Covariate("WT", 70))
+  covariates <- covariates %>% add(Covariate("AGE", 40))
+  covariates <- covariates %>% add(TimeVaryingCovariate("DOSE", 1000))
+  covariates <- covariates %>% add(TimeVaryingCovariate("STATE", 1000))
+
+  expect_equal(covariates %>% getNames(), c("WT", "AGE", "DOSE", "STATE"))
+  expect_equal(covariates %>% select("time_varying_covariate") %>% getNames(), c("DOSE", "STATE"))
+})
