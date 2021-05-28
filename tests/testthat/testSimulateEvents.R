@@ -34,7 +34,6 @@ test_that("Clear central compartment events (RxODE/mrgsolve)", {
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
 
-
 test_that("Give daily dose in absortion (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4
   regFilename <- "event_daily_dose"
@@ -59,6 +58,30 @@ test_that("Give daily dose in absortion (RxODE/mrgsolve)", {
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
 
+test_that("Daily dose in dataset + daily dose through events  (RxODE/mrgsolve)", {
+  model <- model_library$advan4_trans4
+  regFilename <- "event_daily_dose"
+  
+  dataset <- Dataset(3)
+  dataset <- dataset %>% add(Bolus(time=seq(0, 24*6, by=24), amount=500))
+  dataset <- dataset %>% add(Observations(times=seq(0,24*7, by=4)))
+  
+  events <- Events()
+  event1 <- Event(name="Half daily dose", times=seq(0, 24*6, by=24), fun=function(inits) {
+    inits$A_DEPOT <- inits$A_DEPOT + 500
+    return(inits)
+  })
+  events <- events %>% add(event1)
+  
+  results1 <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed)
+  spaghettiPlot(results1, "CP")
+  
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed)
+  spaghettiPlot(results2, "CP")
+  
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
+})
 
 test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
   model <- model_library$advan2_trans2
@@ -92,7 +115,6 @@ test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
-
 
 test_that("Dose adaptation based on Ctrough (RxODE/mrgsolve)", {
   model <- model_library$advan2_trans2
