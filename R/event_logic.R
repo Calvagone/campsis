@@ -9,6 +9,7 @@ checkEventIteration <- function(object) {
 setClass(
   "event_iteration",
   representation(
+    index = "integer",
     start = "numeric",
     end = "numeric",
     inits = "data.frame",
@@ -21,14 +22,15 @@ setClass(
 #' 
 #' Create an event iteration object.
 #' 
+#' @param index iteration index, starts at 1
 #' @param start iteration start time
 #' @param end iteration end time
 #' @param inits initial values for all subjects, data frame
 #' @param multiple TRUE if multiple iterations (i.e. simulation needs to stopped at least once), FALSE otherwise
 #' @return an event iteration object
 #' @keywords internal
-EventIteration <- function(start, end, inits=data.frame(), multiple=FALSE) {
-  return(new("event_iteration", start=start, end=end, inits=inits, multiple=multiple))
+EventIteration <- function(index, start, end, inits=data.frame(), multiple=FALSE) {
+  return(new("event_iteration", index=index, start=start, end=end, inits=inits, multiple=multiple))
 }
 
 #' Get list of event iterations.
@@ -46,9 +48,14 @@ getEventIterations <- function(events, maxTime) {
     # Add 'second' zero at the beginning of time vector
     eventTimes <- eventTimes %>% append(0, after=0)
   }
-  retValue <- purrr::map2(eventTimes[-length(eventTimes)], eventTimes[-1], .f=function(.x, .y){
-    return(EventIteration(start=.x, end=.y, multiple=multiple))
-  })
+  from <- eventTimes[-length(eventTimes)]
+  to <- eventTimes[-1]
+  retValue <- list()
+  for (index in seq_along(from)) {
+    .x <- from[index]
+    .y <- to[index]
+    retValue <- retValue %>% append(EventIteration(index=index, start=.x, end=.y, multiple=multiple))
+  }
   return(retValue)
 }
 

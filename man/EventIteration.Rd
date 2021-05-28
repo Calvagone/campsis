@@ -4,9 +4,11 @@
 \alias{EventIteration}
 \title{Create an event iteration object.}
 \usage{
-EventIteration(start, end, inits = data.frame(), multiple = FALSE)
+EventIteration(index, start, end, inits = data.frame(), multiple = FALSE)
 }
 \arguments{
+\item{index}{iteration index, starts at 1}
+
 \item{start}{iteration start time}
 
 \item{end}{iteration end time}

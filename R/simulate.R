@@ -165,6 +165,20 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "character", "event
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, ...))
 })
 
+#' Remove initial conditions.
+#' 
+#' @param model PMX model
+#' @return same model without initial conditions
+#' @importFrom purrr keep
+#' @keywords internal
+#' 
+removeInitialConditions <- function(model) {
+  properties <- model@compartments@properties@list
+  properties_ <- properties %>% purrr::keep(~!is(.x, "compartment_initial_condition"))
+  model@compartments@properties@list <- properties_
+  return(model)
+}
+
 #' Preprocess arguments of the simulate method.
 #' 
 #' @param model PMX model
@@ -206,6 +220,11 @@ processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
   declare <- unique(c(summary@iov_names, summary@covariate_names, user_declare, "ARM", "EVENT_RELATED"))    
 
+  # Remove initial conditions from PMX model before export (if present)
+  if (iteration@index > 1) {
+    model <- removeInitialConditions(model)
+  }
+  
   # Export PMX model
   if (is(dest, "rxode_engine")) {
     engineModel <- model %>% pmxmod::export(dest="RxODE")

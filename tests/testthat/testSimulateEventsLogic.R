@@ -125,3 +125,29 @@ test_that("Interruptions at doses times - BW covariate - IOV on KA - No events -
   outputRegressionTest(results2a, output="CP", filename=regFilename)
   outputRegressionTest(results2b, output="CP", filename=regFilename)
 })
+
+
+test_that("Simulate initial conditions + events (RxODE/mrgsolve)", {
+  model <- model_library$advan3_trans4
+  model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
+  
+  regFilename <- "initial_conditions"
+  
+  dataset <- Dataset(3)
+  dataset <- dataset %>% add(Observations(times=seq(0,72, by=1)))
+  
+  events <- Events()
+  event1 <- Event(name="Dummy event", times=c(0, 10), fun=function(inits) {
+    return(inits)
+  })
+  events <- events %>% add(event1)
+  
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, events=events)
+  spaghettiPlot(results1, "CP")
+  
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, events=events)
+  spaghettiPlot(results2, "CP")
+  
+  outputRegressionTest(results1 %>% dplyr::filter(time >=5), output="CP", filename=regFilename)
+  outputRegressionTest(results2 %>% dplyr::filter(time >=5), output="CP", filename=regFilename)
+})
