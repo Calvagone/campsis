@@ -23,7 +23,7 @@ datasetInMemory <- function(dataset, model, seed, doseOnly=TRUE) {
 #' @export
 datasetRegressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename) {
   dataset1 <- datasetInMemory(dataset=dataset, model=model, seed=seed, doseOnly=doseOnly)
-  dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6) %>% as.data.frame()
+  dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6)
   
   file <- paste0(testFolder, "non_regression/", paste0(filename, ".csv"))
   
@@ -31,7 +31,7 @@ datasetRegressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename)
     write.table(dataset1, file=file, sep=",", row.names=FALSE)
   }
   
-  dataset2 <- read.csv(file=file) %>% as.data.frame()
+  dataset2 <- read.csv(file=file) %>% tibble::as_tibble()
   expect_equal(dataset1, dataset2)
 }
 
@@ -40,10 +40,11 @@ datasetRegressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename)
 #' @param results newly generated results
 #' @param output variables to compare
 #' @param filename reference file (output will be appended automatically)
+#' @importFrom tibble as_tibble
 #' @export
 outputRegressionTest <- function(results, output, filename) {
   selectedColumns <- unique(c("id", "time", output))
-  results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)  %>% as.data.frame()
+  results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
   file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
@@ -51,8 +52,8 @@ outputRegressionTest <- function(results, output, filename) {
   if (overwriteNonRegressionFiles) {
     write.table(results1, file=file, sep=",", row.names=FALSE)
   }
-  
-  results2 <- read.csv(file=file) %>% as.data.frame()
+
+  results2 <- read.csv(file=file) %>% tibble::as_tibble()
   expect_equal(results1, results2)
 }
 
@@ -70,7 +71,7 @@ vpcOutputRegressionTest <- function(results, output, filename) {
     results <- results %>% dplyr::select(-output2)
   }
   
-  results1 <- results %>% dplyr::mutate_if(is.numeric, round, digits=2)  %>% as.data.frame()
+  results1 <- results %>% dplyr::mutate_if(is.numeric, round, digits=2)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
   file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
@@ -79,6 +80,6 @@ vpcOutputRegressionTest <- function(results, output, filename) {
     write.table(results1, file=file, sep=",", row.names=FALSE)
   }
   
-  results2 <- read.csv(file=file) %>% as.data.frame()
+  results2 <- read.csv(file=file) %>% tibble::as_tibble()
   expect_equal(results1, results2)
 }

@@ -118,7 +118,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0) %>% dplyr::select(-EVENT_RELATED)
     
     # Append simulation results to global results
-    results <- results %>% dplyr::bind_rows(results_)
+    results <- results %>% dplyr::bind_rows(results_ %>% dplyr::ungroup())
   }
   # Reorder results dataframe if at least 1 interruption in order to group results by ID
   # Otherwise, the dataframe is already ordered
@@ -357,7 +357,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
     
     # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
-    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df")
+    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df") %>% tibble::as_tibble()
     
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)

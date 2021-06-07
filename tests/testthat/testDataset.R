@@ -152,7 +152,7 @@ test_that("Export fixed covariates work well (N=3)", {
   table <- dataset %>% export(dest="RxODE")
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct()
-  expect_equal(subTable, data.frame(ID=c(1,2,3), WT=c(65,70,75), HT=c(175,180,185)))
+  expect_equal(subTable, tibble::tibble(ID=c(1,2,3), WT=c(65,70,75), HT=c(175,180,185)))
 })
 
 
@@ -181,7 +181,7 @@ test_that("Export function covariates work well (N=3)", {
   table <- dataset %>% export(dest="RxODE", seed=1)
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct() %>% dplyr::mutate(WT=round(WT), HT=round(HT))
-  expect_equal(subTable, data.frame(ID=c(1,2,3), WT=c(64,72,62), HT=c(212,187,164)))
+  expect_equal(subTable, tibble::tibble(ID=c(1,2,3), WT=c(64,72,62), HT=c(212,187,164)))
 })
 
 test_that("Export boostrap covariates work well (N=8)", {
@@ -209,6 +209,6 @@ test_that("Export boostrap covariates work well (N=8)", {
   table <- dataset %>% export(dest="RxODE", seed=1)
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct()
-  expect_equal(subTable, data.frame(ID=c(1,2,3,4,5,6,7,8), WT=c(65,75,65,70,65,75,75,70), HT=c(180,185,185,175,175,175,180,180)))
+  expect_equal(subTable, tibble::tibble(ID=c(1,2,3,4,5,6,7,8), WT=c(65,75,65,70,65,75,75,70), HT=c(180,185,185,175,175,175,180,180)))
 })
 

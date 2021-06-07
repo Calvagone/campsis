@@ -108,8 +108,8 @@ test_that("Interruptions at doses times - BW covariate - IOV on KA - No events -
   })
   events <- events %>% add(event1)
   
-  results1a <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed)
-  spaghettiPlot(results1a, "CP")
+  #results1a <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed)
+  #spaghettiPlot(results1a, "CP")
   
   results1b <- model %>% simulate(dataset, dest="RxODE", events=NULL, seed=seed)
   spaghettiPlot(results1b, "CP")
@@ -176,14 +176,14 @@ test_that("Simulate multiple arms + events (RxODE/mrgsolve)", {
   events <- events %>% add(event1)
   
   results1a <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed)
-  results1a <- results1a %>% dplyr::group_by(id) %>% dplyr::filter(dplyr::row_number()!=1) # Temporary
+  results1a <- results1a %>% dplyr::group_by(id) %>% dplyr::filter(dplyr::row_number()!=1) %>% dplyr::ungroup() # Temporary
   spaghettiPlot(results1a, "CP")
   
   results1b <- model %>% simulate(dataset, dest="RxODE", events=NULL, seed=seed)
   spaghettiPlot(results1b, "CP")
   
   results2a <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed)
-  results2a <- results2a %>% dplyr::group_by(id) %>% dplyr::filter(dplyr::row_number()!=1) # Temporary
+  results2a <- results2a %>% dplyr::group_by(id) %>% dplyr::filter(dplyr::row_number()!=1) %>% dplyr::ungroup() # Temporary
   spaghettiPlot(results2a, "CP")
   
   results2b <- model %>% simulate(dataset, dest="mrgsolve", events=NULL, seed=seed)
