@@ -115,10 +115,14 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     }
     
     # Get rid of event related observations and remove column
+    
     results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0) %>% dplyr::select(-EVENT_RELATED)
     
     # Append simulation results to global results
-    results <- results %>% dplyr::bind_rows(results_ %>% dplyr::ungroup())
+    # Except for iteration 1 from 0 to 0 which is a special case
+    if (!(iteration@index==1 && iteration@start==0 && iteration@end==0 && iteration@multiple)) {
+      results <- results %>% dplyr::bind_rows(results_ %>% dplyr::ungroup())
+    }
   }
   # Reorder results dataframe if at least 1 interruption in order to group results by ID
   # Otherwise, the dataframe is already ordered
