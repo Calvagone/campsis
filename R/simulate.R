@@ -55,17 +55,19 @@ getSimulationEngineType <- function(dest) {
 #' 
 exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
   if (is(dataset, "dataset")) {
+    # Retrieve event times (same for all arms)
     eventTimes <- c(0, events %>% getTimes()) %>% unique()
-    obsTimes <- dataset %>% getTimes()
-    if (obsTimes %>% length()==0) {
-      stop("Dataset does not contain any observation.")
-    }
-    eventRelatedTimes <- eventTimes[!(eventTimes %in% obsTimes)]
     
-    # Add all the 'event-related' times in each arm
-    if (eventRelatedTimes %>% length() > 0) {
-      eventRelatedObs <- EventRelatedObservations(times=eventRelatedTimes, compartment=NA)
-      for (armIndex in seq_len(dataset@arms %>% length())) {
+    # Add all 'event-related' times in each arm
+    for (armIndex in seq_len(dataset@arms %>% length())) {
+      arm <- dataset@arms@list[[armIndex]]
+      obsTimes <- arm %>% getTimes()
+      if (obsTimes %>% length()==0) {
+        stop(paste0("Arm ", arm@id , " does not contain any observation."))
+      }
+      eventRelatedTimes <- eventTimes[!(eventTimes %in% obsTimes)]
+      if (eventRelatedTimes %>% length() > 0) {
+        eventRelatedObs <- EventRelatedObservations(times=eventRelatedTimes, compartment=NA)
         dataset@arms@list[[armIndex]] <- dataset@arms@list[[armIndex]] %>% add(eventRelatedObs)
       }
     }
@@ -96,6 +98,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   for (iteration in iterations) {
     iteration@inits <- inits
     table_ <- cutTableForEvent(table, iteration, summary)
+    #print(table_)
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, iteration=iteration, ...)
     # Shift times back to their original value

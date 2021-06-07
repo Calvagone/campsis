@@ -75,6 +75,12 @@ setMethod("getTimes", signature = c("arm"), definition = function(object) {
 #----                           add                                   ----
 #_______________________________________________________________________________
 
+setMethod("add", signature = c("arm", "list"), definition = function(object, x) {
+  for (element in x) {
+    object <- object %>% add(element)
+  }
+  return(object)
+})
 
 setMethod("add", signature = c("arm", "treatment_entry"), definition = function(object, x) {
   object@protocol@treatment <- object@protocol@treatment %>% add(x) 
