@@ -3,7 +3,7 @@ library(pmxmod)
 
 context("Test all methods from the dataset class")
 
-test_that("Add entry, order, filter (simple example)", {
+test_that("Add entry, order, filter, getTimes (simple example)", {
   
   dataset <- Dataset() 
   
@@ -15,12 +15,18 @@ test_that("Add entry, order, filter (simple example)", {
   # Add observations
   dataset <- dataset %>% add(Observations(times=seq(0, 48, by=4)))
   
-  # Export to RxODE
-  table <- dataset %>% export(dest="RxODE")
-  expect_equal(nrow(table), 16)
-  
   # Get times
   expect_equal(dataset %>% getTimes(), seq(0, 48, by=4))
+  
+  # Export to RxODE
+  table1 <- dataset %>% export(dest="RxODE")
+  expect_equal(nrow(table1), 16)
+  expect_true(is(table1, "tbl_df"))
+  
+  # Export to mrgsolve
+  table2 <- dataset %>% export(dest="mrgsolve")
+  expect_equal(nrow(table2), 16)
+  expect_true(is(table2, "tbl_df"))
 })
 
 test_that("Two arms example", {

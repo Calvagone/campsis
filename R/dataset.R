@@ -278,7 +278,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
 
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
-    
+
     # Create the base table with all treatment entries and observations
     table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID))
     table <- table %>% dplyr::arrange(ID, TIME, EVID)
