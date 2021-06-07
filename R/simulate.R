@@ -308,8 +308,8 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
 
   results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
-    inits <- getInitialConditions(subdataset, config$iteration, config$cmtNames)
-    
+    inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
+
     # Launch simulation with RxODE
     tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble", keep=keep, inits=inits)
     
@@ -352,7 +352,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
   mod <- mrgsolve::mcode("model", mrgmod %>% pmxmod::toString())
   
   results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset){
-    inits <- getInitialConditions(subdataset, config$iteration, config$cmtNames)
+    inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {

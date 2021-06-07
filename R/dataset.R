@@ -315,22 +315,24 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   
   # Remove IS_INFUSION column
   retValue <- retValue %>% dplyr::select(-IS_INFUSION)
+  
+  # IOV post-processing
+  
+  # A few explanations: 
+  # Before, order was: # 2 # 1 # 3
+  # Now if 2 rows have the same time, IOV values will be carried backward
+  # This is a 'workaround' for RxODE as it only reads the first covariate value for 2 rows belonging to the same time
+  # I.e. most of the time OBS time X then DOSE time X, IOV value will be the IOV value of the observation
+  iovNames <- object %>% getIOVNames()
+  retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="up")       # 1
+  retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="down")           # 2
+  retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
 
-  return(retValue)
+  return(retValue %>% dplyr::ungroup())
 })
 
 setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, ...) {
   
-  # First export dataset for RxODE, then, make some modifications
-  table <- object %>% export(dest=getSimulationEngineType("RxODE"), seed=seed, ...)
-
-  # Mrgsolve complains if treatment IOV has NA's for observations
-  # Warning: Parameter column IOV_KA must not contain missing values
-  # IOV columns: fill in NA's (first DOWN (by ID), then UP (by ID and TIME), then 0 for remaining NA's)
-  iovNames <- object %>% getIOVNames()
-  table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="down")
-  table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="up")
-  table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovNames, .funs=~ifelse(is.na(.x), 0, .x))
-  
-  return(table)
+  # Same exported dataset as for RxODE
+  return(object %>% export(dest=getSimulationEngineType("RxODE"), seed=seed, ...))
 })
