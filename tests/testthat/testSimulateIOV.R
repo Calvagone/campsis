@@ -142,6 +142,8 @@ test_that("Simulate IOV on ALAG1 (this test always fails with RxODE version > 1.
 })
 
 test_that("Simulate IOV on D1", {
+  regFilename <- "3_infusions_iiv_iov_d1"
+  
   # Model with IIV on D1
   model <- model_library$advan3_trans4
   model <- model %>% add(Theta("D1", value=5))
@@ -160,20 +162,20 @@ test_that("Simulate IOV on D1", {
     return(dataset)
   }
   
-  # Simulate just IIV
+  # IIV only
   model_no_iov <- model %>% disable("IOV")
   dataset_no_iov <- getDataset(model_no_iov)
-  results1 <- model_no_iov %>% simulate(dataset_no_iov, dest="RxODE", seed=seed)
-  results1$ARM <- "IIV"
   datasetRegressionTest(dataset_no_iov, model_no_iov, seed=seed, filename="3_infusions_iiv_d1")
   
-  # Simulate just IIV + IOV
+  # IIV + IOV (RxODE / mrgsolve)
   dataset <- getDataset(model)
-  results2 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  results2$id <- results2$id + dataset %>% length()
-  results2$ARM <- "IIV + IOV"
-  datasetRegressionTest(dataset, model, seed=seed, filename="3_infusions_iiv_iov_d1")
+  datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
   
-  spaghettiPlot(rbind(results1, results2), "CP", "ARM")
-  shadedPlot(rbind(results1, results2), "CP", "ARM")
+  outputRegressionTest(results1, output="CP", filename=regFilename) # BUG
+  outputRegressionTest(results2, output="CP", filename=regFilename)
+  
+  spaghettiPlot(results1, "CP")
+  spaghettiPlot(results2, "CP")
 })
