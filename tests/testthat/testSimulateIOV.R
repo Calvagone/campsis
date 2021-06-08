@@ -62,7 +62,9 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
 
-test_that("Simulate IOV on F1", {
+test_that("Simulate IOV on F1 (RxODE bug in version > 1.0.5)", {
+  regFilename <- "3_boluses_iiv_iov_f1"
+  
   # Model with IIV and IOV on F1
   model <- model_library$advan4_trans4
   model <- model %>% add(Theta("F1", value=0.75))
@@ -76,28 +78,29 @@ test_that("Simulate IOV on F1", {
     dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
     dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
     dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
-    dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
+    dataset <- dataset %>% add(Observations(times=seq(0,72, by=4)))
     dataset <- dataset %>% add(IOV(colname="IOV_F1", distribution=EtaDistribution(model, omega="IOV_F1")))
     return(dataset)
   }
   
-  # Simulate just IIV
+  # IIV only
   model_no_iov <- model %>% disable("IOV")
   dataset_no_iov <- getDataset(model_no_iov)
-  results1 <- model_no_iov %>% simulate(dataset_no_iov, dest="RxODE", seed=seed)
-  results1$ARM <- "IIV"
   datasetRegressionTest(dataset_no_iov, model_no_iov, seed=seed, filename="3_boluses_iiv_f1")
   
-  # Simulate just IIV + IOV
+  # IIV + IOV (RxODE / mrgsolve)
   dataset <- getDataset(model)
-  results2 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  results2$id <- results2$id + dataset %>% length()
-  results2$ARM <- "IIV + IOV"
-  datasetRegressionTest(dataset, model, seed=seed, filename="3_boluses_iiv_iov_f1")
+  datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
   
-  spaghettiPlot(rbind(results1, results2), "CP", "ARM")
-  shadedPlot(rbind(results1, results2), "CP", "ARM")
+  spaghettiPlot(results1, "CP")
+  spaghettiPlot(results2, "CP")
 })
+
 
 test_that("Simulate IOV on ALAG1", {
   # Model with IIV on ALAG1
