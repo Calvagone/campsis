@@ -70,6 +70,23 @@ setGeneric("getCovariateNames", function(object) {
 })
 
 #_______________________________________________________________________________
+#----                          getOccasionNames                             ----
+#_______________________________________________________________________________
+
+#' Get all occasion names.
+#' 
+#' @param object any object
+#' @return character vector
+#' @export
+getOccasionNames <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getOccasionNames", function(object) {
+  standardGeneric("getOccasionNames")
+})
+
+#_______________________________________________________________________________
 #----                     getTimeVaryingCovariateNames                      ----
 #_______________________________________________________________________________
 

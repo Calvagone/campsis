@@ -103,6 +103,22 @@ setMethod("getCovariateNames", signature = c("dataset"), definition = function(o
 })
 
 #_______________________________________________________________________________
+#----                            getIOVNames                                ----
+#_______________________________________________________________________________
+
+setMethod("getIOVNames", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getIOVNames())
+})
+
+#_______________________________________________________________________________
+#----                         getOccasionNames                              ----
+#_______________________________________________________________________________
+
+setMethod("getOccasionNames", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getOccasionNames())
+})
+
+#_______________________________________________________________________________
 #----                     getTimeVaryingCovariateNames                      ----
 #_______________________________________________________________________________
 
@@ -116,14 +132,6 @@ setMethod("getTimeVaryingCovariateNames", signature = c("dataset"), definition =
 
 setMethod("getTimes", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getTimes())
-})
-
-#_______________________________________________________________________________
-#----                            getIOVNames                                ----
-#_______________________________________________________________________________
-
-setMethod("getIOVNames", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getIOVNames())
 })
 
 #_______________________________________________________________________________

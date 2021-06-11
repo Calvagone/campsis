@@ -9,6 +9,8 @@ Collate:
     'distribution.R'
     'dataset_config.R'
     'time_entry.R'
+    'occasion.R'
+    'occasions.R'
     'treatment_iov.R'
     'treatment_iovs.R'
     'treatment_entry.R'
