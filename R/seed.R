@@ -67,4 +67,5 @@ getSeedForIteration <- function(seed, replicate, iterations, iteration) {
 setSeed <- function(seed) {
   assertthat::assert_that(is.numeric(seed), msg="seed not numeric")
   set.seed(seed)
+  #cat(paste0("SEED CHANGED TO: ", seed, "\n"))
 }

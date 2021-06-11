@@ -110,7 +110,6 @@ getDatasetMaxTime <- function(dataset) {
 simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, replicate, iterations, ...) {
   destEngine <- getSimulationEngineType(dest)
   tableSeed <- getSeedForDatasetExport(seed=seed, replicate=replicate, iterations=iterations %>% length())
-  cat(paste0("TABLE SEED: ", tableSeed, "\n"))
   table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun)
   summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
   
@@ -131,8 +130,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     # Set seed for next simulation
     iterationSeed <- getSeedForIteration(seed=seed, replicate=replicate, iterations=iterations %>% length(), iteration=iteration@index)
     setSeed(iterationSeed)
-    cat(paste0("ITERATION SEED: ", iterationSeed, "\n"))
-    
+
     # Calling events
     for (event in events@list) {
       if (iteration@end %in% event@times) {
@@ -175,7 +173,6 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
     # Get as many models as replicates
     parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
     setSeed(parameterSamplingSeed)
-    cat(paste0("PARAMETER SAMPLING SEED: ", parameterSamplingSeed, "\n"))
     models <- model %>% sample(replicates)
     
     # Run all models

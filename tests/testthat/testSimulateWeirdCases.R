@@ -10,7 +10,7 @@ test_that("Simulate a bolus without observation", {
   dataset <- Dataset()
   dataset <- dataset %>% add(Bolus(time=0, amount=1000))
 
-  expect_error(model %>% simulate(dataset, dest="RxODE", seed=seed), regexp="Arm 0 does not contain any observation")
+  expect_error(model %>% simulate(dataset, dest="RxODE", seed=seed), regexp="Dataset does not contain any observation")
 })
 
 test_that("Simulate a bolus with single observation at time 0 (RxODE/mrgsolve)", {
