@@ -3,9 +3,8 @@ library(pmxmod)
 
 context("Test the simulate method with time-to-event models (TTE)")
 
-overwriteNonRegressionFiles <<- FALSE
+overwriteNonRegressionFiles <<- TRUE
 testFolder <<- ""
-seed <- 1
 
 source(paste0(testFolder, "testUtils.R"))
 
@@ -36,12 +35,19 @@ test_that("Simulate simple TTE model (RxODE/mrgsolve)", {
   ds <- ds %>% add(Observations(times=seq(0, duration, by=0.1)))
   
   events <- events %>% add(event)
-  results <- model %>% simulate(dataset=ds, dest="RxODE", events=events, outvars=c("COUNT", "TRIGGER"), seed=5)
+  results1 <- model %>% simulate(dataset=ds, dest="RxODE", events=events, outvars=c("COUNT", "TRIGGER"), seed=5)
+  results2 <- suppressWarnings(model %>% simulate(dataset=ds, dest="mrgsolve", events=events, outvars=c("COUNT", "TRIGGER"), seed=5))
   
-  p1 <- spaghettiPlot(results, "A_SURVIVAL")
-  p2 <- spaghettiPlot(results, "COUNT")
-  p3 <- spaghettiPlot(results, "TRIGGER")
-  plot <- gridExtra::grid.arrange(p1, p2, p3, ncol=1)
+  # p1 <- spaghettiPlot(results1, "A_SURVIVAL")
+  # p2 <- spaghettiPlot(results1, "COUNT")
+  # p3 <- spaghettiPlot(results1, "TRIGGER")
+  # gridExtra::grid.arrange(p1, p2, p3, ncol=1)
+  # 
+  # p1 <- spaghettiPlot(results2, "A_SURVIVAL")
+  # p2 <- spaghettiPlot(results2, "COUNT")
+  # p3 <- spaghettiPlot(results2, "TRIGGER")
+  # gridExtra::grid.arrange(p1, p2, p3, ncol=1)
   
-  outputRegressionTest(results, output=c("A_SURVIVAL", "TRIGGER"), filename=regFilename)
+  outputRegressionTest(results1, output=c("A_SURVIVAL", "TRIGGER"), filename=regFilename)
+  outputRegressionTest(results2, output=c("A_SURVIVAL", "TRIGGER"), filename=regFilename)
 })

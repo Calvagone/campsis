@@ -3,7 +3,7 @@
 #_______________________________________________________________________________
 
 checkEventIteration <- function(object) {
-  return(expectOneForAll(object, c("start", "end", "multiple")))
+  return(expectOneForAll(object, c("start", "end", "index", "maxIndex")))
 }
 
 setClass(
@@ -13,9 +13,9 @@ setClass(
     start = "numeric",
     end = "numeric",
     inits = "data.frame",
-    multiple = "logical"
+    maxIndex = "integer"
   ),
-  prototype=prototype(inits=data.frame(), multiple=FALSE),
+  prototype=prototype(inits=data.frame()),
   validity=checkEventIteration
 )
 
@@ -26,11 +26,11 @@ setClass(
 #' @param start iteration start time
 #' @param end iteration end time
 #' @param inits initial values for all subjects, data frame
-#' @param multiple TRUE if multiple iterations (i.e. simulation needs to stopped at least once), FALSE otherwise
+#' @param maxIndex the last iteration index
 #' @return an event iteration object
 #' @keywords internal
-EventIteration <- function(index, start, end, inits=data.frame(), multiple=FALSE) {
-  return(new("event_iteration", index=index, start=start, end=end, inits=inits, multiple=multiple))
+EventIteration <- function(index, start, end, inits=data.frame(), maxIndex) {
+  return(new("event_iteration", index=index, start=start, end=end, inits=inits, maxIndex=maxIndex))
 }
 
 #' Get list of event iterations.
@@ -42,7 +42,6 @@ EventIteration <- function(index, start, end, inits=data.frame(), multiple=FALSE
 #'
 getEventIterations <- function(events, maxTime) {
   userEventTimes <- events %>% getTimes()
-  multiple <- userEventTimes %>% length() > 0
   eventTimes <- userEventTimes %>% append(c(0, maxTime)) %>% unique() %>% base::sort()
   if (0 %in% userEventTimes || maxTime==0) {
     # Add 'second' zero at the beginning of time vector
@@ -50,11 +49,12 @@ getEventIterations <- function(events, maxTime) {
   }
   from <- eventTimes[-length(eventTimes)]
   to <- eventTimes[-1]
+  maxIndex <- to %>% length()
   retValue <- list()
   for (index in seq_along(from)) {
     .x <- from[index]
     .y <- to[index]
-    retValue <- retValue %>% append(EventIteration(index=index, start=.x, end=.y, multiple=multiple))
+    retValue <- retValue %>% append(EventIteration(index=index, start=.x, end=.y, maxIndex=maxIndex))
   }
   return(retValue)
 }
