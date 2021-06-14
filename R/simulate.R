@@ -249,7 +249,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # Extra argument declare (for mrgsolve only)
   user_declare <- processExtraArg(args, name="declare", mandatory=FALSE)
   summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
-  declare <- unique(c(summary@iov_names, summary@covariate_names, user_declare, "ARM", "EVENT_RELATED"))    
+  declare <- unique(c(summary@iov_names, summary@covariate_names, summary@occ_names, user_declare, "ARM", "EVENT_RELATED"))    
 
   # Remove initial conditions from PMX model before export (if present)
   if (iteration@index > 1) {
