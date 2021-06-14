@@ -14,6 +14,7 @@ simulateDelegate(
   outfun,
   seed,
   replicates,
+  nocb = nocb,
   ...
 )
 }
@@ -35,6 +36,8 @@ simulateDelegate(
 \item{seed}{seed value}
 
 \item{replicates}{number of replicates, default is 1}
+
+\item{nocb}{next-observation carried backward mode (NOCB), default value is false (i.e. LOCF is used)}
 
 \item{...}{optional arguments like declare}
 }

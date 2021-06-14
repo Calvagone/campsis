@@ -14,6 +14,7 @@ simulateDelegateCore(
   outfun,
   seed,
   replicates,
+  nocb = nocb,
   replicate,
   iterations,
   ...
@@ -37,6 +38,8 @@ simulateDelegateCore(
 \item{seed}{seed value}
 
 \item{replicates}{number of replicates, default is 1}
+
+\item{nocb}{next-observation carried backward mode (NOCB), default value is false (i.e. LOCF is used)}
 
 \item{replicate}{current replicate number}
 

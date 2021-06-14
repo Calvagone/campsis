@@ -74,6 +74,19 @@ preprocessReplicates <- function(replicates) {
   return(as.integer(replicates))
 }
 
+#' Preprocess 'nocb' argument.
+#' 
+#' @param nocb nocb argument, logical value
+#' @return same value
+#' @importFrom assertthat assert_that
+#' @keywords internal
+#' 
+preprocessNocb <- function(nocb) {
+  assertthat::assert_that(is.logical(nocb) && nocb %>% length()==1,
+                          msg="nocb not a logical value TRUE/FALSE")
+  return(nocb)
+}
+
 #' Preprocess subjects ID's.
 #' 
 #' @param dataset current dataset, data frame form
