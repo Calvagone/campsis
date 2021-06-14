@@ -375,7 +375,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
   # Instantiate mrgsolve model
   mod <- mrgsolve::mcode("model", mrgmod %>% pmxmod::toString())
   
-  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset){
+  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
@@ -385,7 +385,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
     
     # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
-    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df") %>% tibble::as_tibble()
+    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df", nocb=FALSE) %>% tibble::as_tibble()
     
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
