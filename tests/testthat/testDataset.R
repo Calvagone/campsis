@@ -212,3 +212,70 @@ test_that("Export boostrap covariates work well (N=8)", {
   expect_equal(subTable, tibble::tibble(ID=c(1,2,3,4,5,6,7,8), WT=c(65,75,65,70,65,75,75,70), HT=c(180,185,185,175,175,175,180,180)))
 })
 
+test_that("Export occasions works well - example 1", {
+  
+  ds <- Dataset(2)
+  
+  # Add doses
+  ds <- ds %>% add(Bolus(time=0, amount=100))
+  ds <- ds %>% add(Bolus(time=24, amount=100))
+  ds <- ds %>% add(Bolus(time=48, amount=100))
+  
+  # Add observations
+  ds <- ds %>% add(Observations(times=seq(0, 60, by=10)))
+  
+  # Add occasions
+  ds <- ds %>% add(Occasion("MY_OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
+
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # All OCC values are used because 3 doses
+  expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,3,3,3), 2))
+})
+
+test_that("Export occasions works well - example 2", {
+  
+  ds <- Dataset(2)
+  
+  # Add doses
+  ds <- ds %>% add(Bolus(time=0, amount=100))
+  ds <- ds %>% add(Bolus(time=24, amount=100))
+  
+  # Add observations
+  ds <- ds %>% add(Observations(times=seq(0, 60, by=10)))
+  
+  # Add occasions
+  ds <- ds %>% add(Occasion("MY_OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
+  
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # Check value 3 is not used (no 3rd dose)
+  expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,2,2), 2))
+})
+
+
+test_that("Export occasions works well - example 3", {
+  
+  ds <- Dataset(2)
+  
+  # Add doses
+  ds <- ds %>% add(Bolus(time=0, amount=100))
+  ds <- ds %>% add(Bolus(time=24, amount=100))
+  ds <- ds %>% add(Bolus(time=48, amount=100))
+  ds <- ds %>% add(Bolus(time=72, amount=100))
+  
+  # Add observations
+  ds <- ds %>% add(Observations(times=seq(0, 80, by=10)))
+  
+  # Add occasions (skip occasion on dose 3)
+  ds <- ds %>% add(Occasion("MY_OCC", values=c(1,2,4), doseNumbers=c(1,2,4)))
+  
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # All OCC values are used because 3 doses
+  expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,2,2,2,2,4,4), 2))
+})
+

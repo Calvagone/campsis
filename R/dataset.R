@@ -73,6 +73,14 @@ setMethod("add", signature = c("dataset", "treatment_iov"), definition = functio
   return(object)
 })
 
+setMethod("add", signature = c("dataset", "occasion"), definition = function(object, x) {
+  object <- object %>% createDefaultArmIfNotExists()
+  arm <- object@arms %>% default()
+  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
+  object@arms <- object@arms %>% pmxmod::replace(arm)
+  return(object)
+})
+
 setMethod("add", signature = c("dataset", "observations"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
@@ -283,6 +291,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     observations <- protocol@observations
     covariates <- arm@covariates
     treatmentIovs <- treatment@iovs
+    occasions <- treatment@occasions
 
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
@@ -313,6 +322,13 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     if (nrow(iiv) > 0) {
       table <- table %>% dplyr::left_join(iiv, by="ID")
     }
+    
+    # Joining occasions
+    for (occasion in occasions@list) {
+      occ <- tibble::tibble(DOSENO=occasion@dose_numbers, !!occasion@colname:=occasion@values)
+      table <- table %>% dplyr::left_join(occ, by="DOSENO")
+    }
+    
     return(table)
   })
   
@@ -324,7 +340,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   # Remove IS_INFUSION column
   retValue <- retValue %>% dplyr::select(-IS_INFUSION)
   
-  # IOV post-processing
+  # IOV/OCC post-processing
   
   # A few explanations: 
   # Before, order was: # 2 # 1 # 3
@@ -332,6 +348,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   # This is a 'workaround' for RxODE as it only reads the first covariate value for 2 rows belonging to the same time
   # I.e. most of the time OBS time X then DOSE time X, IOV value will be the IOV value of the observation
   iovNames <- object %>% getIOVNames()
+  iovNames <- iovNames %>% append(object %>% getOccasionNames())
   retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="up")       # 1
   retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="down")           # 2
   retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
