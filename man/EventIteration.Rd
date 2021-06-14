@@ -4,7 +4,7 @@
 \alias{EventIteration}
 \title{Create an event iteration object.}
 \usage{
-EventIteration(index, start, end, inits = data.frame(), multiple = FALSE)
+EventIteration(index, start, end, inits = data.frame(), maxIndex)
 }
 \arguments{
 \item{index}{iteration index, starts at 1}
@@ -15,7 +15,7 @@ EventIteration(index, start, end, inits = data.frame(), multiple = FALSE)
 
 \item{inits}{initial values for all subjects, data frame}
 
-\item{multiple}{TRUE if multiple iterations (i.e. simulation needs to stopped at least once), FALSE otherwise}
+\item{maxIndex}{the last iteration index}
 }
 \value{
 an event iteration object

@@ -3,7 +3,7 @@ library(pmxmod)
 
 context("Test all methods from the dataset class")
 
-test_that("Add entry, order, filter (simple example)", {
+test_that("Add entry, order, filter, getTimes (simple example)", {
   
   dataset <- Dataset() 
   
@@ -15,12 +15,18 @@ test_that("Add entry, order, filter (simple example)", {
   # Add observations
   dataset <- dataset %>% add(Observations(times=seq(0, 48, by=4)))
   
-  # Export to RxODE
-  table <- dataset %>% export(dest="RxODE")
-  expect_equal(nrow(table), 16)
-  
   # Get times
   expect_equal(dataset %>% getTimes(), seq(0, 48, by=4))
+  
+  # Export to RxODE
+  table1 <- dataset %>% export(dest="RxODE")
+  expect_equal(nrow(table1), 16)
+  expect_true(is(table1, "tbl_df"))
+  
+  # Export to mrgsolve
+  table2 <- dataset %>% export(dest="mrgsolve")
+  expect_equal(nrow(table2), 16)
+  expect_true(is(table2, "tbl_df"))
 })
 
 test_that("Two arms example", {
@@ -146,7 +152,7 @@ test_that("Export fixed covariates work well (N=3)", {
   table <- dataset %>% export(dest="RxODE")
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct()
-  expect_equal(subTable, data.frame(ID=c(1,2,3), WT=c(65,70,75), HT=c(175,180,185)))
+  expect_equal(subTable, tibble::tibble(ID=c(1,2,3), WT=c(65,70,75), HT=c(175,180,185)))
 })
 
 
@@ -175,7 +181,7 @@ test_that("Export function covariates work well (N=3)", {
   table <- dataset %>% export(dest="RxODE", seed=1)
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct() %>% dplyr::mutate(WT=round(WT), HT=round(HT))
-  expect_equal(subTable, data.frame(ID=c(1,2,3), WT=c(64,72,62), HT=c(212,187,164)))
+  expect_equal(subTable, tibble::tibble(ID=c(1,2,3), WT=c(64,72,62), HT=c(212,187,164)))
 })
 
 test_that("Export boostrap covariates work well (N=8)", {
@@ -203,6 +209,73 @@ test_that("Export boostrap covariates work well (N=8)", {
   table <- dataset %>% export(dest="RxODE", seed=1)
   
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct()
-  expect_equal(subTable, data.frame(ID=c(1,2,3,4,5,6,7,8), WT=c(65,75,65,70,65,75,75,70), HT=c(180,185,185,175,175,175,180,180)))
+  expect_equal(subTable, tibble::tibble(ID=c(1,2,3,4,5,6,7,8), WT=c(65,75,65,70,65,75,75,70), HT=c(180,185,185,175,175,175,180,180)))
+})
+
+test_that("Export occasions works well - example 1", {
+  
+  ds <- Dataset(2)
+  
+  # Add doses
+  ds <- ds %>% add(Bolus(time=0, amount=100))
+  ds <- ds %>% add(Bolus(time=24, amount=100))
+  ds <- ds %>% add(Bolus(time=48, amount=100))
+  
+  # Add observations
+  ds <- ds %>% add(Observations(times=seq(0, 60, by=10)))
+  
+  # Add occasions
+  ds <- ds %>% add(Occasion("MY_OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
+
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # All OCC values are used because 3 doses
+  expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,3,3,3), 2))
+})
+
+test_that("Export occasions works well - example 2", {
+  
+  ds <- Dataset(2)
+  
+  # Add doses
+  ds <- ds %>% add(Bolus(time=0, amount=100))
+  ds <- ds %>% add(Bolus(time=24, amount=100))
+  
+  # Add observations
+  ds <- ds %>% add(Observations(times=seq(0, 60, by=10)))
+  
+  # Add occasions
+  ds <- ds %>% add(Occasion("MY_OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
+  
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # Check value 3 is not used (no 3rd dose)
+  expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,2,2), 2))
+})
+
+
+test_that("Export occasions works well - example 3", {
+  
+  ds <- Dataset(2)
+  
+  # Add doses
+  ds <- ds %>% add(Bolus(time=0, amount=100))
+  ds <- ds %>% add(Bolus(time=24, amount=100))
+  ds <- ds %>% add(Bolus(time=48, amount=100))
+  ds <- ds %>% add(Bolus(time=72, amount=100))
+  
+  # Add observations
+  ds <- ds %>% add(Observations(times=seq(0, 80, by=10)))
+  
+  # Add occasions (skip occasion on dose 3)
+  ds <- ds %>% add(Occasion("MY_OCC", values=c(1,2,4), doseNumbers=c(1,2,4)))
+  
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # All OCC values are used because 3 doses
+  expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,2,2,2,2,4,4), 2))
 })
 

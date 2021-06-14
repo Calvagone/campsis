@@ -9,6 +9,8 @@ Collate:
     'distribution.R'
     'dataset_config.R'
     'time_entry.R'
+    'occasion.R'
+    'occasions.R'
     'treatment_iov.R'
     'treatment_iovs.R'
     'treatment_entry.R'
@@ -32,7 +34,7 @@ Collate:
     'results_processing.R'
     'default_plot.R'
 Title: Pmxsim package
-Version: 0.3
+Version: 0.4
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )

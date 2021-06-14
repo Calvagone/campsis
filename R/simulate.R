@@ -55,17 +55,19 @@ getSimulationEngineType <- function(dest) {
 #' 
 exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
   if (is(dataset, "dataset")) {
+    # Retrieve event times (same for all arms)
     eventTimes <- c(0, events %>% getTimes()) %>% unique()
-    obsTimes <- dataset %>% getTimes()
-    if (obsTimes %>% length()==0) {
-      stop("Dataset does not contain any observation.")
-    }
-    eventRelatedTimes <- eventTimes[!(eventTimes %in% obsTimes)]
     
-    # Add all the 'event-related' times in each arm
-    if (eventRelatedTimes %>% length() > 0) {
-      eventRelatedObs <- EventRelatedObservations(times=eventRelatedTimes, compartment=NA)
-      for (armIndex in seq_len(dataset@arms %>% length())) {
+    # Add all 'event-related' times in each arm
+    for (armIndex in seq_len(dataset@arms %>% length())) {
+      arm <- dataset@arms@list[[armIndex]]
+      obsTimes <- arm %>% getTimes()
+      if (obsTimes %>% length()==0) {
+        stop(paste0("Arm ", arm@id , " does not contain any observation."))
+      }
+      eventRelatedTimes <- eventTimes[!(eventTimes %in% obsTimes)]
+      if (eventRelatedTimes %>% length() > 0) {
+        eventRelatedObs <- EventRelatedObservations(times=eventRelatedTimes, compartment=NA)
         dataset@arms@list[[armIndex]] <- dataset@arms@list[[armIndex]] %>% add(eventRelatedObs)
       }
     }
@@ -80,30 +82,55 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
   return(table)
 }
 
+#' Get dataset max time.
+#' 
+#' @param dataset dataset
+#' @return max time of dataset, whatever its form, 2-dimensional or structured
+#' @keywords internal
+#' 
+getDatasetMaxTime <- function(dataset) {
+  if (is(dataset, "dataset")) {
+    times <- dataset %>% getTimes()
+  } else {
+    times <- dataset$TIME
+  }
+  if (is.null(times) || times %>% length()==0) {
+    stop(paste0("Dataset does not contain any observation."))
+  }
+  return(max(times))
+}
+
 #' Simulation delegate core (single replicate).
 #' 
 #' @inheritParams simulate
+#' @param replicate current replicate number
+#' @param iterations number of iterations
 #' @keywords internal
-#' @export
 #' 
-simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
+simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, replicate, iterations, ...) {
   destEngine <- getSimulationEngineType(dest)
-  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=seed, tablefun=tablefun)
+  tableSeed <- getSeedForDatasetExport(seed=seed, replicate=replicate, iterations=iterations %>% length())
+  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun)
   summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
-  iterations <- getEventIterations(events, max(table$TIME))
+  
   inits <- data.frame()
   results <- NULL
   for (iteration in iterations) {
     iteration@inits <- inits
     table_ <- cutTableForEvent(table, iteration, summary)
+    #print(table_)
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
-                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, iteration=iteration, ...)
+                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, replicate=replicate, iteration=iteration, ...)
     # Shift times back to their original value
     results_$time <- results_$time + iteration@start
     
     # Store initial values for next iteration
     inits <- results_ %>% dplyr::group_by(id) %>% dplyr::slice(which.max(time))
     
+    # Set seed for next simulation
+    iterationSeed <- getSeedForIteration(seed=seed, replicate=replicate, iterations=iterations %>% length(), iteration=iteration@index)
+    setSeed(iterationSeed)
+
     # Calling events
     for (event in events@list) {
       if (iteration@end %in% event@times) {
@@ -112,14 +139,18 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     }
     
     # Get rid of event related observations and remove column
+    
     results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0) %>% dplyr::select(-EVENT_RELATED)
     
     # Append simulation results to global results
-    results <- results %>% dplyr::bind_rows(results_)
+    # Except for iteration 1 from 0 to 0 which is a special case
+    if (!(iteration@index==1 && iteration@start==0 && iteration@end==0 && iteration@maxIndex > 1)) {
+      results <- results %>% dplyr::bind_rows(results_ %>% dplyr::ungroup())
+    }
   }
   # Reorder results dataframe if at least 1 interruption in order to group results by ID
   # Otherwise, the dataframe is already ordered
-  if (iterations %>% length() > 0 && iterations[[1]]@multiple) {
+  if (iterations %>% length() > 0) {
     results <- results %>% dplyr::arrange(id)
   }
   return(outfun(results))
@@ -132,22 +163,22 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
 #' 
 simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
   validObject(model)
+  maxTime <- getDatasetMaxTime(dataset)
+  iterations <- getEventIterations(events, maxTime=maxTime)
   
   if (replicates==1) {
     return(simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
-                                tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, ...))
+                                tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, replicate=1, iterations=iterations, ...))
   } else {
     # Get as many models as replicates
-    setSeed(seed - 1) # Set seed before sampling parameters uncertainty
+    parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
+    setSeed(parameterSamplingSeed)
     models <- model %>% sample(replicates)
     
     # Run all models
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
-      seedInRep <- getSeedForReplicate(seed, replicate)
-      table <- exportTableDelegate(model=model_, dataset=dataset, dest=dest, events=events, seed=seedInRep, tablefun=tablefun)
-      
       return(simulateDelegateCore(model=model_, dataset=dataset, dest=dest, events=events,
-                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seedInRep, replicates=replicates, ...))
+                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, replicate=replicate, iterations=iterations, ...))
     }, .id="replicate") %>% dplyr::mutate(replicate=as.integer(replicate)))
   }
 }
@@ -204,7 +235,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # This should be set as static information (not in simulate method)
   # Note that mrgsolve does not seem to have parallelisation (to check)
   # It may also be interesting to parallelise the replicates (see later on)
-  if (iteration@multiple) {
+  if (iteration@maxIndex > 1) {
     slices <- 1
     #print("Multiple events")
   } else {
@@ -218,7 +249,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   # Extra argument declare (for mrgsolve only)
   user_declare <- processExtraArg(args, name="declare", mandatory=FALSE)
   summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
-  declare <- unique(c(summary@iov_names, summary@covariate_names, user_declare, "ARM", "EVENT_RELATED"))    
+  declare <- unique(c(summary@iov_names, summary@covariate_names, summary@occ_names, user_declare, "ARM", "EVENT_RELATED"))    
 
   # Remove initial conditions from PMX model before export (if present)
   if (iteration@index > 1) {
@@ -301,8 +332,8 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
 
   results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
-    inits <- getInitialConditions(subdataset, config$iteration, config$cmtNames)
-    
+    inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
+
     # Launch simulation with RxODE
     tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble", keep=keep, inits=inits)
     
@@ -344,8 +375,8 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
   # Instantiate mrgsolve model
   mod <- mrgsolve::mcode("model", mrgmod %>% pmxmod::toString())
   
-  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset){
-    inits <- getInitialConditions(subdataset, config$iteration, config$cmtNames)
+  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
+    inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {
@@ -354,7 +385,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
     
     # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
-    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df")
+    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df", nocb=FALSE) %>% tibble::as_tibble()
     
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)

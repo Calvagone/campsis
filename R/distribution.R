@@ -201,6 +201,7 @@ DiscreteDistribution <- function(x, prob, replace=TRUE) {
 #' @param mandatory must be in model or not
 #' @return the parameter value (or a defautl value if parameter is not found)
 #' @importFrom assertthat assert_that
+#' @export
 retrieveParameterValue <- function(model, paramName, default=NULL, mandatory=FALSE) {
   assertthat::assert_that(is.character(paramName) && length(paramName)==1,
                           msg="paramName must be a single character value")

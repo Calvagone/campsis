@@ -37,6 +37,23 @@ setMethod("getCovariateNames", signature = c("arms"), definition = function(obje
 })
 
 #_______________________________________________________________________________
+#----                            getIOVNames                                ----
+#_______________________________________________________________________________
+
+setMethod("getIOVNames", signature = c("arms"), definition = function(object) {
+  return(object@list %>% purrr::map(.f=~.x %>% getIOVNames())  %>% purrr::flatten_chr() %>% unique())
+})
+
+
+#_______________________________________________________________________________
+#----                         getOccasionNames                              ----
+#_______________________________________________________________________________
+
+setMethod("getOccasionNames", signature = c("arms"), definition = function(object) {
+  return(object@list %>% purrr::map(.f=~.x %>% getOccasionNames())  %>% purrr::flatten_chr() %>% unique())
+})
+
+#_______________________________________________________________________________
 #----                     getTimeVaryingCovariateNames                      ----
 #_______________________________________________________________________________
 
@@ -50,13 +67,5 @@ setMethod("getTimeVaryingCovariateNames", signature = c("arms"), definition = fu
 
 setMethod("getTimes", signature = c("arms"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x %>% getTimes()) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
-})
-
-#_______________________________________________________________________________
-#----                            getIOVNames                                ----
-#_______________________________________________________________________________
-
-setMethod("getIOVNames", signature = c("arms"), definition = function(object) {
-  return(object@list %>% purrr::map(.f=~.x %>% getIOVNames())  %>% purrr::flatten_chr() %>% unique())
 })
 

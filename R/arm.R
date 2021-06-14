@@ -40,19 +40,28 @@ setMethod("getCovariateNames", signature = c("arm"), definition = function(objec
 })
 
 #_______________________________________________________________________________
-#----                     getTimeVaryingCovariateNames                      ----
-#_______________________________________________________________________________
-
-setMethod("getTimeVaryingCovariateNames", signature = c("arm"), definition = function(object) {
-  return((object@covariates %>% pmxmod::select("time_varying_covariate"))@list %>% purrr::map_chr(.f=~.x@name))
-})
-
-#_______________________________________________________________________________
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 
 setMethod("getIOVNames", signature = c("arm"), definition = function(object) {
   return(object@protocol@treatment@iovs@list %>% purrr::map_chr(.f=~.x@colname))
+})
+
+#_______________________________________________________________________________
+#----                         getOccasionNames                              ----
+#_______________________________________________________________________________
+
+setMethod("getOccasionNames", signature = c("arm"), definition = function(object) {
+  return(object@protocol@treatment@occasions@list %>% purrr::map_chr(.f=~.x@colname))
+})
+
+
+#_______________________________________________________________________________
+#----                     getTimeVaryingCovariateNames                      ----
+#_______________________________________________________________________________
+
+setMethod("getTimeVaryingCovariateNames", signature = c("arm"), definition = function(object) {
+  return((object@covariates %>% pmxmod::select("time_varying_covariate"))@list %>% purrr::map_chr(.f=~.x@name))
 })
 
 #_______________________________________________________________________________
@@ -75,6 +84,12 @@ setMethod("getTimes", signature = c("arm"), definition = function(object) {
 #----                           add                                   ----
 #_______________________________________________________________________________
 
+setMethod("add", signature = c("arm", "list"), definition = function(object, x) {
+  for (element in x) {
+    object <- object %>% add(element)
+  }
+  return(object)
+})
 
 setMethod("add", signature = c("arm", "treatment_entry"), definition = function(object, x) {
   object@protocol@treatment <- object@protocol@treatment %>% add(x) 

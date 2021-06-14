@@ -24,15 +24,38 @@ getSeed <- function(seed=NULL) {
   return(retValue)
 }
 
-#' Get seed for replicate.
+#' Get seed for parameter uncertainty sampling.
 #' 
-#' @param originalSeed original seed
-#' @param replicate the replicate number
-#' @return a new seed value for this replicate
-#' @keywords internal
+#' @param seed original seed
+#' @return the seed value used to sample parameter uncertainty
+#' @export
 #' 
-getSeedForReplicate <- function(originalSeed, replicate) {
-  return(as.integer(originalSeed + 31*(replicate - 1)))
+getSeedForParametersSampling <- function(seed) {
+  return(seed - 1)
+}
+
+#' Get seed for dataset export.
+#' 
+#' @param seed original seed
+#' @param replicate the current replicate number
+#' @param iterations total number of iterations
+#' @return the seed value used to export the dataset
+#' @export
+#' 
+getSeedForDatasetExport <- function(seed, replicate, iterations) {
+  return(as.integer(seed + (replicate - 1)*(iterations + 1)))
+}
+
+#' Get seed for iteration.
+#' 
+#' @param seed original seed
+#' @param replicate the current replicate number
+#' @param iterations total number of iterations
+#' @return the seed value to be used for the given replicate number and iteration
+#' @export
+#' 
+getSeedForIteration <- function(seed, replicate, iterations, iteration) {
+  return(getSeedForDatasetExport(seed, replicate, iterations) + iteration)
 }
 
 #' Set the seed. The goal of this method is to centralise all calls to
@@ -44,4 +67,5 @@ getSeedForReplicate <- function(originalSeed, replicate) {
 setSeed <- function(seed) {
   assertthat::assert_that(is.numeric(seed), msg="seed not numeric")
   set.seed(seed)
+  #cat(paste0("SEED CHANGED TO: ", seed, "\n"))
 }

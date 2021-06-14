@@ -137,7 +137,7 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
     depotCmt <- object@compartment
   }
 
-  return(data.frame(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
+  return(tibble::tibble(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
                     AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number, IS_INFUSION=FALSE, EVENT_RELATED=as.integer(FALSE)))
 })
 
@@ -155,7 +155,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   } else {
     depotCmt <- object@compartment
   }
-  retValue <- data.frame(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
+  retValue <- tibble::tibble(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
                          AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number, IS_INFUSION=TRUE, EVENT_RELATED=as.integer(FALSE))
   
   # Duration or rate

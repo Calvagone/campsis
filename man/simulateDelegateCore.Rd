@@ -14,6 +14,8 @@ simulateDelegateCore(
   outfun,
   seed,
   replicates,
+  replicate,
+  iterations,
   ...
 )
 }
@@ -35,6 +37,10 @@ simulateDelegateCore(
 \item{seed}{seed value}
 
 \item{replicates}{number of replicates, default is 1}
+
+\item{replicate}{current replicate number}
+
+\item{iterations}{number of iterations}
 
 \item{...}{optional arguments like declare}
 }
