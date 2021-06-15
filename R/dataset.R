@@ -243,8 +243,20 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
   return(table)
 })
 
-setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
-
+#' Export delegate method. This method is common to RxODE and mrgsolve.
+#' 
+#' @param object current dataset
+#' @param dest destination engine
+#' @param seed seed value
+#' @param ... extra arguments
+#' @return 2-dimensional dataset, same for RxODE and mrgsolve
+#' @importFrom dplyr arrange left_join select
+#' @importFrom pmxmod export
+#' @importFrom tibble add_column tibble
+#' @importFrom purrr accumulate map_df map_int map2_df
+#' @keywords internal
+#' 
+exportDelegate <- function(object, dest, seed, ...) {
   args <- list(...)
   model <- args$model
   if (!is.null(model) && !is(model, "pmx_model")) {
@@ -265,10 +277,10 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
     }
   }
-
+  
   # Retrieve dataset configuration
   config <- object@config
-
+  
   # Use either arms or default_arm
   arms <- object@arms
   if (length(arms) == 0) {
@@ -292,10 +304,10 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     covariates <- arm@covariates
     treatmentIovs <- treatment@iovs
     occasions <- treatment@occasions
-
+    
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
-
+    
     # Create the base table with all treatment entries and observations
     table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID))
     table <- table %>% dplyr::arrange(ID, TIME, EVID)
@@ -309,7 +321,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     
     # Treating IOV's
     iovsAsCov <- processAsCovariate(treatmentIovs@list)
-
+    
     # Sampling IOV's
     iov <- sampleCovariatesList(iovsAsCov, n=length(ids)*doseNumber)
     if (nrow(iov) > 0) {
@@ -340,18 +352,26 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   # Remove IS_INFUSION column
   retValue <- retValue %>% dplyr::select(-IS_INFUSION)
   
-  # IOV/OCC post-processing
+  return(retValue)
+}
+
+setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
+
+  retValue <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   
-  # A few explanations: 
-  # Before, order was: # 2 # 1 # 3
-  # Now if 2 rows have the same time, IOV values will be carried backward
-  # This is a 'workaround' for RxODE as it only reads the first covariate value for 2 rows belonging to the same time
-  # I.e. most of the time OBS time X then DOSE time X, IOV value will be the IOV value of the observation
-  iovNames <- object %>% getIOVNames()
-  iovNames <- iovNames %>% append(object %>% getOccasionNames())
-  retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="up")       # 1
-  retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="down")           # 2
-  retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  # IOV/OCC post-processing
+  # READ CAREFULLY
+  # Previous order =  # 1 # 2 # 3
+  # Problem in RxODE (LOCF mode) / mrgsolve (LOCF mode), if 2 rows have the same time (often: OBS then DOSE), first row covariate value is taken!
+  # Workaround: identify these rows (group by ID and TIME) and apply a fill in the UP direction. Do this as the first step!
+  # This workaround works well but can give issues with treatment occasion / IOV if NOCB is used (and very few observations...)!
+  # This specific case is tested in testSimulateNocbLocf.R script
+
+  iovOccNames <- object %>% getIOVNames()
+  iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
+  retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="up")       # 2
+  retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="down")           # 1
+  retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
 
   return(retValue %>% dplyr::ungroup())
 })
