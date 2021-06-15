@@ -250,7 +250,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param seed seed value
 #' @param ... extra arguments
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
-#' @importFrom dplyr arrange left_join select
+#' @importFrom dplyr arrange left_join
 #' @importFrom pmxmod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
