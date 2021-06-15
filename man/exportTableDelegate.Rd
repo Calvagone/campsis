@@ -4,7 +4,7 @@
 \alias{exportTableDelegate}
 \title{Export table delegate.}
 \usage{
-exportTableDelegate(model, dataset, dest, events, seed, tablefun)
+exportTableDelegate(model, dataset, dest, events, seed, tablefun, nocb)
 }
 \arguments{
 \item{model}{generic PMX model}
@@ -18,6 +18,8 @@ exportTableDelegate(model, dataset, dest, events, seed, tablefun)
 \item{seed}{seed value}
 
 \item{tablefun}{function or lambda formula to apply on exported 2-dimensional dataset}
+
+\item{nocb}{next-observation carried backward mode (NOCB), default value is false (i.e. LOCF is used)}
 }
 \description{
 Export table delegate.

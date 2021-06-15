@@ -68,8 +68,8 @@ test_that("NOCB/LOCF effect on treatment occasion", {
   dataset <- dataset %>% add(Observations(times=seq(24, 36)))
   
   regFilename <- "occ_as_time_varying_cov"
-  table_rxode <- dataset %>% export(dest="RxODE", model=model, seed=seed)
-  table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed)
+  # table_rxode <- dataset %>% export(dest="RxODE", model=model, seed=seed)
+  # table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed)
   
   # Dataset non-regression test
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
@@ -90,19 +90,57 @@ test_that("NOCB/LOCF effect on treatment occasion", {
   # For RxODE: if OCC is shifted by 1, we get the same results as with LOCF, BUT OBS & DOSE at same time must have the same OCC
   # TO BE TESTED FURTHER...
   
-  table <- dataset %>% export(dest="RxODE", model=model, seed=seed) # CAREFUL, SEED NEEDED FOR REPRODUCIBILITY
-  table_rxode <- table %>% dplyr::group_by(ID) %>% dplyr::mutate(OCC=c(1, OCC[-dplyr::n()]))
-  table_rxode[4, "OCC"] <- 2
-  table_rxode[20, "OCC"] <- 2
-  table_rxode[36, "OCC"] <- 2
+  # table <- dataset %>% export(dest="RxODE", model=model, seed=seed) # CAREFUL, SEED NEEDED FOR REPRODUCIBILITY
+  # table_rxode <- table %>% dplyr::group_by(ID) %>% dplyr::mutate(OCC=c(1, OCC[-dplyr::n()]))
+  # table_rxode[4, "OCC"] <- 2
+  # table_rxode[20, "OCC"] <- 2
+  # table_rxode[36, "OCC"] <- 2
   
-  results1 <- model %>% simulate(table_rxode, dest="RxODE", seed=seed, outvars="KA", nocb=TRUE)
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars="KA", nocb=TRUE)
   spaghettiPlot(results1, "CP")
   
-  table_mrgsolve <- table %>% dplyr::group_by(ID) %>% dplyr::mutate(OCC=c(1, OCC[-dplyr::n()]))
-  results2 <- model %>% simulate(table_mrgsolve, dest="mrgsolve", seed=seed, outvars="KA", nocb=TRUE, declare="OCC")
+  #table_mrgsolve <- table %>% dplyr::group_by(ID) %>% dplyr::mutate(OCC=c(1, OCC[-dplyr::n()]))
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars="KA", nocb=TRUE)
   spaghettiPlot(results2, "CP")
   
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
+})
+
+test_that("Simulate 1000mg QD with IOV on CL (LOCF vs NOCB, obs. times by 5)", {
+  regFilename <- "3_boluses_iov_cl"
+  model <- model_library$advan4_trans4
+  model <- model %>% replaceEquation("CL", rhs="THETA_CL*exp(ETA_CL + IOV_CL)")
+  
+  for(startTime in c(0, 20, 23, 24)) {
+    obsTimes <- seq(startTime,72, by=5)
+    
+    dataset <- Dataset(3)
+    dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
+    dataset <- dataset %>% add(Observations(times=obsTimes)) # BEFORE by 0.5, NOW by 5
+    dataset <- dataset %>% add(IOV(colname="IOV_CL", distribution=FunctionDistribution(fun="rnorm", args=list(mean=0, sd=1))))
+    
+    table_rxode <- dataset %>% export(dest="RxODE", model=model, seed=seed)
+    table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed)
+    
+    results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+    spaghettiPlot(results1a, "CP")
+    
+    results1b <- model %>% simulate(dataset, dest="RxODE", seed=seed, nocb=TRUE)
+    spaghettiPlot(results1b, "CP")
+    
+    results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+    spaghettiPlot(results2a, "CP")
+    
+    results2b <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocb=TRUE)
+    spaghettiPlot(results2b, "CP")
+    
+    outputRegressionTest(results1a, output="CP", filename=regFilename, times=obsTimes)
+    outputRegressionTest(results1b, output="CP", filename=regFilename, times=obsTimes)
+    outputRegressionTest(results2a, output="CP", filename=regFilename, times=obsTimes)
+    outputRegressionTest(results2b, output="CP", filename=regFilename, times=obsTimes)
+  }
+  
 })

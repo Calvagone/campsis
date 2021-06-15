@@ -55,7 +55,7 @@ getSimulationEngineType <- function(dest) {
 #' @inheritParams simulate
 #' @keywords internal
 #' 
-exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
+exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, nocb) {
   if (is(dataset, "dataset")) {
     # Retrieve event times (same for all arms)
     eventTimes <- c(0, events %>% getTimes()) %>% unique()
@@ -73,7 +73,7 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
         dataset@arms@list[[armIndex]] <- dataset@arms@list[[armIndex]] %>% add(eventRelatedObs)
       }
     }
-    table <- dataset %>% pmxmod::export(dest=dest, model=model, seed=seed, event_related_column=TRUE)
+    table <- dataset %>% pmxmod::export(dest=dest, model=model, seed=seed, nocb=nocb, event_related_column=TRUE)
   } else {
     table <- dataset
     if (!("EVENT_RELATED" %in% colnames(table))) {
@@ -112,7 +112,7 @@ getDatasetMaxTime <- function(dataset) {
 simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb=nocb, replicate, iterations, ...) {
   destEngine <- getSimulationEngineType(dest)
   tableSeed <- getSeedForDatasetExport(seed=seed, replicate=replicate, iterations=iterations %>% length())
-  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun)
+  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, nocb=nocb)
   summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
   
   inits <- data.frame()

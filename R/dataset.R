@@ -234,9 +234,9 @@ applyCompartmentCharacteristics <- function(table, properties) {
   return(table)
 }
 
-setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, event_related_column=FALSE, ...) {
+setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, nocb=FALSE, event_related_column=FALSE, ...) {
   destinationEngine <- getSimulationEngineType(dest)
-  table <- object %>% export(destinationEngine, seed=seed, ...)
+  table <- object %>% export(destinationEngine, seed=seed, nocb=nocb, ...)
   if (!event_related_column) {
     table <- table %>% dplyr::select(-EVENT_RELATED)
   }
@@ -248,6 +248,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param object current dataset
 #' @param dest destination engine
 #' @param seed seed value
+#' @param nocb nocb value, logical value
 #' @param ... extra arguments
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
 #' @importFrom dplyr arrange left_join
@@ -256,7 +257,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @importFrom purrr accumulate map_df map_int map2_df
 #' @keywords internal
 #' 
-exportDelegate <- function(object, dest, seed, ...) {
+exportDelegate <- function(object, dest, seed, nocb, ...) {
   args <- list(...)
   model <- args$model
   if (!is.null(model) && !is(model, "pmx_model")) {
@@ -358,6 +359,7 @@ exportDelegate <- function(object, dest, seed, ...) {
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
 
   retValue <- exportDelegate(object=object, dest=dest, seed=seed, ...)
+  nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
   
   # IOV/OCC post-processing
   # READ CAREFULLY
@@ -369,15 +371,46 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
 
   iovOccNames <- object %>% getIOVNames()
   iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
-  retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="up")       # 2
-  retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="down")           # 1
-  retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  if (nocb) {
+    retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="down")           # 1
+    retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="up")       # 2
+    retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  } else {
+    retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="up")       # 2
+    retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="down")           # 1
+    retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  }
+
+  # cat("NOCB: ")
+  # cat(nocb)
+  # cat("\n")
+  if (nocb) {
+    retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~c(.x[1], .x[-dplyr::n()])) #OCC=c(1, OCC[-dplyr::n()])
+  }
 
   return(retValue %>% dplyr::ungroup())
 })
 
 setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, ...) {
   
-  # Same exported dataset as for RxODE
-  return(object %>% export(dest=getSimulationEngineType("RxODE"), seed=seed, ...))
+  retValue <- exportDelegate(object=object, dest=dest, seed=seed, ...)
+  nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
+  
+  # IOV/OCC post-processing
+  # READ CAREFULLY
+
+  iovOccNames <- object %>% getIOVNames()
+  iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
+  retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="up")       # 2
+  retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="down")           # 1
+  retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  
+  # cat("NOCB: ")
+  # cat(nocb)
+  # cat("\n")
+  if (nocb) {
+    retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~c(.x[1], .x[-dplyr::n()])) #OCC=c(1, OCC[-dplyr::n()])
+  }
+  
+  return(retValue %>% dplyr::ungroup())
 })
