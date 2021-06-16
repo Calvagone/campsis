@@ -356,61 +356,77 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
   return(retValue)
 }
 
+#' Fill IOV/Occasion columns.
+#' 
+#' Problem in RxODE (LOCF mode) / mrgsolve (LOCF mode), if 2 rows have the same time (often: OBS then DOSE), first row covariate value is taken!
+#' Workaround: identify these rows (group by ID and TIME) and apply a fill in the UP direction.
+#' 
+#' @param table current table
+#' @param columnNames the column names to fill
+#' @param downDirectionFirst TRUE: first fill down then fill up (by ID & TIME). FALSE: First fill up (by ID & TIME), then fill down
+#' @return 2-dimensional dataset
+#' @importFrom dplyr all_of group_by mutate_at
+#' @importFrom tidyr fill
+#' @keywords internal
+#' 
+fillIOVOccColumns <- function(table, columnNames, downDirectionFirst) {
+  if (downDirectionFirst) {
+    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
+    table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")       # 2
+    table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  } else {
+    table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")       # 2
+    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
+    table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  }
+  return(table)
+}
+
+#' Counter balance NOCB mode for occasions & IOV.
+#' This function will simply witch all the related occasion & IOV columns by one.
+#' 
+#' @param table current table
+#' @param columnNames columns to be counter-balanced
+#' @return 2-dimensional dataset
+#' @importFrom dplyr group_by mutate_at n
+#' @keywords internal
+#'
+counterBalanceNocbMode <- function(table, columnNames) {
+  return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[1], .x[-dplyr::n()])))
+}
+
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
 
-  retValue <- exportDelegate(object=object, dest=dest, seed=seed, ...)
+  table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
   
   # IOV/OCC post-processing
-  # READ CAREFULLY
-  # Previous order =  # 1 # 2 # 3
-  # Problem in RxODE (LOCF mode) / mrgsolve (LOCF mode), if 2 rows have the same time (often: OBS then DOSE), first row covariate value is taken!
-  # Workaround: identify these rows (group by ID and TIME) and apply a fill in the UP direction. Do this as the first step!
-  # This workaround works well but can give issues with treatment occasion / IOV if NOCB is used (and very few observations...)!
-  # This specific case is tested in testSimulateNocbLocf.R script
-
   iovOccNames <- object %>% getIOVNames()
   iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
+  
   if (nocb) {
-    retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="down")           # 1
-    retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="up")       # 2
-    retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=TRUE)
+    table <- counterBalanceNocbMode(table, columnNames=iovOccNames)
   } else {
-    retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="up")       # 2
-    retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="down")           # 1
-    retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
   }
 
-  # cat("NOCB: ")
-  # cat(nocb)
-  # cat("\n")
-  if (nocb) {
-    retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~c(.x[1], .x[-dplyr::n()])) #OCC=c(1, OCC[-dplyr::n()])
-  }
-
-  return(retValue %>% dplyr::ungroup())
+  return(table %>% dplyr::ungroup())
 })
 
 setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, ...) {
   
-  retValue <- exportDelegate(object=object, dest=dest, seed=seed, ...)
+  table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
-  
-  # IOV/OCC post-processing
-  # READ CAREFULLY
 
+  # IOV/OCC post-processing
   iovOccNames <- object %>% getIOVNames()
   iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
-  retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="up")       # 2
-  retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovOccNames), .direction="down")           # 1
-  retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
   
-  # cat("NOCB: ")
-  # cat(nocb)
-  # cat("\n")
+  table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
   if (nocb) {
-    retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovOccNames, .funs=~c(.x[1], .x[-dplyr::n()])) #OCC=c(1, OCC[-dplyr::n()])
+    table <- counterBalanceNocbMode(table, columnNames=iovOccNames)
   }
   
-  return(retValue %>% dplyr::ungroup())
+  return(table %>% dplyr::ungroup())
 })

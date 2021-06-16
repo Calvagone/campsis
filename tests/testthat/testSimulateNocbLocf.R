@@ -52,7 +52,7 @@ test_that("Weight as a time-varying covariate (NOCB vs LOCF)", {
 })
 
 
-test_that("NOCB/LOCF effect on treatment occasion", {
+test_that("NOCB/LOCF should not have any effect on treatment occasion", {
   model <- model_library$advan4_trans4
   model <- model %>% removeEquation("KA")
   model <- model %>% addEquation(lhs="KA", rhs="0", before="CL")
@@ -85,21 +85,9 @@ test_that("NOCB/LOCF effect on treatment occasion", {
   outputRegressionTest(results2, output="CP", filename=regFilename)
   
   # NOCB tests
-  # CAREFUL, NOCB gives different results, except if you adapt the dataset
-  # For mrgsolve: if OCC is shifted by 1, we get the same results as with LOCF
-  # For RxODE: if OCC is shifted by 1, we get the same results as with LOCF, BUT OBS & DOSE at same time must have the same OCC
-  # TO BE TESTED FURTHER...
-  
-  # table <- dataset %>% export(dest="RxODE", model=model, seed=seed) # CAREFUL, SEED NEEDED FOR REPRODUCIBILITY
-  # table_rxode <- table %>% dplyr::group_by(ID) %>% dplyr::mutate(OCC=c(1, OCC[-dplyr::n()]))
-  # table_rxode[4, "OCC"] <- 2
-  # table_rxode[20, "OCC"] <- 2
-  # table_rxode[36, "OCC"] <- 2
-  
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars="KA", nocb=TRUE)
   spaghettiPlot(results1, "CP")
   
-  #table_mrgsolve <- table %>% dplyr::group_by(ID) %>% dplyr::mutate(OCC=c(1, OCC[-dplyr::n()]))
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars="KA", nocb=TRUE)
   spaghettiPlot(results2, "CP")
   
@@ -107,7 +95,7 @@ test_that("NOCB/LOCF effect on treatment occasion", {
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
 
-test_that("Simulate 1000mg QD with IOV on CL (LOCF vs NOCB, obs. times by 5)", {
+test_that("NOCB/LOCF should not have any effect on IOV (e.g. on clearance)", {
   regFilename <- "3_boluses_iov_cl"
   model <- model_library$advan4_trans4
   model <- model %>% replaceEquation("CL", rhs="THETA_CL*exp(ETA_CL + IOV_CL)")
