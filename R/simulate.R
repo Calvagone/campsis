@@ -13,21 +13,26 @@
 #' @param outfun function or lambda formula to apply on resulting dataframe after each replicate
 #' @param seed seed value
 #' @param replicates number of replicates, default is 1
+#' @param nocb next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE
 #' @param ... optional arguments like declare
 #' @return dataframe with all results
 #' @export
-simulate <- function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
+simulate <- function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, ...) {
   stop("No default function is provided")
 }
 
-setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, ...) {
-  dest <- if (is.null(dest)) "RxODE" else dest
+setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, ...) {
+  if (is.null(dest)) {
+    # Default engine
+    dest <- "RxODE"
+  }
   events <- preprocessEvents(events)
   tablefun <- preprocessFunction(tablefun, "tablefun")
   outvars <- preprocessOutvars(outvars)
   outfun <- preprocessFunction(outfun, "outfun")
   seed <- getSeed(seed)
   replicates <- preprocessReplicates(replicates)
+  nocb <- preprocessNocb(nocb, dest)
   standardGeneric("simulate")
 })
 
@@ -53,7 +58,7 @@ getSimulationEngineType <- function(dest) {
 #' @inheritParams simulate
 #' @keywords internal
 #' 
-exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
+exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, nocb, nocbvars) {
   if (is(dataset, "dataset")) {
     # Retrieve event times (same for all arms)
     eventTimes <- c(0, events %>% getTimes()) %>% unique()
@@ -71,7 +76,7 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun) {
         dataset@arms@list[[armIndex]] <- dataset@arms@list[[armIndex]] %>% add(eventRelatedObs)
       }
     }
-    table <- dataset %>% pmxmod::export(dest=dest, model=model, seed=seed, event_related_column=TRUE)
+    table <- dataset %>% pmxmod::export(dest=dest, model=model, seed=seed, nocb=nocb, event_related_column=TRUE, nocbvars=nocbvars)
   } else {
     table <- dataset
     if (!("EVENT_RELATED" %in% colnames(table))) {
@@ -107,10 +112,11 @@ getDatasetMaxTime <- function(dataset) {
 #' @param iterations number of iterations
 #' @keywords internal
 #' 
-simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, replicate, iterations, ...) {
+simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb=nocb, replicate, iterations, ...) {
   destEngine <- getSimulationEngineType(dest)
   tableSeed <- getSeedForDatasetExport(seed=seed, replicate=replicate, iterations=iterations %>% length())
-  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun)
+  nocbvars <- processExtraArg(list(...), name="nocbvars", default=NULL, mandatory=FALSE)
+  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, nocb=nocb, nocbvars=nocbvars)
   summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
   
   inits <- data.frame()
@@ -120,7 +126,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     table_ <- cutTableForEvent(table, iteration, summary)
     #print(table_)
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
-                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, replicate=replicate, iteration=iteration, ...)
+                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, replicate=replicate, iteration=iteration, ...)
     # Shift times back to their original value
     results_$time <- results_$time + iteration@start
     
@@ -161,14 +167,14 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
 #' @inheritParams simulate
 #' @keywords internal
 #' 
-simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
+simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb=nocb, ...) {
   validObject(model)
   maxTime <- getDatasetMaxTime(dataset)
   iterations <- getEventIterations(events, maxTime=maxTime)
   
   if (replicates==1) {
     return(simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
-                                tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, replicate=1, iterations=iterations, ...))
+                                tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, replicate=1, iterations=iterations, ...))
   } else {
     # Get as many models as replicates
     parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
@@ -178,22 +184,22 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
     # Run all models
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
       return(simulateDelegateCore(model=model_, dataset=dataset, dest=dest, events=events,
-                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, replicate=replicate, iterations=iterations, ...))
+                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, replicate=replicate, iterations=iterations, ...))
     }, .id="replicate") %>% dplyr::mutate(replicate=as.integer(replicate)))
   }
 }
 
-setMethod("simulate", signature=c("pmx_model", "dataset", "character", "events", "function", "character", "function", "integer", "integer"),
-          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "dataset", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun,
-                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb,
                           summary=toDatasetSummary(dataset), ...))
 })
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "character", "events", "function", "character", "function", "integer", "integer"),
-          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "data.frame", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun, 
-                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, ...))
+                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, ...))
 })
 
 #' Remove initial conditions.
@@ -302,8 +308,8 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
   return(inits)
 }
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "events", "function", "character", "function", "integer", "integer"),
-          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   
   # Add ARM equation in model
   model <- preprocessArmColumn(dataset, model)
@@ -334,8 +340,12 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
+    # Covariate interpolation
+    covs_interpolation <- ifelse(nocb, "nocb", "constant")
+    
     # Launch simulation with RxODE
-    tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble", keep=keep, inits=inits)
+    tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
+                          keep=keep, inits=inits, covs_interpolation=covs_interpolation)
     
     # RxODE does not add the 'id' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
@@ -346,8 +356,8 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   return(results)
 })
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", "events", "function", "character", "function", "integer", "integer"),
-          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, ...) {
+setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   
   # Retrieve simulation config
   config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)
@@ -385,7 +395,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", 
     
     # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
-    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df", nocb=FALSE) %>% tibble::as_tibble()
+    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df", nocb=nocb) %>% tibble::as_tibble()
     
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)

@@ -74,6 +74,27 @@ preprocessReplicates <- function(replicates) {
   return(as.integer(replicates))
 }
 
+#' Preprocess 'nocb' argument.
+#' 
+#' @param nocb nocb argument, logical value
+#' @param dest destination engine
+#' @return user value, if not specified, return TRUE for mrgsolve and FALSE for RxODE
+#' @importFrom assertthat assert_that
+#' @keywords internal
+#' 
+preprocessNocb <- function(nocb, dest) {
+  if (is.null(nocb)) {
+    if (dest=="mrgsolve") {
+      nocb <- TRUE
+    } else {
+      nocb <- FALSE
+    }
+  }
+  assertthat::assert_that(is.logical(nocb) && nocb %>% length()==1,
+                          msg="nocb not a logical value TRUE/FALSE")
+  return(nocb)
+}
+
 #' Preprocess subjects ID's.
 #' 
 #' @param dataset current dataset, data frame form

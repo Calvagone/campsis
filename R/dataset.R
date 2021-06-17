@@ -234,17 +234,30 @@ applyCompartmentCharacteristics <- function(table, properties) {
   return(table)
 }
 
-setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, event_related_column=FALSE, ...) {
+setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, nocb=FALSE, event_related_column=FALSE, ...) {
   destinationEngine <- getSimulationEngineType(dest)
-  table <- object %>% export(destinationEngine, seed=seed, ...)
+  table <- object %>% export(destinationEngine, seed=seed, nocb=nocb, ...)
   if (!event_related_column) {
     table <- table %>% dplyr::select(-EVENT_RELATED)
   }
   return(table)
 })
 
-setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
-
+#' Export delegate method. This method is common to RxODE and mrgsolve.
+#' 
+#' @param object current dataset
+#' @param dest destination engine
+#' @param seed seed value
+#' @param nocb nocb value, logical value
+#' @param ... extra arguments
+#' @return 2-dimensional dataset, same for RxODE and mrgsolve
+#' @importFrom dplyr arrange left_join
+#' @importFrom pmxmod export
+#' @importFrom tibble add_column tibble
+#' @importFrom purrr accumulate map_df map_int map2_df
+#' @keywords internal
+#' 
+exportDelegate <- function(object, dest, seed, nocb, ...) {
   args <- list(...)
   model <- args$model
   if (!is.null(model) && !is(model, "pmx_model")) {
@@ -265,10 +278,10 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
     }
   }
-
+  
   # Retrieve dataset configuration
   config <- object@config
-
+  
   # Use either arms or default_arm
   arms <- object@arms
   if (length(arms) == 0) {
@@ -292,10 +305,10 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     covariates <- arm@covariates
     treatmentIovs <- treatment@iovs
     occasions <- treatment@occasions
-
+    
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
-
+    
     # Create the base table with all treatment entries and observations
     table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID))
     table <- table %>% dplyr::arrange(ID, TIME, EVID)
@@ -309,7 +322,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     
     # Treating IOV's
     iovsAsCov <- processAsCovariate(treatmentIovs@list)
-
+    
     # Sampling IOV's
     iov <- sampleCovariatesList(iovsAsCov, n=length(ids)*doseNumber)
     if (nrow(iov) > 0) {
@@ -340,24 +353,103 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   # Remove IS_INFUSION column
   retValue <- retValue %>% dplyr::select(-IS_INFUSION)
   
-  # IOV/OCC post-processing
-  
-  # A few explanations: 
-  # Before, order was: # 2 # 1 # 3
-  # Now if 2 rows have the same time, IOV values will be carried backward
-  # This is a 'workaround' for RxODE as it only reads the first covariate value for 2 rows belonging to the same time
-  # I.e. most of the time OBS time X then DOSE time X, IOV value will be the IOV value of the observation
-  iovNames <- object %>% getIOVNames()
-  iovNames <- iovNames %>% append(object %>% getOccasionNames())
-  retValue <- retValue %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="up")       # 1
-  retValue <- retValue %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(iovNames), .direction="down")           # 2
-  retValue <- retValue %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=iovNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  return(retValue)
+}
 
-  return(retValue %>% dplyr::ungroup())
+#' Fill IOV/Occasion columns.
+#' 
+#' Problem in RxODE (LOCF mode) / mrgsolve (LOCF mode), if 2 rows have the same time (often: OBS then DOSE), first row covariate value is taken!
+#' Workaround: identify these rows (group by ID and TIME) and apply a fill in the UP direction.
+#' 
+#' @param table current table
+#' @param columnNames the column names to fill
+#' @param downDirectionFirst TRUE: first fill down then fill up (by ID & TIME). FALSE: First fill up (by ID & TIME), then fill down
+#' @return 2-dimensional dataset
+#' @importFrom dplyr all_of group_by mutate_at
+#' @importFrom tidyr fill
+#' @keywords internal
+#' 
+fillIOVOccColumns <- function(table, columnNames, downDirectionFirst) {
+  if (downDirectionFirst) {
+    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
+    table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")       # 2
+    table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  } else {
+    table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")       # 2
+    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
+    table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+  }
+  return(table)
+}
+
+#' Counter-balance NOCB mode for occasions & IOV.
+#' This function will simply shift all the related occasion & IOV columns to the right (by one).
+#' 
+#' @param table current table
+#' @param columnNames columns to be counter-balanced
+#' @return 2-dimensional dataset
+#' @importFrom dplyr group_by mutate_at n
+#' @keywords internal
+#'
+counterBalanceNocbMode <- function(table, columnNames) {
+  return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[1], .x[-dplyr::n()])))
+}
+
+#' Counter-balance LOCF mode for occasions & IOV.
+#' This function will simply shift all the related occasion & IOV columns to the left (by one).
+#' 
+#' @param table current table
+#' @param columnNames columns to be counter-balanced
+#' @return 2-dimensional dataset
+#' @importFrom dplyr group_by mutate_at n
+#' @keywords internal
+#'
+counterBalanceLocfMode <- function(table, columnNames) {
+  return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[-1], .x[dplyr::n()])))
+}
+
+setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
+  
+  table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
+  nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
+  nocbvars <- pmxmod::processExtraArg(list(...), "nocbvars", default=NULL)
+  
+  # IOV/OCC post-processing
+  iovOccNames <- object %>% getIOVNames()
+  iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
+  iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
+  iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
+  
+  if (nocb) {
+    table <- fillIOVOccColumns(table, columnNames=iovOccNamesNocb, downDirectionFirst=TRUE)
+    table <- fillIOVOccColumns(table, columnNames=iovOccNamesLocf, downDirectionFirst=FALSE)
+    table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
+  } else {
+    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+  }
+  
+  return(table %>% dplyr::ungroup())
 })
 
 setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, ...) {
   
-  # Same exported dataset as for RxODE
-  return(object %>% export(dest=getSimulationEngineType("RxODE"), seed=seed, ...))
+  table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
+  nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
+  nocbvars <- pmxmod::processExtraArg(list(...), "nocbvars",  default=NULL)
+  
+  # IOV/OCC post-processing
+  iovOccNames <- object %>% getIOVNames()
+  iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
+  iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
+  iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
+  
+  if (nocb) {
+    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+    table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
+  } else {
+    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+    table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
+  }
+  
+  return(table %>% dplyr::ungroup())
 })

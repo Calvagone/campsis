@@ -40,9 +40,10 @@ datasetRegressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename)
 #' @param results newly generated results
 #' @param output variables to compare
 #' @param filename reference file (output will be appended automatically)
+#' @param times filter reference results on specific times, NULL by default
 #' @importFrom tibble as_tibble
 #' @export
-outputRegressionTest <- function(results, output, filename) {
+outputRegressionTest <- function(results, output, filename, times=NULL) {
   selectedColumns <- unique(c("id", "time", output))
   results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)
   suffix <- paste0(output, collapse="_") %>% tolower()
@@ -54,6 +55,9 @@ outputRegressionTest <- function(results, output, filename) {
   }
 
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
+  if (!is.null(times)) {
+    results2 <- results2 %>% dplyr::filter(time %in% dplyr::all_of(times))
+  }
   expect_equal(results1, results2)
 }
 
