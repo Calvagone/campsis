@@ -4,13 +4,15 @@
 \alias{preprocessNocb}
 \title{Preprocess 'nocb' argument.}
 \usage{
-preprocessNocb(nocb)
+preprocessNocb(nocb, dest)
 }
 \arguments{
 \item{nocb}{nocb argument, logical value}
+
+\item{dest}{destination engine}
 }
 \value{
-same value
+user value, if not specified, return TRUE for mrgsolve and FALSE for RxODE
 }
 \description{
 Preprocess 'nocb' argument.

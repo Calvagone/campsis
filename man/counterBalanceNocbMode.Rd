@@ -2,8 +2,8 @@
 % Please edit documentation in R/dataset.R
 \name{counterBalanceNocbMode}
 \alias{counterBalanceNocbMode}
-\title{Counter balance NOCB mode for occasions & IOV.
-This function will simply witch all the related occasion & IOV columns by one.}
+\title{Counter-balance NOCB mode for occasions & IOV.
+This function will simply shift all the related occasion & IOV columns to the right (by one).}
 \usage{
 counterBalanceNocbMode(table, columnNames)
 }
@@ -16,7 +16,7 @@ counterBalanceNocbMode(table, columnNames)
 2-dimensional dataset
 }
 \description{
-Counter balance NOCB mode for occasions & IOV.
-This function will simply witch all the related occasion & IOV columns by one.
+Counter-balance NOCB mode for occasions & IOV.
+This function will simply shift all the related occasion & IOV columns to the right (by one).
 }
 \keyword{internal}

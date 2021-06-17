@@ -279,3 +279,29 @@ test_that("Export occasions works well - example 3", {
   expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,2,2,2,2,4,4), 2))
 })
 
+test_that("Occasion can be added into arms", {
+
+  addProtocol <- function(x) {
+    # Add doses
+    x <- x %>% add(Bolus(time=0, amount=100))
+    x <- x %>% add(Bolus(time=24, amount=100))
+    x <- x %>% add(Bolus(time=48, amount=100))
+    
+    # Add observations
+    x <- x %>% add(Observations(times=seq(0, 60, by=10)))
+    
+    # Add occasions
+    x <- x %>% add(Occasion("MY_OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
+  }
+  
+  arm1 <- Arm(id=1, subjects=1) %>% addProtocol()
+  arm2 <- Arm(id=2, subjects=1) %>% addProtocol()
+  ds <- Dataset() %>% add(c(arm1, arm2))
+  
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # All OCC values are used because 3 doses
+  expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,3,3,3), 2))
+})
+

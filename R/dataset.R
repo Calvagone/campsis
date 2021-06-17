@@ -382,8 +382,8 @@ fillIOVOccColumns <- function(table, columnNames, downDirectionFirst) {
   return(table)
 }
 
-#' Counter balance NOCB mode for occasions & IOV.
-#' This function will simply witch all the related occasion & IOV columns by one.
+#' Counter-balance NOCB mode for occasions & IOV.
+#' This function will simply shift all the related occasion & IOV columns to the right (by one).
 #' 
 #' @param table current table
 #' @param columnNames columns to be counter-balanced
@@ -395,6 +395,15 @@ counterBalanceNocbMode <- function(table, columnNames) {
   return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[1], .x[-dplyr::n()])))
 }
 
+#' Counter-balance LOCF mode for occasions & IOV.
+#' This function will simply shift all the related occasion & IOV columns to the left (by one).
+#' 
+#' @param table current table
+#' @param columnNames columns to be counter-balanced
+#' @return 2-dimensional dataset
+#' @importFrom dplyr group_by mutate_at n
+#' @keywords internal
+#'
 counterBalanceLocfMode <- function(table, columnNames) {
   return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[-1], .x[dplyr::n()])))
 }
@@ -411,15 +420,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
-  
-  # if (nocb) {
-  #   table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=TRUE)
-  #   table <- counterBalanceNocbMode(table, columnNames=iovOccNames)
-  # } else {
-  #   table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
-  # }
   if (nocb) {
-    cat(paste0("COUNTER BALANCING NOCB: ", iovOccNamesNocb, "\n"))
     table <- fillIOVOccColumns(table, columnNames=iovOccNamesNocb, downDirectionFirst=TRUE)
     table <- fillIOVOccColumns(table, columnNames=iovOccNamesLocf, downDirectionFirst=FALSE)
     table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
@@ -442,13 +443,10 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
-  
   if (nocb) {
-    cat(paste0("COUNTER BALANCING NOCB: ", iovOccNamesNocb, "\n"))
     table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
     table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
   } else {
-    cat(paste0("COUNTER BALANCING LOCF: ", iovOccNamesLocf, "\n"))
     table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
     table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
   }

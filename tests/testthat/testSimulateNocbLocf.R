@@ -29,10 +29,10 @@ test_that("Weight as a time-varying covariate (NOCB vs LOCF)", {
   # LOCF tests
   regFilename <- "wt_as_time_varying_cov_locf"
   
-  results1 <- model %>% simulate(table, dest="RxODE", seed=seed)
+  results1 <- model %>% simulate(table, dest="RxODE", seed=seed, nocb=FALSE)
   spaghettiPlot(results1, "CP")
 
-  results2 <- model %>% simulate(table, dest="mrgsolve", seed=seed, declare="BW")
+  results2 <- model %>% simulate(table, dest="mrgsolve", seed=seed, declare="BW", nocb=FALSE) # NOCB TRUE by default
   spaghettiPlot(results2, "CP")
 
   outputRegressionTest(results1, output="CP", filename=regFilename)

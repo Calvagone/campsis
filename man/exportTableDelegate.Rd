@@ -28,7 +28,7 @@ exportTableDelegate(
 
 \item{tablefun}{function or lambda formula to apply on exported 2-dimensional dataset}
 
-\item{nocb}{next-observation carried backward mode (NOCB), default value is false (i.e. LOCF is used)}
+\item{nocb}{next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE}
 }
 \description{
 Export table delegate.

@@ -4,7 +4,7 @@ library(pmxmod)
 context("Test the simulate method with IOV")
 
 overwriteNonRegressionFiles <<- FALSE
-testFolder <<- "C:/prj/pmxsim/tests/testthat/"
+testFolder <<- ""
 seed <- 1
 
 source(paste0(testFolder, "testUtils.R"))

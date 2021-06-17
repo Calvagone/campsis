@@ -101,6 +101,11 @@ setMethod("add", signature = c("arm", "treatment_iov"), definition = function(ob
   return(object)
 })
 
+setMethod("add", signature = c("arm", "occasion"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% add(x) 
+  return(object)
+})
+
 setMethod("add", signature = c("arm", "observations"), definition = function(object, x) {
   object@protocol@observations <- object@protocol@observations %>% add(x) 
   return(object)

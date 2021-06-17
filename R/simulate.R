@@ -13,23 +13,26 @@
 #' @param outfun function or lambda formula to apply on resulting dataframe after each replicate
 #' @param seed seed value
 #' @param replicates number of replicates, default is 1
-#' @param nocb next-observation carried backward mode (NOCB), default value is false (i.e. LOCF is used)
+#' @param nocb next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE
 #' @param ... optional arguments like declare
 #' @return dataframe with all results
 #' @export
-simulate <- function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=FALSE, ...) {
+simulate <- function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, ...) {
   stop("No default function is provided")
 }
 
-setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=FALSE, ...) {
-  dest <- if (is.null(dest)) "RxODE" else dest
+setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, ...) {
+  if (is.null(dest)) {
+    # Default engine
+    dest <- "RxODE"
+  }
   events <- preprocessEvents(events)
   tablefun <- preprocessFunction(tablefun, "tablefun")
   outvars <- preprocessOutvars(outvars)
   outfun <- preprocessFunction(outfun, "outfun")
   seed <- getSeed(seed)
   replicates <- preprocessReplicates(replicates)
-  nocb <- preprocessNocb(nocb)
+  nocb <- preprocessNocb(nocb, dest)
   standardGeneric("simulate")
 })
 
