@@ -396,21 +396,33 @@ counterBalanceNocbMode <- function(table, columnNames) {
 }
 
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
-
+  
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
+  nocbvars <- pmxmod::processExtraArg(list(...), "nocbvars", default=NULL)
   
   # IOV/OCC post-processing
   iovOccNames <- object %>% getIOVNames()
   iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
+  iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
+  iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
+  
+  # if (nocb) {
+  #   table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=TRUE)
+  #   table <- counterBalanceNocbMode(table, columnNames=iovOccNames)
+  # } else {
+  #   table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+  # }
   if (nocb) {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=TRUE)
-    table <- counterBalanceNocbMode(table, columnNames=iovOccNames)
+    cat(paste0("COUNTER BALANCING: ", iovOccNamesNocb, "\n"))
+    table <- fillIOVOccColumns(table, columnNames=iovOccNamesNocb, downDirectionFirst=TRUE)
+    table <- fillIOVOccColumns(table, columnNames=iovOccNamesLocf, downDirectionFirst=FALSE)
+    table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
   } else {
     table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
   }
-
+  
   return(table %>% dplyr::ungroup())
 })
 
@@ -418,14 +430,18 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
-
+  nocbvars <- pmxmod::processExtraArg(list(...), "nocbvars",  default=NULL)
+  
   # IOV/OCC post-processing
   iovOccNames <- object %>% getIOVNames()
   iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
+  iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
+  iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
   table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
   if (nocb) {
-    table <- counterBalanceNocbMode(table, columnNames=iovOccNames)
+    cat(paste0("COUNTER BALANCING: ", iovOccNamesNocb, "\n"))
+    table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
   }
   
   return(table %>% dplyr::ungroup())

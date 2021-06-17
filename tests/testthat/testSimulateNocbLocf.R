@@ -85,10 +85,10 @@ test_that("NOCB/LOCF should not have any effect on treatment occasion", {
   outputRegressionTest(results2, output="CP", filename=regFilename)
   
   # NOCB tests
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars="KA", nocb=TRUE)
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars="KA", nocb=TRUE, nocbvars="OCC")
   spaghettiPlot(results1, "CP")
   
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars="KA", nocb=TRUE)
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars="KA", nocb=TRUE, nocbvars="OCC")
   spaghettiPlot(results2, "CP")
   
   outputRegressionTest(results1, output="CP", filename=regFilename)
@@ -100,7 +100,7 @@ test_that("NOCB/LOCF should not have any effect on IOV (e.g. on clearance)", {
   model <- model_library$advan4_trans4
   model <- model %>% replaceEquation("CL", rhs="THETA_CL*exp(ETA_CL + IOV_CL)")
   
-  for(startTime in c(0, 20, 23, 24)) {
+  for(startTime in c(0, 20, 23, 24, 48)) {
     obsTimes <- seq(startTime,72, by=5)
     
     dataset <- Dataset(3)
@@ -116,13 +116,13 @@ test_that("NOCB/LOCF should not have any effect on IOV (e.g. on clearance)", {
     results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed)
     spaghettiPlot(results1a, "CP")
     
-    results1b <- model %>% simulate(dataset, dest="RxODE", seed=seed, nocb=TRUE)
+    results1b <- model %>% simulate(dataset, dest="RxODE", seed=seed, nocb=TRUE, nocbvars="IOV_CL")
     spaghettiPlot(results1b, "CP")
     
     results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
     spaghettiPlot(results2a, "CP")
     
-    results2b <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocb=TRUE)
+    results2b <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocb=TRUE, nocbvars="IOV_CL")
     spaghettiPlot(results2b, "CP")
     
     outputRegressionTest(results1a, output="CP", filename=regFilename, times=obsTimes)

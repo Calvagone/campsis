@@ -4,7 +4,16 @@
 \alias{exportTableDelegate}
 \title{Export table delegate.}
 \usage{
-exportTableDelegate(model, dataset, dest, events, seed, tablefun, nocb)
+exportTableDelegate(
+  model,
+  dataset,
+  dest,
+  events,
+  seed,
+  tablefun,
+  nocb,
+  nocbvars
+)
 }
 \arguments{
 \item{model}{generic PMX model}
