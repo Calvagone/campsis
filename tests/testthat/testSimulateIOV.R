@@ -4,7 +4,7 @@ library(pmxmod)
 context("Test the simulate method with IOV")
 
 overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
+testFolder <<- "C:/prj/pmxsim/tests/testthat/"
 seed <- 1
 
 source(paste0(testFolder, "testUtils.R"))
@@ -29,9 +29,9 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
     #table_rxode <- dataset %>% export(dest="RxODE", model=model, seed=seed, nocb=TRUE)
     #table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, nocb=TRUE)
 
-    results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+    results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed, nocbvars="IOV_KA")
     results1b <- model %>% simulate(dataset, dest="RxODE", seed=seed, nocb=TRUE, nocbvars="IOV_KA")
-    results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+    results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocbvars="IOV_KA")
     results2b <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocb=TRUE, nocbvars="IOV_KA")
     
     outputRegressionTest(results1a, output="CP", filename=regFilename, times=obsTimes)
@@ -60,9 +60,9 @@ test_that("Simulate 1000mg QD with IOV on KA (2) (this test sometimes fails with
   dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
   dataset <- dataset %>% add(IOV(colname="IOV_KA", distribution=EtaDistribution(model, omega="IOV_KA")))
   
-  results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed, nocbvars="IOV_KA")
   results1b <- model %>% simulate(dataset, dest="RxODE", seed=seed, nocb=TRUE, nocbvars="IOV_KA")
-  results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocbvars="IOV_KA")
   results2b <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocb=TRUE, nocbvars="IOV_KA")
   
   outputRegressionTest(results1a, output="CP", filename=regFilename)
@@ -111,7 +111,7 @@ test_that("Simulate IOV on F1 (this test always fails with RxODE version > 1.0.5
   results2b <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocb=TRUE)
 
   outputRegressionTest(results1a, output="CP", filename=regFilename)
-  outputRegressionTest(results1b, output="CP", filename=regFilename) # TODO: NOT WORKING (F1 considered to not vary? Hence NOCB does not apply?)
+  outputRegressionTest(results1b, output="CP", filename=regFilename)
   outputRegressionTest(results2a, output="CP", filename=regFilename)
   outputRegressionTest(results2b, output="CP", filename=regFilename)
   
@@ -133,39 +133,50 @@ test_that("Simulate IOV on ALAG1 (this test always fails with RxODE version > 1.
   model <- model %>% add(LagTime(compartment=1, rhs="ALAG1"))
   model <- model %>% addEquation("ALAG1", rhs="THETA_ALAG1*exp(ETA_ALAG1 + IOV_ALAG1)")
   
-  getDataset <- function(model) {
+  obsTimes <- seq(0,72, by=0.5)
+  getDataset <- function(model, times) {
     dataset <- Dataset(10)
     dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
     dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
     dataset <- dataset %>% add(Bolus(time=48, amount=1000, compartment=1))
-    dataset <- dataset %>% add(Observations(times=seq(0,72, by=0.5)))
+    dataset <- dataset %>% add(Observations(times=times))
     dataset <- dataset %>% add(IOV(colname="IOV_ALAG1", distribution=EtaDistribution(model, omega="IOV_ALAG1")))
     return(dataset)
   }
 
   # IIV only
   model_no_iov <- model %>% disable("IOV")
-  dataset_no_iov <- getDataset(model_no_iov)
+  dataset_no_iov <- getDataset(model_no_iov, obsTimes)
   datasetRegressionTest(dataset_no_iov, model_no_iov, seed=seed, filename="3_boluses_iiv_alag1")
   
   # IIV + IOV (RxODE / mrgsolve)
-  dataset <- getDataset(model)
+  dataset <- getDataset(model, obsTimes)
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
   
-  results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  results1b <- model %>% simulate(dataset, dest="RxODE", seed=seed, nocb=TRUE)
-  results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  results2b <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocb=TRUE)
+  startTimes <- c(0,24,47) # 47,48 NOT WORKING WITH MRGSOLVE LOCF
+  for (startTime in startTimes) {
+    cat(startTime)
+    obsTimes <- seq(startTime, 72, by=1)
+    dataset <- getDataset(model, obsTimes)
   
-  outputRegressionTest(results1a, output="CP", filename=regFilename)
-  outputRegressionTest(results1b, output="CP", filename=regFilename) # TODO: NOT WORKING (ALAG1 considered to not vary? Hence NOCB does not apply?)
-  outputRegressionTest(results2a, output="CP", filename=regFilename)
-  outputRegressionTest(results2b, output="CP", filename=regFilename)
-  
-  spaghettiPlot(results1a, "CP")
-  spaghettiPlot(results1b, "CP")
-  spaghettiPlot(results2a, "CP")
-  spaghettiPlot(results2b, "CP")
+    results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+    results1b <- model %>% simulate(dataset, dest="RxODE", seed=seed, nocb=TRUE)
+    results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+    results2b <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocb=TRUE)
+    
+    table_rxode <- dataset %>% export(dest="RxODE", model=model, seed=seed, nocb=FALSE)
+    table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, nocb=FALSE)
+    
+    outputRegressionTest(results1a, output="CP", filename=regFilename, times=obsTimes)
+    outputRegressionTest(results1b, output="CP", filename=regFilename, times=obsTimes)
+    outputRegressionTest(results2a, output="CP", filename=regFilename, times=obsTimes)
+    outputRegressionTest(results2b, output="CP", filename=regFilename, times=obsTimes)
+    
+    spaghettiPlot(results1a, "CP")
+    spaghettiPlot(results1b, "CP")
+    spaghettiPlot(results2a, "CP")
+    spaghettiPlot(results2b, "CP")
+  }
 })
 
 test_that("Simulate IOV on D1", {
@@ -204,7 +215,7 @@ test_that("Simulate IOV on D1", {
   results2b <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, nocb=TRUE)
   
   outputRegressionTest(results1a, output="CP", filename=regFilename)
-  outputRegressionTest(results1b, output="CP", filename=regFilename) # TODO: NOT WORKING (D1 considered to not vary? Hence NOCB does not apply?)
+  outputRegressionTest(results1b, output="CP", filename=regFilename)
   outputRegressionTest(results2a, output="CP", filename=regFilename)
   outputRegressionTest(results2b, output="CP", filename=regFilename)
   
@@ -224,8 +235,9 @@ test_that("Simulate IOV on F1", {
   model <- model %>% addEquation("F1", rhs="THETA_F1*exp(ETA_F1 + IOV_F1)")
   model <- model %>% add(Bioavailability(1, rhs="F1"))
   
-  startTimes <- c(0,24) # 47,48 NOT WORKING WITH MRGSOLVE LOCF
+  startTimes <- c(0,24,47) # 47,48 NOT WORKING WITH MRGSOLVE LOCF
   for (startTime in startTimes) {
+    cat(startTime)
     obsTimes <- seq(startTime, 72, by=1)
     dataset <- Dataset(3)
     dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))

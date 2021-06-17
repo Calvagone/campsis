@@ -395,6 +395,10 @@ counterBalanceNocbMode <- function(table, columnNames) {
   return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[1], .x[-dplyr::n()])))
 }
 
+counterBalanceLocfMode <- function(table, columnNames) {
+  return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[-1], .x[dplyr::n()])))
+}
+
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
   
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
@@ -415,7 +419,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   #   table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
   # }
   if (nocb) {
-    cat(paste0("COUNTER BALANCING: ", iovOccNamesNocb, "\n"))
+    cat(paste0("COUNTER BALANCING NOCB: ", iovOccNamesNocb, "\n"))
     table <- fillIOVOccColumns(table, columnNames=iovOccNamesNocb, downDirectionFirst=TRUE)
     table <- fillIOVOccColumns(table, columnNames=iovOccNamesLocf, downDirectionFirst=FALSE)
     table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
@@ -438,10 +442,15 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
-  table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+  
   if (nocb) {
-    cat(paste0("COUNTER BALANCING: ", iovOccNamesNocb, "\n"))
+    cat(paste0("COUNTER BALANCING NOCB: ", iovOccNamesNocb, "\n"))
+    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
     table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
+  } else {
+    cat(paste0("COUNTER BALANCING LOCF: ", iovOccNamesLocf, "\n"))
+    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+    table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
   }
   
   return(table %>% dplyr::ungroup())
