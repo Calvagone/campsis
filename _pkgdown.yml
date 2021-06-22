@@ -74,6 +74,7 @@ reference:
   contents:
   - arms-class
   - covariates-class
+  - occasion-class
   - protocol-class
   - treatment-class
   - treatment_iov-class
@@ -84,9 +85,16 @@ reference:
   - getColumnName
   - getCovariateNames
   - getIOVNames
+  - getOccasionNames
   - getTimes
   - getTimeVaryingCovariateNames
   - retrieveParameterValue
+
+- title: "Seed utilities"
+  contents:
+  - getSeedForDatasetExport
+  - getSeedForIteration
+  - getSeedForParametersSampling
 
 - title: "For use in external packages"
   contents:
