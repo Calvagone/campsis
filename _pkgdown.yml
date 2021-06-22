@@ -33,6 +33,7 @@ reference:
   - Infusion
   - IOV
   - Observations
+  - Occasion
   - TimeVaryingCovariate
   
 - title: "Distributions"

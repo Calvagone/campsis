@@ -12,6 +12,8 @@ getSeedForIteration(seed, replicate, iterations, iteration)
 \item{replicate}{the current replicate number}
 
 \item{iterations}{total number of iterations}
+
+\item{iteration}{current iteration number}
 }
 \value{
 the seed value to be used for the given replicate number and iteration
