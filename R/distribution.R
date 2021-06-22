@@ -301,11 +301,13 @@ sample_delegate_n <- function(fun, n, ...) {
   return(fun(n, ...))
 }
 
+#' @rdname sample
 setMethod("sample", signature = c("constant_distribution", "integer"), definition = function(object, n) {
   object@sampled_values <- rep(object@value, n)
   return(object)
 })
 
+#' @rdname sample
 setMethod("sample", signature = c("fixed_distribution", "integer"), definition = function(object, n) {
   object@sampled_values <- object@values
   if (length(object@values) != n) {
@@ -314,6 +316,7 @@ setMethod("sample", signature = c("fixed_distribution", "integer"), definition =
   return(object)
 })
 
+#' @rdname sample
 setMethod("sample", signature = c("function_distribution", "integer"), definition = function(object, n) {
   fun <- eval(parse(text=object@fun))
   args <- object@args
@@ -369,6 +372,7 @@ setMethod("sample", signature = c("function_distribution", "integer"), definitio
   return(object)
 })
 
+#' @rdname sample
 setMethod("sample", signature = c("bootstrap_distribution", "integer"), definition = function(object, n) {
   data <- object@data
   nData <- length(data)

@@ -17,6 +17,7 @@
 #' @param ... optional arguments like declare
 #' @return dataframe with all results
 #' @export
+#' @rdname simulate
 simulate <- function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, ...) {
   stop("No default function is provided")
 }
@@ -189,6 +190,7 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
   }
 }
 
+#' @rdname simulate
 setMethod("simulate", signature=c("pmx_model", "dataset", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun,
@@ -196,6 +198,7 @@ setMethod("simulate", signature=c("pmx_model", "dataset", "character", "events",
                           summary=toDatasetSummary(dataset), ...))
 })
 
+#' @rdname simulate
 setMethod("simulate", signature=c("pmx_model", "data.frame", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun, 
@@ -308,6 +311,7 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
   return(inits)
 }
 
+#' @rdname simulate
 setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   
@@ -356,6 +360,7 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   return(results)
 })
 
+#' @rdname simulate
 setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   

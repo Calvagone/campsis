@@ -60,6 +60,7 @@ TimeVaryingCovariate <- function(name, distribution) {
 #----                              sample                                   ----
 #_______________________________________________________________________________
 
+#' @rdname sample
 setMethod("sample", signature = c("covariate", "integer"), definition = function(object, n) {
   object@distribution <- object@distribution %>% sample(n)
   return(object)

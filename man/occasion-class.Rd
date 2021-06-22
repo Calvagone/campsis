@@ -3,7 +3,19 @@
 \docType{class}
 \name{occasion-class}
 \alias{occasion-class}
-\title{Occasion class.}
+\title{Occasion class. Occasion is defined by mapping occasion values to dose numbers.
+A new column will automatically be created in the exported dataset.}
 \description{
-Occasion class.
+Occasion class. Occasion is defined by mapping occasion values to dose numbers.
+A new column will automatically be created in the exported dataset.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{colname}}{single character value representing the column name related to this occasion}
+
+\item{\code{values}}{occasion values, integer vector, same length as dose_numbers}
+
+\item{\code{dose_numbers}}{associated dose numbers, integer vector, same length as values}
+}}
+

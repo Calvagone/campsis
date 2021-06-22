@@ -35,6 +35,7 @@ Arm <- function(id=1, subjects=1) {
 #----                          getCovariateNames                            ----
 #_______________________________________________________________________________
 
+#' @rdname getCovariateNames
 setMethod("getCovariateNames", signature = c("arm"), definition = function(object) {
   return(object@covariates@list %>% purrr::map_chr(.f=~.x@name))
 })
@@ -43,6 +44,7 @@ setMethod("getCovariateNames", signature = c("arm"), definition = function(objec
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 
+#' @rdname getIOVNames
 setMethod("getIOVNames", signature = c("arm"), definition = function(object) {
   return(object@protocol@treatment@iovs@list %>% purrr::map_chr(.f=~.x@colname))
 })
@@ -51,6 +53,7 @@ setMethod("getIOVNames", signature = c("arm"), definition = function(object) {
 #----                         getOccasionNames                              ----
 #_______________________________________________________________________________
 
+#' @rdname getOccasionNames
 setMethod("getOccasionNames", signature = c("arm"), definition = function(object) {
   return(object@protocol@treatment@occasions@list %>% purrr::map_chr(.f=~.x@colname))
 })
@@ -60,6 +63,7 @@ setMethod("getOccasionNames", signature = c("arm"), definition = function(object
 #----                     getTimeVaryingCovariateNames                      ----
 #_______________________________________________________________________________
 
+#' @rdname getTimeVaryingCovariateNames
 setMethod("getTimeVaryingCovariateNames", signature = c("arm"), definition = function(object) {
   return((object@covariates %>% pmxmod::select("time_varying_covariate"))@list %>% purrr::map_chr(.f=~.x@name))
 })
@@ -76,6 +80,7 @@ setMethod("getName", signature = c("arm"), definition = function(x) {
 #----                             getTimes                                  ----
 #_______________________________________________________________________________
 
+#' @rdname getTimes
 setMethod("getTimes", signature = c("arm"), definition = function(object) {
   return(object@protocol@observations %>% getTimes())
 })

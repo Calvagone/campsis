@@ -43,6 +43,7 @@ setMethod("getName", signature = c("treatment_iov"), definition = function(x) {
 #----                         getColumnName                                 ----
 #_______________________________________________________________________________
 
+#' @rdname getColumnName
 setMethod("getColumnName", signature = c("treatment_iov"), definition = function(x) {
   return(x@colname)
 })

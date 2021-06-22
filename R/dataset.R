@@ -106,6 +106,7 @@ setMethod("add", signature = c("dataset", "dataset_config"), definition = functi
 #----                          getCovariateNames                            ----
 #_______________________________________________________________________________
 
+#' @rdname getCovariateNames
 setMethod("getCovariateNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getCovariateNames())
 })
@@ -114,6 +115,7 @@ setMethod("getCovariateNames", signature = c("dataset"), definition = function(o
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 
+#' @rdname getIOVNames
 setMethod("getIOVNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getIOVNames())
 })
@@ -122,6 +124,7 @@ setMethod("getIOVNames", signature = c("dataset"), definition = function(object)
 #----                         getOccasionNames                              ----
 #_______________________________________________________________________________
 
+#' @rdname getOccasionNames
 setMethod("getOccasionNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getOccasionNames())
 })
@@ -130,6 +133,7 @@ setMethod("getOccasionNames", signature = c("dataset"), definition = function(ob
 #----                     getTimeVaryingCovariateNames                      ----
 #_______________________________________________________________________________
 
+#' @rdname getTimeVaryingCovariateNames
 setMethod("getTimeVaryingCovariateNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getTimeVaryingCovariateNames())
 })
@@ -138,6 +142,7 @@ setMethod("getTimeVaryingCovariateNames", signature = c("dataset"), definition =
 #----                             getTimes                                  ----
 #_______________________________________________________________________________
 
+#' @rdname getTimes
 setMethod("getTimes", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getTimes())
 })

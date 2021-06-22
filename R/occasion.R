@@ -16,8 +16,12 @@ validateOccasion <- function(object) {
 }
 
 #' 
-#' Occasion class.
+#' Occasion class. Occasion is defined by mapping occasion values to dose numbers.
+#' A new column will automatically be created in the exported dataset.
 #' 
+#' @slot colname single character value representing the column name related to this occasion
+#' @slot values occasion values, integer vector, same length as dose_numbers
+#' @slot dose_numbers associated dose numbers, integer vector, same length as values
 #' @export
 setClass(
   "occasion",
@@ -55,6 +59,7 @@ setMethod("getName", signature = c("occasion"), definition = function(x) {
 #----                         getColumnName                                 ----
 #_______________________________________________________________________________
 
+#' @rdname getColumnName
 setMethod("getColumnName", signature = c("occasion"), definition = function(x) {
   return(x@colname)
 })
