@@ -76,6 +76,10 @@ The same simulation can be performed by defining the infusion duration in the da
 
 For this, we need to sample `D1` values. This can be done as follows:
 
+```{r, results='hide', echo=F, message=F, warning=F}
+set.seed(1)
+```
+
 ```{r}
 distribution <- ParameterDistribution(model=model, theta="D1", omega="D1")
 d1Values <- (distribution %>% sample(as.integer(50)))@sampled_values
