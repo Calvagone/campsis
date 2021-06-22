@@ -46,7 +46,7 @@ License: file LICENSE
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-Suggests: stringr, knitr, rmarkdown, testthat, roxygen2, devtools, pkgdown, bookdown, RxODE, mrgsolve, pmxtran
+Suggests: bookdown, devtools, knitr, gridExtra, mrgsolve, stringr, pkgdown, pmxtran, rmarkdown, roxygen2, RxODE, testthat 
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 URL: https://github.com/Calvagone/pmxsim 
