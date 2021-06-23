@@ -3,11 +3,9 @@
 \docType{class}
 \name{occasion-class}
 \alias{occasion-class}
-\title{Occasion class. Occasion is defined by mapping occasion values to dose numbers.
-A new column will automatically be created in the exported dataset.}
+\title{Occasion class.}
 \description{
-Occasion class. Occasion is defined by mapping occasion values to dose numbers.
-A new column will automatically be created in the exported dataset.
+Occasion class.
 }
 \section{Slots}{
 

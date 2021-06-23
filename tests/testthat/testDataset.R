@@ -279,6 +279,30 @@ test_that("Export occasions works well - example 3", {
   expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,2,2,2,2,4,4), 2))
 })
 
+test_that("Export occasions works well - example 4", {
+  
+  ds <- Dataset(2)
+  
+  # Add doses
+  ds <- ds %>% add(Bolus(time=0, amount=100))
+  ds <- ds %>% add(Bolus(time=24, amount=100))
+  ds <- ds %>% add(Bolus(time=48, amount=100))
+  ds <- ds %>% add(Bolus(time=72, amount=100))
+  
+  # Add observations
+  ds <- ds %>% add(Observations(times=seq(0, 80, by=10)))
+  
+  # Add occasions (skip occasion on dose 3)
+  ds <- ds %>% add(Occasion("MY_OCC", values=c(2,3,4), doseNumbers=c(2,3,4)))
+  
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # Is this the expected behaviour ? This is arbitrary, for sure
+  expect_equal(table$MY_OCC, rep(c(0,0,0,0,2,2,2,3,3,3,3,4,4), 2))
+})
+
+
 test_that("Occasion can be added into arms", {
 
   addProtocol <- function(x) {
@@ -303,5 +327,51 @@ test_that("Occasion can be added into arms", {
   
   # All OCC values are used because 3 doses
   expect_equal(table$MY_OCC, rep(c(1,1,1,1,2,2,2,3,3,3), 2))
+})
+
+test_that("Export IOV works well - example 1", {
+  
+  ds <- Dataset(2)
+  
+  # Add doses
+  ds <- ds %>% add(Bolus(time=0, amount=100))
+  ds <- ds %>% add(Bolus(time=24, amount=100))
+  ds <- ds %>% add(Bolus(time=48, amount=100))
+  ds <- ds %>% add(Bolus(time=72, amount=100))
+  
+  # Add observations
+  ds <- ds %>% add(Observations(times=seq(0, 80, by=10)))
+  
+  # Add occasions (skip occasion on dose 3)
+  ds <- ds %>% add(IOV("IOV_KA", distribution=NormalDistribution(0, sd=1), doseNumbers=c(3,4)))
+  
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # Arbitrary but OK
+  expect_equal(round(table$IOV_KA,2), c(0,0,0,0,0,0,0,-0.63,-0.63,-0.63,-0.63,0.18,0.18,0,0,0,0,0,0,0,-0.84,-0.84,-0.84,-0.84,1.60,1.60))
+})
+
+test_that("Export IOV works well - example 2", {
+  
+  ds <- Dataset(2)
+  
+  # Add doses
+  ds <- ds %>% add(Bolus(time=0, amount=100))
+  ds <- ds %>% add(Bolus(time=24, amount=100))
+  ds <- ds %>% add(Bolus(time=48, amount=100))
+  ds <- ds %>% add(Bolus(time=72, amount=100))
+  
+  # Add observations
+  ds <- ds %>% add(Observations(times=seq(0, 80, by=10)))
+  
+  # Add occasions (skip occasion on dose 3)
+  ds <- ds %>% add(IOV("IOV_KA", distribution=NormalDistribution(0, sd=1), doseNumbers=c(1,3)))
+  
+  # Export to RxODE
+  table <- ds %>% export(dest="RxODE", seed=1)
+  
+  # Arbitrary but OK
+  expect_equal(round(table$IOV_KA,2), c(-0.63,-0.63,-0.63,-0.63,-0.63,-0.63,-0.63,0.18,0.18,0.18,0.18,0.18,0.18,-0.84,-0.84,-0.84,-0.84,-0.84,-0.84,-0.84,1.60,1.60,1.60,1.60,1.60,1.60))
 })
 
