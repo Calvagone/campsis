@@ -1,7 +1,6 @@
 Package: pmxsim
 Type: Package
 Collate:
-    'load.R'
     'utilities.R'
     'check.R'
     'generic.R'
@@ -39,8 +38,8 @@ Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
 Description: TODO.
-Depends: R (>= 4.0.0)
-Imports: assertthat, dplyr, ggplot2, MASS, plyr, pmxmod, purrr, rlang, tibble, tidyr
+Depends: R (>= 4.0.0), pmxmod
+Imports: assertthat, dplyr, ggplot2, MASS, plyr, purrr, rlang, tibble, tidyr
 Remotes: 
 License: file LICENSE
 Encoding: UTF-8
