@@ -12,6 +12,13 @@ checkEvent <- function(object) {
   return(c(checkName, checkTimes, checkTimesPositive, checkFunction, checkDebug))
 }
 
+#' 
+#' Event class.
+#' 
+#' @slot name event name, character value
+#' @slot times interruption times, numeric vector
+#' @slot fun event function to apply at each interrution
+#' @slot debug output the variables that were changed through this event
 #' @export
 setClass(
   "event",

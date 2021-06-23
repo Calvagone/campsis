@@ -7,7 +7,7 @@
 Covariate(name, distribution)
 }
 \arguments{
-\item{name}{covariate name, character}
+\item{name}{covariate name, single character value}
 
 \item{distribution}{covariate distribution}
 }

@@ -2,6 +2,9 @@
 #----                       observations_set class                          ----
 #_______________________________________________________________________________
 
+#' 
+#' Observations set class.
+#' 
 #' @export
 setClass(
   "observations_set",

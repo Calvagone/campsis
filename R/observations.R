@@ -10,6 +10,11 @@ checkObservations <- function(object) {
   return(c(check1, check2, check3))
 }
 
+#' 
+#' Observations class.
+#' 
+#' @slot times observation times, numeric vector
+#' @slot compartment compartment index, integer
 #' @export
 setClass(
   "observations",

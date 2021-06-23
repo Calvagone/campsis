@@ -7,6 +7,11 @@ checkCovariate <- function(object) {
   return(expectOneForAll(object, c("name", "distribution")))
 }
 
+#' 
+#' Covariate class.
+#' 
+#' @slot name covariate name, single character value
+#' @slot distribution covariate distribution
 #' @export
 setClass(
   "covariate",
@@ -25,7 +30,7 @@ setMethod("getName", signature = c("covariate"), definition = function(x) {
 #' 
 #' Create a fixed covariate.
 #' 
-#' @param name covariate name, character
+#' @param name covariate name, single character value
 #' @param distribution covariate distribution
 #' @return a fixed covariate  
 #' @export
@@ -37,6 +42,9 @@ Covariate <- function(name, distribution) {
 #----                     time_varying_covariate class                      ----
 #_______________________________________________________________________________
 
+#' 
+#' Time-varying covariate class.
+#' 
 #' @export
 setClass(
   "time_varying_covariate",
@@ -46,7 +54,8 @@ setClass(
 )
 
 #' 
-#' Create a time-varying covariate.
+#' Create a time-varying covariate. These covariates can be modified further in the
+#' interruption events.
 #' 
 #' @param name covariate name, character
 #' @param distribution covariate distribution at time 0

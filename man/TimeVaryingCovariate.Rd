@@ -2,7 +2,8 @@
 % Please edit documentation in R/covariate.R
 \name{TimeVaryingCovariate}
 \alias{TimeVaryingCovariate}
-\title{Create a time-varying covariate.}
+\title{Create a time-varying covariate. These covariates can be modified further in the
+interruption events.}
 \usage{
 TimeVaryingCovariate(name, distribution)
 }
@@ -15,5 +16,6 @@ TimeVaryingCovariate(name, distribution)
 a time-varying covariate
 }
 \description{
-Create a time-varying covariate.
+Create a time-varying covariate. These covariates can be modified further in the
+interruption events.
 }

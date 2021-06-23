@@ -3,6 +3,12 @@
 #----                         dataset class                                 ----
 #_______________________________________________________________________________
 
+#' 
+#' Dataset class.
+#' 
+#' @slot arms a list of treatment arms
+#' @slot config dataset configuration for export
+#' @slot iiv data frame containing the inter-individual variability (all ETAS) for the export
 #' @export
 setClass(
   "dataset",
@@ -151,6 +157,10 @@ setMethod("getTimes", signature = c("dataset"), definition = function(object) {
 #----                             length                                    ----
 #_______________________________________________________________________________
 
+#' Return the number of subjects contained in this dataset.
+#' 
+#' @param x dataset
+#' @return a number
 setMethod("length", signature=c("dataset"), definition=function(x) {
   subjectsPerArm <- x@arms@list %>% purrr::map_int(.f=~.x@subjects) 
   return(sum(subjectsPerArm))

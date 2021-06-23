@@ -7,6 +7,11 @@ checkConfig <- function(object) {
   return(expectOneForAll(object, c("def_depot_cmt", "def_obs_cmt")))
 }
 
+#' 
+#' Dataset config class.
+#' 
+#' @param defDepotCmt default depot compartment, integer
+#' @param defObsCmt default observation compartment, integer
 #' @export
 setClass(
   "dataset_config",
@@ -19,7 +24,8 @@ setClass(
 )
 
 #'
-#' Create dataset configuration.
+#' Create a dataset configuration. This configuration allows CAMPSIS to know which
+#' are the default depot and observed compartments.
 #'
 #' @param defDepotCmt default depot compartment, integer
 #' @param defObsCmt default observation compartment, integer

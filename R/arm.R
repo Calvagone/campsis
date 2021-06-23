@@ -7,6 +7,13 @@ checkArm <- function(object) {
   return(expectOneForAll(object, c("id", "subjects")))
 }
 
+#' 
+#' Arm class.
+#' 
+#' @slot id arm unique ID, integer
+#' @slot subjects number of subjects in arm, integer
+#' @slot protocol protocol
+#' @slot covariates covariates
 #' @export
 setClass(
   "arm",

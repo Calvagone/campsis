@@ -29,6 +29,9 @@ checkBolus <- function(object) {
   return(TRUE)
 }
 
+#' 
+#' Bolus class.
+#' 
 #' @export
 setClass(
   "bolus",
@@ -71,6 +74,11 @@ validateInfusion <- function(object) {
   return(expectOneForAll(object, c("duration", "rate")))
 }
 
+#' 
+#' Infusion class.
+#' 
+#' @slot duration infusion duration, distribution
+#' @slot rate infusion rate, distribution
 #' @export
 setClass(
   "infusion",
