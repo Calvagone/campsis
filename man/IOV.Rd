@@ -2,18 +2,24 @@
 % Please edit documentation in R/treatment_iov.R
 \name{IOV}
 \alias{IOV}
-\title{Create IOV.}
+\title{Define inter-occasion variability (IOV) into the dataset. A new variable of name
+'colname' will be output into the dataset and will vary at each dose number
+according to the given distribution.}
 \usage{
-IOV(colname, distribution)
+IOV(colname, distribution, doseNumbers = NULL)
 }
 \arguments{
 \item{colname}{name of the column that will be output in dataset}
 
 \item{distribution}{distribution}
+
+\item{doseNumbers}{dose numbers, if provided, IOV is generated at these doses only. By default, IOV is generated for all doses.}
 }
 \value{
 IOV
 }
 \description{
-Create IOV.
+Define inter-occasion variability (IOV) into the dataset. A new variable of name
+'colname' will be output into the dataset and will vary at each dose number
+according to the given distribution.
 }

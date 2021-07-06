@@ -17,6 +17,7 @@
 #' @param ... optional arguments like declare
 #' @return dataframe with all results
 #' @export
+#' @rdname simulate
 simulate <- function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, ...) {
   stop("No default function is provided")
 }
@@ -189,6 +190,7 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
   }
 }
 
+#' @rdname simulate
 setMethod("simulate", signature=c("pmx_model", "dataset", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun,
@@ -196,10 +198,18 @@ setMethod("simulate", signature=c("pmx_model", "dataset", "character", "events",
                           summary=toDatasetSummary(dataset), ...))
 })
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
+#' @rdname simulate
+setMethod("simulate", signature=c("pmx_model", "tbl_df", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun, 
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, ...))
+})
+
+#' @rdname simulate
+setMethod("simulate", signature=c("pmx_model", "data.frame", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
+  return(simulateDelegate(model=model, dataset=tibble::as_tibble(dataset), dest=dest, events=events, tablefun=tablefun, 
+                                    outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, ...))
 })
 
 #' Remove initial conditions.
@@ -308,7 +318,8 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
   return(inits)
 }
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
+#' @rdname simulate
+setMethod("simulate", signature=c("pmx_model", "tbl_df", "rxode_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   
   # Add ARM equation in model
@@ -356,7 +367,8 @@ setMethod("simulate", signature=c("pmx_model", "data.frame", "rxode_engine", "ev
   return(results)
 })
 
-setMethod("simulate", signature=c("pmx_model", "data.frame", "mrgsolve_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
+#' @rdname simulate
+setMethod("simulate", signature=c("pmx_model", "tbl_df", "mrgsolve_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
   
   # Retrieve simulation config

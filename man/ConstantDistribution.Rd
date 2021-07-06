@@ -7,7 +7,7 @@
 ConstantDistribution(value)
 }
 \arguments{
-\item{value}{covariate value, numeric}
+\item{value}{covariate value, single numeric value}
 }
 \value{
 a covariate

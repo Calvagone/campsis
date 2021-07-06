@@ -7,3 +7,13 @@
 \description{
 Occasion class.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{colname}}{single character value representing the column name related to this occasion}
+
+\item{\code{values}}{occasion values, integer vector, same length as dose_numbers}
+
+\item{\code{dose_numbers}}{associated dose numbers, integer vector, same length as values}
+}}
+

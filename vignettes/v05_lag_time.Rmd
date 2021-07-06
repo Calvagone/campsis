@@ -77,6 +77,10 @@ The same simulation can be performed by defining a lag time to the bolus in the 
 
 For this, we need to sample `ALAG1` values. This can be done as follows:
 
+```{r, results='hide', echo=F, message=F, warning=F}
+set.seed(1)
+```
+
 ```{r}
 distribution <- ParameterDistribution(model=model, theta="ALAG1", omega="ALAG1")
 alagValues <- (distribution %>% sample(as.integer(50)))@sampled_values

@@ -3,6 +3,9 @@
 #----                         treatment_iovs class                          ----
 #_______________________________________________________________________________
 
+#' 
+#' Treatment IOV's class.
+#' 
 #' @export
 setClass(
   "treatment_iovs",

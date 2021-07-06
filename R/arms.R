@@ -32,6 +32,7 @@ setMethod("default", signature=c("arms"), definition=function(object, ...) {
 #----                          getCovariateNames                            ----
 #_______________________________________________________________________________
 
+#' @rdname getCovariateNames
 setMethod("getCovariateNames", signature = c("arms"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x %>% getCovariateNames()) %>% purrr::flatten_chr() %>% unique())
 })
@@ -40,6 +41,7 @@ setMethod("getCovariateNames", signature = c("arms"), definition = function(obje
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 
+#' @rdname getIOVNames
 setMethod("getIOVNames", signature = c("arms"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x %>% getIOVNames())  %>% purrr::flatten_chr() %>% unique())
 })
@@ -49,6 +51,7 @@ setMethod("getIOVNames", signature = c("arms"), definition = function(object) {
 #----                         getOccasionNames                              ----
 #_______________________________________________________________________________
 
+#' @rdname getOccasionNames
 setMethod("getOccasionNames", signature = c("arms"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x %>% getOccasionNames())  %>% purrr::flatten_chr() %>% unique())
 })
@@ -57,6 +60,7 @@ setMethod("getOccasionNames", signature = c("arms"), definition = function(objec
 #----                     getTimeVaryingCovariateNames                      ----
 #_______________________________________________________________________________
 
+#' @rdname getTimeVaryingCovariateNames
 setMethod("getTimeVaryingCovariateNames", signature = c("arms"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x %>% getTimeVaryingCovariateNames()) %>% purrr::flatten_chr() %>% unique())
 })
@@ -65,6 +69,7 @@ setMethod("getTimeVaryingCovariateNames", signature = c("arms"), definition = fu
 #----                             getTimes                                  ----
 #_______________________________________________________________________________
 
+#' @rdname getTimes
 setMethod("getTimes", signature = c("arms"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x %>% getTimes()) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
 })

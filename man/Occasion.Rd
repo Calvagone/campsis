@@ -2,8 +2,8 @@
 % Please edit documentation in R/occasion.R
 \name{Occasion}
 \alias{Occasion}
-\title{Create an occasion mapping. Occasions can only be defined at treatment times, via
-the dose numbers.}
+\title{Define a new occasion. Occasions are defined by mapping occasion values to dose numbers.
+A new column will automatically be created in the exported dataset.}
 \usage{
 Occasion(colname, values, doseNumbers)
 }
@@ -18,6 +18,6 @@ Occasion(colname, values, doseNumbers)
 occasion object
 }
 \description{
-Create an occasion mapping. Occasions can only be defined at treatment times, via
-the dose numbers.
+Define a new occasion. Occasions are defined by mapping occasion values to dose numbers.
+A new column will automatically be created in the exported dataset.
 }

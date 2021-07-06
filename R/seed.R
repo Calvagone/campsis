@@ -51,6 +51,7 @@ getSeedForDatasetExport <- function(seed, replicate, iterations) {
 #' @param seed original seed
 #' @param replicate the current replicate number
 #' @param iterations total number of iterations
+#' @param iteration current iteration number
 #' @return the seed value to be used for the given replicate number and iteration
 #' @export
 #' 

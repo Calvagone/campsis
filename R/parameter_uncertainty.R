@@ -3,6 +3,7 @@
 #----                              sample                                   ----
 #_______________________________________________________________________________
 
+#' @rdname sample
 setMethod("sample", signature = c("pmx_model", "integer"), definition = function(object, n) {
   
   varcov <- object@parameters@varcov

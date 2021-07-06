@@ -2,7 +2,8 @@
 % Please edit documentation in R/dataset_config.R
 \name{DatasetConfig}
 \alias{DatasetConfig}
-\title{Create dataset configuration.}
+\title{Create a dataset configuration. This configuration allows CAMPSIS to know which
+are the default depot and observed compartments.}
 \usage{
 DatasetConfig(defDepotCmt = 1, defObsCmt = 1)
 }
@@ -15,5 +16,6 @@ DatasetConfig(defDepotCmt = 1, defObsCmt = 1)
 configuration
 }
 \description{
-Create dataset configuration.
+Create a dataset configuration. This configuration allows CAMPSIS to know which
+are the default depot and observed compartments.
 }

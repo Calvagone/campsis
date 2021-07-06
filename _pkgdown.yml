@@ -33,6 +33,7 @@ reference:
   - Infusion
   - IOV
   - Observations
+  - Occasion
   - TimeVaryingCovariate
   
 - title: "Distributions"
@@ -71,11 +72,35 @@ reference:
 
 - title: "Exported classes"
   contents:
+  - arm-class
   - arms-class
+  - bolus-class
+  - bootstrap_distribution-class
+  - constant_distribution-class
+  - covariate-class
   - covariates-class
+  - dataset-class
+  - dataset_config-class
+  - distribution-class
+  - event-class
+  - events-class
+  - fixed_distribution-class
+  - function_distribution-class
+  - infusion-class
+  - length,dataset-method
+  - mrgsolve_engine-class
   - protocol-class
+  - observations-class
+  - observations_set-class
+  - occasion-class
+  - occasions-class
+  - rxode_engine-class
+  - simulation_engine-class
+  - time_varying_covariate-class
   - treatment-class
   - treatment_iov-class
+  - treatment_iovs-class
+  - undefined_distribution-class
 
 - title: "For advanced use"
   contents:
@@ -83,9 +108,16 @@ reference:
   - getColumnName
   - getCovariateNames
   - getIOVNames
+  - getOccasionNames
   - getTimes
   - getTimeVaryingCovariateNames
   - retrieveParameterValue
+
+- title: "Seed utilities"
+  contents:
+  - getSeedForDatasetExport
+  - getSeedForIteration
+  - getSeedForParametersSampling
 
 - title: "For use in external packages"
   contents:

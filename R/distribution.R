@@ -6,6 +6,9 @@ validateDistribution <- function(object) {
   return(TRUE)
 }
 
+#' 
+#' Distribution class. See this class as an interface.
+#' 
 #' @export
 setClass(
   "distribution",
@@ -19,6 +22,11 @@ setClass(
 #----                     undefined_distribution class                      ----
 #_______________________________________________________________________________
 
+#' 
+#' Undefined distribution class. This type of object is automatically created
+#' in method toExplicitDistribution() when the user does not provide a concrete
+#' distribution. This is because S4 objects do not accept NULL values.
+#' 
 #' @export
 setClass(
   "undefined_distribution",
@@ -53,6 +61,10 @@ validateConstantDistribution <- function(object) {
   return(expectOneForAll(object, c("value")))
 }
 
+#' 
+#' Constant distribution class.
+#' 
+#' @slot value covariate value, single numeric value
 #' @export
 setClass(
   "constant_distribution",
@@ -66,7 +78,7 @@ setClass(
 #' 
 #' Create a constant distribution. Its value will be constant across all generated samples.
 #' 
-#' @param value covariate value, numeric
+#' @param value covariate value, single numeric value
 #' @return a covariate  
 #' @export
 ConstantDistribution <- function(value) {
@@ -81,6 +93,10 @@ validateFixedDistribution <- function(object) {
   return(expectOneOrMore(object, c("values")))
 }
 
+#' 
+#' Fixed distribution class.
+#' 
+#' @slot values covariate values, numeric vector (1 value per sample)
 #' @export
 setClass(
   "fixed_distribution",
@@ -112,6 +128,11 @@ validateFunctionDistribution <- function(object) {
   return(c(check1, check2))
 }
 
+#' 
+#' Function distribution class.
+#' 
+#' @slot fun function name, character (e.g. 'rnorm')
+#' @slot args list of arguments (e.g list(mean=70, sd=10))
 #' @export
 setClass(
   "function_distribution",
@@ -263,6 +284,12 @@ validateBootstrapDistribution <- function(object) {
   return(c(check1, check2))
 }
 
+#' 
+#' Bootstrap distribution class.
+#' 
+#' @slot data values to draw, numeric vector
+#' @slot replacement values can be reused or not, logical
+#' @slot random values are drawn randomly, logical
 #' @export
 setClass(
   "bootstrap_distribution",
@@ -301,11 +328,13 @@ sample_delegate_n <- function(fun, n, ...) {
   return(fun(n, ...))
 }
 
+#' @rdname sample
 setMethod("sample", signature = c("constant_distribution", "integer"), definition = function(object, n) {
   object@sampled_values <- rep(object@value, n)
   return(object)
 })
 
+#' @rdname sample
 setMethod("sample", signature = c("fixed_distribution", "integer"), definition = function(object, n) {
   object@sampled_values <- object@values
   if (length(object@values) != n) {
@@ -314,6 +343,7 @@ setMethod("sample", signature = c("fixed_distribution", "integer"), definition =
   return(object)
 })
 
+#' @rdname sample
 setMethod("sample", signature = c("function_distribution", "integer"), definition = function(object, n) {
   fun <- eval(parse(text=object@fun))
   args <- object@args
@@ -369,6 +399,7 @@ setMethod("sample", signature = c("function_distribution", "integer"), definitio
   return(object)
 })
 
+#' @rdname sample
 setMethod("sample", signature = c("bootstrap_distribution", "integer"), definition = function(object, n) {
   data <- object@data
   nData <- length(data)

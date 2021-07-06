@@ -7,3 +7,13 @@
 \description{
 Treatment IOV class.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{colname}}{name of the column that will be output in dataset}
+
+\item{\code{distribution}}{distribution}
+
+\item{\code{dose_numbers}}{associated dose numbers, integer vector, same length as values}
+}}
+

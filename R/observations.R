@@ -10,6 +10,11 @@ checkObservations <- function(object) {
   return(c(check1, check2, check3))
 }
 
+#' 
+#' Observations class.
+#' 
+#' @slot times observation times, numeric vector
+#' @slot compartment compartment index, integer
 #' @export
 setClass(
   "observations",
@@ -65,6 +70,7 @@ EventRelatedObservations <- function(times, compartment=NA) {
 #----                             sample                                    ----
 #_______________________________________________________________________________
 
+#' @rdname sample
 setMethod("sample", signature = c("observations", "integer"), definition = function(object, n, ...) {
   args <- list(...)
   config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())

@@ -3,6 +3,12 @@
 #----                         dataset class                                 ----
 #_______________________________________________________________________________
 
+#' 
+#' Dataset class.
+#' 
+#' @slot arms a list of treatment arms
+#' @slot config dataset configuration for export
+#' @slot iiv data frame containing the inter-individual variability (all ETAS) for the export
 #' @export
 setClass(
   "dataset",
@@ -106,6 +112,7 @@ setMethod("add", signature = c("dataset", "dataset_config"), definition = functi
 #----                          getCovariateNames                            ----
 #_______________________________________________________________________________
 
+#' @rdname getCovariateNames
 setMethod("getCovariateNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getCovariateNames())
 })
@@ -114,6 +121,7 @@ setMethod("getCovariateNames", signature = c("dataset"), definition = function(o
 #----                            getIOVNames                                ----
 #_______________________________________________________________________________
 
+#' @rdname getIOVNames
 setMethod("getIOVNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getIOVNames())
 })
@@ -122,6 +130,7 @@ setMethod("getIOVNames", signature = c("dataset"), definition = function(object)
 #----                         getOccasionNames                              ----
 #_______________________________________________________________________________
 
+#' @rdname getOccasionNames
 setMethod("getOccasionNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getOccasionNames())
 })
@@ -130,6 +139,7 @@ setMethod("getOccasionNames", signature = c("dataset"), definition = function(ob
 #----                     getTimeVaryingCovariateNames                      ----
 #_______________________________________________________________________________
 
+#' @rdname getTimeVaryingCovariateNames
 setMethod("getTimeVaryingCovariateNames", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getTimeVaryingCovariateNames())
 })
@@ -138,6 +148,7 @@ setMethod("getTimeVaryingCovariateNames", signature = c("dataset"), definition =
 #----                             getTimes                                  ----
 #_______________________________________________________________________________
 
+#' @rdname getTimes
 setMethod("getTimes", signature = c("dataset"), definition = function(object) {
   return(object@arms %>% getTimes())
 })
@@ -146,6 +157,10 @@ setMethod("getTimes", signature = c("dataset"), definition = function(object) {
 #----                             length                                    ----
 #_______________________________________________________________________________
 
+#' Return the number of subjects contained in this dataset.
+#' 
+#' @param x dataset
+#' @return a number
 setMethod("length", signature=c("dataset"), definition=function(x) {
   subjectsPerArm <- x@arms@list %>% purrr::map_int(.f=~.x@subjects) 
   return(sum(subjectsPerArm))
@@ -202,12 +217,21 @@ processAsCovariate <- function(list) {
 #' 
 sampleCovariatesList <- function(covariates, n) {
   retValue <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
-    data <- (covariate %>% sample(n=n))@distribution@sampled_values
-    matrix <- matrix(data=data, ncol=1)
-    colnames(matrix) <- covariate@name
-    matrix %>% tibble::as_tibble()
+    sampleDistributionAsTibble(covariate@distribution, n=n, colname=covariate@name)
   })
   return(retValue)
+}
+
+#' Sample a distribution and return a tibble.
+#' 
+#' @param distribution any distribution
+#' @param n number of desired samples
+#' @param colname name of the unique column in tibble
+#' @return a tibble of n rows and 1 column
+#' @keywords internal
+#'
+sampleDistributionAsTibble <- function(distribution, n, colname) {
+  return(tibble::tibble(!!colname := (distribution %>% sample(n=n))@sampled_values))
 }
 
 #' Apply compartment characteristics from model.
@@ -297,9 +321,9 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     protocol <- arm@protocol
     treatment <- protocol@treatment %>% assignDoseNumber()
     if (treatment %>% length() > 0) {
-      doseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
+      maxDoseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
     } else { 
-      doseNumber <- 1 # Default
+      maxDoseNumber <- 1 # Default
     }
     observations <- protocol@observations
     covariates <- arm@covariates
@@ -320,17 +344,15 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       table <- table %>% dplyr::left_join(cov, by="ID")
     }
     
-    # Treating IOV's
-    iovsAsCov <- processAsCovariate(treatmentIovs@list)
-    
     # Sampling IOV's
-    iov <- sampleCovariatesList(iovsAsCov, n=length(ids)*doseNumber)
-    if (nrow(iov) > 0) {
-      iovInit <- data.frame(ID=rep(ids, each=doseNumber), DOSENO=rep(seq_len(doseNumber), length(ids)))
-      iov <- cbind(iovInit, iov)
+    for (treatmentIov in treatmentIovs@list) {
+      doseNumbers <- treatmentIov@dose_numbers
+      doseNumbers <- if (doseNumbers %>% length()==0) {seq_len(maxDoseNumber)} else {doseNumbers}
+      iov <- sampleDistributionAsTibble(treatmentIov@distribution, n=length(ids)*length(doseNumbers), colname=treatmentIov@colname)
+      iov <- iov %>% dplyr::mutate(ID=rep(ids, each=length(doseNumbers)), DOSENO=rep(doseNumbers, length(ids)))
       table <- table %>% dplyr::left_join(iov, by=c("ID","DOSENO"))
     }
-    
+
     # Joining IIV
     if (nrow(iiv) > 0) {
       table <- table %>% dplyr::left_join(iiv, by="ID")

@@ -29,6 +29,9 @@ checkBolus <- function(object) {
   return(TRUE)
 }
 
+#' 
+#' Bolus class.
+#' 
 #' @export
 setClass(
   "bolus",
@@ -71,6 +74,11 @@ validateInfusion <- function(object) {
   return(expectOneForAll(object, c("duration", "rate")))
 }
 
+#' 
+#' Infusion class.
+#' 
+#' @slot duration infusion duration, distribution
+#' @slot rate infusion rate, distribution
 #' @export
 setClass(
   "infusion",
@@ -123,6 +131,7 @@ sampleTrtDistribution <- function(distribution, n, default) {
   }
 }
 
+#' @rdname sample
 setMethod("sample", signature = c("bolus", "integer"), definition = function(object, n, ...) {
   args <- list(...)
   config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
@@ -141,6 +150,7 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
                     AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number, IS_INFUSION=FALSE, EVENT_RELATED=as.integer(FALSE)))
 })
 
+#' @rdname sample
 setMethod("sample", signature = c("infusion", "integer"), definition = function(object, n, ...) {
   args <- list(...)
   config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())

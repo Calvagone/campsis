@@ -10,6 +10,7 @@
 #' @param ... extra arguments
 #' @return sampling result
 #' @export
+#' @rdname sample
 sample <- function(object, n, ...) {
   stop("No default function is provided")
 }
@@ -27,6 +28,7 @@ setGeneric("sample", function(object, n, ...) {
 #' @param x any object
 #' @return column name
 #' @export
+#' @rdname getColumnName
 getColumnName <- function(x) {
   stop("No default function is provided")
 }
@@ -44,6 +46,7 @@ setGeneric("getColumnName", function(x) {
 #' @param object any object
 #' @return character vector
 #' @export
+#' @rdname getIOVNames
 getIOVNames <- function(object) {
   stop("No default function is provided")
 }
@@ -61,6 +64,7 @@ setGeneric("getIOVNames", function(object) {
 #' @param object any object
 #' @return character vector
 #' @export
+#' @rdname getCovariateNames
 getCovariateNames <- function(object) {
   stop("No default function is provided")
 }
@@ -78,6 +82,7 @@ setGeneric("getCovariateNames", function(object) {
 #' @param object any object
 #' @return character vector
 #' @export
+#' @rdname getOccasionNames
 getOccasionNames <- function(object) {
   stop("No default function is provided")
 }
@@ -95,6 +100,7 @@ setGeneric("getOccasionNames", function(object) {
 #' @param object any object
 #' @return character vector
 #' @export
+#' @rdname getTimeVaryingCovariateNames
 getTimeVaryingCovariateNames <- function(object) {
   stop("No default function is provided")
 }
@@ -112,6 +118,7 @@ setGeneric("getTimeVaryingCovariateNames", function(object) {
 #' @param object any object
 #' @return numeric vector with all unique times, sorted
 #' @export
+#' @rdname getTimes
 getTimes <- function(object) {
   stop("No default function is provided")
 }
