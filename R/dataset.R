@@ -466,7 +466,7 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
   if (nocb) {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE) # TRUE/FALSE not important (like NONMEM)
     table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
   } else {
     table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
