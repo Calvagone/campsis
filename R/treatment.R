@@ -66,7 +66,7 @@ setGeneric("assignDoseNumber", function(object) {
 })
 
 setMethod("assignDoseNumber", signature = c("treatment"), definition = function(object) {
-  object <- object %>% pmxmod::sort()
+  object <- object %>% campsismod::sort()
   times <- object@list %>% purrr::map_chr(~.x@time)
   doseNumbers <- match(times, unique(times))
   object@list <- purrr::map2(object@list, doseNumbers, .f=function(.x, .y){

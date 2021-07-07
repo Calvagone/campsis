@@ -1,5 +1,5 @@
 library(testthat)
-library(pmxmod)
+library(campsismod)
 library(ggplot2)
 
 context("Simulation with residual unexplained variability")

@@ -1,5 +1,5 @@
 library(testthat)
-library(pmxmod)
+library(campsismod)
 
 context("Test the outvars argument of the simulate function")
 seed <- 1

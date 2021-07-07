@@ -67,7 +67,7 @@ setMethod("add", signature = c("dataset", "treatment_entry"), definition = funct
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% pmxmod::replace(arm)
+  object@arms <- object@arms %>% campsismod::replace(arm)
   return(object)
 })
 
@@ -75,7 +75,7 @@ setMethod("add", signature = c("dataset", "treatment_iov"), definition = functio
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% pmxmod::replace(arm)
+  object@arms <- object@arms %>% campsismod::replace(arm)
   return(object)
 })
 
@@ -83,7 +83,7 @@ setMethod("add", signature = c("dataset", "occasion"), definition = function(obj
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% pmxmod::replace(arm)
+  object@arms <- object@arms %>% campsismod::replace(arm)
   return(object)
 })
 
@@ -91,7 +91,7 @@ setMethod("add", signature = c("dataset", "observations"), definition = function
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@protocol@observations <- arm@protocol@observations %>% add(x)
-  object@arms <- object@arms %>% pmxmod::replace(arm)
+  object@arms <- object@arms %>% campsismod::replace(arm)
   return(object)
 })
 
@@ -99,7 +99,7 @@ setMethod("add", signature = c("dataset", "covariate"), definition = function(ob
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@covariates <- arm@covariates %>% add(x)
-  object@arms <- object@arms %>% pmxmod::replace(arm)
+  object@arms <- object@arms %>% campsismod::replace(arm)
   return(object)
 })
 
@@ -276,7 +276,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param ... extra arguments
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
 #' @importFrom dplyr arrange left_join
-#' @importFrom pmxmod export
+#' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
 #' @keywords internal
@@ -295,7 +295,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
   if (is.null(model)) {
     iiv <- data.frame()
   } else {
-    rxmod <- model %>% pmxmod::export(dest="RxODE")
+    rxmod <- model %>% campsismod::export(dest="RxODE")
     subjects <- object %>% length()
     iiv <- generateIIV(omega=rxmod@omega, n=subjects)
     if (nrow(iiv) > 0) {
@@ -433,8 +433,8 @@ counterBalanceLocfMode <- function(table, columnNames) {
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
   
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
-  nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
-  nocbvars <- pmxmod::processExtraArg(list(...), "nocbvars", default=NULL)
+  nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
+  nocbvars <- campsismod::processExtraArg(list(...), "nocbvars", default=NULL)
   
   # IOV/OCC post-processing
   iovOccNames <- object %>% getIOVNames()
@@ -456,8 +456,8 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
 setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, ...) {
   
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
-  nocb <- pmxmod::processExtraArg(list(...), "nocb", default=FALSE)
-  nocbvars <- pmxmod::processExtraArg(list(...), "nocbvars",  default=NULL)
+  nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
+  nocbvars <- campsismod::processExtraArg(list(...), "nocbvars",  default=NULL)
   
   # IOV/OCC post-processing
   iovOccNames <- object %>% getIOVNames()

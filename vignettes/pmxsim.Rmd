@@ -11,11 +11,10 @@ editor_options:
 
 ### Library import
 
-First import the `pmxmod` and `pmxsim` packages:
+First import the `campsis` package:
 
 ```{r, message=FALSE}
-library(pmxmod)
-library(pmxsim)
+library(campsis)
 ```
 
 ### Load model
