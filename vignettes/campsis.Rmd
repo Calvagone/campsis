@@ -1,8 +1,8 @@
 ---
-title: "Get started with pmxsim"
+title: "Get started with CAMPSIS"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get started with pmxsim}
+  %\VignetteIndexEntry{Get started with CAMPSIS}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 

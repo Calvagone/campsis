@@ -11,7 +11,7 @@ Install the latest stable release with the authentication token you have
 received:
 
 ``` r
-devtools::install_github("Calvagone/pmxsim", ref="release", auth_token="AUTH_TOKEN", force=TRUE)
+devtools::install_github("Calvagone/campsis", ref="release", auth_token="AUTH_TOKEN", force=TRUE)
 ```
 
 ## Basic example
