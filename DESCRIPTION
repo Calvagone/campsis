@@ -33,7 +33,7 @@ Collate:
     'results_processing.R'
     'default_plot.R'
 Title: CAMPSIS package
-Version: 0.6
+Version: 0.7
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
