@@ -1,5 +1,5 @@
 library(testthat)
-library(pmxmod)
+library(campsismod)
 
 context("Test all types of treatment entries")
 

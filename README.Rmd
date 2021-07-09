@@ -1,5 +1,5 @@
 ---
-pagetitle: "pmxsim"
+pagetitle: "CAMPSIS"
 date: ""
 author: ""
 output: github_document
@@ -7,21 +7,20 @@ output: github_document
 
 ## Requirements
 
-* R package `pmxmod` must be installed beforehand
+* R package `campsismod` must be installed beforehand
 * Simulation engine must be installed too (either `RxODE` or `mrgsolve`)
 
 ## Installation
 Install the latest stable release with the authentication token you have received:
   
 ```{r, eval=FALSE}
-devtools::install_github("Calvagone/pmxsim", ref="release", auth_token="AUTH_TOKEN", dependencies="pmxmod", force=TRUE)
+devtools::install_github("Calvagone/campsis", ref="release", auth_token="AUTH_TOKEN", force=TRUE)
 ```
 
 ## Basic example
 
 ```{r, results='hide', echo=F, message=F, warning=F}
-library(pmxmod)
-library(pmxsim)
+library(campsis)
 ```
 
 Create your dataset:

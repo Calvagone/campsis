@@ -1,5 +1,5 @@
 library(testthat)
-library(pmxmod)
+library(campsismod)
 
 context("Test all methods from the arms class")
 
@@ -49,6 +49,6 @@ test_that("Default, replace method work as expected", {
   
   # Need to use the replace function
   expect_error(arms %>% add(arm)) # Element ARM 0 is already present
-  arms <- arms %>% pmxmod::replace(arm)
+  arms <- arms %>% campsismod::replace(arm)
   expect_equal((arms %>% default())@protocol@treatment %>% length(), 1)
 })

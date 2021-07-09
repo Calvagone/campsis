@@ -1,5 +1,5 @@
 library(testthat)
-library(pmxmod)
+library(campsismod)
 
 context("Test the simulate method with characteristics implemented in model")
 seed <<- 1

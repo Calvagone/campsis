@@ -1,7 +1,7 @@
 
 ## Requirements
 
--   R package `pmxmod` must be installed beforehand
+-   R package `campsismod` must be installed beforehand
 -   Simulation engine must be installed too (either `RxODE` or
     `mrgsolve`)
 
@@ -11,7 +11,7 @@ Install the latest stable release with the authentication token you have
 received:
 
 ``` r
-devtools::install_github("Calvagone/pmxsim", ref="release", auth_token="AUTH_TOKEN", dependencies="pmxmod", force=TRUE)
+devtools::install_github("Calvagone/campsis", ref="release", auth_token="AUTH_TOKEN", force=TRUE)
 ```
 
 ## Basic example

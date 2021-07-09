@@ -1,8 +1,8 @@
 
-# setwd("C:/prj/pmxsim/")
+# setwd("C:/prj/campsis/")
 # roxygen2::roxygenise()
-# setwd("C:/prj/pmxsim/tests/")
-# testFolder <<- "C:/prj/pmxsim/tests/testthat/"
+# setwd("C:/prj/campsis/tests/")
+# testFolder <<- "C:/prj/campsis/tests/testthat/"
 
 datasetInMemory <- function(dataset, model, seed, doseOnly=TRUE) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed)

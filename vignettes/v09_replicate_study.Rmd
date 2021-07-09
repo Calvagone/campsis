@@ -10,8 +10,7 @@ editor_options:
 ---
 
 ```{r, results='hide', echo=F, message=F, warning=F}
-library(pmxmod)
-library(pmxsim)
+library(campsis)
 ```
 
 This vignette shows how a simulation can be replicated.
