@@ -40,7 +40,7 @@ Authors@R: c(
 Description: TODO.
 Depends: R (>= 4.0.0), campsismod
 Imports: assertthat, dplyr, ggplot2, MASS, plyr, purrr, rlang, tibble, tidyr
-Remotes: 
+Remotes: Calvagone/campsismod 
 License: file LICENSE
 Encoding: UTF-8
 Language: en-US
