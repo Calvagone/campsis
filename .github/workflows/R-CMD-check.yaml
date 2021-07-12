@@ -44,7 +44,9 @@ jobs:
           install.packages('devtools')
           devtools::install_github("Calvagone/campsismod", ref="develop", auth_token="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", force=TRUE)
           install.packages('remotes')
-          saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
+          dep <- remotes::dev_package_deps(dependencies = TRUE)
+          print(dep)
+          saveRDS(dep, ".github/depends.Rds", version = 2)
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
 
