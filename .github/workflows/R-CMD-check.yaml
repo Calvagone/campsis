@@ -40,6 +40,7 @@ jobs:
         run: |
           install.packages('remotes')
           dep <- remotes::dev_package_deps(dependencies = TRUE)
+          dep <- dep[dep$package != "campsismod",]
           print(dep)
           saveRDS(dep, ".github/depends.Rds", version = 2)
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
