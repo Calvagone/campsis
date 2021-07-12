@@ -41,6 +41,7 @@ jobs:
 
       - name: Query dependencies
         run: |
+          devtools::install_github("Calvagone/campsismod", ref="main", auth_token="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", force=TRUE)
           install.packages('remotes')
           saveRDS(remotes::dev_package_deps(dependencies = TRUE), ".github/depends.Rds", version = 2)
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
