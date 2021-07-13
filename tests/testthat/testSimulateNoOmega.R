@@ -6,10 +6,9 @@ seed <- 1
 
 test_that("Simulate a 1-cpt model without OMEGA's/SIGMA's (Github issue #8)", {
   model <- model_library$advan2_trans2
-  oldParameters <- model@parameters
-  model@parameters <- Parameters()
+
   # Keep THETA's only
-  model@parameters <- model@parameters %>% add(oldParameters %>% select("theta"))
+  model@parameters <- model@parameters %>% select("theta")
   
   dataset <- Dataset(3)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
