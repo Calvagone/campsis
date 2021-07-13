@@ -7,6 +7,7 @@ output: github_document
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/Calvagone/campsis/workflows/R-CMD-check/badge.svg)](https://github.com/Calvagone/campsis/actions)
+[![codecov](https://codecov.io/gh/Calvagone/campsis/branch/main/graph/badge.svg?token=C629TACTSU)](https://codecov.io/gh/Calvagone/campsis)
 <!-- badges: end -->
 
 ## Requirements
