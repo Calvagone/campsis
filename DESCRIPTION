@@ -33,19 +33,18 @@ Collate:
     'results_processing.R'
     'default_plot.R'
 Title: CAMPSIS package
-Version: 0.7
+Version: 0.7.1
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
 Description: TODO.
 Depends: R (>= 4.0.0), campsismod
 Imports: assertthat, dplyr, ggplot2, MASS, plyr, purrr, rlang, tibble, tidyr
-Remotes: 
 License: file LICENSE
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-Suggests: bookdown, devtools, knitr, gridExtra, mrgsolve, stringr, pkgdown, campsistrans, rmarkdown, roxygen2, RxODE, testthat 
+Suggests: bookdown, devtools, knitr, gridExtra, mrgsolve, stringr, pkgdown, rmarkdown, roxygen2, RxODE, testthat 
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 URL: https://github.com/Calvagone/campsis 

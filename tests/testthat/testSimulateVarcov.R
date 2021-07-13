@@ -52,7 +52,7 @@ test_that("VPC on both CP and Y (function)", {
   plots1 <- vpcPlot(results1, scenarios="output")
   plots1[[1]]
   plots1[[2]]
-  vpcOutputRegressionTest(results1, output="Y", filename=regFilename)
+  # vpcOutputRegressionTest(results1, output="Y", filename=regFilename) # Not a good test because seed is controlled by RxODE
   vpcOutputRegressionTest(results1, output="CP", filename=regFilename)
 })
 

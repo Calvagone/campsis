@@ -1,4 +1,10 @@
 
+<!-- badges: start -->
+
+[![R-CMD-check](https://github.com/Calvagone/campsis/workflows/R-CMD-check/badge.svg)](https://github.com/Calvagone/campsis/actions)
+[![codecov](https://codecov.io/gh/Calvagone/campsis/branch/main/graph/badge.svg?token=C629TACTSU)](https://codecov.io/gh/Calvagone/campsis)
+<!-- badges: end -->
+
 ## Requirements
 
 -   R package `campsismod` must be installed beforehand
@@ -11,7 +17,7 @@ Install the latest stable release with the authentication token you have
 received:
 
 ``` r
-devtools::install_github("Calvagone/campsis", ref="release", auth_token="AUTH_TOKEN", force=TRUE)
+devtools::install_github("Calvagone/campsis", ref="main", auth_token="AUTH_TOKEN", force=TRUE)
 ```
 
 ## Basic example
