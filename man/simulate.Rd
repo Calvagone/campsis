@@ -2,11 +2,11 @@
 % Please edit documentation in R/simulate.R
 \name{simulate}
 \alias{simulate}
-\alias{simulate,pmx_model,dataset,character,events,function,character,function,integer,integer,logical-method}
-\alias{simulate,pmx_model,tbl_df,character,events,function,character,function,integer,integer,logical-method}
-\alias{simulate,pmx_model,data.frame,character,events,function,character,function,integer,integer,logical-method}
-\alias{simulate,pmx_model,tbl_df,rxode_engine,events,function,character,function,integer,integer,logical-method}
-\alias{simulate,pmx_model,tbl_df,mrgsolve_engine,events,function,character,function,integer,integer,logical-method}
+\alias{simulate,campsis_model,dataset,character,events,function,character,function,integer,integer,logical-method}
+\alias{simulate,campsis_model,tbl_df,character,events,function,character,function,integer,integer,logical-method}
+\alias{simulate,campsis_model,data.frame,character,events,function,character,function,integer,integer,logical-method}
+\alias{simulate,campsis_model,tbl_df,rxode_engine,events,function,character,function,integer,integer,logical-method}
+\alias{simulate,campsis_model,tbl_df,mrgsolve_engine,events,function,character,function,integer,integer,logical-method}
 \title{Simulate function.}
 \usage{
 simulate(
@@ -23,7 +23,7 @@ simulate(
   ...
 )
 
-\S4method{simulate}{pmx_model,dataset,character,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,dataset,character,events,`function`,character,`function`,integer,integer,logical}(
   model,
   dataset,
   dest = NULL,
@@ -37,7 +37,7 @@ simulate(
   ...
 )
 
-\S4method{simulate}{pmx_model,tbl_df,character,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,tbl_df,character,events,`function`,character,`function`,integer,integer,logical}(
   model,
   dataset,
   dest = NULL,
@@ -51,7 +51,7 @@ simulate(
   ...
 )
 
-\S4method{simulate}{pmx_model,data.frame,character,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,data.frame,character,events,`function`,character,`function`,integer,integer,logical}(
   model,
   dataset,
   dest = NULL,
@@ -65,7 +65,7 @@ simulate(
   ...
 )
 
-\S4method{simulate}{pmx_model,tbl_df,rxode_engine,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,tbl_df,rxode_engine,events,`function`,character,`function`,integer,integer,logical}(
   model,
   dataset,
   dest = NULL,
@@ -79,7 +79,7 @@ simulate(
   ...
 )
 
-\S4method{simulate}{pmx_model,tbl_df,mrgsolve_engine,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,tbl_df,mrgsolve_engine,events,`function`,character,`function`,integer,integer,logical}(
   model,
   dataset,
   dest = NULL,

@@ -12,7 +12,7 @@
 \alias{sample,infusion,integer-method}
 \alias{sample,observations,integer-method}
 \alias{sample,covariate,integer-method}
-\alias{sample,pmx_model,integer-method}
+\alias{sample,campsis_model,integer-method}
 \title{Sample generic object.}
 \usage{
 sample(object, n, ...)
@@ -33,7 +33,7 @@ sample(object, n, ...)
 
 \S4method{sample}{covariate,integer}(object, n)
 
-\S4method{sample}{pmx_model,integer}(object, n)
+\S4method{sample}{campsis_model,integer}(object, n)
 }
 \arguments{
 \item{object}{generic object}

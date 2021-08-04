@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 #' @rdname sample
-setMethod("sample", signature = c("pmx_model", "integer"), definition = function(object, n) {
+setMethod("sample", signature = c("campsis_model", "integer"), definition = function(object, n) {
   
   varcov <- object@parameters@varcov
   retValue <- list()

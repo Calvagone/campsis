@@ -284,7 +284,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 exportDelegate <- function(object, dest, seed, nocb, ...) {
   args <- list(...)
   model <- args$model
-  if (!is.null(model) && !is(model, "pmx_model")) {
+  if (!is.null(model) && !is(model, "campsis_model")) {
     stop("Please provide a valid PMX model.")
   }
   

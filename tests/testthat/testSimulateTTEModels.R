@@ -3,7 +3,7 @@ library(campsismod)
 
 context("Test the simulate method with time-to-event models (TTE)")
 
-overwriteNonRegressionFiles <<- TRUE
+overwriteNonRegressionFiles <<- FALSE
 testFolder <<- ""
 
 source(paste0(testFolder, "testUtils.R"))
@@ -11,7 +11,7 @@ source(paste0(testFolder, "testUtils.R"))
 test_that("Simulate simple TTE model (RxODE/mrgsolve)", {
   
   regFilename <- "simple_tte_model"
-  model <- read.pmxmod(paste0(testFolder, "models/simple_tte_model/"))
+  model <- read.campsis(paste0(testFolder, "models/simple_tte_model/"))
   
   events <- Events()
   duration <- 24
