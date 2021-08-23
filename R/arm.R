@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkArm <- function(object) {
-  return(expectOneForAll(object, c("id", "subjects")))
+  return(expectOneForAll(object, c("id", "subjects", "label")))
 }
 
 #' 
@@ -12,6 +12,7 @@ checkArm <- function(object) {
 #' 
 #' @slot id arm unique ID, integer
 #' @slot subjects number of subjects in arm, integer
+#' @slot label arm label, single character string
 #' @slot protocol protocol
 #' @slot covariates covariates
 #' @export
@@ -20,22 +21,25 @@ setClass(
   representation(
     id = "integer",
     subjects = "integer",
+    label = "character",
     protocol = "protocol",
     covariates = "covariates"
   ),
   contains="pmx_element",
-  prototype=prototype(id=as.integer(1), subjects=as.integer(1), protocol=new("protocol"), covariates=new("covariates"))
+  prototype=prototype(id=as.integer(NA), subjects=as.integer(1), label=as.character(NA),
+                      protocol=new("protocol"), covariates=new("covariates"))
 )
 
-#' 
+#'
 #' Create a treatment arm.
-#' 
-#' @param id arm unique ID, integer
+#'
+#' @param id unique identifier for this arm (available trough dataset), integer. If NA (default), this identifier is auto-incremented.
 #' @param subjects number of subjects in arm, integer
-#' @return an arm  
+#' @param label arm label, single character string. If set, this label will be output in the ARM column of CAMPSIS instead of the identifier.
+#' @return an arm
 #' @export
-Arm <- function(id=1, subjects=1) {
-  return(new("arm", id=as.integer(id), subjects=as.integer(subjects)))
+Arm <- function(id=as.integer(NA), subjects=1, label=as.character(NA)) {
+  return(new("arm", id=as.integer(id), subjects=as.integer(subjects), label=as.character(label)))
 }
 
 #_______________________________________________________________________________
@@ -93,7 +97,7 @@ setMethod("getTimes", signature = c("arm"), definition = function(object) {
 })
 
 #_______________________________________________________________________________
-#----                           add                                   ----
+#----                           add                                         ----
 #_______________________________________________________________________________
 
 setMethod("add", signature = c("arm", "list"), definition = function(object, x) {

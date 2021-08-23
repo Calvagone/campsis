@@ -69,3 +69,23 @@ test_that("Simulate a bolus, 2 arms (RxODE/mrgsolve)", {
   outputRegressionTest(results1, output="CP", filename=regFilename)
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
+
+test_that("Simulate a bolus, 2 labelled arms (RxODE/mrgsolve)", {
+  model <- model_library$advan4_trans4
+  regFilename <- "bolus_2arms"
+  
+  arm1 <- Arm(1, subjects=10, label="TRT 1")
+  arm2 <- Arm(2, subjects=10, label="TRT 2")
+  arm1 <- arm1 %>% add(Bolus(time=0, amount=1000, compartment=1))
+  arm2 <- arm2 %>% add(Bolus(time=0, amount=2000, compartment=1))
+  arm1 <- arm1 %>% add(Observations(times=seq(0,24, by=0.5)))
+  arm2 <- arm2 %>% add(Observations(times=seq(0,24, by=0.5)))
+  
+  dataset <- Dataset() %>% add(c(arm1, arm2))
+  
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  
+  outputRegressionTest(results1, output=c("CP", "ARM"), filename=regFilename)
+  outputRegressionTest(results2, output=c("CP", "ARM"), filename=regFilename)
+})

@@ -163,6 +163,26 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   return(outfun(results))
 }
 
+#' Process arm labels. Arm identifiers in ARM column are replaced by arm labels
+#' as soon as one arm label is provided.
+#' 
+#' @param campsis CAMPSIS output
+#' @param arms all treatment arms
+#' @return updated CAMPSIS output with arm labels instead of arm identifiers
+#' @importFrom dplyr mutate
+#' @importFrom purrr map_chr map_int
+#' @importFrom plyr mapvalues
+#' 
+processArmLabels <- function(campsis, arms) {
+  armIds <- arms@list %>% purrr::map_int(~.x@id)
+  armLabels <- arms@list %>% purrr::map_chr(~.x@label)
+  if (any(!is.na(armLabels))) {
+    armLabels <- ifelse(is.na(armLabels), paste("ARM", armIds), armLabels)
+    campsis <- campsis %>% dplyr::mutate(ARM=plyr::mapvalues(ARM, from=armIds, to=armLabels))
+  }
+  return(campsis)
+}
+
 #' Simulation delegate (several replicates).
 #' 
 #' @inheritParams simulate
@@ -193,9 +213,10 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
-  return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun,
-                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb,
-                          summary=toDatasetSummary(dataset), ...))
+  campsis <- simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun,
+                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb,
+                               summary=toDatasetSummary(dataset), ...)
+  return(processArmLabels(campsis, dataset@arms))
 })
 
 #' @rdname simulate
