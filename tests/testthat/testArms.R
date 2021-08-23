@@ -69,4 +69,3 @@ test_that("Auto-incremented id works", {
   # Check arm names are correct  
   expect_equal(arms %>% getNames(), c("ARM 1", "ARM 2", "ARM 3"))
 })
-

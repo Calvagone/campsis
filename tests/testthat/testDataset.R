@@ -57,9 +57,15 @@ test_that("Two arms example", {
   
   # Export to RxODE
   table <- dataset %>% export(dest="RxODE")
-  
   expect_equal(nrow(table), 98)
   
+  # Replace numbers of subjects in second arm
+  arm2Bis <- dataset@arms %>% getByIndex(2)
+  arm2Bis@subjects <- as.integer(5)
+  dataset <- dataset %>% replace(arm2Bis)
+  
+  # Total number of subjects
+  expect_equal(dataset %>% length(), 9)
 })
 
 test_that("Export using config", {
