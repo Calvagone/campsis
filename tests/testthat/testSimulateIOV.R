@@ -47,7 +47,7 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
   
 })
 
-test_that("Simulate 1000mg QD with IOV on KA (2) (this test sometimes fails with RxODE version > 1.0.5)", {
+test_that("Simulate 1000mg QD with IOV on KA (2) (this test sometimes fails with RxODE version > 1.0.5 & < 1.1.0)", {
   regFilename <- "3_boluses_iov_ka_2"
   model <- model_library$advan4_trans4
   model <- model %>% replaceEquation("KA", rhs="THETA_KA*exp(ETA_KA + IOV_KA)")
@@ -76,7 +76,7 @@ test_that("Simulate 1000mg QD with IOV on KA (2) (this test sometimes fails with
   spaghettiPlot(results2b, "CP")
 })
 
-test_that("Simulate IOV on F1 (this test always fails with RxODE version > 1.0.5)", {
+test_that("Simulate IOV on F1 (this test always fails with RxODE version > 1.0.5 & < 1.1.0)", {
   regFilename <- "3_boluses_iiv_iov_f1"
   
   # Model with IIV and IOV on F1
@@ -122,7 +122,7 @@ test_that("Simulate IOV on F1 (this test always fails with RxODE version > 1.0.5
 })
 
 
-test_that("Simulate IOV on ALAG1 (this test always fails with RxODE version > 1.0.5)", {
+test_that("Simulate IOV on ALAG1 (this test always fails with RxODE version > 1.0.5 & < 1.1.0)", {
   regFilename <- "3_boluses_iiv_iov_alag1"
   
   # Model with IIV on ALAG1
@@ -167,6 +167,12 @@ test_that("Simulate IOV on ALAG1 (this test always fails with RxODE version > 1.
     table_rxode <- dataset %>% export(dest="RxODE", model=model, seed=seed, nocb=FALSE)
     table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, nocb=FALSE)
     
+    # Bug in RxODE 1.1.0
+    # Time 0 is added while it should not
+    if (startTime != 0) {
+      results1a <- results1a %>% dplyr::filter(time != 0)
+      results1b <- results1b %>% dplyr::filter(time != 0)
+    }
     outputRegressionTest(results1a, output="CP", filename=regFilename, times=obsTimes)
     outputRegressionTest(results1b, output="CP", filename=regFilename, times=obsTimes)
     outputRegressionTest(results2a, output="CP", filename=regFilename, times=obsTimes)

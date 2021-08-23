@@ -38,7 +38,7 @@ test_that("Add infusion rate to model", {
   model <- model %>% add(InfusionRate(1, "200"))
   
   dataset <- Dataset(10)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
@@ -50,7 +50,7 @@ test_that("Add infusion duration to model", {
   model <- model %>% add(InfusionDuration(1, "5"))
 
   dataset <- Dataset(10)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
+  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
 
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)

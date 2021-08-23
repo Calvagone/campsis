@@ -55,10 +55,10 @@ test_that("Weight as a time-varying covariate (NOCB vs LOCF)", {
 test_that("NOCB/LOCF should not have any effect on treatment occasion", {
   model <- model_library$advan4_trans4
   model <- model %>% removeEquation("KA")
-  model <- model %>% addEquation(lhs="KA", rhs="0", before="CL")
-  model <- model %>% addEquation(lhs="if (OCC==1) KA", rhs="THETA_KA*1.5*exp(ETA_KA)", before="CL")
-  model <- model %>% addEquation(lhs="if (OCC==2) KA", rhs="THETA_KA*0.5*exp(ETA_KA)", before="CL")
-  model <- model %>% addEquation(lhs="if (OCC==3) KA", rhs="THETA_KA*0.1*exp(ETA_KA)", before="CL")
+  model <- model %>% add(Equation("KA", "0"))
+  model <- model %>% add(IfStatement("OCC==1", Equation("KA", "THETA_KA*1.5*exp(ETA_KA)")))
+  model <- model %>% add(IfStatement("OCC==2", Equation("KA", "THETA_KA*0.5*exp(ETA_KA)")))
+  model <- model %>% add(IfStatement("OCC==3", Equation("KA", "THETA_KA*0.1*exp(ETA_KA)")))
   
   dataset <- Dataset(3)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
