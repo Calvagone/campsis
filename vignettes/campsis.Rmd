@@ -65,20 +65,16 @@ shadedPlot(results, "CP")
 We can also simulate two different treatment arms. Say the first arm receives 1000mg QD and the second arm 2000mg QD.
 
 ```{r get_started_2arms_plot, fig.align='center', fig.height=4, fig.width=8}
-arm1 <- Arm(id=1, subjects=50)
-arm2 <- Arm(id=2, subjects=50)
+arm1 <- Arm(subjects=50, label="1000 mg QD")
+arm2 <- Arm(subjects=50, label="2000 mg QD")
 
-arm1 <- arm1 %>% add(Bolus(time=0, amount=1000))
-arm1 <- arm1 %>% add(Bolus(time=24, amount=1000))
-arm1 <- arm1 %>% add(Bolus(time=48, amount=1000))
+arm1 <- arm1 %>% add(Bolus(time=c(0,24,48), amount=1000))
 arm1 <- arm1 %>% add(Observations(times=seq(0,72, by=1)))
 
-arm2 <- arm2 %>% add(Bolus(time=0, amount=2000))
-arm2 <- arm2 %>% add(Bolus(time=24, amount=2000))
-arm2 <- arm2 %>% add(Bolus(time=48, amount=2000))
+arm2 <- arm2 %>% add(Bolus(time=c(0,24,48), amount=2000))
 arm2 <- arm2 %>% add(Observations(times=seq(0,72, by=1)))
 
-dataset <- Dataset() %>% add(arm1) %>% add(arm2)
+dataset <- Dataset() %>% add(c(arm1, arm2))
 
 results <- model %>% simulate(dataset, dest="RxODE", seed=1)
 shadedPlot(results, "CP", scenarios="ARM")

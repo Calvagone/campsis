@@ -25,14 +25,14 @@ model <- model_library$advan4_trans4
 dataset <- Dataset()
 
 getArm <- function(params) {
-  arm <- Arm(id=params$id, subjects=params$subjects)
+  arm <- Arm(subjects=params$subjects, label=params$label)
   arm <- arm %>% add(Bolus(time=0, amount=params$amt))
   arm <- arm %>% add(Observations(times=seq(0, 24, by=0.1))) 
 }
 
-paramsList <- list(list(id=1, subjects=3, amt=1000),
-                   list(id=2, subjects=5, amt=1500),
-                   list(id=3, subjects=10, amt=2000))
+paramsList <- list(list(label="1000 mg SD", subjects=3, amt=1000),
+                   list(label="1500 mg SD", subjects=5, amt=1500),
+                   list(label="2000 mg SD", subjects=10, amt=2000))
 
 for (params in paramsList) {
   dataset <- dataset %>% add(getArm(params))

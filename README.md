@@ -22,6 +22,12 @@ devtools::install_github("Calvagone/campsis", ref="main", auth_token="AUTH_TOKEN
 
 ## Basic example
 
+Import the `campsis` package:
+
+``` r
+library(campsis)
+```
+
 Create your dataset:
 
 ``` r

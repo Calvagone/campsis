@@ -172,6 +172,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
 #' @importFrom dplyr mutate
 #' @importFrom purrr map_chr map_int
 #' @importFrom plyr mapvalues
+#' @keywords internal
 #' 
 processArmLabels <- function(campsis, arms) {
   armIds <- arms@list %>% purrr::map_int(~.x@id)

@@ -19,3 +19,4 @@ updated CAMPSIS output with arm labels instead of arm identifiers
 Process arm labels. Arm identifiers in ARM column are replaced by arm labels
 as soon as one arm label is provided.
 }
+\keyword{internal}
