@@ -63,7 +63,7 @@ Bolus <- function(time, amount, compartment=NA, f=NULL, lag=NULL) {
 }
 
 setMethod("getName", signature = c("bolus"), definition = function(x) {
-  return(paste0("BOLUS [", "TIME=", x@time, ", ", "AMOUNT=", x@amount, ", ", "CMT=", x@compartment, "]"))
+  return(paste0("BOLUS [", "TIME=", x@time, ", ", "CMT=", x@compartment, "]"))
 })
 
 #_______________________________________________________________________________
@@ -116,7 +116,7 @@ Infusion <- function(time, amount, compartment=NA, f=NULL, lag=NULL, duration=NU
 }
 
 setMethod("getName", signature = c("infusion"), definition = function(x) {
-  return(paste0("INFUSION [", "TIME=", x@time, ", ", "AMOUNT=", x@amount, ", ", "CMT=", x@compartment, "]"))
+  return(paste0("INFUSION [", "TIME=", x@time, ", ", "CMT=", x@compartment, "]"))
 })
 
 #_______________________________________________________________________________

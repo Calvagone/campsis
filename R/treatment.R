@@ -32,6 +32,46 @@ setMethod("add", signature = c("treatment", "occasion"), definition = function(o
 })
 
 #_______________________________________________________________________________
+#----                               contains                                ----
+#_______________________________________________________________________________
+
+setMethod("contains", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+  return(object@iovs %>% contains(x))
+})
+
+setMethod("contains", signature = c("treatment", "occasion"), definition = function(object, x) {
+  return(object@occasions %>% contains(x))
+})
+
+#_______________________________________________________________________________
+#----                               delete                                  ----
+#_______________________________________________________________________________
+
+setMethod("delete", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+  object@iovs <- object@iovs %>% delete(x)
+  return(object)
+})
+
+setMethod("delete", signature = c("treatment", "occasion"), definition = function(object, x) {
+  object@occasions <- object@occasions %>% delete(x)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                              replace                                  ----
+#_______________________________________________________________________________
+
+setMethod("replace", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+  object@iovs <- object@iovs %>% replace(x)
+  return(object)
+})
+
+setMethod("replace", signature = c("treatment", "occasion"), definition = function(object, x) {
+  object@occasions <- object@occasions %>% replace(x)
+  return(object)
+})
+
+#_______________________________________________________________________________
 #----                                  sort                                 ----
 #_______________________________________________________________________________
 

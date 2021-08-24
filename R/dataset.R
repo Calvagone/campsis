@@ -81,7 +81,12 @@ setMethod("add", signature = c("dataset", "dataset_config"), definition = functi
 #_______________________________________________________________________________
 
 setMethod("delete", signature = c("dataset", "pmx_element"), definition = function(object, x) {
+  if (object@arms %>% length() == 0) {
+    stop("This dataset is empty. No element can be deleted.")
+  }
   arm <- object@arms %>% default()
+  arm <- arm %>% delete(x)
+  object@arms <- object@arms %>% replace(arm)
   return(object)
 })
 
@@ -149,6 +154,16 @@ setMethod("length", signature=c("dataset"), definition=function(x) {
 
 setMethod("replace", signature=c("dataset", "arm"), definition=function(object, x) {
   object@arms <- object@arms %>% replace(x)
+  return(object)
+})
+
+setMethod("replace", signature = c("dataset", "pmx_element"), definition = function(object, x) {
+  if (object@arms %>% length() == 0) {
+    stop("This dataset is empty. No element can be replaced. ")
+  }
+  arm <- object@arms %>% default()
+  arm <- arm %>% replace(x)
+  object@arms <- object@arms %>% replace(arm)
   return(object)
 })
 
