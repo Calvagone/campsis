@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test the simulate method with the NOCB/LOCF switch")
 
@@ -11,7 +10,7 @@ source(paste0(testFolder, "testUtils.R"))
 
 test_that("Weight as a time-varying covariate (NOCB vs LOCF)", {
   model <- model_library$advan4_trans4
-  model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
+  model <- model %>% campsismod::replace(Equation("CL", paste0((model %>% getEquation("CL"))@rhs, "*pow(BW/70, 0.75)")))
   
   dataset <- Dataset(4)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))

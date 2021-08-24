@@ -63,42 +63,10 @@ setMethod("add", signature = c("dataset", "arm"), definition = function(object, 
   return(object)
 })
 
-setMethod("add", signature = c("dataset", "treatment_entry"), definition = function(object, x) {
+setMethod("add", signature = c("dataset", "pmx_element"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
-  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "treatment_iov"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "occasion"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "observations"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@protocol@observations <- arm@protocol@observations %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "covariate"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@covariates <- arm@covariates %>% add(x)
+  arm <- arm %>% add(x)
   object@arms <- object@arms %>% campsismod::replace(arm)
   return(object)
 })

@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test all methods from the dataset class")
 
@@ -62,7 +61,7 @@ test_that("Two arms example", {
   # Replace numbers of subjects in second arm
   arm2Bis <- dataset@arms %>% getByIndex(2)
   arm2Bis@subjects <- as.integer(5)
-  dataset <- dataset %>% replace(arm2Bis)
+  dataset <- dataset %>% campsismod::replace(arm2Bis)
   
   # Total number of subjects
   expect_equal(dataset %>% length(), 9)

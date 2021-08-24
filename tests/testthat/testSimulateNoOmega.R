@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test that the simulate method works even when no OMEGA's/SIGMA's are provided")
 seed <- 1

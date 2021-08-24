@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test the events/interruption logic")
 
@@ -46,7 +45,7 @@ test_that("Simple interrutpions - No events - (RxODE/mrgsolve)", {
 
 test_that("Interruptions at doses times - BW covariate - No events - (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4
-  model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
+  model <- model %>% campsismod::replace(Equation("CL", paste0((model %>% getEquation("CL"))@rhs, "*pow(BW/70, 0.75)")))
   regFilename <- "event_interruption_at_dose"
   
   dataset <- Dataset(2)
@@ -85,8 +84,8 @@ test_that("Interruptions at doses times - BW covariate - No events - (RxODE/mrgs
 
 test_that("Interruptions at doses times - BW covariate - IOV on KA - No events - (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4
-  model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
-  model <- model %>% replaceEquation("KA", rhs="THETA_KA*exp(ETA_KA + IOV_KA)")
+  model <- model %>% campsismod::replace(Equation("CL", paste0((model %>% getEquation("CL"))@rhs, "*pow(BW/70, 0.75)")))
+  model <- model %>% campsismod::replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
   regFilename <- "event_interruption_at_dose_iov"
   
   dataset <- Dataset(2)

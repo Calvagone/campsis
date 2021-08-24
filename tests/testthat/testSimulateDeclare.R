@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test the declare argument of the simulate function")
 

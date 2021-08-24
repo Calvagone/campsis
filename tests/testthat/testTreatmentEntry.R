@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test all types of treatment entries")
 

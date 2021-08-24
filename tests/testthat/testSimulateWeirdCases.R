@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test that simulations with weird cases work as expected")
 seed <- 1

@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test the simulate method with different bioavailabilities")
 

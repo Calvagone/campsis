@@ -126,4 +126,3 @@ getTimes <- function(object) {
 setGeneric("getTimes", function(object) {
   standardGeneric("getTimes")
 })
-

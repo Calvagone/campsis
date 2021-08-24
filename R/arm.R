@@ -132,3 +132,60 @@ setMethod("add", signature = c("arm", "covariate"), definition = function(object
   return(object)
 })
 
+#_______________________________________________________________________________
+#----                              delete                                   ----
+#_______________________________________________________________________________
+
+setMethod("delete", signature = c("arm", "treatment_entry"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% delete(x) 
+  return(object)
+})
+
+setMethod("delete", signature = c("arm", "treatment_iov"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% delete(x) 
+  return(object)
+})
+
+setMethod("delete", signature = c("arm", "occasion"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% delete(x) 
+  return(object)
+})
+
+setMethod("delete", signature = c("arm", "observations"), definition = function(object, x) {
+  object@protocol@observations <- object@protocol@observations %>% delete(x) 
+  return(object)
+})
+
+setMethod("delete", signature = c("arm", "covariate"), definition = function(object, x) {
+  object@covariates <- object@covariates %>% delete(x)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             replace                                   ----
+#_______________________________________________________________________________
+
+setMethod("replace", signature = c("arm", "treatment_entry"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% replace(x) 
+  return(object)
+})
+
+setMethod("replace", signature = c("arm", "treatment_iov"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% replace(x) 
+  return(object)
+})
+
+setMethod("replace", signature = c("arm", "occasion"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% replace(x) 
+  return(object)
+})
+
+setMethod("replace", signature = c("arm", "observations"), definition = function(object, x) {
+  object@protocol@observations <- object@protocol@observations %>% replace(x) 
+  return(object)
+})
+
+setMethod("replace", signature = c("arm", "covariate"), definition = function(object, x) {
+  object@covariates <- object@covariates %>% replace(x)
+  return(object)
+})
