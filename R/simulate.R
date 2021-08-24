@@ -77,7 +77,7 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, no
         dataset@arms@list[[armIndex]] <- dataset@arms@list[[armIndex]] %>% add(eventRelatedObs)
       }
     }
-    table <- dataset %>% campsismod::export(dest=dest, model=model, seed=seed, nocb=nocb, event_related_column=TRUE, nocbvars=nocbvars)
+    table <- dataset %>% export(dest=dest, model=model, seed=seed, nocb=nocb, event_related_column=TRUE, nocbvars=nocbvars)
   } else {
     table <- dataset
     if (!("EVENT_RELATED" %in% colnames(table))) {
@@ -296,11 +296,11 @@ processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   
   # Export PMX model
   if (is(dest, "rxode_engine")) {
-    engineModel <- model %>% campsismod::export(dest="RxODE")
+    engineModel <- model %>% export(dest="RxODE")
   } else if (is(dest, "mrgsolve_engine")) {
     outvars_ <- outvars[!(outvars %in% dropOthers())]
     outvars_ <- unique(c(outvars_, "ARM", "EVENT_RELATED"))
-    engineModel <- model %>% campsismod::export(dest="mrgsolve", outvars=outvars_)
+    engineModel <- model %>% export(dest="mrgsolve", outvars=outvars_)
   }
   
   # Compute all slice rounds to perform
@@ -313,7 +313,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   })
   
   # Compartment names
-  cmtNames <- model@compartments %>% campsismod::getNames()
+  cmtNames <- model@compartments %>% getNames()
   
   return(list(declare=declare, engineModel=engineModel, subdatasets=subdatasets,
               dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames))
@@ -404,9 +404,9 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   
   # Declare all ETA's in the PARAM block
   omegas <- rxodeMatrix(model, type="omega")
-  for (omega in (model@parameters %>% campsismod::select("omega"))@list) {
+  for (omega in (model@parameters %>% select("omega"))@list) {
     if(omega %>% isDiag()) {
-      etaName <- omega %>% campsismod::getNameInModel()
+      etaName <- omega %>% getNameInModel()
       mrgmod@param <- mrgmod@param %>% append(paste0(etaName, " : ", 0, " : ", etaName))
     }
   }
@@ -417,7 +417,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   }
   
   # Instantiate mrgsolve model
-  mod <- mrgsolve::mcode("model", mrgmod %>% campsismod::toString())
+  mod <- mrgsolve::mcode("model", mrgmod %>% toString())
   
   results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)

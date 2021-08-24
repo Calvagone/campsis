@@ -1,5 +1,15 @@
 
 #' 
+#' Import the whole campsismod package into NAMESPACE when parsed by roxygen.
+#' 
+#' @import campsismod
+#' @keywords internal
+#' 
+importCampsismodToNamespace <- function() {
+  return(TRUE)
+}
+
+#' 
 #' Convert user-given distribution to an explicit pmxsim distribution.
 #' Passed distribution can be:
 #' - a NULL value. In that case, it will be converted into is a 'UndefinedDistribution'.

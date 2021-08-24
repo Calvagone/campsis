@@ -84,7 +84,7 @@ test_that("Daily dose in dataset + daily dose through events  (RxODE/mrgsolve)",
 
 test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
   model <- model_library$advan2_trans2
-  model <- model %>% campsismod::replace(Equation("CL", paste0((model %>% getEquation("CL"))@rhs, "*pow(BW/70, 0.75)")))
+  model <- model %>% replace(Equation("CL", paste0((model %>% getEquation("CL"))@rhs, "*pow(BW/70, 0.75)")))
   regFilename <- "event_varying_bw"
   
   dataset <- Dataset(3)

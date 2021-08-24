@@ -67,12 +67,21 @@ setMethod("add", signature = c("dataset", "pmx_element"), definition = function(
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm <- arm %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
+  object@arms <- object@arms %>% replace(arm)
   return(object)
 })
 
 setMethod("add", signature = c("dataset", "dataset_config"), definition = function(object, x) {
   object@config <- x
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                              delete                                   ----
+#_______________________________________________________________________________
+
+setMethod("delete", signature = c("dataset", "pmx_element"), definition = function(object, x) {
+  arm <- object@arms %>% default()
   return(object)
 })
 
@@ -139,7 +148,7 @@ setMethod("length", signature=c("dataset"), definition=function(x) {
 #_______________________________________________________________________________
 
 setMethod("replace", signature=c("dataset", "arm"), definition=function(object, x) {
-  object@arms <- object@arms %>% campsismod::replace(x)
+  object@arms <- object@arms %>% replace(x)
   return(object)
 })
 
@@ -272,7 +281,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
   if (is.null(model)) {
     iiv <- data.frame()
   } else {
-    rxmod <- model %>% campsismod::export(dest="RxODE")
+    rxmod <- model %>% export(dest="RxODE")
     subjects <- object %>% length()
     iiv <- generateIIV(omega=rxmod@omega, n=subjects)
     if (nrow(iiv) > 0) {

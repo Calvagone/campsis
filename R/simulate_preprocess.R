@@ -119,14 +119,14 @@ preprocessIds <- function(dataset) {
 #' 
 preprocessArmColumn <- function(dataset, model) {
   if ("ARM" %in% colnames(dataset)) {
-    pkRecord <- model@model %>% campsismod::getByName("MAIN")
+    pkRecord <- model@model %>% getByName("MAIN")
     pkRecord <- pkRecord %>% add(Equation("ARM", "ARM"))
-    model@model <- model@model %>% campsismod::replace(pkRecord)
+    model@model <- model@model %>% replace(pkRecord)
   }
   if ("EVENT_RELATED" %in% colnames(dataset)) {
-    pkRecord <- model@model %>% campsismod::getByName("MAIN")
+    pkRecord <- model@model %>% getByName("MAIN")
     pkRecord <- pkRecord %>% add(Equation("EVENT_RELATED", "EVENT_RELATED"))
-    model@model <- model@model %>% campsismod::replace(pkRecord)
+    model@model <- model@model %>% replace(pkRecord)
   }
   return(model)
 }

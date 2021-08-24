@@ -48,7 +48,7 @@ test_that("Default, replace method work as expected", {
   
   # Need to use the replace function
   expect_error(arms %>% add(arm)) # Element ARM 0 is already present
-  arms <- arms %>% campsismod::replace(arm)
+  arms <- arms %>% replace(arm)
   expect_equal((arms %>% default())@protocol@treatment %>% length(), 1)
 })
 

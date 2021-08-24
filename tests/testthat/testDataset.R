@@ -61,7 +61,7 @@ test_that("Two arms example", {
   # Replace numbers of subjects in second arm
   arm2Bis <- dataset@arms %>% getByIndex(2)
   arm2Bis@subjects <- as.integer(5)
-  dataset <- dataset %>% campsismod::replace(arm2Bis)
+  dataset <- dataset %>% replace(arm2Bis)
   
   # Total number of subjects
   expect_equal(dataset %>% length(), 9)
@@ -121,7 +121,7 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   # Export to RxODE N=2
   arm <- dataset@arms %>% default()
   arm@subjects <- as.integer(2)
-  dataset@arms <- dataset@arms %>% campsismod::replace(arm)
+  dataset@arms <- dataset@arms %>% replace(arm)
   
   dataset <- dataset %>% add(config)
   table <- dataset %>% export(dest="RxODE")
