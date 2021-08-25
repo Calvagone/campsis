@@ -380,13 +380,14 @@ test_that("Export IOV works well - example 2", {
   expect_equal(round(table$IOV_KA,2), c(-0.63,-0.63,-0.63,-0.63,-0.63,-0.63,-0.63,0.18,0.18,0.18,0.18,0.18,0.18,-0.84,-0.84,-0.84,-0.84,-0.84,-0.84,-0.84,1.60,1.60,1.60,1.60,1.60,1.60))
 })
 
-test_that("Replace method works well", {
+test_that("Replace / delete methods works well", {
   ds <- Dataset(1)
   
   # Add 3 doses
-  ds <- ds %>% add(Bolus(time=0, amount=100))
-  ds <- ds %>% add(Bolus(time=24, amount=100))
-  ds <- ds %>% add(Bolus(time=48, amount=100))
+  ds <- ds %>% add(Bolus(time=c(0,24,48), amount=100))
+
+  # Add observations
+  ds <- ds %>% add(Observations(c(1,2,3)))
   
   # Add IOV
   ds <- ds %>% add(IOV("IOV_KA", distribution=c(1,2,3)))
@@ -412,5 +413,24 @@ test_that("Replace method works well", {
   # Change covariate value
   updatedDs <- ds %>% replace(Covariate("WT", 1))
   expect_equal((updatedDs@arms@list[[1]]@covariates@list[[1]])@distribution, ConstantDistribution(1))
+  
+  # Delete the last dose
+  updatedDs <- ds %>% delete(Bolus(time=48, amount=100))
+  expect_equal(updatedDs@arms@list[[1]]@protocol@treatment %>% length(), 2)
+  
+  # Delete IOV
+  updatedDs <- ds %>% delete(IOV("IOV_KA", distribution=c(1,2,3)))
+  expect_equal(updatedDs@arms@list[[1]]@protocol@treatment@iovs %>% length(), 0)
+  
+  # Delete occasions
+  updatedDs <- ds %>% delete(Occasion("OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
+  expect_equal(updatedDs@arms@list[[1]]@protocol@treatment@occasions %>% length(), 0)
+  
+  # Delete covariate
+  updatedDs <- ds %>% delete(Covariate("WT", 0))
+  expect_equal(updatedDs@arms@list[[1]]@covariates %>% length(), 0)
+  
+  # Delete observations
+  updatedDs <- ds %>% delete(Observations(c(1,2,3)))
+  expect_equal(updatedDs@arms@list[[1]]@protocol@observations %>% length(), 0)
 })
-
