@@ -6,7 +6,7 @@ test_that("Bolus is working correctly", {
   bolus <- Bolus(time=0, amount=1000) 
   expect_equal(bolus@time, 0)
   expect_equal(bolus@amount, 1000)
-  expect_equal(bolus %>% getName(), "BOLUS [TIME=0, AMOUNT=1000, CMT=NA]")
+  expect_equal(bolus %>% getName(), "BOLUS [TIME=0, CMT=NA]")
 })
 
 test_that("Infusion is working correctly", {
@@ -14,7 +14,7 @@ test_that("Infusion is working correctly", {
   infusion <- Infusion(time=0, amount=1000) 
   expect_equal(infusion@time, 0)
   expect_equal(infusion@amount, 1000)
-  expect_equal(infusion %>% getName(), "INFUSION [TIME=0, AMOUNT=1000, CMT=NA]")
+  expect_equal(infusion %>% getName(), "INFUSION [TIME=0, CMT=NA]")
 })
 
 test_that("Infusion errors", {
