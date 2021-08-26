@@ -12,6 +12,8 @@ Collate:
     'occasions.R'
     'treatment_iov.R'
     'treatment_iovs.R'
+    'dose_adaptation.R'
+    'dose_adaptations.R'
     'treatment_entry.R'
     'treatment.R'
     'observations.R'

@@ -11,10 +11,12 @@ setClass(
   "treatment",
   representation(
     iovs = "treatment_iovs",
-    occasions = "occasions"
+    occasions = "occasions",
+    dose_adaptations = "dose_adaptations"
   ),
   contains="pmx_list",
-  prototype=prototype(type="treatment_entry", iovs=new("treatment_iovs"), occasions=new("occasions"))
+  prototype=prototype(type="treatment_entry", iovs=new("treatment_iovs"),
+                      occasions=new("occasions"), dose_adaptations=new("dose_adaptations"))
 )
 
 #_______________________________________________________________________________
@@ -31,6 +33,11 @@ setMethod("add", signature = c("treatment", "occasion"), definition = function(o
   return(object)
 })
 
+setMethod("add", signature = c("treatment", "dose_adaptation"), definition = function(object, x) {
+  object@dose_adaptations <- object@dose_adaptations %>% add(x)
+  return(object)
+})
+
 #_______________________________________________________________________________
 #----                               contains                                ----
 #_______________________________________________________________________________
@@ -41,6 +48,10 @@ setMethod("contains", signature = c("treatment", "treatment_iov"), definition = 
 
 setMethod("contains", signature = c("treatment", "occasion"), definition = function(object, x) {
   return(object@occasions %>% contains(x))
+})
+
+setMethod("contains", signature = c("treatment", "dose_adaptation"), definition = function(object, x) {
+  return(object@dose_adaptations %>% contains(x))
 })
 
 #_______________________________________________________________________________
@@ -57,6 +68,11 @@ setMethod("delete", signature = c("treatment", "occasion"), definition = functio
   return(object)
 })
 
+setMethod("delete", signature = c("treatment", "dose_adaptation"), definition = function(object, x) {
+  object@dose_adaptations <- object@dose_adaptations %>% delete(x)
+  return(object)
+})
+
 #_______________________________________________________________________________
 #----                              replace                                  ----
 #_______________________________________________________________________________
@@ -68,6 +84,11 @@ setMethod("replace", signature = c("treatment", "treatment_iov"), definition = f
 
 setMethod("replace", signature = c("treatment", "occasion"), definition = function(object, x) {
   object@occasions <- object@occasions %>% replace(x)
+  return(object)
+})
+
+setMethod("replace", signature = c("treatment", "dose_adaptation"), definition = function(object, x) {
+  object@dose_adaptations <- object@dose_adaptations %>% replace(x)
   return(object)
 })
 

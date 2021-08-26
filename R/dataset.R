@@ -280,6 +280,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
+#' @importFrom rlang parse_expr
 #' @keywords internal
 #' 
 exportDelegate <- function(object, dest, seed, nocb, ...) {
@@ -330,6 +331,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     covariates <- arm@covariates
     treatmentIovs <- treatment@iovs
     occasions <- treatment@occasions
+    doseAdaptations <- treatment@dose_adaptations
     
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
@@ -363,6 +365,17 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     for (occasion in occasions@list) {
       occ <- tibble::tibble(DOSENO=occasion@dose_numbers, !!occasion@colname:=occasion@values)
       table <- table %>% dplyr::left_join(occ, by="DOSENO")
+    }
+    
+    # Apply formula if dose adaptations are present
+    for (doseAdaptation in doseAdaptations@list) {
+      compartments <- doseAdaptation@compartments
+      expr <- rlang::parse_expr(doseAdaptation@formula)
+      if (compartments %>% length() > 0) {
+        table <- table %>% dplyr::mutate(AMT=ifelse(CMT %in% compartments, eval(expr), AMT))
+      } else {
+        table <- table %>% dplyr::mutate(AMT=eval(expr))
+      }
     }
     
     return(table)

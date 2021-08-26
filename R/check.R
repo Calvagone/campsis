@@ -1,6 +1,10 @@
 
 getSlotLength <- function(object, slot) {
-  return(length(eval(parse(text = paste0("object@", slot)))))
+  return(getObjectSlot(object, slot) %>% length())
+}
+
+getObjectSlot <- function(object, slot) {
+  return(eval(parse(text = paste0("object@", slot))))
 }
 
 checkLength <- function(object, slot, expected=1) {
@@ -85,10 +89,14 @@ expectSingleNumericValue <- function(value, name) {
   assertthat::assert_that(is.numeric(value) && length(value)==1, msg=paste0(name, " not a single numeric value"))
 }
 
-expectPositiveTimes <- function(times) {
-  error <- character()
-  if (!all(times >= 0)) {
-    error <- "Some time values are negative"
+expectPositiveValues <- function(object, slot) {
+  error <- character(0)
+  x <- getObjectSlot(object, slot)
+  
+  if (is.na(x) %>% any()) {
+    error <- paste0("Some values in slot '", slot ,"' are NA")
+  } else if (!all(x >= 0)) {
+    error <- paste0("Some values in slot '", slot ,"' are negative")
   }
   return(error)
 }

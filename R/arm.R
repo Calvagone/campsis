@@ -122,6 +122,11 @@ setMethod("add", signature = c("arm", "occasion"), definition = function(object,
   return(object)
 })
 
+setMethod("add", signature = c("arm", "dose_adaptation"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% add(x) 
+  return(object)
+})
+
 setMethod("add", signature = c("arm", "observations"), definition = function(object, x) {
   object@protocol@observations <- object@protocol@observations %>% add(x) 
   return(object)
@@ -151,6 +156,11 @@ setMethod("delete", signature = c("arm", "occasion"), definition = function(obje
   return(object)
 })
 
+setMethod("delete", signature = c("arm", "dose_adaptation"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% delete(x) 
+  return(object)
+})
+
 setMethod("delete", signature = c("arm", "observations"), definition = function(object, x) {
   object@protocol@observations <- object@protocol@observations %>% delete(x) 
   return(object)
@@ -176,6 +186,11 @@ setMethod("replace", signature = c("arm", "treatment_iov"), definition = functio
 })
 
 setMethod("replace", signature = c("arm", "occasion"), definition = function(object, x) {
+  object@protocol@treatment <- object@protocol@treatment %>% replace(x) 
+  return(object)
+})
+
+setMethod("replace", signature = c("arm", "dose_adaptation"), definition = function(object, x) {
   object@protocol@treatment <- object@protocol@treatment %>% replace(x) 
   return(object)
 })

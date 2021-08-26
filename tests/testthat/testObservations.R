@@ -15,7 +15,7 @@ test_that("Observations exceptions are working well", {
 })
 
 test_that("Negative times cannot be accepted", {
-  expect_error(Observations(times=c(-1, 2)), regexp="Some time values are negative")
+  expect_error(Observations(times=c(-1, 2)), regexp="Some values in slot 'times' are negative")
 })
 
 test_that("Observations set is working as expected", {

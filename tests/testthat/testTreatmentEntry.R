@@ -22,7 +22,7 @@ test_that("Infusion errors", {
 })
 
 test_that("Infusion time is negative", {
-  expect_error(Infusion(time=-1, amount=100), regexp="Some time values are negative")
+  expect_error(Infusion(time=-1, amount=100), regexp="Some values in slot 'time' are negative")
 })
 
 
