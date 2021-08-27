@@ -190,7 +190,12 @@ processArmLabels <- function(campsis, arms) {
 #' @keywords internal
 #' 
 simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb=nocb, ...) {
-  validObject(model)
+  # Validate CAMPSIS model in depth
+  validObject(model, complete=TRUE)
+  
+  # Validate CAMPSIS dataset in depth (btw, validObject also works on non S4 objects)
+  validObject(dataset, complete=TRUE)
+  
   maxTime <- getDatasetMaxTime(dataset)
   iterations <- getEventIterations(events, maxTime=maxTime)
   
@@ -236,7 +241,7 @@ setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "e
 
 #' Remove initial conditions.
 #' 
-#' @param model PMX model
+#' @param model CAMPSIS model
 #' @return same model without initial conditions
 #' @importFrom purrr keep
 #' @keywords internal
