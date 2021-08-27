@@ -56,7 +56,7 @@ preprocessOutvars <- function(outvars) {
                             msg="outvars must be a character vector with the column names to keep")
     
     # In any cases, we should never see these special variables
-    outvars <- outvars[!(outvars %in% c("id", "time", "ARM"))]
+    outvars <- outvars[!(outvars %in% c("ID", "TIME", "ARM"))]
     return(outvars)
   }
 }
@@ -187,7 +187,7 @@ processDropOthers <- function(x, outvars=character(0), dropOthers) {
     return(x)
   }
   outvars_ <- outvars[!(outvars %in% dropOthers())]
-  out <- c("id", "time", "ARM", "EVENT_RELATED", outvars_)
+  out <- c("ID", "TIME", "ARM", "EVENT_RELATED", outvars_)
   names <- colnames(x)
   return(x[, names[names %in% out]])
 }

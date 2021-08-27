@@ -44,7 +44,7 @@ datasetRegressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename)
 #' @importFrom tibble as_tibble
 #' @export
 outputRegressionTest <- function(results, output, filename, times=NULL) {
-  selectedColumns <- unique(c("id", "time", output))
+  selectedColumns <- unique(c("ID", "TIME", output))
   results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
@@ -56,7 +56,7 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
   if (!is.null(times)) {
-    results2 <- results2 %>% dplyr::filter(time %in% dplyr::all_of(times))
+    results2 <- results2 %>% dplyr::filter(TIME %in% dplyr::all_of(times))
   }
   expect_equal(results1, results2)
 }
@@ -68,7 +68,7 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 #' @param filename reference file (output will be appended automatically)
 #' @export
 vpcOutputRegressionTest <- function(results, output, filename) {
-  selectedColumns <- unique(c("replicate", "time", "metric", "value"))
+  selectedColumns <- unique(c("replicate", "TIME", "metric", "value"))
   if ("output" %in% colnames(results)) {
     results <- results %>% dplyr::rename(output2="output")
     results <- results %>% dplyr::filter(output2 %in% output)

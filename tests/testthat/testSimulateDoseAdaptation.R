@@ -55,8 +55,8 @@ test_that("Dose adaptations based on weight work well, check argument compartmen
   outputRegressionTest(results2, output="CP", filename=regFilename)
   
   # Remove first time (RxODE:0, mrgsolve:1000)
-  outputRegressionTest(results1 %>% dplyr::filter(time != 0), output="A_TEST", filename=regFilename)
-  outputRegressionTest(results2 %>% dplyr::filter(time != 0), output="A_TEST", filename=regFilename)
+  outputRegressionTest(results1 %>% dplyr::filter(TIME != 0), output="A_TEST", filename=regFilename)
+  outputRegressionTest(results2 %>% dplyr::filter(TIME != 0), output="A_TEST", filename=regFilename)
   
   # spaghettiPlot(results1, "A_TEST", "id")
   # spaghettiPlot(results2, "A_TEST", "id")

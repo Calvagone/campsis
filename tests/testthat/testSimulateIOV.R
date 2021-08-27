@@ -169,8 +169,8 @@ test_that("Simulate IOV on ALAG1 (this test always fails with RxODE version > 1.
     # Bug in RxODE 1.1.0
     # Time 0 is added while it should not
     if (startTime != 0) {
-      results1a <- results1a %>% dplyr::filter(time != 0)
-      results1b <- results1b %>% dplyr::filter(time != 0)
+      results1a <- results1a %>% dplyr::filter(TIME != 0)
+      results1b <- results1b %>% dplyr::filter(TIME != 0)
     }
     outputRegressionTest(results1a, output="CP", filename=regFilename, times=obsTimes)
     outputRegressionTest(results1b, output="CP", filename=regFilename, times=obsTimes)

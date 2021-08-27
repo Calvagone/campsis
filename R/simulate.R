@@ -132,10 +132,10 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing, replicate=replicate, iteration=iteration, ...)
     # Shift times back to their original value
-    results_$time <- results_$time + iteration@start
+    results_$TIME <- results_$TIME + iteration@start
     
     # Store initial values for next iteration
-    inits <- results_ %>% dplyr::group_by(id) %>% dplyr::slice(which.max(time))
+    inits <- results_ %>% dplyr::group_by(ID) %>% dplyr::slice(which.max(TIME))
     
     # Set seed for next simulation
     iterationSeed <- getSeedForIteration(seed=seed, replicate=replicate, iterations=iterations %>% length(), iteration=iteration@index)
@@ -161,7 +161,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   # Reorder results dataframe if at least 1 interruption in order to group results by ID
   # Otherwise, the dataframe is already ordered
   if (iterations %>% length() > 0) {
-    results <- results %>% dplyr::arrange(id)
+    results <- results %>% dplyr::arrange(ID)
   }
   return(outfun(results))
 }
@@ -344,7 +344,7 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
     inits <- NULL
   } else {
     assertthat::assert_that(currentID %>% length()==1, msg=paste0("Not a single ID: ", paste0(currentID, collapse=",")))
-    inits <- iteration@inits %>% dplyr::filter(id==currentID) %>% unlist()
+    inits <- iteration@inits %>% dplyr::filter(ID==currentID) %>% unlist()
     inits <- inits[cmtNames]
   }
   return(inits)
@@ -390,9 +390,12 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
                           keep=keep, inits=inits, covs_interpolation=covs_interpolation, addDosing=dosing)
     
-    # RxODE does not add the 'id' column if only 1 subject
+    # RxODE does not add the 'ID' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
-      tmp <- tmp %>% tibble::add_column(id=unique(subdataset$ID), .before=1)
+      tmp <- tmp %>% tibble::add_column(ID=unique(subdataset$ID), .before=1) %>% dplyr::rename(TIME=time)
+    } else {
+      # Use same ID and TIME columns as NONMEM/mrgsolve
+      tmp <- tmp %>% dplyr::rename(ID=id, TIME=time)
     }
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   })
@@ -441,8 +444,6 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=nocb) %>% tibble::as_tibble()
     
-    # Use same id and time columns as RxODE
-    tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   })
   return(results)

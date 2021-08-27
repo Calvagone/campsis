@@ -24,7 +24,7 @@ model <- model_library$advan1_trans2
 For this example, we're going to add allometric scaling on the clearance parameter.
 
 ```{r}
-model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
+model <- model %>% replace(Equation("CL", "THETA_CL*exp(ETA_CL)*pow(BW/70, 0.75)"))
 model
 ```
 

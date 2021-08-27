@@ -24,7 +24,7 @@ test_that("Simulate a bolus with single observation at time 0 (RxODE/mrgsolve)",
   
   expect_equal(nrow(results1), 1)
   expect_equal(nrow(results2), 1)
-  variables <- c("id", "time", "CP")
+  variables <- c("ID", "TIME", "CP")
   expect_equal(results1[variables], results2[variables])
 })
 

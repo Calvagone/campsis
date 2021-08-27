@@ -64,6 +64,7 @@ getEventIterations <- function(events, maxTime) {
 #' @param table whole table, data frame
 #' @param iteration current iteration being processed
 #' @param summary dataset summary
+#' @importFrom dplyr all_of group_by left_join mutate row_number
 #' @keywords internal
 #' 
 cutTableForEvent <- function(table, iteration, summary) {
@@ -84,7 +85,7 @@ cutTableForEvent <- function(table, iteration, summary) {
   # Update time-varying covariates
   vars <- summary@time_varying_covariate_names
   if (vars %>% length() > 0 && inits %>% nrow() > 0) {
-    update <- inits %>% dplyr::select(dplyr::all_of(c("id", vars))) %>% dplyr::rename(ID=id)
+    update <- inits %>% dplyr::select(dplyr::all_of(c("ID", vars)))
     # Remove old values and left join new values
     table_ <- table_ %>% dplyr::select(-dplyr::all_of(vars)) %>% dplyr::left_join(update, by="ID")
   }
