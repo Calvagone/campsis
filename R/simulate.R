@@ -14,15 +14,16 @@
 #' @param seed seed value
 #' @param replicates number of replicates, default is 1
 #' @param nocb next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE
+#' @param dosing output dosing information, default is FALSE
 #' @param ... optional arguments like declare
 #' @return dataframe with all results
 #' @export
 #' @rdname simulate
-simulate <- function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, ...) {
+simulate <- function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, dosing=FALSE, ...) {
   stop("No default function is provided")
 }
 
-setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, ...) {
+setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, dosing=FALSE, ...) {
   if (is.null(dest)) {
     # Default engine
     dest <- "RxODE"
@@ -34,6 +35,8 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, tablefun
   seed <- getSeed(seed)
   replicates <- preprocessReplicates(replicates)
   nocb <- preprocessNocb(nocb, dest)
+  dosing <- preprocessDosing(dosing)
+  
   standardGeneric("simulate")
 })
 
@@ -113,7 +116,7 @@ getDatasetMaxTime <- function(dataset) {
 #' @param iterations number of iterations
 #' @keywords internal
 #' 
-simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb=nocb, replicate, iterations, ...) {
+simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, replicate, iterations, ...) {
   destEngine <- getSimulationEngineType(dest)
   tableSeed <- getSeedForDatasetExport(seed=seed, replicate=replicate, iterations=iterations %>% length())
   nocbvars <- processExtraArg(list(...), name="nocbvars", default=NULL, mandatory=FALSE)
@@ -127,7 +130,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     table_ <- cutTableForEvent(table, iteration, summary)
     #print(table_)
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
-                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, replicate=replicate, iteration=iteration, ...)
+                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing, replicate=replicate, iteration=iteration, ...)
     # Shift times back to their original value
     results_$time <- results_$time + iteration@start
     
@@ -189,7 +192,7 @@ processArmLabels <- function(campsis, arms) {
 #' @inheritParams simulate
 #' @keywords internal
 #' 
-simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb=nocb, ...) {
+simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   # Validate CAMPSIS model in depth
   validObject(model, complete=TRUE)
   
@@ -201,7 +204,8 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
   
   if (replicates==1) {
     return(simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
-                                tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, replicate=1, iterations=iterations, ...))
+                                tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                nocb=nocb, dosing=dosing, replicate=1, iterations=iterations, ...))
   } else {
     # Get as many models as replicates
     parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
@@ -211,32 +215,33 @@ simulateDelegate <- function(model, dataset, dest, events, tablefun, outvars, ou
     # Run all models
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
       return(simulateDelegateCore(model=model_, dataset=dataset, dest=dest, events=events,
-                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, replicate=replicate, iterations=iterations, ...))
+                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                  nocb=nocb, dosing=dosing, replicate=replicate, iterations=iterations, ...))
     }, .id="replicate") %>% dplyr::mutate(replicate=as.integer(replicate)))
   }
 }
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
-          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
+setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "function", "character", "function", "integer", "integer", "logical", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   campsis <- simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun,
-                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb,
+                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing,
                                summary=toDatasetSummary(dataset), ...)
   return(processArmLabels(campsis, dataset@arms))
 })
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "tbl_df", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
-          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
+setMethod("simulate", signature=c("campsis_model", "tbl_df", "character", "events", "function", "character", "function", "integer", "integer", "logical", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, tablefun=tablefun, 
-                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, ...))
+                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing, ...))
 })
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "events", "function", "character", "function", "integer", "integer", "logical"),
-          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
+setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "events", "function", "character", "function", "integer", "integer", "logical", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   return(simulateDelegate(model=model, dataset=tibble::as_tibble(dataset), dest=dest, events=events, tablefun=tablefun, 
-                                    outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, ...))
+                                    outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing, ...))
 })
 
 #' Remove initial conditions.
@@ -346,8 +351,8 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
 }
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
-          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
+setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "function", "character", "function", "integer", "integer", "logical", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   
   # Add ARM equation in model
   model <- preprocessArmColumn(dataset, model)
@@ -383,7 +388,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     
     # Launch simulation with RxODE
     tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
-                          keep=keep, inits=inits, covs_interpolation=covs_interpolation)
+                          keep=keep, inits=inits, covs_interpolation=covs_interpolation, addDosing=dosing)
     
     # RxODE does not add the 'id' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
@@ -395,8 +400,8 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
 })
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "function", "character", "function", "integer", "integer", "logical"),
-          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, ...) {
+setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "function", "character", "function", "integer", "integer", "logical", "logical"),
+          definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   
   # Retrieve simulation config
   config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)
@@ -434,7 +439,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     
     # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
-    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=TRUE, output="df", nocb=nocb) %>% tibble::as_tibble()
+    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=nocb) %>% tibble::as_tibble()
     
     # Use same id and time columns as RxODE
     tmp <- tmp %>% dplyr::rename(id=ID, time=TIME)

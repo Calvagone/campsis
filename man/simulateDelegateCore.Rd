@@ -14,7 +14,8 @@ simulateDelegateCore(
   outfun,
   seed,
   replicates,
-  nocb = nocb,
+  nocb,
+  dosing,
   replicate,
   iterations,
   ...
@@ -40,6 +41,8 @@ simulateDelegateCore(
 \item{replicates}{number of replicates, default is 1}
 
 \item{nocb}{next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE}
+
+\item{dosing}{output dosing information, default is FALSE}
 
 \item{replicate}{current replicate number}
 

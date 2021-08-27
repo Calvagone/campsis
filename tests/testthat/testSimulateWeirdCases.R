@@ -38,7 +38,7 @@ test_that("Simulate a model which is not valid", {
   dataset <- dataset %>% add(Bolus(time=0, amount=1000))
   dataset <- dataset %>% add(Observations(time=0))
   
-  expect_error(model %>% simulate(dataset, dest="RxODE"), regexp="\"theta\" object: name is length 2. Should be 1.")
+  expect_error(model %>% simulate(dataset, dest="RxODE"), regexp="name is length 2. Should be 1.")
 })
 
 test_that("Simulate a dataset which is not valid", {
@@ -51,5 +51,5 @@ test_that("Simulate a dataset which is not valid", {
   # Corrupt amount slot of first bolus
   dataset@arms@list[[1]]@protocol@treatment@list[[1]]@amount <- c(1000,1000)
   
-  expect_error(model %>% simulate(dataset, dest="RxODE"), regexp="\"bolus\" object: amount is length 2. Should be 1.")
+  expect_error(model %>% simulate(dataset, dest="RxODE"), regexp="amount is length 2. Should be 1.")
 })

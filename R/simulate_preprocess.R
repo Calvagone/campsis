@@ -90,9 +90,25 @@ preprocessNocb <- function(nocb, dest) {
       nocb <- FALSE
     }
   }
-  assertthat::assert_that(is.logical(nocb) && nocb %>% length()==1,
+  assertthat::assert_that(is.logical(nocb) && nocb %>% length()==1 && !is.na(nocb),
                           msg="nocb not a logical value TRUE/FALSE")
   return(nocb)
+}
+
+#' Preprocess 'dosing' argument.
+#' 
+#' @param dosing dosing argument, logical value
+#' @return user value, if not specified, return FALSE (observations only)
+#' @importFrom assertthat assert_that
+#' @keywords internal
+#' 
+preprocessDosing <- function(dosing) {
+  if (is.null(dosing)) {
+    dosing <- FALSE
+  }
+  assertthat::assert_that(is.logical(dosing) && dosing %>% length()==1 && !is.na(dosing),
+                          msg="dosing not a logical value TRUE/FALSE")
+  return(dosing)
 }
 
 #' Preprocess subjects ID's.
