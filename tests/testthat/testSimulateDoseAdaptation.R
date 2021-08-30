@@ -40,7 +40,7 @@ test_that("Dose adaptations based on weight work well, check argument compartmen
   
   times <- seq(0,7*24, by=4)
   dataset <- Dataset(2)
-  dataset <- dataset %>% add(Bolus(time=seq(0,6)*24, amount=0.5, compartment=1))
+  dataset <- dataset %>% add(Bolus(time=0, amount=0.5, compartment=1, ii=24, addl=6))
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=5))
   dataset <- dataset %>% add(Observations(times=times))
   dataset <- dataset %>% add(Covariate("WT", c(100, 50)))

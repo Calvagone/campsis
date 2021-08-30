@@ -42,23 +42,59 @@ setClass(
 )
 
 #'
-#' Create a bolus.
+#' Check ii and addl arguments in addition to time.
 #'
-#' @param time treatment time(s), numeric value or vector
-#' @param amount amount to give as bolus, numeric
-#' @param compartment compartment index, integer
+#' @param time treatment time(s)
+#' @param ii interdose interval
+#' @param addl number of additional doses
+#' @importFrom assertthat assert_that
+#' @keywords internal
+#'
+checkIIandADDL <- function(time, ii, addl) {
+  if (is.null(ii) && is.null(addl)) {
+    # Don't need to check anything
+  } else {
+    assertthat::assert_that(!is.null(ii), msg="ii can't be NULL if addl is specified")
+    assertthat::assert_that(!is.null(addl), msg="addl can't be NULL if ii is specified")
+    
+    assertthat::assert_that(is.numeric(ii) && length(ii)==1 && !is.na(ii), msg="ii must be a single numeric value")
+    assertthat::assert_that(ii > 0 , msg="ii must be higher than 0")
+    
+    assertthat::assert_that(is.numeric(addl) && length(addl)==1 && addl%%1==0 && !is.na(addl), msg="addl must be a single integer value")
+    assertthat::assert_that(addl >= 0 , msg="addl must be positive")
+    
+    assertthat::assert_that(length(time)==1, msg="time must be a single numeric value if used with ii and addl")
+  }
+}
+
+#'
+#' Create one or several bolus(es).
+#'
+#' @param time treatment time(s), numeric value or vector. First treatment time if used together with ii and addl.
+#' @param amount amount to give as bolus, single numeric value
+#' @param compartment compartment index, single integer value
 #' @param f fraction of dose amount, distribution
 #' @param lag dose lag time, distribution
-#' @return an observation
+#' @param ii interdose interval, requires argument 'time' to be a single numeric value
+#' @param addl number of additional doses, requires argument 'time' to be a single integer value
+#' @return a single bolus or a list of boluses
+#' @importFrom purrr map
 #' @export
-Bolus <- function(time, amount, compartment=NA, f=NULL, lag=NULL) {
+Bolus <- function(time, amount, compartment=NA, f=NULL, lag=NULL, ii=NULL, addl=NULL) {
+  checkIIandADDL(time=time, ii=ii, addl=addl)
   if (time %>% length() > 1) {
     return(time %>% purrr::map(
        .f=~new("bolus", time=.x, amount=amount, compartment=as.integer(compartment),
                f=toExplicitDistribution(f), lag=toExplicitDistribution(lag))))
   } else {
-    return(new("bolus", time=time, amount=amount, compartment=as.integer(compartment),
-               f=toExplicitDistribution(f), lag=toExplicitDistribution(lag)))
+    if (is.null(addl)) {
+      return(new("bolus", time=time, amount=amount, compartment=as.integer(compartment),
+                 f=toExplicitDistribution(f), lag=toExplicitDistribution(lag)))
+    } else {
+      return((seq_len(addl + 1) - 1) %>% purrr::map(
+        .f=~new("bolus", time=time + ii*.x, amount=amount, compartment=as.integer(compartment),
+                f=toExplicitDistribution(f), lag=toExplicitDistribution(lag))))
+    }
   }
 }
 
@@ -91,27 +127,38 @@ setClass(
 )
 
 #'
-#' Create an infusion.
+#' Create one or several infusion(s).
 #'
-#' @param time treatment time, numeric
+#' @param time treatment time(s), numeric value or vector. First treatment time if used together with ii and addl.
 #' @param amount total amount to infuse, numeric
 #' @param compartment compartment index, integer
 #' @param f fraction of infusion amount, distribution
 #' @param lag infusion lag time, distribution
 #' @param duration infusion duration, distribution
 #' @param rate infusion rate, distribution
-#' @return an infusion.
+#' @param ii interdose interval, requires argument 'time' to be a single numeric value
+#' @param addl number of additional doses, requires argument 'time' to be a single integer value
+#' @return a single infusion or a list of infusions.
+#' @importFrom purrr map
 #' @export
-Infusion <- function(time, amount, compartment=NA, f=NULL, lag=NULL, duration=NULL, rate=NULL) {
+Infusion <- function(time, amount, compartment=NA, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL) {
+  checkIIandADDL(time=time, ii=ii, addl=addl)
   if (time %>% length() > 1) {
     return(time %>% purrr::map(
       .f=~new("infusion", time=.x, amount=amount, compartment=as.integer(compartment),
               f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
               duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate))))
   } else {
-    return(new("infusion", time=time, amount=amount, compartment=as.integer(compartment),
-               f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
-               duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate)))
+    if (is.null(addl)) {
+      return(new("infusion", time=time, amount=amount, compartment=as.integer(compartment),
+                 f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
+                 duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate)))
+    } else {
+      return((seq_len(addl + 1) - 1) %>% purrr::map(
+        .f=~new("infusion", time=time + ii*.x, amount=amount, compartment=as.integer(compartment),
+                f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
+                duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate))))
+    }
   }
 }
 
