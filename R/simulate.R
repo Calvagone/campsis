@@ -264,12 +264,13 @@ removeInitialConditions <- function(model) {
 #' @param dataset dataset, data.frame form
 #' @param dest destination engine
 #' @param outvars outvars
+#' @param dosing add dosing information, logical value
 #' @param ... all other arguments
 #' @return a simulation configuration
 #' @importFrom purrr map2
 #' @keywords internal
 #' 
-processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
+processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...) {
   # Check extra arguments
   args <- list(...)
   iteration <- args$iteration
@@ -310,6 +311,10 @@ processSimulateArguments <- function(model, dataset, dest, outvars, ...) {
   } else if (is(dest, "mrgsolve_engine")) {
     outvars_ <- outvars[!(outvars %in% dropOthers())]
     outvars_ <- unique(c(outvars_, "ARM", "EVENT_RELATED"))
+    if (dosing) {
+      # These variables are not output by default in mrgsolve when dosing is TRUE
+      outvars_ <- unique(c(outvars_, "EVID", "CMT", "AMT"))
+    }
     engineModel <- model %>% export(dest="mrgsolve", outvars=outvars_)
   }
   
@@ -348,6 +353,23 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
     inits <- inits[cmtNames]
   }
   return(inits)
+}
+
+#' Reorder output columns.
+#' 
+#' @param results RxODE/mrgsolve output
+#' @param dosing dosing information, logical value
+#' @return reordered dataframe
+#' @importFrom dplyr relocate
+#' @keywords internal
+#' 
+reorderColumns <- function(results, dosing) {
+  if (dosing) {
+    results <- results %>% dplyr::relocate(ID, EVID, CMT, AMT, TIME, ARM)
+  } else {
+    results <- results %>% dplyr::relocate(ID, TIME, ARM)
+  }
+  return(results)
 }
 
 #' @rdname simulate
@@ -397,9 +419,14 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
       # Use same ID and TIME columns as NONMEM/mrgsolve
       tmp <- tmp %>% dplyr::rename(ID=id, TIME=time)
     }
+    if (dosing) {
+      # Rename dosing-related columns
+      tmp <- tmp %>% dplyr::rename(EVID=evid, CMT=cmt, AMT=amt)
+    }
+    
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   })
-  return(results)
+  return(results %>% reorderColumns(dosing=dosing))
 })
 
 #' @rdname simulate
@@ -407,7 +434,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
           definition=function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   
   # Retrieve simulation config
-  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, ...)
+  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, dosing=dosing, ...)
   
   # Export PMX model to RxODE
   mrgmod <- config$engineModel
@@ -443,8 +470,8 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=nocb) %>% tibble::as_tibble()
-    
+
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   })
-  return(results)
+  return(results %>% reorderColumns(dosing=dosing))
 })

@@ -11,10 +11,10 @@ test_that("NULL outvars (RxODE/mrgsolve)", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=1)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  expect_equal(colnames(results1), c("ID","TIME","KA","CL","V2","V3","Q","S2","ARM","F","CP","OBS_CP","Y","A_DEPOT","A_CENTRAL","A_PERIPHERAL","A_OUTPUT"))
+  expect_equal(colnames(results1), c("ID","TIME","ARM","KA","CL","V2","V3","Q","S2","F","CP","OBS_CP","Y","A_DEPOT","A_CENTRAL","A_PERIPHERAL","A_OUTPUT"))
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  expect_equal(colnames(results2), c("ID","TIME","A_DEPOT","A_CENTRAL","A_PERIPHERAL","A_OUTPUT", "ARM", "CP", "OBS_CP", "Y"))
+  expect_equal(colnames(results2), c("ID","TIME","ARM","A_DEPOT","A_CENTRAL","A_PERIPHERAL","A_OUTPUT","CP","OBS_CP","Y"))
 })
 
 test_that("Not NULL outvars (RxODE/mrgsolve)", {
@@ -25,10 +25,10 @@ test_that("Not NULL outvars (RxODE/mrgsolve)", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=1)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars="KA")
-  expect_equal(colnames(results1), c("ID","TIME","KA","CL","V2","V3","Q","S2","ARM","F","CP","OBS_CP","Y","A_DEPOT","A_CENTRAL","A_PERIPHERAL","A_OUTPUT"))
+  expect_equal(colnames(results1), c("ID","TIME","ARM","KA","CL","V2","V3","Q","S2","F","CP","OBS_CP","Y","A_DEPOT","A_CENTRAL","A_PERIPHERAL","A_OUTPUT"))
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars="KA")
-  expect_equal(colnames(results2), c("ID","TIME","A_DEPOT","A_CENTRAL","A_PERIPHERAL","A_OUTPUT", "KA", "ARM", "CP", "OBS_CP", "Y"))
+  expect_equal(colnames(results2), c("ID","TIME","ARM","A_DEPOT","A_CENTRAL","A_PERIPHERAL","A_OUTPUT","KA","CP","OBS_CP","Y"))
 })
 
 test_that("Not NULL outvars + DROP_OTHERS (RxODE/mrgsolve)", {
@@ -39,10 +39,10 @@ test_that("Not NULL outvars + DROP_OTHERS (RxODE/mrgsolve)", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=1)))
   
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars=c("KA", "DROP_OTHERS"))
-  expect_equal(colnames(results1), c("ID","TIME","KA","ARM"))
+  expect_equal(colnames(results1), c("ID","TIME","ARM","KA"))
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars=c("KA", "DROP_OTHERS"))
-  expect_equal(colnames(results2), c("ID","TIME","KA","ARM"))
+  expect_equal(colnames(results2), c("ID","TIME","ARM","KA"))
 })
 
 test_that("Not NULL outvars from ERROR block + DROP_OTHERS (RxODE/mrgsolve)", {
@@ -71,7 +71,7 @@ test_that("Covariates in outvars can be output well (RxODE/mrgsolve)", {
   expect_equal(colnames(results1), c("ID","TIME","ARM", "Y", "WT"))
 
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars=c("Y", "WT", "DROP_OTHERS"))
-  expect_equal(colnames(results2), c("ID","TIME","WT","ARM","Y"))
+  expect_equal(colnames(results2), c("ID","TIME","ARM","WT","Y"))
 })
 
 test_that("ETAs in outvars can be output well (RxODE/mrgsolve)", {
@@ -85,5 +85,5 @@ test_that("ETAs in outvars can be output well (RxODE/mrgsolve)", {
   expect_equal(colnames(results1), c("ID","TIME","ARM", "Y", "ETA_KA"))
 
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars=c("Y", "ETA_KA", "DROP_OTHERS"))
-  expect_equal(colnames(results2), c("ID","TIME","ETA_KA","ARM","Y"))
+  expect_equal(colnames(results2), c("ID","TIME","ARM","ETA_KA","Y"))
 })

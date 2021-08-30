@@ -19,6 +19,32 @@ factorScenarios <- function(x, scenarios=NULL) {
   }
 }
 
+#' Filter CAMPSIS output on observation rows.
+#' 
+#' @param x data frame, CAMPSIS output
+#' @importFrom dplyr filter
+#' @export
+obsOnly <- function(x) {
+  if ("EVID" %in% colnames(x)) {
+    return(x %>% dplyr::filter(EVID==0))
+  } else {
+    return(x)
+  }
+}
+
+#' Filter CAMPSIS output on dosing rows.
+#' 
+#' @param x data frame, CAMPSIS output
+#' @importFrom dplyr filter
+#' @export
+dosingOnly <- function(x) {
+  if ("EVID" %in% colnames(x)) {
+    return(x %>% dplyr::filter(EVID==1))
+  } else {
+    return(x)
+  }
+}
+
 #' Spaghetti plot.
 #' 
 #' @param x data frame
@@ -29,7 +55,7 @@ factorScenarios <- function(x, scenarios=NULL) {
 #' @export
 spaghettiPlot <- function(x, output, scenarios=NULL) {
   hasId <- "ID" %in% colnames(x)
-  x <- factorScenarios(x, scenarios=scenarios)
+  x <- factorScenarios(x %>% obsOnly(), scenarios=scenarios)
   if (hasId) {
     if (length(scenarios) > 0) {
       colour <- paste0(scenarios, collapse = ":")
@@ -55,7 +81,7 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
 #' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
 #' @export
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
-  x <- PI(x=x, output=output, scenarios=scenarios, level=level, gather=FALSE)
+  x <- PI(x=x %>% obsOnly(), output=output, scenarios=scenarios, level=level, gather=FALSE)
   if (length(scenarios) > 0) {
     colour <- paste0(scenarios, collapse = ":")
   } else {
@@ -80,7 +106,7 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90) {
   if (length(scenarios) > 1) {
     stop("Currently max 1 scenario allowed")
   }
-  x <- VPC(x=x, scenarios=scenarios, level=level)
+  x <- VPC(x=x %>% obsOnly(), scenarios=scenarios, level=level)
 
   if (length(scenarios) == 0) {
     retValue <- vpcPlotDelegate(x)

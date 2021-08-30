@@ -56,7 +56,7 @@ preprocessOutvars <- function(outvars) {
                             msg="outvars must be a character vector with the column names to keep")
     
     # In any cases, we should never see these special variables
-    outvars <- outvars[!(outvars %in% c("ID", "TIME", "ARM"))]
+    outvars <- outvars[!(toupper(outvars) %in% c("ID", "EVID", "CMT", "AMT", "TIME", "ARM"))]
     return(outvars)
   }
 }

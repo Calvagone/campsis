@@ -4,7 +4,7 @@
 \alias{processSimulateArguments}
 \title{Preprocess arguments of the simulate method.}
 \usage{
-processSimulateArguments(model, dataset, dest, outvars, ...)
+processSimulateArguments(model, dataset, dest, outvars, dosing, ...)
 }
 \arguments{
 \item{model}{PMX model}
@@ -14,6 +14,8 @@ processSimulateArguments(model, dataset, dest, outvars, ...)
 \item{dest}{destination engine}
 
 \item{outvars}{outvars}
+
+\item{dosing}{add dosing information, logical value}
 
 \item{...}{all other arguments}
 }
