@@ -40,7 +40,7 @@ model <- model %>% add(Omega(name="F1", value=10, type="cv%"))
 
 Now, let's add an equation to the drug model to define `F1`.
 ```{r}
-model <- model %>% addEquation("F1", rhs="THETA_F1*exp(ETA_F1)")
+model <- model %>% add(Equation("F1", "THETA_F1*exp(ETA_F1)"))
 ```
 
 Finally, we need to tell `pmxsim` that `F1` corresponds to a bioavailability.

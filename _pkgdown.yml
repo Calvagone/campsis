@@ -30,6 +30,7 @@ reference:
   - Covariate
   - Dataset
   - DatasetConfig
+  - DoseAdaptation
   - Infusion
   - IOV
   - Observations
@@ -82,6 +83,8 @@ reference:
   - dataset-class
   - dataset_config-class
   - distribution-class
+  - dose_adaptation-class
+  - dose_adaptations-class
   - event-class
   - events-class
   - fixed_distribution-class
@@ -104,6 +107,7 @@ reference:
 
 - title: "For advanced use"
   contents:
+  - dosingOnly
   - generateIIV
   - getColumnName
   - getCovariateNames
@@ -111,6 +115,7 @@ reference:
   - getOccasionNames
   - getTimes
   - getTimeVaryingCovariateNames
+  - obsOnly
   - retrieveParameterValue
 
 - title: "Seed utilities"

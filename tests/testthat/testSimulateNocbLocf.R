@@ -10,7 +10,8 @@ source(paste0(testFolder, "testUtils.R"))
 
 test_that("Weight as a time-varying covariate (NOCB vs LOCF)", {
   model <- model_library$advan4_trans4
-  model <- model %>% replace(Equation("CL", paste0((model %>% getEquation("CL"))@rhs, "*pow(BW/70, 0.75)")))
+  equation <- model %>% find(Equation("CL"))
+  model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
   
   dataset <- Dataset(4)
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
@@ -53,7 +54,7 @@ test_that("Weight as a time-varying covariate (NOCB vs LOCF)", {
 
 test_that("NOCB/LOCF should not have any effect on treatment occasion", {
   model <- model_library$advan4_trans4
-  model <- model %>% removeEquation("KA")
+  model <- model %>% delete(Equation("KA"))
   model <- model %>% add(Equation("KA", "0"))
   model <- model %>% add(IfStatement("OCC==1", Equation("KA", "THETA_KA*1.5*exp(ETA_KA)")))
   model <- model %>% add(IfStatement("OCC==2", Equation("KA", "THETA_KA*0.5*exp(ETA_KA)")))
@@ -97,7 +98,7 @@ test_that("NOCB/LOCF should not have any effect on treatment occasion", {
 test_that("NOCB/LOCF should not have any effect on IOV (e.g. on clearance)", {
   regFilename <- "3_boluses_iov_cl"
   model <- model_library$advan4_trans4
-  model <- model %>% replaceEquation("CL", rhs="THETA_CL*exp(ETA_CL + IOV_CL)")
+  model <- model %>% replace(Equation("CL", rhs="THETA_CL*exp(ETA_CL + IOV_CL)"))
   
   for(startTime in c(0, 20, 23, 24, 48)) {
     obsTimes <- seq(startTime,72, by=5)

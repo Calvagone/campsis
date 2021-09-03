@@ -11,7 +11,7 @@ source(paste0(testFolder, "testUtils.R"))
 test_that("Simulate 1000mg QD with IOV on KA (1)", {
   regFilename <- "3_boluses_iov_ka_1"
   model <- model_library$advan4_trans4
-  model <- model %>% replaceEquation("KA", rhs="THETA_KA*exp(ETA_KA + IOV_KA)")
+  model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
   obsTimes1 <- c(15, 50, 55, 60, 65, 70) # by 0.5 in the non-regression file
   obsTimes2 <- seq(0, 72, by=0.5)
   
@@ -49,7 +49,7 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
 test_that("Simulate 1000mg QD with IOV on KA (2) (this test sometimes fails with RxODE version > 1.0.5 & < 1.1.0)", {
   regFilename <- "3_boluses_iov_ka_2"
   model <- model_library$advan4_trans4
-  model <- model %>% replaceEquation("KA", rhs="THETA_KA*exp(ETA_KA + IOV_KA)")
+  model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
   model <- model %>% add(Omega("IOV_KA", value=0.2^2))
 
   dataset <- Dataset(10)
@@ -84,7 +84,7 @@ test_that("Simulate IOV on F1 (this test always fails with RxODE version > 1.0.5
   model <- model %>% add(Omega("F1", value=0.2^2))
   model <- model %>% add(Omega("IOV_F1", index=7, index2=7, value=0.2^2, same=FALSE)) # 20% IOV
   model <- model %>% add(Bioavailability(compartment=1, rhs="F1"))
-  model <- model %>% addEquation("F1", rhs="THETA_F1*exp(ETA_F1 + IOV_F1)", after="Q")
+  model <- model %>% add(Equation("F1", "THETA_F1*exp(ETA_F1 + IOV_F1)"), Position(Equation("Q")))
   
   getDataset <- function(model) {
     dataset <- Dataset(10)
@@ -130,7 +130,7 @@ test_that("Simulate IOV on ALAG1 (this test always fails with RxODE version > 1.
   model <- model %>% add(Omega("ALAG1", value=0.2^2))
   model <- model %>% add(Omega("IOV_ALAG1", value=0.2^2, same=FALSE)) # 20% IOV
   model <- model %>% add(LagTime(compartment=1, rhs="ALAG1"))
-  model <- model %>% addEquation("ALAG1", rhs="THETA_ALAG1*exp(ETA_ALAG1 + IOV_ALAG1)")
+  model <- model %>% add(Equation("ALAG1", "THETA_ALAG1*exp(ETA_ALAG1 + IOV_ALAG1)"))
   
   obsTimes <- seq(0,72, by=0.5)
   getDataset <- function(model, times) {
@@ -193,7 +193,7 @@ test_that("Simulate IOV on D1", {
   model <- model %>% add(Omega("D1", value=0.2^2))
   model <- model %>% add(Omega("IOV_D1", value=0.5^2, same=FALSE)) # 50% IOV
   model <- model %>% add(InfusionDuration(compartment=1, rhs="D1"))
-  model <- model %>% addEquation("D1", rhs="THETA_D1*exp(ETA_D1 + IOV_D1)")
+  model <- model %>% add(Equation("D1", "THETA_D1*exp(ETA_D1 + IOV_D1)"))
   
   getDataset <- function(model) {
     dataset <- Dataset(10)
@@ -237,7 +237,7 @@ test_that("Simulate IOV on F1", {
   model <- model_library$advan4_trans4
   model <- model %>% add(Theta("F1", value=0.75))
   model <- model %>% add(Omega("F1", value=0.09)) # 30% CV
-  model <- model %>% addEquation("F1", rhs="THETA_F1*exp(ETA_F1 + IOV_F1)")
+  model <- model %>% add(Equation("F1", "THETA_F1*exp(ETA_F1 + IOV_F1)"))
   model <- model %>% add(Bioavailability(1, rhs="F1"))
   
   startTimes <- c(0,24,47) # 47,48 NOT WORKING WITH MRGSOLVE LOCF
