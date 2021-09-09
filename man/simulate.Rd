@@ -102,7 +102,7 @@ simulate(
 \arguments{
 \item{model}{generic PMX model}
 
-\item{dataset}{PMX dataset or 2-dimensional table}
+\item{dataset}{CAMPSIS dataset or 2-dimensional table}
 
 \item{dest}{destination simulation engine, default is 'RxODE'}
 

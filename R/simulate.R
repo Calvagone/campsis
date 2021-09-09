@@ -5,7 +5,7 @@
 #' Simulate function.
 #' 
 #' @param model generic PMX model
-#' @param dataset PMX dataset or 2-dimensional table
+#' @param dataset CAMPSIS dataset or 2-dimensional table
 #' @param dest destination simulation engine, default is 'RxODE'
 #' @param events interruption events
 #' @param tablefun function or lambda formula to apply on exported 2-dimensional dataset
@@ -328,7 +328,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
   })
   
   # Compartment names
-  cmtNames <- model@compartments %>% getNames()
+  cmtNames <- model@compartments@list %>% purrr::map_chr(~.x %>% toString())
   
   return(list(declare=declare, engineModel=engineModel, subdatasets=subdatasets,
               dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames))
