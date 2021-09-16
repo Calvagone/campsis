@@ -27,7 +27,7 @@ setClass(
 )
 
 setMethod("getName", signature = c("dose_adaptation"), definition = function(x) {
-  return(paste0("DOSE ADAPTATION [", "FORMULA=", x@formula, ", CMTS={", paste0(x@compartments, collapse=","), "}", "]"))
+  return(paste0("DOSE ADAPTATION [", "CMTS=c(", paste0(x@compartments, collapse=","), ")]"))
 })
 
 #'

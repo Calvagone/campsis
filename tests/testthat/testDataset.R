@@ -380,7 +380,7 @@ test_that("Export IOV works well - example 2", {
   expect_equal(round(table$IOV_KA,2), c(-0.63,-0.63,-0.63,-0.63,-0.63,-0.63,-0.63,0.18,0.18,0.18,0.18,0.18,0.18,-0.84,-0.84,-0.84,-0.84,-0.84,-0.84,-0.84,1.60,1.60,1.60,1.60,1.60,1.60))
 })
 
-test_that("Replace / delete methods works well", {
+test_that("Replace, delete, find, contains methods works well", {
   ds <- Dataset(1)
   
   # Add 3 doses
@@ -398,39 +398,67 @@ test_that("Replace / delete methods works well", {
   # Add covariate
   ds <- ds %>% add(Covariate("WT", 0))
   
+  # Add dose adaptation
+  ds <- ds %>% add(DoseAdaptation("AMT*2", compartments=1))
+  
   # Double the first dose
   updatedDs <- ds %>% replace(Bolus(time=0, amount=200))
-  expect_equal((updatedDs@arms@list[[1]]@protocol@treatment@list[[1]])@amount, 200)
+  expect_true(updatedDs %>% contains(Bolus(time=0, amount=0))) # Only time matters
+  expect_equal((updatedDs %>% find(Bolus(time=0, amount=0)))@amount, 200)
   
   # Change IOV distribution
   updatedDs <- ds %>% replace(IOV("IOV_KA", distribution=c(1,2,3,4)))
-  expect_equal((updatedDs@arms@list[[1]]@protocol@treatment@iovs@list[[1]])@distribution, FixedDistribution(c(1,2,3,4)))
+  expect_true(updatedDs %>% contains(IOV("IOV_KA", 0))) # Only name matters
+  expect_equal((updatedDs %>% find(IOV("IOV_KA", 0)))@distribution, FixedDistribution(c(1,2,3,4)))
   
   # Change occasion numbers
   updatedDs <- ds %>% replace(Occasion("OCC", values=c(1,2), doseNumbers=c(1,2)))
-  expect_equal((updatedDs@arms@list[[1]]@protocol@treatment@occasions@list[[1]])@values, c(1,2))
+  expect_true(updatedDs %>% contains(Occasion("OCC", 0, 0))) # Only name matters
+  expect_equal((updatedDs %>% find(Occasion("OCC", 0, 0)))@values, c(1,2))
   
   # Change covariate value
   updatedDs <- ds %>% replace(Covariate("WT", 1))
-  expect_equal((updatedDs@arms@list[[1]]@covariates@list[[1]])@distribution, ConstantDistribution(1))
+  expect_true(updatedDs %>% contains(Covariate("WT", 0))) # Only name matters
+  expect_equal((updatedDs %>% find(Covariate("WT", 0)))@distribution, ConstantDistribution(1))
+  
+  # Adapt dose adaptation formula
+  updatedDs <- ds %>% replace(DoseAdaptation("AMT*3", compartments=1))
+  expect_true(updatedDs %>% contains(DoseAdaptation("", compartments=1))) # Only compartments matters
+  expect_equal((updatedDs %>% find(DoseAdaptation("", compartments=1)))@formula, "AMT*3")
   
   # Delete the last dose
-  updatedDs <- ds %>% delete(Bolus(time=48, amount=100))
-  expect_equal(updatedDs@arms@list[[1]]@protocol@treatment %>% length(), 2)
+  bolus <- Bolus(time=48, amount=100)
+  expect_true(ds %>% contains(bolus))
+  updatedDs <- ds %>% delete(bolus)
+  expect_false(updatedDs %>% contains(bolus))
   
   # Delete IOV
-  updatedDs <- ds %>% delete(IOV("IOV_KA", distribution=c(1,2,3)))
-  expect_equal(updatedDs@arms@list[[1]]@protocol@treatment@iovs %>% length(), 0)
+  iov <- IOV("IOV_KA", distribution=c(1,2,3))
+  expect_true(ds %>% contains(iov))
+  updatedDs <- ds %>% delete(iov)
+  expect_false(updatedDs %>% contains(iov))
   
   # Delete occasions
-  updatedDs <- ds %>% delete(Occasion("OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
-  expect_equal(updatedDs@arms@list[[1]]@protocol@treatment@occasions %>% length(), 0)
+  occ <- Occasion("OCC", values=c(1,2,3), doseNumbers=c(1,2,3))
+  expect_true(ds %>% contains(occ))
+  updatedDs <- ds %>% delete(occ)
+  expect_false(updatedDs %>% contains(occ))
   
   # Delete covariate
-  updatedDs <- ds %>% delete(Covariate("WT", 0))
-  expect_equal(updatedDs@arms@list[[1]]@covariates %>% length(), 0)
+  cov <- Covariate("WT", 0)
+  expect_true(ds %>% contains(cov))
+  updatedDs <- ds %>% delete(cov)
+  expect_false(updatedDs %>% contains(cov))
   
   # Delete observations
-  updatedDs <- ds %>% delete(Observations(c(1,2,3)))
-  expect_equal(updatedDs@arms@list[[1]]@protocol@observations %>% length(), 0)
+  obs <- Observations(c(1,2,3))
+  expect_true(ds %>% contains(obs))
+  updatedDs <- ds %>% delete(obs)
+  expect_false(updatedDs %>% contains(obs))
+  
+  # Delete dose adaptation
+  doseAdaptation <- DoseAdaptation("", compartments=1)
+  expect_true(ds %>% contains(doseAdaptation))
+  updatedDs <- ds %>% delete(doseAdaptation)
+  expect_false(updatedDs %>% contains(doseAdaptation))
 })

@@ -77,17 +77,35 @@ setMethod("add", signature = c("dataset", "dataset_config"), definition = functi
 })
 
 #_______________________________________________________________________________
+#----                           contains                                    ----
+#_______________________________________________________________________________
+
+setMethod("contains", signature = c("dataset", "pmx_element"), definition = function(object, x) {
+  if (object@arms %>% length() == 0) {
+    return(FALSE)
+  }
+  return(object@arms@list %>% purrr::map_lgl(~.x %>% contains(x)) %>% any())
+})
+
+#_______________________________________________________________________________
 #----                              delete                                   ----
 #_______________________________________________________________________________
 
 setMethod("delete", signature = c("dataset", "pmx_element"), definition = function(object, x) {
-  if (object@arms %>% length() == 0) {
-    stop("This dataset is empty. No element can be deleted.")
-  }
-  arm <- object@arms %>% default()
-  arm <- arm %>% delete(x)
-  object@arms <- object@arms %>% replace(arm)
+  object@arms@list <- object@arms@list %>% purrr::map(~.x %>% delete(x))
   return(object)
+})
+
+#_______________________________________________________________________________
+#----                               find                                    ----
+#_______________________________________________________________________________
+
+setMethod("find", signature = c("dataset", "pmx_element"), definition = function(object, x) {
+  elements <- object@arms@list %>% purrr::map(~.x %>% find(x))
+  if (!is.null(elements)) {
+    elements <- elements[[1]] # Return first element in all cases
+  }
+  return(elements)
 })
 
 #_______________________________________________________________________________
@@ -158,12 +176,7 @@ setMethod("replace", signature=c("dataset", "arm"), definition=function(object, 
 })
 
 setMethod("replace", signature = c("dataset", "pmx_element"), definition = function(object, x) {
-  if (object@arms %>% length() == 0) {
-    stop("This dataset is empty. No element can be replaced. ")
-  }
-  arm <- object@arms %>% default()
-  arm <- arm %>% replace(x)
-  object@arms <- object@arms %>% replace(arm)
+  object@arms@list <- object@arms@list %>% purrr::map(~.x %>% replace(x))
   return(object)
 })
 

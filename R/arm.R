@@ -138,6 +138,14 @@ setMethod("add", signature = c("arm", "covariate"), definition = function(object
 })
 
 #_______________________________________________________________________________
+#----                               contains                                ----
+#_______________________________________________________________________________
+
+setMethod("contains", signature=c("arm", "pmx_element"), definition=function(object, x) {
+  return(!is.null(object %>% find(x)))
+})
+
+#_______________________________________________________________________________
 #----                              delete                                   ----
 #_______________________________________________________________________________
 
@@ -169,6 +177,34 @@ setMethod("delete", signature = c("arm", "observations"), definition = function(
 setMethod("delete", signature = c("arm", "covariate"), definition = function(object, x) {
   object@covariates <- object@covariates %>% delete(x)
   return(object)
+})
+
+#_______________________________________________________________________________
+#----                               find                                    ----
+#_______________________________________________________________________________
+
+setMethod("find", signature = c("arm", "treatment_entry"), definition = function(object, x) {
+  return(object@protocol@treatment %>% find(x))
+})
+
+setMethod("find", signature = c("arm", "treatment_iov"), definition = function(object, x) {
+  return(object@protocol@treatment %>% find(x))
+})
+
+setMethod("find", signature = c("arm", "occasion"), definition = function(object, x) {
+  return(object@protocol@treatment %>% find(x))
+})
+
+setMethod("find", signature = c("arm", "dose_adaptation"), definition = function(object, x) {
+  return(object@protocol@treatment %>% find(x))
+})
+
+setMethod("find", signature = c("arm", "observations"), definition = function(object, x) {
+  return(object@protocol@observations %>% find(x))
+})
+
+setMethod("find", signature = c("arm", "covariate"), definition = function(object, x) {
+  return(object@covariates %>% find(x))
 })
 
 #_______________________________________________________________________________

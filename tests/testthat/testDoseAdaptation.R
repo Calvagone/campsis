@@ -18,4 +18,6 @@ test_that("Instantiate dose adaptations work well", {
   
   # OK
   obj <- DoseAdaptation("AMT*WT", compartments=c(1,2,3))
+  
+  expect_equal(obj %>% getName(), "DOSE ADAPTATION [CMTS=c(1,2,3)]")
 })
