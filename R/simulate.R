@@ -360,14 +360,16 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
 #' @param results RxODE/mrgsolve output
 #' @param dosing dosing information, logical value
 #' @return reordered dataframe
-#' @importFrom dplyr relocate
+#' @importFrom dplyr relocate any_of
 #' @keywords internal
 #' 
 reorderColumns <- function(results, dosing) {
+  # Use of any_of with relocate because ARM column may not be there if simulate
+  # is used with a 2-dimensional dataset
   if (dosing) {
-    results <- results %>% dplyr::relocate(ID, EVID, CMT, AMT, TIME, ARM)
+    results <- results %>% dplyr::relocate(dplyr::any_of(c("ID", "EVID", "CMT", "AMT", "TIME", "ARM")))
   } else {
-    results <- results %>% dplyr::relocate(ID, TIME, ARM)
+    results <- results %>% dplyr::relocate(dplyr::any_of(c("ID", "TIME", "ARM")))
   }
   return(results)
 }
