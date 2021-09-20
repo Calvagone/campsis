@@ -2,24 +2,36 @@
 % Please edit documentation in R/treatment_entry.R
 \name{Bolus}
 \alias{Bolus}
-\title{Create a bolus.}
+\title{Create one or several bolus(es).}
 \usage{
-Bolus(time, amount, compartment = NA, f = NULL, lag = NULL)
+Bolus(
+  time,
+  amount,
+  compartment = NA,
+  f = NULL,
+  lag = NULL,
+  ii = NULL,
+  addl = NULL
+)
 }
 \arguments{
-\item{time}{treatment time(s), numeric value or vector}
+\item{time}{treatment time(s), numeric value or vector. First treatment time if used together with ii and addl.}
 
-\item{amount}{amount to give as bolus, numeric}
+\item{amount}{amount to give as bolus, single numeric value}
 
-\item{compartment}{compartment index, integer}
+\item{compartment}{compartment index, single integer value}
 
 \item{f}{fraction of dose amount, distribution}
 
 \item{lag}{dose lag time, distribution}
+
+\item{ii}{interdose interval, requires argument 'time' to be a single numeric value}
+
+\item{addl}{number of additional doses, requires argument 'time' to be a single integer value}
 }
 \value{
-an observation
+a single bolus or a list of boluses
 }
 \description{
-Create a bolus.
+Create one or several bolus(es).
 }

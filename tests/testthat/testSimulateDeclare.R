@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test the declare argument of the simulate function")
 
@@ -11,7 +10,7 @@ source(paste0(testFolder, "testUtils.R"))
 
 test_that("Declare argument with mrgsolve", {
   model <- model_library$advan4_trans4
-  model <- model %>% replaceEquation("KA", "THETA_KA*exp(ETA_KA + SOMETHING)")
+  model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + SOMETHING)"))
   regFilename <- "simple_bolus"
   
   dataset <- Dataset()

@@ -56,7 +56,7 @@ preprocessOutvars <- function(outvars) {
                             msg="outvars must be a character vector with the column names to keep")
     
     # In any cases, we should never see these special variables
-    outvars <- outvars[!(outvars %in% c("id", "time", "ARM"))]
+    outvars <- outvars[!(toupper(outvars) %in% c("ID", "EVID", "CMT", "AMT", "TIME", "ARM"))]
     return(outvars)
   }
 }
@@ -90,9 +90,25 @@ preprocessNocb <- function(nocb, dest) {
       nocb <- FALSE
     }
   }
-  assertthat::assert_that(is.logical(nocb) && nocb %>% length()==1,
+  assertthat::assert_that(is.logical(nocb) && nocb %>% length()==1 && !is.na(nocb),
                           msg="nocb not a logical value TRUE/FALSE")
   return(nocb)
+}
+
+#' Preprocess 'dosing' argument.
+#' 
+#' @param dosing dosing argument, logical value
+#' @return user value, if not specified, return FALSE (observations only)
+#' @importFrom assertthat assert_that
+#' @keywords internal
+#' 
+preprocessDosing <- function(dosing) {
+  if (is.null(dosing)) {
+    dosing <- FALSE
+  }
+  assertthat::assert_that(is.logical(dosing) && dosing %>% length()==1 && !is.na(dosing),
+                          msg="dosing not a logical value TRUE/FALSE")
+  return(dosing)
 }
 
 #' Preprocess subjects ID's.
@@ -119,14 +135,14 @@ preprocessIds <- function(dataset) {
 #' 
 preprocessArmColumn <- function(dataset, model) {
   if ("ARM" %in% colnames(dataset)) {
-    pkRecord <- model@model %>% campsismod::getByName("MAIN")
-    pkRecord@code <- c(pkRecord@code, "ARM=ARM")
-    model@model <- model@model %>% campsismod::replace(pkRecord)
+    pkRecord <- model@model %>% getByName("MAIN")
+    pkRecord <- pkRecord %>% add(Equation("ARM", "ARM"))
+    model@model <- model@model %>% replace(pkRecord)
   }
   if ("EVENT_RELATED" %in% colnames(dataset)) {
-    pkRecord <- model@model %>% campsismod::getByName("MAIN")
-    pkRecord@code <- c(pkRecord@code, "EVENT_RELATED=EVENT_RELATED")
-    model@model <- model@model %>% campsismod::replace(pkRecord)
+    pkRecord <- model@model %>% getByName("MAIN")
+    pkRecord <- pkRecord %>% add(Equation("EVENT_RELATED", "EVENT_RELATED"))
+    model@model <- model@model %>% replace(pkRecord)
   }
   return(model)
 }
@@ -171,7 +187,7 @@ processDropOthers <- function(x, outvars=character(0), dropOthers) {
     return(x)
   }
   outvars_ <- outvars[!(outvars %in% dropOthers())]
-  out <- c("id", "time", "ARM", "EVENT_RELATED", outvars_)
+  out <- c("ID", "TIME", "ARM", "EVENT_RELATED", outvars_)
   names <- colnames(x)
   return(x[, names[names %in% out]])
 }

@@ -2,11 +2,11 @@
 % Please edit documentation in R/simulate.R
 \name{simulate}
 \alias{simulate}
-\alias{simulate,pmx_model,dataset,character,events,function,character,function,integer,integer,logical-method}
-\alias{simulate,pmx_model,tbl_df,character,events,function,character,function,integer,integer,logical-method}
-\alias{simulate,pmx_model,data.frame,character,events,function,character,function,integer,integer,logical-method}
-\alias{simulate,pmx_model,tbl_df,rxode_engine,events,function,character,function,integer,integer,logical-method}
-\alias{simulate,pmx_model,tbl_df,mrgsolve_engine,events,function,character,function,integer,integer,logical-method}
+\alias{simulate,campsis_model,dataset,character,events,function,character,function,integer,integer,logical,logical-method}
+\alias{simulate,campsis_model,tbl_df,character,events,function,character,function,integer,integer,logical,logical-method}
+\alias{simulate,campsis_model,data.frame,character,events,function,character,function,integer,integer,logical,logical-method}
+\alias{simulate,campsis_model,tbl_df,rxode_engine,events,function,character,function,integer,integer,logical,logical-method}
+\alias{simulate,campsis_model,tbl_df,mrgsolve_engine,events,function,character,function,integer,integer,logical,logical-method}
 \title{Simulate function.}
 \usage{
 simulate(
@@ -20,10 +20,11 @@ simulate(
   seed = NULL,
   replicates = 1,
   nocb = NULL,
+  dosing = FALSE,
   ...
 )
 
-\S4method{simulate}{pmx_model,dataset,character,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,dataset,character,events,`function`,character,`function`,integer,integer,logical,logical}(
   model,
   dataset,
   dest = NULL,
@@ -34,10 +35,11 @@ simulate(
   seed = NULL,
   replicates = 1,
   nocb = NULL,
+  dosing = FALSE,
   ...
 )
 
-\S4method{simulate}{pmx_model,tbl_df,character,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,tbl_df,character,events,`function`,character,`function`,integer,integer,logical,logical}(
   model,
   dataset,
   dest = NULL,
@@ -48,10 +50,11 @@ simulate(
   seed = NULL,
   replicates = 1,
   nocb = NULL,
+  dosing = FALSE,
   ...
 )
 
-\S4method{simulate}{pmx_model,data.frame,character,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,data.frame,character,events,`function`,character,`function`,integer,integer,logical,logical}(
   model,
   dataset,
   dest = NULL,
@@ -62,10 +65,11 @@ simulate(
   seed = NULL,
   replicates = 1,
   nocb = NULL,
+  dosing = FALSE,
   ...
 )
 
-\S4method{simulate}{pmx_model,tbl_df,rxode_engine,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,tbl_df,rxode_engine,events,`function`,character,`function`,integer,integer,logical,logical}(
   model,
   dataset,
   dest = NULL,
@@ -76,10 +80,11 @@ simulate(
   seed = NULL,
   replicates = 1,
   nocb = NULL,
+  dosing = FALSE,
   ...
 )
 
-\S4method{simulate}{pmx_model,tbl_df,mrgsolve_engine,events,`function`,character,`function`,integer,integer,logical}(
+\S4method{simulate}{campsis_model,tbl_df,mrgsolve_engine,events,`function`,character,`function`,integer,integer,logical,logical}(
   model,
   dataset,
   dest = NULL,
@@ -90,13 +95,14 @@ simulate(
   seed = NULL,
   replicates = 1,
   nocb = NULL,
+  dosing = FALSE,
   ...
 )
 }
 \arguments{
 \item{model}{generic PMX model}
 
-\item{dataset}{PMX dataset or 2-dimensional table}
+\item{dataset}{CAMPSIS dataset or 2-dimensional table}
 
 \item{dest}{destination simulation engine, default is 'RxODE'}
 
@@ -113,6 +119,8 @@ simulate(
 \item{replicates}{number of replicates, default is 1}
 
 \item{nocb}{next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE}
+
+\item{dosing}{output dosing information, default is FALSE}
 
 \item{...}{optional arguments like declare}
 }

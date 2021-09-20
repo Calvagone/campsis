@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test the simulate method with initial conditions")
 
@@ -24,8 +23,8 @@ test_that("Simulate initial conditions, observations starting at 0 (RxODE/mrgsol
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
   spaghettiPlot(results2, "CP")
 
-  outputRegressionTest(results1 %>% dplyr::filter(time >=5), output="CP", filename=regFilename)
-  outputRegressionTest(results2 %>% dplyr::filter(time >=5), output="CP", filename=regFilename)
+  outputRegressionTest(results1 %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
+  outputRegressionTest(results2 %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
 })
 
 test_that("Simulate initial conditions, observations starting at 5 (RxODE/mrgsolve)", {

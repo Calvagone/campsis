@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test that the simulate method works even when no OMEGA's/SIGMA's are provided")
 seed <- 1
@@ -20,9 +19,9 @@ test_that("Simulate a 1-cpt model without OMEGA's/SIGMA's (Github issue #8)", {
   
   
   results <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  subject1 <- results %>% dplyr::filter(id==1) %>% dplyr::select(-id)
-  subject2 <- results %>% dplyr::filter(id==2) %>% dplyr::select(-id)
-  subject3 <- results %>% dplyr::filter(id==3) %>% dplyr::select(-id)
+  subject1 <- results %>% dplyr::filter(ID==1) %>% dplyr::select(-ID)
+  subject2 <- results %>% dplyr::filter(ID==2) %>% dplyr::select(-ID)
+  subject3 <- results %>% dplyr::filter(ID==3) %>% dplyr::select(-ID)
   
   # No IIV, no RUV -> subject 1 strictly identical to subject 2 and 3
   expect_equal(subject1, subject2)

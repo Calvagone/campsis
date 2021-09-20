@@ -5,7 +5,7 @@
 
 checkObservations <- function(object) {
   check1 <- expectOneOrMore(object, "times")
-  check2 <- expectPositiveTimes(object@times)
+  check2 <- expectPositiveValues(object, "times")
   check3 <- expectOne(object, "compartment")
   return(c(check1, check2, check3))
 }

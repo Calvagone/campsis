@@ -15,6 +15,23 @@ setClass(
   prototype = prototype(type="arm") 
 )
 
+#_______________________________________________________________________________
+#----                           add                                   ----
+#_______________________________________________________________________________
+
+setMethod("add", signature = c("arms", "arm"), definition = function(object, x) {
+  # Auto-increment ID based on existing ID values in arms
+  if (is.na(x@id)) {
+    existingIds <- object@list %>% purrr::map_int(~.x@id)
+    if (length(existingIds) > 0) {
+      x@id <- as.integer(max(existingIds) + 1) # Increment by 1
+    } else {
+      x@id <- as.integer(1) # Start at 1 if no arm yet
+    }
+  }
+  return(callNextMethod(object, x))
+})
+
 
 #_______________________________________________________________________________
 #----                              default                                  ----

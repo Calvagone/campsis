@@ -7,7 +7,7 @@
 removeInitialConditions(model)
 }
 \arguments{
-\item{model}{PMX model}
+\item{model}{CAMPSIS model}
 }
 \value{
 same model without initial conditions

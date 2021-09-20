@@ -14,6 +14,8 @@ Arm class.
 
 \item{\code{subjects}}{number of subjects in arm, integer}
 
+\item{\code{label}}{arm label, single character string}
+
 \item{\code{protocol}}{protocol}
 
 \item{\code{covariates}}{covariates}

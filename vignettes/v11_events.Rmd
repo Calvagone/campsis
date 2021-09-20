@@ -22,7 +22,7 @@ In the example below, `BW` progressively decreases over time.
 
 ```{r event_bw_as_time_varying_covariate, fig.align='center', fig.height=4, fig.width=8}
 model <- model_library$advan2_trans2
-model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
+model <- model %>% replace(Equation("CL", "THETA_CL*exp(ETA_CL)*pow(BW/70, 0.75)"))
 
 dataset <- Dataset(1)
 for (day in 0:2) {

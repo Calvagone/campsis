@@ -14,7 +14,7 @@ PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
   assertthat::assert_that(is.character(output) && length(output)==1)
   x <- factorScenarios(x, scenarios=scenarios)
   retValue <- x %>% dplyr::rename_at(.vars=output, .funs=~"variable_") %>%
-    dplyr::group_by_at(c("time", scenarios)) %>%
+    dplyr::group_by_at(c("TIME", scenarios)) %>%
     dplyr::summarise(
       med=median(variable_),
       low=quantile(variable_, (1-level)/2),
@@ -27,9 +27,9 @@ PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
     retValue <- retValue %>% dplyr::mutate(dplyr::across(c("low", "med", "up"), as.vector))
     
     if (is.null(scenarios)) {
-      retValue <- retValue %>% tidyr::gather(key="metric", value="value", -time)
+      retValue <- retValue %>% tidyr::gather(key="metric", value="value", -TIME)
     } else {
-      retValue <- retValue %>% tidyr::gather(key="metric", value="value", -time, -dplyr::all_of(scenarios))
+      retValue <- retValue %>% tidyr::gather(key="metric", value="value", -TIME, -dplyr::all_of(scenarios))
     }
   }
 

@@ -4,7 +4,7 @@
 
 checkTimeEntry <- function(object) {
   check1 <- expectOne(object, "time")
-  check2 <- expectPositiveTimes(object@time)
+  check2 <- expectPositiveValues(object, "time")
   return(c(check1, check2))
 }
 

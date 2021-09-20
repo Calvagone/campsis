@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test all methods from the arms class")
 
@@ -8,7 +7,7 @@ test_that("Add, length, contains, getByName methods work as expected", {
   arms <- new("arms") 
   expect_true(is(arms, "pmx_list"))
   
-  arm1 <- new("arm")
+  arm1 <- Arm(id=1)
   expect_true(is(arm1, "pmx_element"))
   
   # Add method
@@ -49,6 +48,23 @@ test_that("Default, replace method work as expected", {
   
   # Need to use the replace function
   expect_error(arms %>% add(arm)) # Element ARM 0 is already present
-  arms <- arms %>% campsismod::replace(arm)
+  arms <- arms %>% replace(arm)
   expect_equal((arms %>% default())@protocol@treatment %>% length(), 1)
+})
+
+test_that("Auto-incremented id works", {
+  
+  arms <- new("arms") 
+  
+  # Add first arm
+  arms <- arms %>% add(Arm())
+  
+  # Add second arm
+  arms <- arms %>% add(Arm())
+  
+  # Add third arm
+  arms <- arms %>% add(Arm())
+
+  # Check arm names are correct  
+  expect_equal(arms %>% getNames(), c("ARM 1", "ARM 2", "ARM 3"))
 })

@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test all methods from the event class")
 
@@ -14,7 +13,7 @@ test_that("Minimalist event", {
 })
 
 test_that("A couple of wrong events", {
-  expect_error(Event(times=-5, fun=function(id, time) {}), regexp="Some time values are negative")
+  expect_error(Event(times=-5, fun=function(id, time) {}), regexp="Some values in slot 'times' are negative")
   expect_error(Event(times="HELLO", fun=function(id, time) {}))
   expect_error(Event(name=character(0), times=5, fun=function(id, time) {}), regexp="name is length 0")
 })

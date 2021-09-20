@@ -40,7 +40,7 @@ model <- model %>% add(Omega(name="ALAG1", value=20, type="cv%"))
 
 Now, let's add an equation to the drug model to define `ALAG1`.
 ```{r}
-model <- model %>% addEquation("ALAG1", rhs="THETA_ALAG1*exp(ETA_ALAG1)")
+model <- model %>% add(Equation("ALAG1", "THETA_ALAG1*exp(ETA_ALAG1)"))
 ```
 
 Finally, we need to tell `pmxsim` that `ALAG1` corresponds to a lag time.

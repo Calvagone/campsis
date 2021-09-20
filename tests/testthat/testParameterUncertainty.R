@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Simulation with full uncertainty (variance-covariance matrix)")
 

@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Simulate boluses and infusions into the same compartment")
 

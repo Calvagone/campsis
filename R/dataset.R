@@ -63,49 +63,49 @@ setMethod("add", signature = c("dataset", "arm"), definition = function(object, 
   return(object)
 })
 
-setMethod("add", signature = c("dataset", "treatment_entry"), definition = function(object, x) {
+setMethod("add", signature = c("dataset", "pmx_element"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
-  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "treatment_iov"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "occasion"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@protocol@treatment <- arm@protocol@treatment %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "observations"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@protocol@observations <- arm@protocol@observations %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
-  return(object)
-})
-
-setMethod("add", signature = c("dataset", "covariate"), definition = function(object, x) {
-  object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@covariates <- arm@covariates %>% add(x)
-  object@arms <- object@arms %>% campsismod::replace(arm)
+  arm <- arm %>% add(x)
+  object@arms <- object@arms %>% replace(arm)
   return(object)
 })
 
 setMethod("add", signature = c("dataset", "dataset_config"), definition = function(object, x) {
   object@config <- x
   return(object)
+})
+
+#_______________________________________________________________________________
+#----                           contains                                    ----
+#_______________________________________________________________________________
+
+setMethod("contains", signature = c("dataset", "pmx_element"), definition = function(object, x) {
+  if (object@arms %>% length() == 0) {
+    return(FALSE)
+  }
+  return(object@arms@list %>% purrr::map_lgl(~.x %>% contains(x)) %>% any())
+})
+
+#_______________________________________________________________________________
+#----                              delete                                   ----
+#_______________________________________________________________________________
+
+setMethod("delete", signature = c("dataset", "pmx_element"), definition = function(object, x) {
+  object@arms@list <- object@arms@list %>% purrr::map(~.x %>% delete(x))
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                               find                                    ----
+#_______________________________________________________________________________
+
+setMethod("find", signature = c("dataset", "pmx_element"), definition = function(object, x) {
+  elements <- object@arms@list %>% purrr::map(~.x %>% find(x))
+  if (!is.null(elements)) {
+    elements <- elements[[1]] # Return first element in all cases
+  }
+  return(elements)
 })
 
 #_______________________________________________________________________________
@@ -164,6 +164,20 @@ setMethod("getTimes", signature = c("dataset"), definition = function(object) {
 setMethod("length", signature=c("dataset"), definition=function(x) {
   subjectsPerArm <- x@arms@list %>% purrr::map_int(.f=~.x@subjects) 
   return(sum(subjectsPerArm))
+})
+
+#_______________________________________________________________________________
+#----                             replace                                   ----
+#_______________________________________________________________________________
+
+setMethod("replace", signature=c("dataset", "arm"), definition=function(object, x) {
+  object@arms <- object@arms %>% replace(x)
+  return(object)
+})
+
+setMethod("replace", signature = c("dataset", "pmx_element"), definition = function(object, x) {
+  object@arms@list <- object@arms@list %>% purrr::map(~.x %>% replace(x))
+  return(object)
 })
 
 #_______________________________________________________________________________
@@ -279,12 +293,13 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
+#' @importFrom rlang parse_expr
 #' @keywords internal
 #' 
 exportDelegate <- function(object, dest, seed, nocb, ...) {
   args <- list(...)
   model <- args$model
-  if (!is.null(model) && !is(model, "pmx_model")) {
+  if (!is.null(model) && !is(model, "campsis_model")) {
     stop("Please provide a valid PMX model.")
   }
   
@@ -295,7 +310,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
   if (is.null(model)) {
     iiv <- data.frame()
   } else {
-    rxmod <- model %>% campsismod::export(dest="RxODE")
+    rxmod <- model %>% export(dest="RxODE")
     subjects <- object %>% length()
     iiv <- generateIIV(omega=rxmod@omega, n=subjects)
     if (nrow(iiv) > 0) {
@@ -329,6 +344,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     covariates <- arm@covariates
     treatmentIovs <- treatment@iovs
     occasions <- treatment@occasions
+    doseAdaptations <- treatment@dose_adaptations
     
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
@@ -362,6 +378,17 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     for (occasion in occasions@list) {
       occ <- tibble::tibble(DOSENO=occasion@dose_numbers, !!occasion@colname:=occasion@values)
       table <- table %>% dplyr::left_join(occ, by="DOSENO")
+    }
+    
+    # Apply formula if dose adaptations are present
+    for (doseAdaptation in doseAdaptations@list) {
+      compartments <- doseAdaptation@compartments
+      expr <- rlang::parse_expr(doseAdaptation@formula)
+      if (compartments %>% length() > 0) {
+        table <- table %>% dplyr::mutate(AMT=ifelse(CMT %in% compartments, eval(expr), AMT))
+      } else {
+        table <- table %>% dplyr::mutate(AMT=eval(expr))
+      }
     }
     
     return(table)

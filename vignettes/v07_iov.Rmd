@@ -26,7 +26,7 @@ model <- model_library$advan4_trans4
 We're going to add a term `IOV_KA` on `KA`. This can be done as follows:
 
 ```{r}
-model <- model %>% replaceEquation("KA", rhs="THETA_KA*exp(ETA_KA + IOV_KA)")
+model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
 ```
 
 This model will not run unless we give some values for `IOV_KA`. This can achieved by adding `IOV` to the dataset.

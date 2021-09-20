@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test the events/interruption logic")
 
@@ -46,7 +45,8 @@ test_that("Simple interrutpions - No events - (RxODE/mrgsolve)", {
 
 test_that("Interruptions at doses times - BW covariate - No events - (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4
-  model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
+  equation <- model %>% find(Equation("CL"))
+  model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
   regFilename <- "event_interruption_at_dose"
   
   dataset <- Dataset(2)
@@ -85,8 +85,9 @@ test_that("Interruptions at doses times - BW covariate - No events - (RxODE/mrgs
 
 test_that("Interruptions at doses times - BW covariate - IOV on KA - No events - (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4
-  model <- model %>% replaceEquation("CL", paste0(model %>% getEquation("CL"), "*pow(BW/70, 0.75)"))
-  model <- model %>% replaceEquation("KA", rhs="THETA_KA*exp(ETA_KA + IOV_KA)")
+  equation <- model %>% find(Equation("CL"))
+  model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
+  model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
   regFilename <- "event_interruption_at_dose_iov"
   
   dataset <- Dataset(2)
@@ -151,8 +152,8 @@ test_that("Simulate initial conditions + events (RxODE/mrgsolve)", {
   results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, events=events)
   spaghettiPlot(results2, "CP")
   
-  outputRegressionTest(results1 %>% dplyr::filter(time >=5), output="CP", filename=regFilename)
-  outputRegressionTest(results2 %>% dplyr::filter(time >=5), output="CP", filename=regFilename)
+  outputRegressionTest(results1 %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
+  outputRegressionTest(results2 %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
 })
 
 test_that("Simulate multiple arms + events (RxODE/mrgsolve)", {

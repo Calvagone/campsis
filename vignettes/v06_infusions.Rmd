@@ -40,7 +40,7 @@ model <- model %>% add(Omega(name="D1", value=20, type="cv%"))
 
 Now, let's add an equation to the drug model to define `D1`.
 ```{r}
-model <- model %>% addEquation("D1", rhs="THETA_D1*exp(ETA_D1)")
+model <- model %>% add(Equation("D1", "THETA_D1*exp(ETA_D1)"))
 ```
 
 Finally, we need to tell `pmxsim` that `D1` corresponds the infusion duration for the first compartment.

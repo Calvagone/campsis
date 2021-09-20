@@ -19,6 +19,32 @@ factorScenarios <- function(x, scenarios=NULL) {
   }
 }
 
+#' Filter CAMPSIS output on observation rows.
+#' 
+#' @param x data frame, CAMPSIS output
+#' @importFrom dplyr filter
+#' @export
+obsOnly <- function(x) {
+  if ("EVID" %in% colnames(x)) {
+    return(x %>% dplyr::filter(EVID==0))
+  } else {
+    return(x)
+  }
+}
+
+#' Filter CAMPSIS output on dosing rows.
+#' 
+#' @param x data frame, CAMPSIS output
+#' @importFrom dplyr filter
+#' @export
+dosingOnly <- function(x) {
+  if ("EVID" %in% colnames(x)) {
+    return(x %>% dplyr::filter(EVID==1))
+  } else {
+    return(x)
+  }
+}
+
 #' Spaghetti plot.
 #' 
 #' @param x data frame
@@ -28,18 +54,18 @@ factorScenarios <- function(x, scenarios=NULL) {
 #' @importFrom ggplot2 aes_string ggplot geom_line
 #' @export
 spaghettiPlot <- function(x, output, scenarios=NULL) {
-  hasId <- "id" %in% colnames(x)
-  x <- factorScenarios(x, scenarios=scenarios)
+  hasId <- "ID" %in% colnames(x)
+  x <- factorScenarios(x %>% obsOnly(), scenarios=scenarios)
   if (hasId) {
     if (length(scenarios) > 0) {
       colour <- paste0(scenarios, collapse = ":")
     } else {
       colour <- NULL
     }
-    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="time", y=output, group="id", colour=colour)) +
+    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="TIME", y=output, group="ID", colour=colour)) +
       ggplot2::geom_line()
   } else {
-    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="time", y=output)) +
+    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="TIME", y=output)) +
       ggplot2::geom_line()
   }
   return(plot)
@@ -55,13 +81,13 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
 #' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
 #' @export
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
-  x <- PI(x=x, output=output, scenarios=scenarios, level=level, gather=FALSE)
+  x <- PI(x=x %>% obsOnly(), output=output, scenarios=scenarios, level=level, gather=FALSE)
   if (length(scenarios) > 0) {
     colour <- paste0(scenarios, collapse = ":")
   } else {
     colour <- NULL
   }
-  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes_string(x="time", colour=colour)) +
+  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes_string(x="TIME", colour=colour)) +
     ggplot2::geom_line(ggplot2::aes(y=med)) +
     ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low", ymax="up", colour=colour, fill=colour), colour=NA, alpha=0.25)
   plot <- plot + ggplot2::ylab(output)
@@ -80,7 +106,7 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90) {
   if (length(scenarios) > 1) {
     stop("Currently max 1 scenario allowed")
   }
-  x <- VPC(x=x, scenarios=scenarios, level=level)
+  x <- VPC(x=x %>% obsOnly(), scenarios=scenarios, level=level)
 
   if (length(scenarios) == 0) {
     retValue <- vpcPlotDelegate(x)
@@ -109,7 +135,7 @@ vpcPlotDelegate <- function(summary) {
   summary.med <- summary %>% dplyr::filter(metric=="med")
   summary.up <- summary %>% dplyr::filter(metric=="up")
   
-  plot <- ggplot2::ggplot(summary.med, ggplot2::aes(x=time, y=med)) +
+  plot <- ggplot2::ggplot(summary.med, ggplot2::aes(x=TIME, y=med)) +
     ggplot2::geom_line(color="red", size=0.7) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), alpha=0.15, color=NA, fill="red") +
     ggplot2::geom_line(data=summary.low, color="red", lty="dashed", size=0.7) +

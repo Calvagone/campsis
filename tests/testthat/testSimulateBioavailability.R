@@ -1,5 +1,4 @@
 library(testthat)
-library(campsismod)
 
 context("Test the simulate method with different bioavailabilities")
 
@@ -82,6 +81,6 @@ test_that("Simulate several fixed fs at once", {
   results <- model %>% disable("IIV") %>% simulate(dataset, dest="RxODE", seed=seed)
   spaghettiPlot(results, "CP")
   
-  cmax <- results %>% dplyr::filter(time==2.5) %>% dplyr::pull(CP)
+  cmax <- results %>% dplyr::filter(TIME==2.5) %>% dplyr::pull(CP)
   expect_equal(round(cmax, 2), c(2.89, 5.77, 8.66, 9.62))
 })

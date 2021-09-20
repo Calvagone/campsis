@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 #' @rdname sample
-setMethod("sample", signature = c("pmx_model", "integer"), definition = function(object, n) {
+setMethod("sample", signature = c("campsis_model", "integer"), definition = function(object, n) {
   
   varcov <- object@parameters@varcov
   retValue <- list()
@@ -34,13 +34,13 @@ setMethod("sample", signature = c("pmx_model", "integer"), definition = function
         # pluck can be used because originalParams is a named list
         originalParam <- originalParams %>% purrr::pluck(paramNames[paramIndex])
         originalParam@value <- paramValues[paramIndex]
-        model@parameters <- model@parameters %>% campsismod::replace(originalParam)
+        model@parameters <- model@parameters %>% replace(originalParam)
       }
 
       # Still need to update the omegas 'SAME'
       # .x is the accumulating value
       # .y is element in the list
-      omegas <- model@parameters %>% campsismod::select("omega")
+      omegas <- model@parameters %>% select("omega")
       if (omegas %>% length() > 1) {
         purrr::accumulate(.x=omegas@list, .f=function(.x, .y) {
             if (isTRUE(.y@same)) {
@@ -49,7 +49,7 @@ setMethod("sample", signature = c("pmx_model", "integer"), definition = function
               }
               # Take value just above
               .y@value <- .x@value
-              model@parameters <<- model@parameters %>% campsismod::replace(.y)
+              model@parameters <<- model@parameters %>% replace(.y)
             }
             return(.y)
           },

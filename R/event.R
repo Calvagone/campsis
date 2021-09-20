@@ -6,7 +6,7 @@
 checkEvent <- function(object) {
   checkName <- expectOne(object, "name")
   checkTimes <- expectOneOrMore(object, "times")
-  checkTimesPositive <- expectPositiveTimes(object@times)
+  checkTimesPositive <- expectPositiveValues(object, "times")
   checkFunction <- expectOne(object, "fun")
   checkDebug <- expectOne(object, "debug")
   return(c(checkName, checkTimes, checkTimesPositive, checkFunction, checkDebug))

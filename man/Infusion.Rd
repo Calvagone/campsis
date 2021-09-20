@@ -2,7 +2,7 @@
 % Please edit documentation in R/treatment_entry.R
 \name{Infusion}
 \alias{Infusion}
-\title{Create an infusion.}
+\title{Create one or several infusion(s).}
 \usage{
 Infusion(
   time,
@@ -11,11 +11,13 @@ Infusion(
   f = NULL,
   lag = NULL,
   duration = NULL,
-  rate = NULL
+  rate = NULL,
+  ii = NULL,
+  addl = NULL
 )
 }
 \arguments{
-\item{time}{treatment time, numeric}
+\item{time}{treatment time(s), numeric value or vector. First treatment time if used together with ii and addl.}
 
 \item{amount}{total amount to infuse, numeric}
 
@@ -28,10 +30,14 @@ Infusion(
 \item{duration}{infusion duration, distribution}
 
 \item{rate}{infusion rate, distribution}
+
+\item{ii}{interdose interval, requires argument 'time' to be a single numeric value}
+
+\item{addl}{number of additional doses, requires argument 'time' to be a single integer value}
 }
 \value{
-an infusion.
+a single infusion or a list of infusions.
 }
 \description{
-Create an infusion.
+Create one or several infusion(s).
 }
