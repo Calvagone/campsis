@@ -13,7 +13,7 @@ editor_options:
 library(campsis)
 ```
 
-This vignette shows how initial conditions may be used in `pmxsim`.
+This vignette shows how initial conditions may be used in `campsis`.
 
 ### Init central compartment
 
