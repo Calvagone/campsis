@@ -32,9 +32,8 @@ Create your dataset:
 
 ``` r
 ds <- Dataset(50)
-ds <- ds %>% add(Bolus(time=0, amount=1000))
-ds <- ds %>% add(Bolus(time=24, amount=2000))
-ds <- ds %>% add(Observations(times=seq(0, 48, by=0.5)))
+ds <- ds %>% add(Bolus(time=0, amount=1000, ii=12, addl=2))
+ds <- ds %>% add(Observations(times=seq(0, 36, by=0.5)))
 ```
 
 Load your own model or use a built-in model from the library:
@@ -55,4 +54,4 @@ Plot your results:
 shadedPlot(results, "CP")
 ```
 
-<img src="README_files/figure-gfm/get_started_shaded_plot-1.png" style="display: block; margin: auto;" />
+![](vignettes/resources/readme_plot.png)

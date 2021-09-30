@@ -34,9 +34,8 @@ Create your dataset:
 
 ```{r}
 ds <- Dataset(50)
-ds <- ds %>% add(Bolus(time=0, amount=1000))
-ds <- ds %>% add(Bolus(time=24, amount=2000))
-ds <- ds %>% add(Observations(times=seq(0, 48, by=0.5)))
+ds <- ds %>% add(Bolus(time=0, amount=1000, ii=12, addl=2))
+ds <- ds %>% add(Observations(times=seq(0, 36, by=0.5)))
 ```
 
 Load your own model or use a built-in model from the library:
@@ -53,6 +52,17 @@ results <- model %>% simulate(dataset=ds, dest="RxODE", seed=1)
 
 Plot your results:
 
-```{r get_started_shaded_plot, fig.align='center', fig.height=4, fig.width=8}
+```{r, fig.show='hide'}
 shadedPlot(results, "CP")
 ```
+
+```{r, eval=TRUE, echo=FALSE, results='hide'}
+file_vignette <- "vignettes/resources/readme_plot.png"
+ggplot2::ggsave(filename=file_vignette, width=8, height=4, dpi=100)
+```
+
+```{r, echo=FALSE, results='hide'}
+file.copy(file_vignette, "docs/articles/resources/")
+```
+
+![](vignettes/resources/readme_plot.png)
