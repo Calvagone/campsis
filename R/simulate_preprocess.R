@@ -12,6 +12,19 @@ preprocessEvents <- function(events) {
   }
 }
 
+#' Pre-process scenarios.
+#'
+#' @param scenarios scenarios
+#' @keywords internal
+#' 
+preprocessScenarios <- function(scenarios) {
+  if (is.null(scenarios)) {
+    return(Scenarios() %>% add(Scenario()))
+  } else {
+    return(scenarios)
+  }
+}
+
 #' Pre-process function argument.
 #'
 #' @param fun function or lambda formula

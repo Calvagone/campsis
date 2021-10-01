@@ -31,9 +31,9 @@ setClass(
 #' 
 #' Create an scenario.
 #' 
-#' @slot name scenario name, single character string
-#' @slot model either a CAMPSIS model, a function or lambda-style formula
-#' @slot dataset either a CAMPSIS dataset, a function or lambda-style formula
+#' @param name scenario name, single character string
+#' @param model either a CAMPSIS model, a function or lambda-style formula
+#' @param dataset either a CAMPSIS dataset, a function or lambda-style formula
 #' @return a new scenario
 #' @export
 Scenario <- function(name=NULL, model=NULL, dataset=NULL) {
@@ -99,7 +99,7 @@ applyScenario <- function(x, scenario) {
                           msg="scenario must be a scenario")
   if (is(x, "campsis_model")) {
     x_ <- scenario@model
-  } else if (is(x, "dataset")) {
+  } else if (is(x, "dataset") || is.data.frame(x)) {
     x_ <- scenario@dataset
   } else {
     stop("x must be either a CAMPSIS model or dataset")

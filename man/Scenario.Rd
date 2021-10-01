@@ -6,19 +6,16 @@
 \usage{
 Scenario(name = NULL, model = NULL, dataset = NULL)
 }
+\arguments{
+\item{name}{scenario name, single character string}
+
+\item{model}{either a CAMPSIS model, a function or lambda-style formula}
+
+\item{dataset}{either a CAMPSIS dataset, a function or lambda-style formula}
+}
 \value{
 a new scenario
 }
 \description{
 Create an scenario.
 }
-\section{Slots}{
-
-\describe{
-\item{\code{name}}{scenario name, single character string}
-
-\item{\code{model}}{either a CAMPSIS model, a function or lambda-style formula}
-
-\item{\code{dataset}}{either a CAMPSIS dataset, a function or lambda-style formula}
-}}
-
