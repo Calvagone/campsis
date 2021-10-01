@@ -27,14 +27,12 @@ model <- model_library$advan4_trans4
 
 ### Create dataset
 
-Create your dataset using `pmxsim`. For instance, let's give 1000mg QD for 3 days and observe every hour.
+Create your dataset in CAMPSIS. For instance, let's give 1000mg QD for 3 days and observe every hour.
 
 ```{r}
-dataset <- Dataset(10)
-dataset <- dataset %>% add(Bolus(time=0, amount=1000))
-dataset <- dataset %>% add(Bolus(time=24, amount=1000))
-dataset <- dataset %>% add(Bolus(time=48, amount=1000))
-dataset <- dataset %>% add(Observations(times=seq(0,72, by=1)))
+dataset <- Dataset(10) %>%
+  add(Bolus(time=c(0,24,48), amount=1000)) %>%
+  add(Observations(times=seq(0,72, by=1)))
 ```
 
 ### Simulate

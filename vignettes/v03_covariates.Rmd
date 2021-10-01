@@ -15,7 +15,7 @@ library(campsis)
 
 ### Add a body weight covariate into the model
 
-Let's use a simple 1-compartment model to illustrate how covariates are managed in `pmxsim`.
+Let's use a simple 1-compartment model to illustrate how covariates are managed by CAMPSIS.
 
 ```{r}
 model <- model_library$advan1_trans2
@@ -33,9 +33,9 @@ The corresponding dataset is as follows:
 
 ```{r}
 getDataset <- function(subjects) {
-  ds <- Dataset(subjects)
-  ds <- ds %>% add(Infusion(time=0, amount=1000, rate=200))
-  ds <- ds %>% add(Observations(times=seq(0,24,by=0.5)))
+  ds <- Dataset(subjects) %>%
+    add(Infusion(time=0, amount=1000, rate=200)) %>%
+    add(Observations(times=seq(0,24,by=0.5)))
 }
 ```
 
