@@ -25,6 +25,8 @@ Collate:
     'arms.R'
     'event.R'
     'events.R'
+    'scenario.R'
+    'scenarios.R'
     'simulation_engine.R'
     'dataset.R'
     'parameter_uncertainty.R'
@@ -35,7 +37,7 @@ Collate:
     'results_processing.R'
     'default_plot.R'
 Title: CAMPSIS package
-Version: 0.8.0
+Version: 0.9.0
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
