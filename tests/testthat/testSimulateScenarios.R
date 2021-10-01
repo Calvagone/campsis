@@ -24,11 +24,11 @@ test_that("Simulate a bolus (RxODE/mrgsolve)", {
   
   # RxODE
   results1 <- model %>% simulate(dataset, dest="RxODE", scenarios=scenarios, seed=seed)
-  shadedPlot(results1, "CP", "Scenario")
+  spaghettiPlot(results1, "CP", "SCENARIO")
   expect_equal(nrow(results1), 49*3)
   
   # Mrgsolve
   results2 <- model %>% simulate(dataset, dest="mrgsolve", scenarios=scenarios, seed=seed)
-  shadedPlot(results2, "CP", "Scenario")
+  spaghettiPlot(results2, "CP", "SCENARIO")
   expect_equal(nrow(results2), 49*3)
 })
