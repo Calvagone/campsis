@@ -2,6 +2,16 @@ library(testthat)
 
 context("Test all methods from the dataset class")
 
+test_that("Set subjects works as expected", {
+  dataset <- Dataset() %>% setSubjects(3)
+  expect_equal(dataset %>% length(), 3)
+  expect_equal(dataset@arms %>% length(), 1)
+  
+  dataset <- Dataset(2) %>% setSubjects(5)
+  expect_equal(dataset %>% length(), 5)
+  expect_equal(dataset@arms %>% length(), 1)
+})
+
 test_that("Add entry, order, filter, getTimes (simple example)", {
   
   dataset <- Dataset() 

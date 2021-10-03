@@ -208,6 +208,18 @@ setMethod("find", signature = c("arm", "covariate"), definition = function(objec
 })
 
 #_______________________________________________________________________________
+#----                             length                                    ----
+#_______________________________________________________________________________
+
+#' Return the number of subjects contained in this arm.
+#' 
+#' @param x arm
+#' @return a number
+setMethod("length", signature=c("arm"), definition=function(x) {
+  return(x@subjects)
+})
+
+#_______________________________________________________________________________
 #----                             replace                                   ----
 #_______________________________________________________________________________
 
@@ -238,5 +250,25 @@ setMethod("replace", signature = c("arm", "observations"), definition = function
 
 setMethod("replace", signature = c("arm", "covariate"), definition = function(object, x) {
   object@covariates <- object@covariates %>% replace(x)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             setLabel                                  ----
+#_______________________________________________________________________________
+
+setMethod("setLabel", signature = c("arm", "character"), definition = function(object, x) {
+  object@label <- x
+  validObject(object)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                           setSubjects                                 ----
+#_______________________________________________________________________________
+
+setMethod("setSubjects", signature = c("arm", "integer"), definition = function(object, x) {
+  object@subjects <- x
+  validObject(object)
   return(object)
 })

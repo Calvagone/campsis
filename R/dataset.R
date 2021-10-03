@@ -181,6 +181,19 @@ setMethod("replace", signature = c("dataset", "pmx_element"), definition = funct
 })
 
 #_______________________________________________________________________________
+#----                           setSubjects                                 ----
+#_______________________________________________________________________________
+
+setMethod("setSubjects", signature = c("dataset", "integer"), definition = function(object, x) {
+  object <- object %>% createDefaultArmIfNotExists()
+  arm <- object@arms %>% default()
+  arm@subjects <- x
+  object <- object %>% replace(arm)
+  validObject(object)
+  return(object)
+})
+
+#_______________________________________________________________________________
 #----                                export                                 ----
 #_______________________________________________________________________________
 
