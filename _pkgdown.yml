@@ -53,10 +53,15 @@ reference:
   - ParameterDistribution
   - UniformDistribution
   
-- title: "Events"
+- title: "Create events"
   contents:
   - Event
   - Events
+  
+- title: "Create scenarios"
+  contents:
+  - Scenario
+  - Scenarios
   
 - title: "Sample distributions"
   contents:
@@ -93,7 +98,6 @@ reference:
   - fixed_distribution-class
   - function_distribution-class
   - infusion-class
-  - length,dataset-method
   - mrgsolve_engine-class
   - protocol-class
   - observations-class
@@ -101,6 +105,8 @@ reference:
   - occasion-class
   - occasions-class
   - rxode_engine-class
+  - scenario-class
+  - scenarios-class
   - simulation_engine-class
   - time_varying_covariate-class
   - treatment-class
@@ -118,8 +124,12 @@ reference:
   - getOccasionNames
   - getTimes
   - getTimeVaryingCovariateNames
+  - length,arm-method
+  - length,dataset-method
   - obsOnly
   - retrieveParameterValue
+  - setLabel
+  - setSubjects
 
 - title: "Seed utilities"
   contents:
