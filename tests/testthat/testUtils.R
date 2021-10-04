@@ -15,8 +15,8 @@ datasetInMemory <- function(dataset, model, seed, doseOnly=TRUE) {
 
 #' Test there is no regression in the exported dataset.
 #' 
-#' @param dataset newly generated PMX dataset
-#' @param model PMX model
+#' @param dataset newly generated CAMPSIS dataset
+#' @param model CAMPSIS model
 #' @param seed seed that was used for export
 #' @param doseOnly look only at the doses, i.e. EVID==1
 #' @param filename reference file

@@ -126,3 +126,44 @@ getTimes <- function(object) {
 setGeneric("getTimes", function(object) {
   standardGeneric("getTimes")
 })
+
+#_______________________________________________________________________________
+#----                             setLabel                                  ----
+#_______________________________________________________________________________
+
+#' Set the label.
+#' 
+#' @param object any object that has a label
+#' @param x the new label
+#' @return the updated object
+#' @export
+#' @rdname setLabel
+setLabel <- function(object, x) {
+  stop("No default function is provided")
+}
+
+setGeneric("setLabel", function(object, x) {
+  standardGeneric("setLabel")
+})
+
+#_______________________________________________________________________________
+#----                           setSubjects                                 ----
+#_______________________________________________________________________________
+
+#' Set the number of subjects.
+#' 
+#' @param object any object
+#' @param x the new number of subjects
+#' @return the updated object
+#' @export
+#' @rdname setSubjects
+setSubjects <- function(object, x) {
+  stop("No default function is provided")
+}
+
+setGeneric("setSubjects", function(object, x) {
+  if (is.numeric(x)) {
+    x <- as.integer(x)
+  }
+  standardGeneric("setSubjects")
+})

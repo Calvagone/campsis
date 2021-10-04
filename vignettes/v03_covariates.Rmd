@@ -15,7 +15,7 @@ library(campsis)
 
 ### Add a body weight covariate into the model
 
-Let's use a simple 1-compartment model to illustrate how covariates are managed in `pmxsim`.
+Let's use a simple 1-compartment model to illustrate how covariates are managed by CAMPSIS.
 
 ```{r}
 model <- model_library$advan1_trans2
@@ -32,11 +32,9 @@ We will infuse 1000 mg with a rate of 200 mg/hour into the central compartment a
 The corresponding dataset is as follows:
 
 ```{r}
-getDataset <- function(subjects) {
-  ds <- Dataset(subjects)
-  ds <- ds %>% add(Infusion(time=0, amount=1000, rate=200))
-  ds <- ds %>% add(Observations(times=seq(0,24,by=0.5)))
-}
+dataset <- Dataset() %>%
+    add(Infusion(time=0, amount=1000, rate=200)) %>%
+    add(Observations(times=seq(0,24,by=0.5)))
 ```
 
 To visualise clearly the effect of the covariates, we will disable the inter-individual variability on the model.
@@ -50,8 +48,8 @@ model <- model %>% disable("IIV")
 Let's define a constant covariate into the dataset. This is done as follows.
 
 ```{r}
-ds <- getDataset(5)
-ds <- ds %>% add(Covariate("BW", 70))
+ds <- dataset %>% setSubjects(5) %>%
+  add(Covariate("BW", 70))
 ```
 
 All simulated subjects will be exacty the same, as IIV was removed.
@@ -66,8 +64,8 @@ spaghettiPlot(results, "CP")
 Let's now define 1 body weight per subject. This is done as follows.
 
 ```{r}
-ds <- getDataset(5)
-ds <- ds %>% add(Covariate("BW", c(50,60,70,80,90)))
+ds <- dataset %>% setSubjects(5) %>%
+  add(Covariate("BW", c(50,60,70,80,90)))
 ```
 
 Simulated subjects should now be different.
@@ -82,8 +80,8 @@ spaghettiPlot(results, "CP")
 Let's say now that the body weight is a uniform distribution. This can be implemented as follows:
 
 ```{r}
-ds <- getDataset(40)
-ds <- ds %>% add(Covariate("BW", UniformDistribution(min=50, max=90)))
+ds <- dataset %>% setSubjects(40) %>%
+  add(Covariate("BW", UniformDistribution(min=50, max=90)))
 ```
 
 Simulated weights will then be sampled from a uniform distribution with a min value of 50 and a max value of 90.
@@ -98,8 +96,8 @@ gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP
 Let's say now that the body weight is a normal distribution. This can be implemented as follows:
 
 ```{r}
-ds <- getDataset(40)
-ds <- ds %>% add(Covariate("BW", NormalDistribution(mean=70, sd=10)))
+ds <- dataset %>% setSubjects(40) %>%
+  add(Covariate("BW", NormalDistribution(mean=70, sd=10)))
 ```
 
 Simulated weights will then be sampled from a normal distribution with a mean of 70 and a standard deviation of 10.
@@ -114,8 +112,8 @@ gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP
 Say now that the body weight is a log-normal distribution. This can be implemented as follows:
 
 ```{r}
-ds <- getDataset(40)
-ds <- ds %>% add(Covariate("BW", LogNormalDistribution(meanlog=log(70), sdlog=0.2)))
+ds <- dataset %>% setSubjects(40) %>%
+  add(Covariate("BW", LogNormalDistribution(meanlog=log(70), sdlog=0.2)))
 ```
 
 Simulated weights will then be sampled from a log-normal distribution with a median of 70 and a coefficient of variation of 20%.
@@ -135,8 +133,8 @@ bootstrap <- data.frame(ID=c(1,2,3,4,5), BW=c(89,54,60,75,77))
 ```
 
 ```{r}
-ds <- getDataset(10)
-ds <- ds %>% add(Covariate("BW", BootstrapDistribution(data=bootstrap$BW, replacement=TRUE, random=TRUE)))
+ds <- dataset %>% setSubjects(10) %>%
+  add(Covariate("BW", BootstrapDistribution(data=bootstrap$BW, replacement=TRUE, random=TRUE)))
 ```
 
 Simulated weights will then be sampled from a log-normal distribution with a median of 70 and a coefficient of variation of 20%.

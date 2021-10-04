@@ -13,13 +13,13 @@ editor_options:
 library(campsis)
 ```
 
-There are 2 ways to implement a lag time in `pmxsim`:
+There are 2 ways to implement a lag time in CAMPSIS:
 
 * in the model: lag time is defined for each compartment
 * in the dataset: lag time is defined for each bolus or infusion
 
 In the first case, the simulation engine will take care of the lag time
-In the second case, `pmxsim` will adapt automatically the time of the dose(s)
+In the second case, CAMPSIS will adapt automatically the time of the dose(s)
 
 ### Lag time implemented in model
 
@@ -43,7 +43,7 @@ Now, let's add an equation to the drug model to define `ALAG1`.
 model <- model %>% add(Equation("ALAG1", "THETA_ALAG1*exp(ETA_ALAG1)"))
 ```
 
-Finally, we need to tell `pmxsim` that `ALAG1` corresponds to a lag time.
+Finally, we need to tell CAMPSIS that `ALAG1` corresponds to a lag time.
 
 ```{r}
 model <- model %>% add(LagTime(compartment=1, rhs="ALAG1"))
@@ -58,9 +58,9 @@ model
 Now, let's now give a simple bolus and simulate with and without `ALAG1`.
 
 ```{r}
-ds1 <- Dataset(50)
-ds1 <- ds1 %>% add(Bolus(time=0, amount=1000))
-ds1 <- ds1 %>% add(Observations(times=seq(0,24,by=0.5)))
+ds1 <- Dataset(50) %>%
+  add(Bolus(time=0, amount=1000)) %>%
+  add(Observations(times=seq(0,24,by=0.5)))
 ```
 
 
@@ -88,15 +88,15 @@ alagValues <- (distribution %>% sample(as.integer(50)))@sampled_values
 Then, we can inject them into the dataset.
 
 ```{r}
-ds2 <- Dataset(50)
-ds2 <- ds2 %>% add(Bolus(time=0, amount=1000, lag=alagValues))
-ds2 <- ds2 %>% add(Observations(times=seq(0,24,by=0.5)))
+ds2 <- Dataset(50) %>%
+  add(Bolus(time=0, amount=1000, lag=alagValues)) %>%
+  add(Observations(times=seq(0,24,by=0.5)))
 ```
 
 Here is an overview of the dataset in its table form if we filter on the doses:
 
 ```{r}
-ds2 %>% export(dest="RxODE") %>% dplyr::filter(EVID==1) %>% head()
+ds2 %>% export(dest="RxODE") %>% dosingOnly() %>% head()
 ```
 
 Let's now simulate this dataset using the original model.

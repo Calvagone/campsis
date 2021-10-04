@@ -13,7 +13,7 @@ editor_options:
 library(campsis)
 ```
 
-This vignette shows how initial conditions may be used in `pmxsim`.
+This vignette shows how initial conditions may be used in CAMPSIS.
 
 ### Init central compartment
 
@@ -39,16 +39,13 @@ model
 Let's now create a dataset with observations-only.
 
 ```{r}
-getDataset <- function() {
-  ds <- Dataset(50)
-  ds <- ds %>% add(Observations(times=seq(0,72, by=0.5)))
-  return(ds)
-}
+ds <- Dataset(50) %>%
+  add(Observations(times=seq(0,72, by=0.5)))
 ```
 
 We can now simulate this model:
 
 ```{r initial_condition , fig.align='center', fig.height=4, fig.width=8}
-results <- model %>% simulate(dataset=getDataset(), dest="RxODE", seed=1)
+results <- model %>% simulate(dataset=ds, dest="RxODE", seed=1)
 shadedPlot(results, "CP")
 ```

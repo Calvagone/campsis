@@ -24,12 +24,9 @@ In the example below, `BW` progressively decreases over time.
 model <- model_library$advan2_trans2
 model <- model %>% replace(Equation("CL", "THETA_CL*exp(ETA_CL)*pow(BW/70, 0.75)"))
 
-dataset <- Dataset(1)
-for (day in 0:2) {
-  dataset <- dataset %>% add(Bolus(time=day*24, amount=1000))
-}
-dataset <- dataset %>% add(Observations(times=seq(0,24*2, by=1)))
-dataset <- dataset %>% add(TimeVaryingCovariate("BW", 100))
+dataset <- Dataset(1) %>%
+  add(Bolus(time=c(0,24), amount=1000)) %>%
+  add(Observations(times=0:48)) %>% add(TimeVaryingCovariate("BW", 100))
 
 events <- Events()
 event1 <- Event(name="New weight of 60", times=15, fun=function(inits) {
@@ -54,13 +51,12 @@ For this first example of dose adaptation, we're going to adapt the dose based o
 ```{r event_dose_adaptation_ctrough, fig.align='center', fig.height=4, fig.width=8}
 model <- model_library$advan2_trans2
 
-dataset <- Dataset(10)
-days <- 7
-dataset <- dataset %>% add(Observations(times=seq(0,24*days, by=1)))
-dataset <- dataset %>% add(TimeVaryingCovariate("DOSE", 1500))
+dataset <- Dataset(10) %>%
+  add(Observations(times=0:168)) %>%
+  add(TimeVaryingCovariate("DOSE", 1500))
 
 events <- Events()
-event1 <- Event(name="Dose adaptation", times=(seq_len(days)-1)*24, fun=function(inits) {
+event1 <- Event(name="Dose adaptation", times=seq(0, 144, by=24), fun=function(inits) {
   inits$DOSE <- ifelse(inits$CP > 5, inits$DOSE*0.75, inits$DOSE)
   inits$A_DEPOT <- inits$A_DEPOT + inits$DOSE
   return(inits)

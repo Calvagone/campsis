@@ -39,13 +39,10 @@ See all methods that can be applied on a dataset:
 methods(class=class(ds))
 ```
 
-Let's take a closer look at the `add` method. The following method shows all classes that can be added to a dataset:
-
-```{r}
-showMethods("add", classes=class(ds))
-```
-
-In the next sections we'll see how we can add boluses and infusions, which are both treatment entries:
+Oh, this looks cool. There are plenty of functions to play with.  
+These functions will be illustrated little by little in the other vignettes.  
+  
+In the next sections below, we'll see how we can add boluses and infusions:
 
 ### Add a bolus
 
@@ -88,7 +85,7 @@ The default compartment is the first one. Although the compartment number is not
 ### Export dataset
 
 So far so good! The dataset contains 5 subjects, 1 bolus and 1 infusion.
-We are going to export it to a 2-dimensional table. This step is done AUTOMATICALLY by `pmxsim` when you simulate your model.
+We are going to export it to a 2-dimensional table. This step is implicitly done by CAMPSIS when you simulate your model.
 
 ```{r}
 table <- ds %>% export(dest="RxODE")
@@ -97,7 +94,7 @@ table
 
 A few explanations need to be given here regarding the following column names:
 
-* ID: this is the subject ID, it always starts at 1. ID's are consecutive in `pmxsim`
+* ID: this is the subject ID, it always starts at 1. ID's are consecutive in CAMPSIS
 * ARM: this is the ARM number. 0 is the default arm.
 * RATE: the RATE column (0 for boluses, -1/-2 for a rate/infusion defined in the model, NA when no information is available)
 * DOSENO: the dose number. Doses (boluses and infusions) are numbered according to the time they occur.
@@ -109,8 +106,8 @@ Instead of using the default arm (0) in the dataset, several arms can be created
 To illustrate this, let's create a dataset with two arms.
 
 ```{r}
-arm1 <- Arm(id=1, subjects=2)
-arm2 <- Arm(id=2, subjects=3)
+arm1 <- Arm(subjects=2)
+arm2 <- Arm(subjects=3)
 ```
 
 Let's create 2 different treatments:

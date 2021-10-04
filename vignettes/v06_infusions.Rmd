@@ -13,13 +13,13 @@ editor_options:
 library(campsis)
 ```
 
-There are 2 ways to implement infusions in `pmxsim`:
+There are 2 ways to implement infusions in CAMPSIS:
 
 * in the model: infusion duration or rate is defined for each compartment
 * in the dataset: infusion duration or rate is defined for infusion
 
 In the first case, the simulation engine will take care of the infusion duration or rate (RATE in dataset will be -1 or -2).
-In the second case, `pmxsim` will inject specific values in the RATE column of the dataset.
+In the second case, CAMPSIS will inject specific values in the RATE column of the dataset.
 
 ### Infusion duration or rate implemented in model
 
@@ -43,7 +43,7 @@ Now, let's add an equation to the drug model to define `D1`.
 model <- model %>% add(Equation("D1", "THETA_D1*exp(ETA_D1)"))
 ```
 
-Finally, we need to tell `pmxsim` that `D1` corresponds the infusion duration for the first compartment.
+Finally, we need to tell CAMPSIS that `D1` corresponds the infusion duration for the first compartment.
 
 ```{r}
 model <- model %>% add(InfusionDuration(compartment=1, rhs="D1"))
@@ -58,9 +58,9 @@ model
 Now, let's infuse 1000 mg and run the simulation.
 
 ```{r}
-ds1 <- Dataset(50)
-ds1 <- ds1 %>% add(Infusion(time=0, amount=1000))
-ds1 <- ds1 %>% add(Observations(times=seq(0,24,by=0.5)))
+ds1 <- Dataset(50) %>% 
+  add(Infusion(time=0, amount=1000)) %>%
+  add(Observations(times=seq(0,24,by=0.5)))
 ```
 
 
@@ -87,15 +87,15 @@ d1Values <- (distribution %>% sample(as.integer(50)))@sampled_values
 Then, we can inject them into the dataset.
 
 ```{r}
-ds2 <- Dataset(50)
-ds2 <- ds2 %>% add(Infusion(time=0, amount=1000, duration=d1Values))
-ds2 <- ds2 %>% add(Observations(times=seq(0,24,by=0.5)))
+ds2 <- Dataset(50) %>%
+  add(Infusion(time=0, amount=1000, duration=d1Values)) %>%
+  add(Observations(times=seq(0,24,by=0.5)))
 ```
 
 Here is an overview of the dataset in its table form if we filter on the doses:
 
 ```{r}
-ds2 %>% export(dest="RxODE") %>% dplyr::filter(EVID==1) %>% head()
+ds2 %>% export(dest="RxODE") %>% dosingOnly() %>% head()
 ```
 
 Let's now simulate this dataset using the original model.

@@ -59,10 +59,12 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
   if (hasId) {
     if (length(scenarios) > 0) {
       colour <- paste0(scenarios, collapse = ":")
+      group <- paste0("interaction(", paste0(c("ID", scenarios), collapse=","), ")")
     } else {
       colour <- NULL
+      group <- "ID"
     }
-    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="TIME", y=output, group="ID", colour=colour)) +
+    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="TIME", y=output, group=group, colour=colour)) +
       ggplot2::geom_line()
   } else {
     plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="TIME", y=output)) +

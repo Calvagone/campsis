@@ -56,7 +56,7 @@ jobs:
           install.packages("tidyr")
           
           install.packages('devtools')
-          devtools::install_github("Calvagone/campsismod", ref="develop", auth_token="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", force=TRUE)
+          devtools::install_github("Calvagone/campsismod", ref="develop", auth_token="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", force=TRUE)
           
           install.packages('bookdown')
           install.packages('knitr')

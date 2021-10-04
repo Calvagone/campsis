@@ -28,3 +28,16 @@ test_that("getIOVNames method works well", {
   arm <- arm %>% add(IOV(colname="IOV_KA", distribution=NormalDistribution(mean=0, sd=0.1)))
   expect_equal(arm %>% getIOVNames(), c("IOV_KA"))
 })
+
+test_that("Set subjects works as expected", {
+  arm <- Arm(subjects=5)
+  arm <- arm %>% setSubjects(2)
+  expect_equal(arm %>% length(), 2)
+})
+
+test_that("Set label works as expected", {
+  arm <- Arm(subjects=5, label="Old label")
+  arm <- arm %>% setLabel("New label")
+  expect_equal(arm@label, "New label")
+})
+

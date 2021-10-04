@@ -1,0 +1,54 @@
+---
+title: "Simple dose adaptations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Simple dose adaptations}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(campsis)
+```
+
+This vignette shows how simple dose adaptations can be implemented.
+
+### Adapt the dose based on a covariate
+
+Assume that your drug needs to be dosed according to the subject's weight, for instance 0.5 mg per kg. To illustrate this, let's use our 2-compartment PK model with absorption compartment.
+
+```{r}
+model <- model_library$advan4_trans4
+```
+
+We're going to create a dataset with 4 individuals, weighing respectively 40, 60, 80 and 100 kg.
+
+```{r}
+dataset <- Dataset(4) %>%
+  add(Bolus(time=0, amount=0.5)) %>% # 0.5mg / kg
+  add(Observations(times=0:24)) %>%
+  add(Covariate("WT", c(40, 60, 80, 100)))
+```
+
+Our dataset is almost ready. We just have to define the dose adaptation formula. This is done as follows:
+
+```{r}
+dataset <- dataset %>% add(DoseAdaptation("AMT*WT"))
+```
+
+Let's simulate this simple dataset. In order to check that the dose adaptation formula was well applied, we set the argument `dosing` to TRUE. Dosing rows will then be returned.
+
+```{r dose_adaptation_bw , fig.align='center', fig.height=4, fig.width=8}
+results <- model %>% disable("IIV") %>% simulate(dataset=dataset, dosing=TRUE, seed=1)
+spaghettiPlot(results, "CP", "ID")
+```
+
+Let's now have a look at the dosing information which is returned.
+
+```{r}
+results %>% dosingOnly()
+```
+
+This looks great! The respective amounts that were given are indeed 20, 30, 40 and 50 mg!
