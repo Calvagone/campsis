@@ -64,7 +64,7 @@ getEventIterations <- function(events, maxTime) {
 #' @param table whole table, data frame
 #' @param iteration current iteration being processed
 #' @param summary dataset summary
-#' @importFrom dplyr all_of group_by left_join mutate row_number
+#' @importFrom dplyr all_of group_by left_join mutate row_number ungroup
 #' @keywords internal
 #' 
 cutTableForEvent <- function(table, iteration, summary) {
@@ -92,5 +92,5 @@ cutTableForEvent <- function(table, iteration, summary) {
   # Substract starting time to start at 0
   table_$TIME <- table_$TIME - start
   
-  return(table_)
+  return(table_ %>% dplyr::ungroup())
 }
