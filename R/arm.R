@@ -257,6 +257,7 @@ setMethod("replace", signature = c("arm", "covariate"), definition = function(ob
 #----                             setLabel                                  ----
 #_______________________________________________________________________________
 
+#' @rdname setLabel
 setMethod("setLabel", signature = c("arm", "character"), definition = function(object, x) {
   object@label <- x
   validObject(object)
@@ -267,6 +268,7 @@ setMethod("setLabel", signature = c("arm", "character"), definition = function(o
 #----                           setSubjects                                 ----
 #_______________________________________________________________________________
 
+#' @rdname setSubjects
 setMethod("setSubjects", signature = c("arm", "integer"), definition = function(object, x) {
   object@subjects <- x
   validObject(object)

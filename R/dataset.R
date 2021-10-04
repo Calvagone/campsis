@@ -184,6 +184,7 @@ setMethod("replace", signature = c("dataset", "pmx_element"), definition = funct
 #----                           setSubjects                                 ----
 #_______________________________________________________________________________
 
+#' @rdname setSubjects
 setMethod("setSubjects", signature = c("dataset", "integer"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()

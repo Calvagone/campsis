@@ -10,10 +10,10 @@ test_that("Example of scenario list works as expected", {
     add(Scenario(model=~.x %>% replace(Theta("KA", value=3))))
   
   expect_equal(scenarios %>% length(), 4)
-  expect_equal((scenarios %>% getByIndex(1))@name, "Scenario 1")
-  expect_equal((scenarios %>% getByIndex(2))@name, "Scenario 2")
-  expect_equal((scenarios %>% getByIndex(3))@name, "Scenario 3")
-  expect_equal((scenarios %>% getByIndex(4))@name, "Scenario 4")
+  expect_equal(scenarios %>% getByIndex(1) %>% .@name, "Scenario 1")
+  expect_equal(scenarios %>% getByIndex(2) %>% .@name, "Scenario 2")
+  expect_equal(scenarios %>% getByIndex(3) %>% .@name, "Scenario 3")
+  expect_equal(scenarios %>% getByIndex(4) %>% .@name, "Scenario 4")
   
   
   modelRef <- model_library$advan2_trans2
