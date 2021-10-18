@@ -108,10 +108,10 @@ gridExtra::grid.arrange(shadedPlot(results, "CP"), shadedPlot(results, "A_CIRC")
 
 ### Indirect-response model
 
-Load the indirect-response model (IRM) from the model library:
+Load one of the 4 indirect-response model (IRM) present in the model library:
 
 ```{r}
-pd <- model_library$irm_kin_stimulation
+pd <- model_library$irm_kout_inhibition
 pd
 ```
 
