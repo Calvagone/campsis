@@ -7,7 +7,11 @@ checkObservations <- function(object) {
   check1 <- expectOneOrMore(object, "times")
   check2 <- expectPositiveValues(object, "times")
   check3 <- expectOne(object, "compartment")
-  return(c(check1, check2, check3))
+  check4 <- character()
+  if (object@dv %>% length() > 0 && object@dv %>% length() != object@times %>% length()) {
+    check4 <- "Slots 'times' and dv' don't have the same length"
+  }
+  return(c(check1, check2, check3, check4))
 }
 
 #' 
@@ -15,15 +19,17 @@ checkObservations <- function(object) {
 #' 
 #' @slot times observation times, numeric vector
 #' @slot compartment compartment index, integer
+#' @slot dv observed values, numeric vector (FOR EXTERNAL USE)
 #' @export
 setClass(
   "observations",
   representation(
     times = "numeric",
-    compartment = "integer"
+    compartment = "integer",
+    dv="numeric"
   ),
   contains = "pmx_element",
-  prototype = prototype(compartment=as.integer(NA)),
+  prototype = prototype(compartment=as.integer(NA), dv=numeric(0)),
   validity = checkObservations
 )
 
@@ -76,6 +82,7 @@ setMethod("sample", signature = c("observations", "integer"), definition = funct
   config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
   ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
   armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
+  needsDV <- processExtraArg(args, name="needsDV", mandatory=TRUE, default=FALSE)
   
   if (is.na(object@compartment)) {
     obsCmt <- config@def_obs_cmt
@@ -83,6 +90,18 @@ setMethod("sample", signature = c("observations", "integer"), definition = funct
     obsCmt <- object@compartment
   }
   isEventRelated <- is(object, "event_related_observations")
-  return(tibble::tibble(ID=rep(ids, each=length(object@times)), ARM=as.integer(armID), TIME=rep(object@times, n), EVID=as.integer(0), MDV=as.integer(0),
-                    AMT=as.numeric(NA), CMT=obsCmt, RATE=as.numeric(0), DOSENO=as.integer(NA), IS_INFUSION=as.logical(NA), EVENT_RELATED=as.integer(isEventRelated)))
+  retValue <- tibble::tibble(
+    ID=rep(ids, each=length(object@times)), ARM=as.integer(armID), TIME=rep(object@times, n),
+    EVID=as.integer(0), MDV=as.integer(0), AMT=as.numeric(NA), CMT=obsCmt, RATE=as.numeric(0), DOSENO=as.integer(NA),
+    IS_INFUSION=as.logical(NA), EVENT_RELATED=as.integer(isEventRelated)
+  )
+  if (needsDV) {
+    if (object@dv %>% length() > 0) {
+      dv <- object@dv
+    } else {
+      dv <- rep(as.numeric(0), object@times %>% length())
+    }
+    retValue <- retValue %>% tibble::add_column(DV=rep(dv, n), .before="IS_INFUSION")
+  }
+  return(retValue)
 })
