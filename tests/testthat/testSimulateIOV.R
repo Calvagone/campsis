@@ -154,7 +154,7 @@ test_that("Simulate IOV on ALAG1 (this test always fails with RxODE version > 1.
   
   startTimes <- c(0,24,47) # 47,48 NOT WORKING WITH MRGSOLVE LOCF
   for (startTime in startTimes) {
-    cat(startTime)
+    #cat(startTime)
     obsTimes <- seq(startTime, 72, by=1)
     dataset <- getDataset(model, obsTimes)
   
@@ -166,7 +166,7 @@ test_that("Simulate IOV on ALAG1 (this test always fails with RxODE version > 1.
     table_rxode <- dataset %>% export(dest="RxODE", model=model, seed=seed, nocb=FALSE)
     table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, nocb=FALSE)
     
-    # Bug in RxODE 1.1.0
+    # Bug in RxODE 1.1.0/1.1.1
     # Time 0 is added while it should not
     if (startTime != 0) {
       results1a <- results1a %>% dplyr::filter(TIME != 0)
@@ -242,7 +242,7 @@ test_that("Simulate IOV on F1", {
   
   startTimes <- c(0,24,47) # 47,48 NOT WORKING WITH MRGSOLVE LOCF
   for (startTime in startTimes) {
-    cat(startTime)
+    #cat(startTime)
     obsTimes <- seq(startTime, 72, by=1)
     dataset <- Dataset(3)
     dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
