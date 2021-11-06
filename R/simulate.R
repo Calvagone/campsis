@@ -200,9 +200,14 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
   outer <- scenarios@list %>% purrr::map_df(.f=function(scenario) {
     model <- model %>% applyScenario(scenario)
     dataset <- dataset %>% applyScenario(scenario)
+    # Make short summary of dataset
+    summary <- NULL
+    if (is(dataset, "dataset")) {
+      summary <- toDatasetSummary(dataset)
+    }
     inner <- simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
                                     tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                    nocb=nocb, dosing=dosing, replicate=replicate, iterations=iterations, ...)
+                                    nocb=nocb, dosing=dosing, replicate=replicate, iterations=iterations, summary=summary, ...)
     if (scenarios %>% length() > 1) {
       inner <- inner %>% tibble::add_column(SCENARIO=scenario@name, .before="ARM")
     }
@@ -249,8 +254,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
 setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "logical"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   campsis <- simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
-                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing,
-                               summary=toDatasetSummary(dataset), ...)
+                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing, ...)
   return(processArmLabels(campsis, dataset@arms))
 })
 
