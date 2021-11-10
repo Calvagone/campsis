@@ -138,11 +138,8 @@ vpcPlotDelegate <- function(summary) {
   summary.up <- summary %>% dplyr::filter(metric=="up")
   
   plot <- ggplot2::ggplot(summary.med, ggplot2::aes(x=TIME, y=med)) +
-    ggplot2::geom_line(color="red", size=0.7) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), alpha=0.15, color=NA, fill="red") +
-    ggplot2::geom_line(data=summary.low, color="red", lty="dashed", size=0.7) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), data=summary.low, alpha=0.15, color=NA, fill="blue") +
-    ggplot2::geom_line(data=summary.up, color="red", lty="dashed", size=0.7) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), data=summary.up, alpha=0.15, color=NA, fill="blue") +
     ggplot2::ylab("")
   return(plot)
