@@ -196,13 +196,29 @@ processArmLabels <- function(campsis, arms) {
 #' 
 simulateScenarios <- function(scenarios, model, dataset, dest, events,
                               tablefun, outvars, outfun, seed, replicates,
-                              nocb, dosing, replicate, iterations, ...) {
+                              nocb, dosing, replicate, ...) {
   outer <- scenarios@list %>% purrr::map_df(.f=function(scenario) {
     model <- model %>% applyScenario(scenario)
     dataset <- dataset %>% applyScenario(scenario)
+    
+    # Validate CAMPSIS model in depth
+    validObject(model, complete=TRUE)
+    
+    # Validate CAMPSIS dataset in depth (btw, validObject also works on non S4 objects)
+    validObject(dataset, complete=TRUE)
+    
+    maxTime <- getDatasetMaxTime(dataset)
+    iterations <- getEventIterations(events, maxTime=maxTime)
+    
+    # Make short summary of dataset
+    if (is(dataset, "dataset")) {
+      summary <- toDatasetSummary(dataset)
+    } else {
+      summary <- DatasetSummary() # Default
+    }
     inner <- simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
                                     tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                    nocb=nocb, dosing=dosing, replicate=replicate, iterations=iterations, ...)
+                                    nocb=nocb, dosing=dosing, replicate=replicate, iterations=iterations, summary=summary, ...)
     if (scenarios %>% length() > 1) {
       inner <- inner %>% tibble::add_column(SCENARIO=scenario@name, .before="ARM")
     }
@@ -217,20 +233,16 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @keywords internal
 #' 
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
-  # Validate CAMPSIS model in depth
-  validObject(model, complete=TRUE)
-  
-  # Validate CAMPSIS dataset in depth (btw, validObject also works on non S4 objects)
-  validObject(dataset, complete=TRUE)
-  
-  maxTime <- getDatasetMaxTime(dataset)
-  iterations <- getEventIterations(events, maxTime=maxTime)
-  
+  # Single replicate: don't use parameter uncertainty
   if (replicates==1) {
     return(simulateScenarios(scenarios=scenarios, model=model, dataset=dataset, dest=dest, events=events,
                              tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                             nocb=nocb, dosing=dosing, replicate=1, iterations=iterations, ...))
+                             nocb=nocb, dosing=dosing, replicate=1, ...))
+  # More than 1 replicate: parameter uncertainty enabled
   } else {
+    # First make sure CAMPSIS model is valid
+    validObject(model, complete=TRUE)
+    
     # Get as many models as replicates
     parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
     setSeed(parameterSamplingSeed)
@@ -240,7 +252,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
       return(simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
                                tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                               nocb=nocb, dosing=dosing, replicate=replicate, iterations=iterations, ...))
+                               nocb=nocb, dosing=dosing, replicate=replicate, ...))
     }, .id="replicate") %>% dplyr::mutate(replicate=as.integer(replicate)))
   }
 }
@@ -249,8 +261,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
 setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "logical"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   campsis <- simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
-                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing,
-                               summary=toDatasetSummary(dataset), ...)
+                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing, ...)
   return(processArmLabels(campsis, dataset@arms))
 })
 

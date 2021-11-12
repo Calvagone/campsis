@@ -364,7 +364,8 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     ids <- seq_len(subjects) + maxID - subjects
     
     # Create the base table with all treatment entries and observations
-    table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID))
+    needsDV <- observations@list %>% purrr::map_lgl(~.x@dv %>% length() > 0) %>% any()
+    table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID, needsDV=needsDV))
     table <- table %>% dplyr::arrange(ID, TIME, EVID)
     
     # Sampling covariates

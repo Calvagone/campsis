@@ -13,5 +13,7 @@ Observations class.
 \item{\code{times}}{observation times, numeric vector}
 
 \item{\code{compartment}}{compartment index, integer}
+
+\item{\code{dv}}{observed values, numeric vector (FOR EXTERNAL USE)}
 }}
 

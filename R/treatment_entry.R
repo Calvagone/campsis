@@ -184,6 +184,7 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
   ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
   armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
+  needsDV <- processExtraArg(args, name="needsDV", mandatory=TRUE, default=FALSE)
   f <- sampleTrtDistribution(object@f, n, default=1)
   lag <- sampleTrtDistribution(object@lag, n, default=0)
   
@@ -192,9 +193,16 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   } else {
     depotCmt <- object@compartment
   }
-
-  return(tibble::tibble(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
-                    AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number, IS_INFUSION=FALSE, EVENT_RELATED=as.integer(FALSE)))
+  
+  retValue <- tibble::tibble(
+    ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, 
+    EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number,
+    IS_INFUSION=FALSE, EVENT_RELATED=as.integer(FALSE)
+  )
+  if (needsDV) {
+    retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="IS_INFUSION")
+  }
+  return(retValue)
 })
 
 #' @rdname sample
@@ -203,6 +211,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
   ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
   armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
+  needsDV <- processExtraArg(args, name="needsDV", mandatory=TRUE, default=FALSE)
   f <- sampleTrtDistribution(object@f, n, default=1)
   lag <- sampleTrtDistribution(object@lag, n, default=0)
   
@@ -212,8 +221,11 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   } else {
     depotCmt <- object@compartment
   }
-  retValue <- tibble::tibble(ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, EVID=as.integer(1), MDV=as.integer(1),
-                         AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number, IS_INFUSION=TRUE, EVENT_RELATED=as.integer(FALSE))
+  retValue <- tibble::tibble(
+    ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, 
+    EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number,
+    IS_INFUSION=TRUE, EVENT_RELATED=as.integer(FALSE)
+  )
   
   # Duration or rate
   if (!is(object@duration, "undefined_distribution")) {
@@ -223,7 +235,9 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
     rate <- sampleTrtDistribution(object@rate, n, default=0)
     retValue <- retValue %>% dplyr::mutate(RATE=rate)
   }
-  
+  if (needsDV) {
+    retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="IS_INFUSION")
+  }
   return(retValue)
 })
 
