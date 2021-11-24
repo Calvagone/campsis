@@ -4,14 +4,16 @@
 \alias{vpcPlot}
 \title{VPC plot (1 plot per scenario).}
 \usage{
-vpcPlot(x, scenarios = NULL, level = 0.9)
+vpcPlot(x, scenarios = NULL, level = 0.9, alpha = 0.15)
 }
 \arguments{
-\item{x}{data frame, output of pmxsim with replicates}
+\item{x}{data frame, output of CAMPSIS with replicates}
 
 \item{scenarios}{scenarios, character vector, NULL is default}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
+
+\item{alpha}{alpha parameter (transparency) given to geom_ribbon}
 }
 \value{
 plot

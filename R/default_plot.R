@@ -79,10 +79,11 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
 #' @param output variable to show
 #' @param scenarios scenarios
 #' @param level PI level, default is 0.9 (90\% PI)
+#' @param alpha alpha parameter (transparency) given to geom_ribbon
 #' @return plot
-#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon
+#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon ylab
 #' @export
-shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
+shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
   x <- PI(x=x %>% obsOnly(), output=output, scenarios=scenarios, level=level, gather=FALSE)
   if (length(scenarios) > 0) {
     colour <- paste0(scenarios, collapse = ":")
@@ -91,57 +92,32 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90) {
   }
   plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes_string(x="TIME", colour=colour)) +
     ggplot2::geom_line(ggplot2::aes(y=med)) +
-    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low", ymax="up", colour=colour, fill=colour), colour=NA, alpha=0.25)
+    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low", ymax="up", colour=colour, fill=colour), colour=NA, alpha=alpha)
   plot <- plot + ggplot2::ylab(output)
   return(plot)
 }
 
 #' VPC plot (1 plot per scenario).
 #' 
-#' @param x data frame, output of pmxsim with replicates
+#' @param x data frame, output of CAMPSIS with replicates
 #' @param scenarios scenarios, character vector, NULL is default
 #' @param level PI level, default is 0.9 (90\% PI)
+#' @param alpha alpha parameter (transparency) given to geom_ribbon
 #' @return plot
-#' @importFrom dplyr filter_at pull
+#' @importFrom dplyr all_of
+#' @importFrom ggplot2 aes facet_wrap ggplot ylab
 #' @export
-vpcPlot <- function(x, scenarios=NULL, level=0.90) {
+vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
   if (length(scenarios) > 1) {
     stop("Currently max 1 scenario allowed")
   }
-  x <- VPC(x=x %>% obsOnly(), scenarios=scenarios, level=level)
+  summary <- VPC(x=x, scenarios=scenarios, level=level)
 
-  if (length(scenarios) == 0) {
-    retValue <- vpcPlotDelegate(x)
-  } else {
-    retValue <- list()
-    scenario <- scenarios[1]
-    values <- unique(x %>% dplyr::pull(scenario)) %>% as.character()
-    for (valueIndex in seq_along(values)) {
-      value <- values[valueIndex]
-      retValue[[valueIndex]] <- vpcPlotDelegate(x %>% dplyr::filter_at(.vars=scenario, .vars_predicate=~.x==value))
-    }
-  }
-  
-  return(retValue)
-}
-
-#' VPC plot delegate.
-#' 
-#' @param summary from vpcPlot
-#' @return plot
-#' @importFrom ggplot2 aes ggplot geom_line geom_ribbon ylab
-#' @keywords internal
-#' 
-vpcPlotDelegate <- function(summary) {
-  summary.low <- summary %>% dplyr::filter(metric=="low")
-  summary.med <- summary %>% dplyr::filter(metric=="med")
-  summary.up <- summary %>% dplyr::filter(metric=="up")
-  
-  plot <- ggplot2::ggplot(summary.med, ggplot2::aes(x=TIME, y=med)) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), alpha=0.15, color=NA, fill="red") +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), data=summary.low, alpha=0.15, color=NA, fill="blue") +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=low, ymax=up), data=summary.up, alpha=0.15, color=NA, fill="blue") +
+  plot <- ggplot2::ggplot(summary, ggplot2::aes(x=TIME, group=scenarios)) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=med_low, ymax=med_up), alpha=alpha, color=NA, fill="red") +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=low_low, ymax=low_up), alpha=alpha, color=NA, fill="blue") +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=up_low, ymax=up_up), alpha=alpha, color=NA, fill="blue") +
     ggplot2::ylab("")
+  
   return(plot)
 }
-

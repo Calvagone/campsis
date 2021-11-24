@@ -46,10 +46,13 @@ PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
 #' @param x data frame
 #' @param scenarios scenarios, character vector, NULL is default
 #' @param level PI level, default is 0.9 (90\% PI)
-#' @return VPC summary
+#' @importFrom tidyr pivot_wider
+#' @return VPC summary with columns TIME, <scenarios> and all combinations of 
+#' low, med, up (i.e. low_low, low_med, low_up, etc.) 
 #' @export
 VPC <- function(x, scenarios=NULL, level=0.90) {
-  x <- factorScenarios(x, scenarios=scenarios)
-  retValue <- PI(x=x, output="value", scenarios=c("metric", scenarios), level=level, gather=FALSE)
-  return(retValue)
+  x_ <- factorScenarios(x, scenarios=scenarios)
+  retValue <- PI(x=x_, output="value", scenarios=c("metric", scenarios), level=level, gather=FALSE)
+  retValue_ <- retValue %>% tidyr::pivot_wider(names_from=metric, names_glue="{metric}_{.value}", values_from=c(low, med, up))
+  return(retValue_)
 }

@@ -4,7 +4,7 @@
 \alias{shadedPlot}
 \title{Shaded plot (or prediction interval plot).}
 \usage{
-shadedPlot(x, output, scenarios = NULL, level = 0.9)
+shadedPlot(x, output, scenarios = NULL, level = 0.9, alpha = 0.25)
 }
 \arguments{
 \item{x}{data frame}
@@ -14,6 +14,8 @@ shadedPlot(x, output, scenarios = NULL, level = 0.9)
 \item{scenarios}{scenarios}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
+
+\item{alpha}{alpha parameter (transparency) given to geom_ribbon}
 }
 \value{
 plot
