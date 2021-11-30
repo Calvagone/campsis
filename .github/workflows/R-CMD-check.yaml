@@ -63,6 +63,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          install.packages('devtools')
           devtools::install_github("Calvagone/campsismod", ref="develop")
           remotes::install_deps(dependencies=TRUE)
           remotes::install_cran("rcmdcheck")
