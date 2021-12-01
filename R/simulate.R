@@ -473,11 +473,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   # Retrieve simulation config
   config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, dosing=dosing, ...)
   
-  # Export PMX model to RxODE
+  # Retrieve mrgsolve model
   mrgmod <- config$engineModel
   
   # Disable IIV in mrgsolve model
-  mrgmod@omega <- character(0) # IIV managed by pmxsim
+  mrgmod@omega <- character(0) # IIV managed by CAMPSIS
   
   # Declare all ETA's in the PARAM block
   omegas <- rxodeMatrix(model, type="omega")

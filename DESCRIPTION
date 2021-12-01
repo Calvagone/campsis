@@ -37,11 +37,11 @@ Collate:
     'results_processing.R'
     'default_plot.R'
 Title: CAMPSIS package
-Version: 1.0.0
+Version: 1.0.1
 Authors@R: c(
   person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
   )
-Description: TODO.
+Description: A generic PK/PD simulation platform based on RxODE and mrgsolve engines
 Depends: R (>= 4.0.0), campsismod
 Imports: assertthat, dplyr, ggplot2, MASS, plyr, purrr, rlang, tibble, tidyr
 License: file LICENSE

@@ -63,32 +63,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          install.packages("assertthat")
-          install.packages("dplyr")
-          install.packages("ggplot2")
-          install.packages("MASS")
-          install.packages("plyr")
-          install.packages("purrr")
-          install.packages("rlang")
-          install.packages("tibble")
-          install.packages("tidyr")
-          
-          install.packages('devtools')
-          devtools::install_github("Calvagone/campsismod", ref="develop", auth_token="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", force=TRUE)
-          
-          install.packages('bookdown')
-          install.packages('knitr')
-          install.packages('gridExtra')
-          install.packages('stringr')
-          install.packages('pkgdown')
-          install.packages('rmarkdown')
-          install.packages('roxygen2')
-          install.packages('testthat')
-          
-          install.packages('mrgsolve')
-          install.packages('RxODE')
-          
-          remotes::install_deps(dependencies=FALSE)
+          remotes::install_github("Calvagone/campsismod", ref="develop")
+          remotes::install_deps(dependencies=TRUE)
           remotes::install_cran("rcmdcheck")
         shell: Rscript {0}
 

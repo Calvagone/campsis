@@ -48,9 +48,8 @@ test_that("VPC on both CP and Y (function)", {
   ds <- ds %>% add(Observations(times=seq(0, 3*24, by=4)))
 
   results1 <- model %>% simulate(dataset=ds, dest="RxODE", replicates=5, outfun=fun, seed=seed)
-  plots1 <- vpcPlot(results1, scenarios="output")
-  plots1[[1]]
-  plots1[[2]]
+  vpcPlot(results1, scenarios="output") + facet_wrap(~output)
+
   # vpcOutputRegressionTest(results1, output="Y", filename=regFilename) # Not a good test because seed is controlled by RxODE
   vpcOutputRegressionTest(results1, output="CP", filename=regFilename)
 })

@@ -17,72 +17,51 @@ This vignette intends to demonstrate that CAMPSIS can be used to implement almos
 
 ### Filgrastim PK/PD model
 
-Load the filgrastim PK/PD model from the model library as follows. Please note that this model was translated from NONMEM code. The original model file can be found [here](http://repository.ddmore.eu/model/DDMODEL00000077) on the DDMORE repository.
+Load the filgrastim PK/PD model from the model library as follows. Please note that this model was translated from NONMEM code. The original model file can be found [here](http://repository.ddmore.eu/model/DDMODEL00000077) on the DDMORE repository. Eventually, this model was updated with the final parameters from the corresponding publication ([Krzyzanski et al., 2010](https://pubmed.ncbi.nlm.nih.gov/20881223/)).
 
 ```{r}
-pkpd <- model_library$filgrastim_pkpd_model
+pkpd <- model_library$filgrastim_pkpd_krzyzanski
 pkpd
 ```
 
-Let's create a fictive cohort of 25 subjects receiving filgrastim 10 μg/kg for a week following subcutaneous administration.
+Let's create a simple demonstration dataset of 250 subjects:
 
 ```{r}
-dataset <- Dataset(25) %>% 
-  add(Bolus(time=0, amount=10, compartment=1, ii=24, addl=6)) %>% 
-  add(Infusion(time=0, amount=10, compartment=2, ii=24, addl=6)) %>%
-  add(Observations(times=0:168)) %>%
-  add(Covariate("ROUT", 0)) %>%
+baseDataset <- Dataset(250) %>% 
   add(Covariate("BAS", 0.02)) %>%
-  add(Covariate("WT", UniformDistribution(60,80))) %>%
-  add(DoseAdaptation("WT*AMT"))
+  add(Covariate("WT", UniformDistribution(50, 100))) %>%
+  add(DoseAdaptation("WT*AMT")) %>% # per kilo dosing
+  add(Observations(0:216)) %>%
+  add(Covariate("ROUT", 0)) # subcutaneous route (SC)
+```
+
+Assume we want to compare the following subcutaneous administrations of filgrastim:
+
+- 2.5 μg/kg QD for a week
+- 5 μg/kg QD for a week
+- 10 μg/kg QD for a week
+
+We define the following scenarios:
+
+```{r}
+scenarios <- Scenarios() %>% 
+  add(Scenario("2.5 μg/kg SC", dataset=~.x %>% add(Bolus(time=0, amount=2.5, compartment=1, ii=24, addl=6)))) %>%
+  add(Scenario("5 μg/kg SC", dataset=~.x %>% add(Bolus(time=0, amount=5, compartment=1, ii=24, addl=6)))) %>%
+  add(Scenario("10 μg/kg SC", dataset=~.x %>% add(Bolus(time=0, amount=10, compartment=1, ii=24, addl=6))))
 ```
 
 A quick simulation gives us the plasma concentration of filgrastim, as well as the absolute neutrophil count (ANC):
 
-```{r filgrastim_pkpd_model, fig.align='center', fig.height=7, fig.width=8}
-results <- pkpd %>% simulate(dataset=dataset, seed=1)
+```{r filgrastim_pkpd_model, fig.align='center', fig.height=6, fig.width=8}
+library(ggplot2)
 
-p1 <- spaghettiPlot(results, "ZCP") + ggplot2::ylab("G-CSF Serum Concentration (ng/mL)")
-p2 <- spaghettiPlot(results, "ZNB") + ggplot2::ylab("ANC (10^3 cells/μL)")
+results <- pkpd %>% simulate(dataset=baseDataset, scenarios=scenarios, seed=1)
+results <- results %>% dplyr::mutate(SCENARIO=factor(SCENARIO, levels=unique(SCENARIO)))
 
-gridExtra::grid.arrange(p1, p2, ncol=1)
-```
+p1 <- shadedPlot(results, "CP", "SCENARIO") + facet_wrap(~SCENARIO) +
+  scale_y_log10(breaks=c(.01,.1,1,10,100)) + ylab("G-CSF Serum Concentration (ng/mL)")
+p2 <- shadedPlot(results, "A_14", "SCENARIO") + facet_wrap(~SCENARIO) + 
+  ylab("ANC (10^3 cells/μL)")
 
-### Target mediated drug disposition Model of CPHPC
-
-Load the target mediated drug disposition Model of CPHPC from the model library as follows. Please note that this model was translated from NONMEM code. The original model file can be found [here](http://repository.ddmore.foundation/model/DDMODEL00000262) on the DDMORE repository.
-
-```{r}
-pkpd <- model_library$cphpc_pkpd_model
-pkpd
-```
-
-Let's create 3 fictive cohorts of 25 subjects each, all receiving a 1-hour infusion of 10 mg CPHPC.
-
-```{r}
-arm <- Arm(subjects=25) %>% 
-  add(Infusion(time=0, amount=10, duration=1)) %>%
-  add(Observations(times=seq(0.1,24,by=0.1)))
-
-arm1 <- arm %>% add(Covariate("CRCL", UniformDistribution(80,120))) %>% setLabel("Normal renal function")
-arm2 <- arm %>% add(Covariate("CRCL", UniformDistribution(50,80))) %>% setLabel("Mild renal impairment")
-arm3 <- arm %>% add(Covariate("CRCL", UniformDistribution(30,50))) %>% setLabel("Moderate renal impairment")
-dataset <- Dataset() %>% add(c(arm1, arm2, arm3)) 
-```
-
-A quick simulation gives us the concentration of CPHPC over 24 hours, as well as the concentration in serum amyloid P (SAP), for each cohort:
-
-```{r cphpc_sas_pkpd_model, fig.align='center', fig.height=7, fig.width=8}
-results <- pkpd %>% simulate(dataset=dataset, seed=1)
-
-# Reorder ARM labels
-results <- results %>% dplyr::mutate(ARM=factor(ARM, levels=c("Normal renal function", "Mild renal impairment", "Moderate renal impairment")))
-
-# Unit conversion
-results <- results %>% dplyr::mutate(C1=C1*340.37*1e6, C3=C3*5*25000*1e3)
-  
-p1 <- spaghettiPlot(results, "C1", "ARM") + ggplot2::ylab("CPHPC (ng/mL)") + ggplot2::scale_y_log10() + ggplot2::facet_wrap(~ARM)
-p2 <- spaghettiPlot(results, "C3", "ARM") + ggplot2::ylab("SAP (mg/L)") + ggplot2::scale_y_log10() + ggplot2::facet_wrap(~ARM)
-
-gridExtra::grid.arrange(p1, p2, ncol=1)
+gridExtra::grid.arrange(p1, p2, nrow=2)
 ```
