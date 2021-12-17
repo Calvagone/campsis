@@ -7,7 +7,7 @@ setClass(
   representation(
     covariate_names = "character",
     iov_names = "character",
-    time_varying_covariate_names = "character",
+    event_covariate_names = "character",
     occ_names = "character"
   )
 )
@@ -30,7 +30,7 @@ toDatasetSummary <- function(dataset) {
   summary <- DatasetSummary()
   summary@iov_names <- dataset %>% getIOVNames()
   summary@covariate_names <- dataset %>% getCovariateNames()
-  summary@time_varying_covariate_names <- dataset %>% getTimeVaryingCovariateNames()
+  summary@event_covariate_names <- dataset %>% getTimeVaryingCovariateNames()
   summary@occ_names <- dataset %>% getOccasionNames()
   return(summary)
 }

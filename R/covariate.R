@@ -39,30 +39,30 @@ Covariate <- function(name, distribution) {
 }
 
 #_______________________________________________________________________________
-#----                     time_varying_covariate class                      ----
+#----                         event_covariate class                         ----
 #_______________________________________________________________________________
 
 #' 
-#' Time-varying covariate class.
+#' Event covariate class.
 #' 
 #' @export
 setClass(
-  "time_varying_covariate",
+  "event_covariate",
   representation(
   ),
   contains="covariate"
 )
 
 #' 
-#' Create a time-varying covariate. These covariates can be modified further in the
+#' Create an event covariate. These covariates can be modified further in the
 #' interruption events.
 #' 
 #' @param name covariate name, character
 #' @param distribution covariate distribution at time 0
 #' @return a time-varying covariate  
 #' @export
-TimeVaryingCovariate <- function(name, distribution) {
-  return(new("time_varying_covariate", name=name, distribution=toExplicitDistribution(distribution)))
+EventCovariate <- function(name, distribution) {
+  return(new("event_covariate", name=name, distribution=toExplicitDistribution(distribution)))
 }
 
 #_______________________________________________________________________________

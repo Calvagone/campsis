@@ -111,10 +111,10 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   # Add covariate
   dataset <- dataset %>% add(Covariate(name="WT", 70))
   dataset <- dataset %>% add(Covariate(name="HT", 180))
-  dataset <- dataset %>% add(TimeVaryingCovariate(name="DOSE", 100))
+  dataset <- dataset %>% add(EventCovariate(name="DOSE", 100))
   
   expect_equal(dataset %>% getCovariateNames(), c("WT", "HT", "DOSE"))
-  expect_equal(dataset %>% getTimeVaryingCovariateNames(), c("DOSE"))
+  expect_equal(dataset %>% getEventCovariateNames(), c("DOSE"))
   
   # Add observations
   dataset <- dataset %>% add(Observations(times=seq(0, 48, by=10)))

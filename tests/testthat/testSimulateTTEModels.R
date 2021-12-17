@@ -29,8 +29,8 @@ test_that("Simulate simple TTE model (RxODE/mrgsolve)", {
   })
   
   ds <- Dataset(2)
-  ds <- ds %>% add(TimeVaryingCovariate("COUNT", 0))
-  ds <- ds %>% add(TimeVaryingCovariate("TRIGGER", UniformDistribution(0, 1)))
+  ds <- ds %>% add(EventCovariate("COUNT", 0))
+  ds <- ds %>% add(EventCovariate("TRIGGER", UniformDistribution(0, 1)))
   ds <- ds %>% add(Observations(times=seq(0, duration, by=0.1)))
   
   events <- events %>% add(event)
