@@ -82,7 +82,7 @@ test_that("Daily dose in dataset + daily dose through events  (RxODE/mrgsolve)",
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
 
-test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
+test_that("Body weight as an event covariate (RxODE/mrgsolve)", {
   model <- model_library$advan2_trans2
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -110,6 +110,27 @@ test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
   spaghettiPlot(results1, "CP")
   
   results2 <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed, outvars="BW")
+  spaghettiPlot(results2, "CP")
+  
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
+})
+
+test_that("Body weight as a true time varying covariate (RxODE/mrgsolve)", {
+  model <- model_library$advan2_trans2
+  equation <- model %>% find(Equation("CL"))
+  model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
+  regFilename <- "event_varying_bw"
+  
+  dataset <- Dataset(3)
+  dataset <- dataset %>% add(Bolus(time=0, amount=1000, ii=24, addl=2))
+  dataset <- dataset %>% add(Observations(times=seq(0,24*2, by=1)))
+  dataset <- dataset %>% add(TimeVaryingCovariate("BW", data.frame(TIME=c(0,15,30), VALUE=c(100, 60, 30))))
+  
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars="BW")
+  spaghettiPlot(results1, "CP")
+  
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars="BW")
   spaghettiPlot(results2, "CP")
   
   outputRegressionTest(results1, output="CP", filename=regFilename)
