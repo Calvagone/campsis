@@ -127,10 +127,10 @@ test_that("Body weight as a true time varying covariate (RxODE/mrgsolve)", {
   dataset <- dataset %>% add(Observations(times=seq(0,24*2, by=1)))
   dataset <- dataset %>% add(TimeVaryingCovariate("BW", data.frame(TIME=c(0,15,30), VALUE=c(100, 60, 30))))
   
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars="BW")
-  spaghettiPlot(results1, "CP")
+  # results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars="BW", nocbvars="BW")
+  # spaghettiPlot(results1, "CP")
   
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars="BW")
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars="BW", nocbvars="BW")
   spaghettiPlot(results2, "CP")
   
   outputRegressionTest(results1, output="CP", filename=regFilename)

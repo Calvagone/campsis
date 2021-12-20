@@ -8,7 +8,7 @@ will be merged afterwards with all treatment and observation rows.}
 mergeTimeVaryingCovariates(covariates, ids)
 }
 \arguments{
-\item{covariates}{time-varying covariates}
+\item{covariates}{covariates, only time-varying covariates will be extracted}
 
 \item{ids}{simulation ID's}
 }

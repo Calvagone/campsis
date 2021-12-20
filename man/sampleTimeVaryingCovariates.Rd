@@ -7,9 +7,11 @@
 sampleTimeVaryingCovariates(object, armID, needsDV)
 }
 \arguments{
-\item{covariates}{time-varying covariates}
+\item{object}{time-varying covariates, data.frame form}
 
-\item{ids}{simulation ID's}
+\item{armID}{treatment arm ID}
+
+\item{needsDV}{append extra column DV, logical value}
 }
 \value{
 a data.frame

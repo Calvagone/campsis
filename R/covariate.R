@@ -114,9 +114,10 @@ TimeVaryingCovariate <- function(name, table) {
 #' Merge time-varying covariates into a single data frame. This last data frame
 #' will be merged afterwards with all treatment and observation rows.
 #' 
-#' @param covariates time-varying covariates
+#' @param covariates covariates, only time-varying covariates will be extracted
 #' @param ids simulation ID's
 #' @return a data.frame
+#' @importFrom campsismod select
 #' @importFrom dplyr bind_rows mutate
 #' @importFrom purrr map_df
 #' @importFrom tidyr pivot_wider
@@ -124,25 +125,28 @@ TimeVaryingCovariate <- function(name, table) {
 #' 
 mergeTimeVaryingCovariates <- function(covariates, ids) {
   startingID <- min(ids)
-  tables <- covariates %>% purrr::map_df(.f=function(covariate) {
-    table <- covariate@table %>% dplyr::mutate(VARIABLE=covariate@name)
-    if (("ID" %in% colnames(table))) {
-      return(table %>% dplyr::mutate(ID=ID + startingID - 1))
-    } else {
-      retValue <- ids %>% purrr::map_df(.f=function(id) {
-        return(cbind(ID=id, table))
-      })
-      return(retValue)
-    }
-  })
+  timeVaryingCovariates <- covariates %>% campsismod::select("time_varying_covariate")
+  tables <- timeVaryingCovariates %>% .@list %>%
+    purrr::map_df(.f=function(covariate) {
+      table <- covariate@table %>% dplyr::mutate(VARIABLE=covariate@name)
+      if (("ID" %in% colnames(table))) {
+        return(table %>% dplyr::mutate(ID=ID + startingID - 1))
+      } else {
+        retValue <- ids %>% purrr::map_df(.f=function(id) {
+          return(cbind(ID=id, table))
+        })
+        return(retValue)
+      }
+    })
   return(dplyr::bind_rows(tables) %>% tidyr::pivot_wider(id_cols=c("ID", "TIME"),
                                                          names_from="VARIABLE", values_from="VALUE"))
 }
 
 #' Sample time-varying covariates.
 #' 
-#' @param covariates time-varying covariates
-#' @param ids simulation ID's
+#' @param object time-varying covariates, data.frame form
+#' @param armID treatment arm ID
+#' @param needsDV append extra column DV, logical value
 #' @return a data.frame
 #' @importFrom tibble add_column tibble
 #' @keywords internal

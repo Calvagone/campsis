@@ -114,7 +114,7 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   dataset <- dataset %>% add(EventCovariate(name="DOSE", 100))
   
   expect_equal(dataset %>% getCovariateNames(), c("WT", "HT", "DOSE"))
-  expect_equal(dataset %>% getEventCovariateNames(), c("DOSE"))
+  expect_equal(dataset@arms@list[[1]]@covariates %>% select("event_covariate") %>% getNames(), c("DOSE"))
   
   # Add observations
   dataset <- dataset %>% add(Observations(times=seq(0, 48, by=10)))

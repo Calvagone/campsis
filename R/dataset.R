@@ -303,7 +303,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param nocb nocb value, logical value
 #' @param ... extra arguments
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
-#' @importFrom dplyr arrange left_join
+#' @importFrom dplyr arrange bind_rows left_join
 #' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
@@ -356,7 +356,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     }
     observations <- protocol@observations
     covariates <- arm@covariates
-    timeVaryingCovariates <- arm@covariates@list %>% purrr::keep(.p=~is(.x, "time_varying_covariate"))
+    timeVaryingCovariates <- covariates %>% campsismod::select("time_varying_covariate")
     treatmentIovs <- treatment@iovs
     occasions <- treatment@occasions
     doseAdaptations <- treatment@dose_adaptations
@@ -368,30 +368,38 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     needsDV <- observations@list %>% purrr::map_lgl(~.x@dv %>% length() > 0) %>% any()
     table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID, needsDV=needsDV))
     table <- table %>% dplyr::arrange(ID, TIME, EVID)
-    
-    #browser()
-    
+
     # Sampling covariates
     cov <- sampleCovariatesList(covariates, n=length(ids))
     if (nrow(cov) > 0) {
+      # Left join "fixed" covariates
       cov <- cov %>% tibble::add_column(ID=ids, .before=1)
       table <- table %>% dplyr::left_join(cov, by="ID")
       
-      # Only keep first row
-      table <- table %>% dplyr::group_by(ID) %>%
-        dplyr::mutate_at(.vars=c("BW"), .funs=~ifelse(dplyr::row_number() == 1, .x, as.numeric(NA)))
+      # Retrieve time-varying covariate names
+      timeVaryingCovariateNames <- timeVaryingCovariates %>% getNames()
       
-      # Merge all time varying covariate tables into a single table
-      # The idea is to use 1 EVID=2 row per subject time
-      timeCovs <- mergeTimeVaryingCovariates(timeVaryingCovariates, ids)
-      
-      # Sample table
-      timeCovs_ <- timeCovs %>% sampleTimeVaryingCovariates(armID=armID, needsDV=needsDV)
-      
-      # Bind with treatment and observations and filter
-      table <- bind_rows(table, timeCovs_)
-      table <- table %>% dplyr::arrange(ID, TIME, EVID)
-      table <- table %>% tidyr::fill("BW", .direction="down")
+      # Merge time-varying covariate names
+      if (timeVaryingCovariateNames %>% length() > 0) {
+        # Only keep first row
+        table <- table %>% dplyr::group_by(ID) %>%
+          dplyr::mutate_at(.vars=timeVaryingCovariateNames, .funs=~ifelse(dplyr::row_number()==1, .x, as.numeric(NA))) %>%
+          dplyr::ungroup()
+        
+        # Merge all time varying covariate tables into a single table
+        # The idea is to use 1 EVID=2 row per subject time
+        timeCov <- mergeTimeVaryingCovariates(timeVaryingCovariates, ids) %>%
+          sampleTimeVaryingCovariates(armID=armID, needsDV=needsDV)
+        
+        # Bind with treatment and observations and sort
+        table <- dplyr::bind_rows(table, timeCov)
+        table <- table %>% dplyr::arrange(ID, TIME, EVID)
+        
+        # Fill NA's, down direction only, by ID
+        table <- table %>% dplyr::group_by(ID) %>%
+          tidyr::fill(timeVaryingCovariateNames, .direction="down") %>%
+          dplyr::ungroup()
+      }  
     }
     
     # Sampling IOV's
