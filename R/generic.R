@@ -1,25 +1,5 @@
 
 #_______________________________________________________________________________
-#----                             sample                                    ----
-#_______________________________________________________________________________
-
-#' Sample generic object.
-#' 
-#' @param object generic object
-#' @param n number of samples required
-#' @param ... extra arguments
-#' @return sampling result
-#' @export
-#' @rdname sample
-sample <- function(object, n, ...) {
-  stop("No default function is provided")
-}
-
-setGeneric("sample", function(object, n, ...) {
-  standardGeneric("sample")
-})
-
-#_______________________________________________________________________________
 #----                         getColumnName                                 ----
 #_______________________________________________________________________________
 
@@ -38,75 +18,111 @@ setGeneric("getColumnName", function(x) {
 })
 
 #_______________________________________________________________________________
-#----                           getIOVNames                                 ----
+#----                           getCovariates                               ----
 #_______________________________________________________________________________
 
-#' Get IOV names.
+#' Get all covariates (fixed / time-varying / event covariates).
 #' 
 #' @param object any object
-#' @return character vector
+#' @return all covariates from object
 #' @export
-#' @rdname getIOVNames
-getIOVNames <- function(object) {
+#' @rdname getCovariates
+getCovariates <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getIOVNames", function(object) {
-  standardGeneric("getIOVNames")
+setGeneric("getCovariates", function(object) {
+  standardGeneric("getCovariates")
 })
 
 #_______________________________________________________________________________
-#----                         getCovariateNames                             ----
+#----                         getEventCovariates                            ----
 #_______________________________________________________________________________
 
-#' Get all covariate names (fixed covariates + time-varying covariates).
+#' Get all event-related covariates.
 #' 
 #' @param object any object
-#' @return character vector
+#' @return all event-related covariates from object
 #' @export
-#' @rdname getCovariateNames
-getCovariateNames <- function(object) {
+#' @rdname getEventCovariates
+getEventCovariates <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getCovariateNames", function(object) {
-  standardGeneric("getCovariateNames")
+setGeneric("getEventCovariates", function(object) {
+  standardGeneric("getEventCovariates")
 })
 
 #_______________________________________________________________________________
-#----                          getOccasionNames                             ----
+#----                         getFixedCovariates                            ----
 #_______________________________________________________________________________
 
-#' Get all occasion names.
+#' Get all fixed covariates.
 #' 
 #' @param object any object
-#' @return character vector
+#' @return all fixed covariates from object
 #' @export
-#' @rdname getOccasionNames
-getOccasionNames <- function(object) {
+#' @rdname getFixedCovariates
+getFixedCovariates <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getOccasionNames", function(object) {
-  standardGeneric("getOccasionNames")
+setGeneric("getFixedCovariates", function(object) {
+  standardGeneric("getFixedCovariates")
 })
 
 #_______________________________________________________________________________
-#----                     getTimeVaryingCovariateNames                      ----
+#----                       getTimeVaryingCovariates                        ----
 #_______________________________________________________________________________
 
-#' Get all time-varying covariate names.
+#' Get all time-varying covariates.
 #' 
 #' @param object any object
-#' @return character vector
+#' @return all time-varying covariates from object
 #' @export
-#' @rdname getTimeVaryingCovariateNames
-getTimeVaryingCovariateNames <- function(object) {
+#' @rdname getTimeVaryingCovariates
+getTimeVaryingCovariates <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getTimeVaryingCovariateNames", function(object) {
-  standardGeneric("getTimeVaryingCovariateNames")
+setGeneric("getTimeVaryingCovariates", function(object) {
+  standardGeneric("getTimeVaryingCovariates")
+})
+
+#_______________________________________________________________________________
+#----                              getIOVs                                  ----
+#_______________________________________________________________________________
+
+#' Get all IOV objects.
+#' 
+#' @param object any object
+#' @return all IOV's from object
+#' @export
+#' @rdname getIOVs
+getIOVs <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getIOVs", function(object) {
+  standardGeneric("getIOVs")
+})
+
+#_______________________________________________________________________________
+#----                            getOccasions                               ----
+#_______________________________________________________________________________
+
+#' Get all occasions.
+#' 
+#' @param object any object
+#' @return all occasions from object
+#' @export
+#' @rdname getOccasions
+getOccasions <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("getOccasions", function(object) {
+  standardGeneric("getOccasions")
 })
 
 #_______________________________________________________________________________
@@ -144,6 +160,26 @@ setLabel <- function(object, x) {
 
 setGeneric("setLabel", function(object, x) {
   standardGeneric("setLabel")
+})
+
+#_______________________________________________________________________________
+#----                             sample                                    ----
+#_______________________________________________________________________________
+
+#' Sample generic object.
+#' 
+#' @param object generic object
+#' @param n number of samples required
+#' @param ... extra arguments
+#' @return sampling result
+#' @export
+#' @rdname sample
+sample <- function(object, n, ...) {
+  stop("No default function is provided")
+}
+
+setGeneric("sample", function(object, n, ...) {
+  standardGeneric("sample")
 })
 
 #_______________________________________________________________________________

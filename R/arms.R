@@ -46,40 +46,57 @@ setMethod("default", signature=c("arms"), definition=function(object, ...) {
 })
 
 #_______________________________________________________________________________
-#----                          getCovariateNames                            ----
+#----                           getCovariates                               ----
 #_______________________________________________________________________________
 
-#' @rdname getCovariateNames
-setMethod("getCovariateNames", signature = c("arms"), definition = function(object) {
-  return(object@list %>% purrr::map(.f=~.x %>% getCovariateNames()) %>% purrr::flatten_chr() %>% unique())
+#' @rdname getCovariates
+setMethod("getCovariates", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% getCovariates())
 })
 
 #_______________________________________________________________________________
-#----                            getIOVNames                                ----
+#----                         getEventCovariates                            ----
 #_______________________________________________________________________________
 
-#' @rdname getIOVNames
-setMethod("getIOVNames", signature = c("arms"), definition = function(object) {
-  return(object@list %>% purrr::map(.f=~.x %>% getIOVNames())  %>% purrr::flatten_chr() %>% unique())
-})
-
-
-#_______________________________________________________________________________
-#----                         getOccasionNames                              ----
-#_______________________________________________________________________________
-
-#' @rdname getOccasionNames
-setMethod("getOccasionNames", signature = c("arms"), definition = function(object) {
-  return(object@list %>% purrr::map(.f=~.x %>% getOccasionNames())  %>% purrr::flatten_chr() %>% unique())
+#' @rdname getEventCovariates
+setMethod("getEventCovariates", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% getEventCovariates())
 })
 
 #_______________________________________________________________________________
-#----                     getTimeVaryingCovariateNames                      ----
+#----                         getFixedCovariates                            ----
 #_______________________________________________________________________________
 
-#' @rdname getTimeVaryingCovariateNames
-setMethod("getTimeVaryingCovariateNames", signature = c("arms"), definition = function(object) {
-  return(object@list %>% purrr::map(.f=~.x %>% getTimeVaryingCovariateNames()) %>% purrr::flatten_chr() %>% unique())
+#' @rdname getFixedCovariates
+setMethod("getFixedCovariates", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% getFixedCovariates())
+})
+
+#_______________________________________________________________________________
+#----                       getTimeVaryingCovariates                        ----
+#_______________________________________________________________________________
+
+#' @rdname getTimeVaryingCovariates
+setMethod("getTimeVaryingCovariates", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% getTimeVaryingCovariates())
+})
+
+#_______________________________________________________________________________
+#----                              getIOVs                                  ----
+#_______________________________________________________________________________
+
+#' @rdname getIOVs
+setMethod("getIOVs", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% getIOVs())
+})
+
+#_______________________________________________________________________________
+#----                            getOccasions                               ----
+#_______________________________________________________________________________
+
+#' @rdname getOccasions
+setMethod("getOccasions", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% getOccasions())
 })
 
 #_______________________________________________________________________________

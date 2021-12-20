@@ -16,6 +16,42 @@ setClass(
 )
 
 #_______________________________________________________________________________
+#----                           getCovariates                               ----
+#_______________________________________________________________________________
+
+#' @rdname getCovariates
+setMethod("getCovariates", signature = c("covariates"), definition = function(object) {
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                         getEventCovariates                            ----
+#_______________________________________________________________________________
+
+#' @rdname getEventCovariates
+setMethod("getEventCovariates", signature = c("covariates"), definition = function(object) {
+  return(object %>% select("event_covariate"))
+})
+
+#_______________________________________________________________________________
+#----                         getFixedCovariates                            ----
+#_______________________________________________________________________________
+
+#' @rdname getFixedCovariates
+setMethod("getFixedCovariates", signature = c("covariates"), definition = function(object) {
+  return(object %>% select("fixed_covariate"))
+})
+
+#_______________________________________________________________________________
+#----                       getTimeVaryingCovariates                        ----
+#_______________________________________________________________________________
+
+#' @rdname getTimeVaryingCovariates
+setMethod("getTimeVaryingCovariates", signature = c("covariates"), definition = function(object) {
+  return(object %>% select("time_varying_covariate"))
+})
+
+#_______________________________________________________________________________
 #----                            getNames                                   ----
 #_______________________________________________________________________________
 

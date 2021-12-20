@@ -1,6 +1,6 @@
 
 #_______________________________________________________________________________
-#----                        covariate class                                ----
+#----                      covariate class (abstract)                       ----
 #_______________________________________________________________________________
 
 checkCovariate <- function(object) {
@@ -27,6 +27,21 @@ setMethod("getName", signature = c("covariate"), definition = function(x) {
   return(paste0("COVARIATE [", "NAME=", x@name, "]"))
 })
 
+#_______________________________________________________________________________
+#----                         fixed_covariate class                         ----
+#_______________________________________________________________________________
+
+#' 
+#' Fixed covariate class.
+#' 
+#' @export
+setClass(
+  "fixed_covariate",
+  representation(
+  ),
+  contains="covariate"
+)
+
 #' 
 #' Create a fixed covariate.
 #' 
@@ -35,7 +50,7 @@ setMethod("getName", signature = c("covariate"), definition = function(x) {
 #' @return a fixed covariate  
 #' @export
 Covariate <- function(name, distribution) {
-  return(new("covariate", name=name, distribution=toExplicitDistribution(distribution)))
+  return(new("fixed_covariate", name=name, distribution=toExplicitDistribution(distribution)))
 }
 
 #_______________________________________________________________________________

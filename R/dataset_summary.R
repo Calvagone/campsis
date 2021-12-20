@@ -28,9 +28,9 @@ DatasetSummary <- function() {
 #' @keywords internal
 toDatasetSummary <- function(dataset) {
   summary <- DatasetSummary()
-  summary@iov_names <- dataset %>% getIOVNames()
-  summary@covariate_names <- dataset %>% getCovariateNames()
-  summary@event_covariate_names <- dataset %>% getTimeVaryingCovariateNames()
-  summary@occ_names <- dataset %>% getOccasionNames()
+  summary@iov_names <- dataset %>% getIOVs() %>% getNames()
+  summary@covariate_names <- dataset %>% getCovariates() %>% getNames()
+  summary@event_covariate_names <- dataset %>% getEventCovariates() %>% getNames()
+  summary@occ_names <- dataset %>% getOccasions() %>% getNames()
   return(summary)
 }
