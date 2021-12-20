@@ -36,5 +36,5 @@ test_that("Select method", {
   covariates <- covariates %>% add(EventCovariate("STATE", 1000))
 
   expect_equal(covariates %>% getNames(), c("WT", "AGE", "DOSE", "STATE"))
-  expect_equal(covariates %>% select("event_covariate") %>% getNames(), c("DOSE", "STATE"))
+  expect_equal(covariates %>% getEventCovariates() %>% getNames(), c("DOSE", "STATE"))
 })

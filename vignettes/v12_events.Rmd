@@ -26,7 +26,8 @@ model <- model %>% replace(Equation("CL", "THETA_CL*exp(ETA_CL)*pow(BW/70, 0.75)
 
 dataset <- Dataset(1) %>%
   add(Bolus(time=c(0,24), amount=1000)) %>%
-  add(Observations(times=0:48)) %>% add(TimeVaryingCovariate("BW", 100))
+  add(Observations(times=0:48)) %>%
+  add(EventCovariate("BW", 100))
 
 events <- Events()
 event1 <- Event(name="New weight of 60", times=15, fun=function(inits) {
@@ -53,7 +54,7 @@ model <- model_library$advan2_trans2
 
 dataset <- Dataset(10) %>%
   add(Observations(times=0:168)) %>%
-  add(TimeVaryingCovariate("DOSE", 1500))
+  add(EventCovariate("DOSE", 1500))
 
 events <- Events()
 event1 <- Event(name="Dose adaptation", times=seq(0, 144, by=24), fun=function(inits) {

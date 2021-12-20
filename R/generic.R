@@ -1,23 +1,5 @@
 
 #_______________________________________________________________________________
-#----                         getColumnName                                 ----
-#_______________________________________________________________________________
-
-#' Get column name.
-#' 
-#' @param x any object
-#' @return column name
-#' @export
-#' @rdname getColumnName
-getColumnName <- function(x) {
-  stop("No default function is provided")
-}
-
-setGeneric("getColumnName", function(x) {
-  standardGeneric("getColumnName")
-})
-
-#_______________________________________________________________________________
 #----                           getCovariates                               ----
 #_______________________________________________________________________________
 

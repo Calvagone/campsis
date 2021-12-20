@@ -234,26 +234,6 @@ generateIIV <- function(omega, n) {
   return(iiv)
 }
 
-#' Process distribution-derived objects as covariates.
-#' 
-#' @param list list of distribution-derived objects
-#' @return a list of covariates that can be easily processed
-#' @keywords internal
-#' 
-processAsCovariate <- function(list) {
-  covariates <- new("covariates")
-  for (distribution in list) {
-    dist <- distribution@distribution
-    if (is(dist, "sampled_distribution")) {
-      name <- distribution %>% getColumnName()
-      covariates <- covariates %>% add(Covariate(name=name, distribution=dist))
-    } else {
-      stop(paste0("Unknown distribution class: ", as.character(class(dist))))
-    }
-  }
-  return(covariates)
-}
-
 #' Sample covariates list.
 #' 
 #' @param covariates list of covariates to sample

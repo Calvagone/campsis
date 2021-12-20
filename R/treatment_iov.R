@@ -49,14 +49,5 @@ IOV <- function(colname, distribution, doseNumbers=NULL) {
 #_______________________________________________________________________________
 
 setMethod("getName", signature = c("treatment_iov"), definition = function(x) {
-  return(paste0("IOV [", "COLNAME=", x@colname, "]"))
-})
-
-#_______________________________________________________________________________
-#----                         getColumnName                                 ----
-#_______________________________________________________________________________
-
-#' @rdname getColumnName
-setMethod("getColumnName", signature = c("treatment_iov"), definition = function(x) {
   return(x@colname)
 })
