@@ -2,7 +2,8 @@
 % Please edit documentation in R/covariate.R
 \name{TimeVaryingCovariate}
 \alias{TimeVaryingCovariate}
-\title{Create a time-varying covariate.}
+\title{Create a time-varying covariate. This covariate will be implemented using 
+EVID=2 rows in the exported dataset and will not use interruption events.}
 \usage{
 TimeVaryingCovariate(name, table)
 }
@@ -11,11 +12,13 @@ TimeVaryingCovariate(name, table)
 
 \item{table}{data.frame, must contain the mandatory columns 'TIME' and 'VALUE'.
 An 'ID' column may also be specified. In that case, ID's between 1 and the
-max number of subjects in the dataset/arm can be used.}
+max number of subjects in the dataset/arm can be used. All ID's must have a VALUE
+defined for TIME 0.}
 }
 \value{
 a time-varying covariate
 }
 \description{
-Create a time-varying covariate.
+Create a time-varying covariate. This covariate will be implemented using 
+EVID=2 rows in the exported dataset and will not use interruption events.
 }

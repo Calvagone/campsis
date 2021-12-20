@@ -97,21 +97,40 @@ setClass(
 )
 
 #' 
-#' Create a time-varying covariate.
+#' Create a time-varying covariate. This covariate will be implemented using 
+#' EVID=2 rows in the exported dataset and will not use interruption events.
 #' 
 #' @param name covariate name, character
 #' @param table data.frame, must contain the mandatory columns 'TIME' and 'VALUE'.
 #'  An 'ID' column may also be specified. In that case, ID's between 1 and the
-#'  max number of subjects in the dataset/arm can be used.
-#' @return a time-varying covariate  
+#'  max number of subjects in the dataset/arm can be used. All ID's must have a VALUE
+#'  defined for TIME 0.
+#' @return a time-varying covariate
+#' @importFrom dplyr arrange filter
 #' @export
 TimeVaryingCovariate <- function(name, table) {
+  if (!(all(c("TIME", "VALUE") %in% colnames(table)))) {
+    stop("TIME and VALUE are mandatory columns")
+  }
+  hasID <- "ID" %in% colnames(table)
+  
+  # Sort dataframe
+  if (hasID) {
+    table <- table %>% dplyr::arrange(ID, TIME)
+  } else {
+    table <- table %>% dplyr::arrange(TIME)
+  }
   tableT0 <- table %>% dplyr::filter(TIME==0)
   tableAfterT0 <- table %>% dplyr::filter(TIME>0)
-  hasID <- "ID" %in% colnames(tableT0)
+  
   if (hasID) {
-    if (!all(tableT0$ID==seq_len(max(tableT0$ID)))) {
-      stop("IDs at time 0 must all be set")
+    requiredIDs <- seq_len(max(table$ID))
+    missingIDs <- requiredIDs[!(requiredIDs %in% tableT0$ID)]
+    if (missingIDs %>% length() > 0) {
+      stop(paste0("Some ID's don't have a value for time 0: ", paste0(missingIDs, collapse=",")))
+    }
+    if (tableT0$ID %>% length() != requiredIDs %>% length()) {
+      stop("Some ID's have several values for time 0")
     }
   } else {
     if (nrow(tableT0) == 0) {

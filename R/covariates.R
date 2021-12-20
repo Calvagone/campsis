@@ -66,7 +66,7 @@ setMethod("getNames", signature=c("covariates"), definition=function(object) {
 setMethod("select", signature=c("covariates"), definition=function(object, ...) {
   args <- list(...)
   type <- args[[1]]
-  selection <- c("event_covariate", "time_varying_covariate")
+  selection <- c("fixed_covariate", "event_covariate", "time_varying_covariate")
   msg <- paste0("Only these types can be selected: ", paste0("'", selection, "'", collapse=", "))
   assertthat::assert_that(type %>% length() == 1 && type %in% selection, msg=msg)
   object@list <- object@list %>% purrr::keep(~is(.x, type))
