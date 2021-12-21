@@ -4,13 +4,14 @@
 # setwd("C:/prj/campsis/tests/")
 # testFolder <<- "C:/prj/campsis/tests/testthat/"
 
-datasetInMemory <- function(dataset, model, seed, doseOnly=TRUE) {
+datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
   
   # Keep doses only
   if (doseOnly) {
     table <- table %>% dplyr::filter(EVID==1)
   }
+  return(table)
 }
 
 #' Test there is no regression in the exported dataset.
@@ -21,7 +22,7 @@ datasetInMemory <- function(dataset, model, seed, doseOnly=TRUE) {
 #' @param doseOnly look only at the doses, i.e. EVID==1
 #' @param filename reference file
 #' @export
-datasetRegressionTest <- function(dataset, model, seed, doseOnly=TRUE, filename) {
+datasetRegressionTest <- function(dataset, model=NULL, seed, doseOnly=TRUE, filename) {
   dataset1 <- datasetInMemory(dataset=dataset, model=model, seed=seed, doseOnly=doseOnly)
   dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6)
   
