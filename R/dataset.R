@@ -369,11 +369,15 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
 
     # Sampling covariates
     cov <- sampleCovariatesList(covariates, n=length(ids))
+    
     if (nrow(cov) > 0) {
-      # Left join "fixed" covariates
+      # Retrieve all covariate names (including time-varying ones)
+      allCovariateNames <- colnames(cov)
+      
+      # Left join all covariates as fixed (one value per subjet)
       cov <- cov %>% tibble::add_column(ID=ids, .before=1)
       table <- table %>% dplyr::left_join(cov, by="ID")
-      
+
       # Retrieve time-varying covariate names
       timeVaryingCovariateNames <- timeVaryingCovariates %>% getNames()
       
@@ -382,7 +386,8 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
         # Only keep first row. Please note that NA's will be filled in 
         # by the final export method (depending on variables nocb & nocbvars)
         table <- table %>% dplyr::group_by(ID) %>%
-          dplyr::mutate_at(.vars=timeVaryingCovariateNames, .funs=~ifelse(dplyr::row_number()==1, .x, as.numeric(NA))) %>%
+          dplyr::mutate_at(.vars=timeVaryingCovariateNames,
+                           .funs=~ifelse(dplyr::row_number()==1, .x, as.numeric(NA))) %>%
           dplyr::ungroup()
         
         # Merge all time varying covariate tables into a single table
@@ -393,6 +398,11 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
         # Bind with treatment and observations and sort
         table <- dplyr::bind_rows(table, timeCov)
         table <- table %>% dplyr::arrange(ID, TIME, EVID)
+        
+        # Fill NA values of fixed covariates that were introduced by EVID=2 rows
+        table <- table %>% dplyr::group_by(ID) %>%
+          tidyr::fill(allCovariateNames[!(allCovariateNames %in% timeVaryingCovariateNames)], .direction="down") %>%
+          dplyr::ungroup()
       }  
     }
     

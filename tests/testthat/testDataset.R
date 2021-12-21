@@ -3,7 +3,7 @@ library(testthat)
 context("Test all methods from the dataset class")
 
 overwriteNonRegressionFiles <<- FALSE
-testFolder <<- "" #"C:/prj/campsis/tests/testthat/"
+testFolder <<- ""
 seed <- 1
 
 source(paste0(testFolder, "testUtils.R"))
@@ -492,12 +492,12 @@ test_that("Export works well even if objects are defined in a different order", 
     
   
   arm2 <- Arm(2, subjects=1) %>%
-    add(Bolus(time=0, amount=2000, compartment=1, ii=24, addl=2)) %>%
-    add(Observations(times=seq(0,72, by=5))) %>%
     add(Covariate("HT", 170)) %>%
     add(Covariate("BW", 60)) %>%
     add(Occasion("OCC", values=c(1,2,3), doseNumbers=c(1,2,3))) %>%
-    add(TimeVaryingCovariate("TVCOV", data.frame(TIME=c(0, 10), VALUE=c(9, 14))))
+    add(TimeVaryingCovariate("TVCOV", data.frame(TIME=c(0, 10), VALUE=c(9, 14)))) %>%
+    add(Observations(times=seq(0,72, by=5))) %>%
+    add(Bolus(time=0, amount=2000, compartment=1, ii=24, addl=2))
   
   ds <- Dataset() %>% add(c(arm1, arm2))
   table <- ds %>% export(dest="RxODE")
