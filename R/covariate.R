@@ -24,7 +24,7 @@ setClass(
 )
 
 setMethod("getName", signature = c("covariate"), definition = function(x) {
-  return(paste0("COVARIATE [", "NAME=", x@name, "]"))
+  return(x@name)
 })
 
 #_______________________________________________________________________________
