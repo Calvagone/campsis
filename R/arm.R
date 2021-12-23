@@ -291,3 +291,23 @@ setMethod("setSubjects", signature = c("arm", "integer"), definition = function(
   validObject(object)
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("arm"), definition=function(object) {
+  if (object@id != 0) {
+    if (is.na(object@label)) {
+      armLabel <- paste("Arm", object@id)
+    } else {
+      armLabel <- paste("Arm '", object@label, "'")
+    }
+    cat(paste0(armLabel, " (N=", object@subjects, ")"))
+    cat("\n")
+  }
+  show(object@protocol)
+  cat("\n")
+  show(object@covariates)
+})
+

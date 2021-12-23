@@ -108,3 +108,14 @@ setMethod("getTimes", signature = c("arms"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x %>% getTimes()) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
 })
 
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("arms"), definition=function(object) {
+  for (arm in object@list) {
+    show(arm)
+    cat("\n")
+  }
+})
+

@@ -550,3 +550,15 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   
   return(table %>% dplyr::ungroup())
 })
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("dataset"), definition=function(object) {
+  if (object@arms@list %>% length() <= 1) {
+    cat(paste0("Dataset (N=", object %>% length(), ")"))
+    cat("\n")
+  }
+  show(object@arms)
+})

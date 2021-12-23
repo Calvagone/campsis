@@ -72,3 +72,32 @@ setMethod("select", signature=c("covariates"), definition=function(object, ...) 
   object@list <- object@list %>% purrr::keep(~is(.x, type))
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("covariates"), definition=function(object) {
+  length <- object %>% length()
+  if (length==0) {
+    cat("No covariates")
+    cat("\n")   
+  } else {
+    fixedCovariates <- object %>% campsismod::select("fixed_covariate")
+    if (fixedCovariates %>% length() > 0) {
+      cat("Covariates:", paste0(fixedCovariates %>% getNames(), collapse=","))
+      cat("\n")
+    }
+    timeVaryingCovariates <- object %>% campsismod::select("time_varying_covariate")
+    if (timeVaryingCovariates %>% length() > 0) {
+      cat("Time-varying covariates:", paste0(timeVaryingCovariates %>% getNames(), collapse=","))
+      cat("\n")
+    }
+    eventCovariates <- object %>% campsismod::select("event_covariate")
+    if (eventCovariates %>% length() > 0) {
+      cat("Event-related covariates:", paste0(eventCovariates %>% getNames(), collapse=","))
+      cat("\n")
+    }
+  }
+})
+
