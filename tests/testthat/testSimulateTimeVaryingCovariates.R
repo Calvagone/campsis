@@ -51,8 +51,7 @@ test_that("Body weight as a true time varying covariate, 2 arms, individual body
     add(TimeVaryingCovariate("BW", dplyr::bind_rows(bw2_1, bw2_2)))
   
   ds <- Dataset() %>% add(c(arm1, arm2))
-  show(ds) # Explicit call to show
-  
+
   results1 <- model %>% disable("IIV") %>% simulate(ds, dest="RxODE", seed=seed, outvars="BW", nocbvars="BW")
   spaghettiPlot(results1, "CP", "ID")
   spaghettiPlot(results1, "BW", "ID")

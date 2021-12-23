@@ -10,7 +10,7 @@ test_that("Applying method show on a few datasets works as expected", {
     add(Observations(times=seq(0,7*24, by=4))) %>%
     add(Covariate("WT", c(100, 50))) %>%
     add(DoseAdaptation("AMT*WT"))
-  show(dataset)
+  #show(dataset)
   expect_true("-> Dose adaptation (CMT=ALL): AMT*WT" %in% capture.output(show(dataset)))
   
   # Dataset with dose adaptation, CMT=1 (2)
@@ -22,7 +22,7 @@ test_that("Applying method show on a few datasets works as expected", {
     add(Covariate("WT", c(100, 50))) %>%
     add(Covariate("WT2", c(100, 50))) %>%
     add(DoseAdaptation("AMT*WT", compartments=1))
-  show(dataset)
+  #show(dataset)
   expect_true("-> Dose adaptation (CMT=1): AMT*WT" %in% capture.output(show(dataset)))
   
   # Dataset with an Infusion, IOV
@@ -30,7 +30,7 @@ test_that("Applying method show on a few datasets works as expected", {
     add(Infusion(time=0, amount=1000, compartment=1)) %>%
     add(Observations(times=seq(0,24, by=0.5))) %>%
     add(IOV("IOV_KA", NormalDistribution(0, 1)))
-  show(dataset)
+  #show(dataset)
   expect_true("-> Adm. times (infusion into CMT=1): 0 (1000)" %in% capture.output(show(dataset)))
   expect_true("-> Treatment IOV: IOV_KA" %in% capture.output(show(dataset)))
   
@@ -51,7 +51,7 @@ test_that("Applying method show on a few datasets works as expected", {
     add(TimeVaryingCovariate("BW", dplyr::bind_rows(bw2_1, bw2_2)))
   
   ds <- Dataset() %>% add(c(arm1, arm2))
-  show(ds)
+  #show(ds)
   expect_true("Arm 1 (N=2)" %in% capture.output(show(ds)))
   expect_true("Arm 2 (N=2)" %in% capture.output(show(ds)))
   expect_true("Time-varying covariates: BW" %in% capture.output(show(ds)))
@@ -66,7 +66,7 @@ test_that("Applying method show on a few datasets works as expected", {
     add(Bolus(time=120, amount=400)) %>%
     add(Observations(times=seq(0, 60, by=10))) %>%
     add(Occasion("MY_OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
-  show(ds)
+  #show(ds)
   expect_true("-> Adm. times (bolus into DEFAULT): 0 (100),24,48 (200),72,96 (300),120 (400)" %in% capture.output(show(ds)))
   expect_true("-> Treatment occasions: MY_OCC" %in% capture.output(show(ds)))
   
@@ -78,7 +78,7 @@ test_that("Applying method show on a few datasets works as expected", {
     add(Covariate("ROUT", 0)) %>%
     add(EventCovariate("CURRENT_DOSE", 0)) %>%
     add(EventCovariate("LAST_DOSE", 0.1))
-  show(ds)
+  #show(ds)
   expect_true("Covariates: BAS,WT,ROUT" %in% capture.output(show(ds)))
   expect_true("Event-related covariates: CURRENT_DOSE,LAST_DOSE" %in% capture.output(show(ds)))
 })
