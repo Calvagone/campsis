@@ -43,40 +43,57 @@ Arm <- function(id=as.integer(NA), subjects=1, label=as.character(NA)) {
 }
 
 #_______________________________________________________________________________
-#----                          getCovariateNames                            ----
+#----                           getCovariates                               ----
 #_______________________________________________________________________________
 
-#' @rdname getCovariateNames
-setMethod("getCovariateNames", signature = c("arm"), definition = function(object) {
-  return(object@covariates@list %>% purrr::map_chr(.f=~.x@name))
+#' @rdname getCovariates
+setMethod("getCovariates", signature = c("arm"), definition = function(object) {
+  return(object@covariates %>% getCovariates())
 })
 
 #_______________________________________________________________________________
-#----                            getIOVNames                                ----
+#----                         getEventCovariates                            ----
 #_______________________________________________________________________________
 
-#' @rdname getIOVNames
-setMethod("getIOVNames", signature = c("arm"), definition = function(object) {
-  return(object@protocol@treatment@iovs@list %>% purrr::map_chr(.f=~.x@colname))
+#' @rdname getEventCovariates
+setMethod("getEventCovariates", signature = c("arm"), definition = function(object) {
+  return(object@covariates %>% getEventCovariates())
 })
 
 #_______________________________________________________________________________
-#----                         getOccasionNames                              ----
+#----                         getFixedCovariates                            ----
 #_______________________________________________________________________________
 
-#' @rdname getOccasionNames
-setMethod("getOccasionNames", signature = c("arm"), definition = function(object) {
-  return(object@protocol@treatment@occasions@list %>% purrr::map_chr(.f=~.x@colname))
+#' @rdname getFixedCovariates
+setMethod("getFixedCovariates", signature = c("arm"), definition = function(object) {
+  return(object@covariates %>% getFixedCovariates())
 })
 
+#_______________________________________________________________________________
+#----                       getTimeVaryingCovariates                        ----
+#_______________________________________________________________________________
+
+#' @rdname getTimeVaryingCovariates
+setMethod("getTimeVaryingCovariates", signature = c("arm"), definition = function(object) {
+  return(object@covariates %>% getTimeVaryingCovariates())
+})
 
 #_______________________________________________________________________________
-#----                     getTimeVaryingCovariateNames                      ----
+#----                              getIOVs                                  ----
 #_______________________________________________________________________________
 
-#' @rdname getTimeVaryingCovariateNames
-setMethod("getTimeVaryingCovariateNames", signature = c("arm"), definition = function(object) {
-  return((object@covariates %>% select("time_varying_covariate"))@list %>% purrr::map_chr(.f=~.x@name))
+#' @rdname getIOVs
+setMethod("getIOVs", signature = c("arm"), definition = function(object) {
+  return(object@protocol@treatment@iovs)
+})
+
+#_______________________________________________________________________________
+#----                            getOccasions                               ----
+#_______________________________________________________________________________
+
+#' @rdname getOccasions
+setMethod("getOccasions", signature = c("arm"), definition = function(object) {
+  return(object@protocol@treatment@occasions)
 })
 
 #_______________________________________________________________________________
@@ -274,3 +291,23 @@ setMethod("setSubjects", signature = c("arm", "integer"), definition = function(
   validObject(object)
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("arm"), definition=function(object) {
+  if (object@id != 0) {
+    if (is.na(object@label)) {
+      armLabel <- paste("Arm", object@id)
+    } else {
+      armLabel <- paste("Arm '", object@label, "'")
+    }
+    cat(paste0(armLabel, " (N=", object@subjects, ")"))
+    cat("\n")
+  }
+  show(object@protocol)
+  cat("\n")
+  show(object@covariates)
+})
+

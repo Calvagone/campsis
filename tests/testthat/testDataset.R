@@ -2,6 +2,12 @@ library(testthat)
 
 context("Test all methods from the dataset class")
 
+overwriteNonRegressionFiles <<- FALSE
+testFolder <<- ""
+seed <- 1
+
+source(paste0(testFolder, "testUtils.R"))
+
 test_that("Set subjects works as expected", {
   dataset <- Dataset() %>% setSubjects(3)
   expect_equal(dataset %>% length(), 3)
@@ -111,10 +117,10 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   # Add covariate
   dataset <- dataset %>% add(Covariate(name="WT", 70))
   dataset <- dataset %>% add(Covariate(name="HT", 180))
-  dataset <- dataset %>% add(TimeVaryingCovariate(name="DOSE", 100))
+  dataset <- dataset %>% add(EventCovariate(name="DOSE", 100))
   
-  expect_equal(dataset %>% getCovariateNames(), c("WT", "HT", "DOSE"))
-  expect_equal(dataset %>% getTimeVaryingCovariateNames(), c("DOSE"))
+  expect_equal(dataset %>% getCovariates() %>% getNames(), c("WT", "HT", "DOSE"))
+  expect_equal(dataset %>% getEventCovariates() %>% getNames(), c("DOSE"))
   
   # Add observations
   dataset <- dataset %>% add(Observations(times=seq(0, 48, by=10)))
@@ -471,4 +477,32 @@ test_that("Replace, delete, find, contains methods works well", {
   expect_true(ds %>% contains(doseAdaptation))
   updatedDs <- ds %>% delete(doseAdaptation)
   expect_false(updatedDs %>% contains(doseAdaptation))
+})
+
+test_that("Export works well even if objects are defined in a different order", {
+  regFilename <- "objects_defined_in_different_order"
+  
+  arm1 <- Arm(1, subjects=1) %>%
+    add(Bolus(time=0, amount=1000, compartment=1, ii=24, addl=2)) %>%
+    add(Observations(times=seq(0,72, by=5))) %>%
+    add(TimeVaryingCovariate("TVCOV", data.frame(TIME=c(0, 10), VALUE=c(10, 15)))) %>%
+    add(Occasion("OCC", values=c(1,2,3), doseNumbers=c(1,2,3))) %>%
+    add(Covariate("BW", 70)) %>%
+    add(Covariate("HT", 180))
+    
+  
+  arm2 <- Arm(2, subjects=1) %>%
+    add(Covariate("HT", 170)) %>%
+    add(Covariate("BW", 60)) %>%
+    add(Occasion("OCC", values=c(1,2,3), doseNumbers=c(1,2,3))) %>%
+    add(TimeVaryingCovariate("TVCOV", data.frame(TIME=c(0, 10), VALUE=c(9, 14)))) %>%
+    add(Observations(times=seq(0,72, by=5))) %>%
+    add(Bolus(time=0, amount=2000, compartment=1, ii=24, addl=2))
+  
+  ds <- Dataset() %>% add(c(arm1, arm2))
+  table <- ds %>% export(dest="RxODE")
+  
+  datasetRegressionTest(dataset=ds, seed=1, doseOnly=FALSE,
+                        filename=regFilename)
+  
 })

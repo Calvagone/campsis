@@ -83,7 +83,7 @@ cutTableForEvent <- function(table, iteration, summary) {
   }
   
   # Update time-varying covariates
-  vars <- summary@time_varying_covariate_names
+  vars <- summary@event_covariate_names
   if (vars %>% length() > 0 && inits %>% nrow() > 0) {
     update <- inits %>% dplyr::select(dplyr::all_of(c("ID", vars)))
     # Remove old values and left join new values

@@ -138,3 +138,53 @@ setMethod("assignDoseNumber", signature = c("treatment"), definition = function(
   return(object)
 })
 
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+getAdminString <- function(object, type) {
+  clz <- type$type
+  cmt <- type$cmt
+  
+  admins <- object@list %>% purrr::keep(.p=function(x){
+    comp1 <- clz == (class(x) %>% as.character())
+    comp2 <- (cmt == x@compartment) || (is.na(cmt) && is.na(x@compartment))
+    comp2[is.na(comp2)] <- FALSE
+    return(comp1 && comp2)
+  })
+
+  str <- paste0("-> Adm. times (", clz, " into ")
+  if (is.na(cmt)) {
+    str <- paste0(str, "DEFAULT", "): ")
+  } else {
+    str <- paste0(str, "CMT=", cmt, "): ")
+  }
+  
+  amt <- -1
+  allTimes <- c()
+  for (admin in admins) {
+    if (admin@amount==amt) {
+      allTimes <- allTimes %>% append(admin@time)
+    } else {
+      allTimes <- allTimes %>% append(paste0(admin@time, " (", admin@amount, ")"))
+      amt <- admin@amount
+    }
+  }
+  return(paste0(str, paste0(allTimes, collapse=",")))
+}
+
+setMethod("show", signature=c("treatment"), definition=function(object) {
+  object <- object %>% sort()
+  
+  adminTypes <- object@list %>% purrr::map_df(.f=function(x){
+    return(tibble::tibble(type=class(x) %>% as.character(), cmt=x@compartment))
+  }) %>% dplyr::distinct()
+  
+  for(index in seq_len(nrow(adminTypes))) {
+    cat(getAdminString(object, adminTypes[index,] %>% as.list()))
+    cat("\n")
+  }
+  show(object@iovs)
+  show(object@occasions)
+  show(object@dose_adaptations)
+})

@@ -26,3 +26,14 @@ setMethod("add", signature=c("protocol", "treatment_entry"), definition=function
 setMethod("add", signature=c("protocol", "observations"), definition=function(object, x) {
   return(object@observations %>% add(x))
 })
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("protocol"), definition=function(object) {
+  cat("Protocol:")
+  cat("\n")
+  show(object@treatment)
+  show(object@observations)
+})

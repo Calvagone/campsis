@@ -109,39 +109,57 @@ setMethod("find", signature = c("dataset", "pmx_element"), definition = function
 })
 
 #_______________________________________________________________________________
-#----                          getCovariateNames                            ----
+#----                           getCovariates                               ----
 #_______________________________________________________________________________
 
-#' @rdname getCovariateNames
-setMethod("getCovariateNames", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getCovariateNames())
+#' @rdname getCovariates
+setMethod("getCovariates", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getCovariates())
 })
 
 #_______________________________________________________________________________
-#----                            getIOVNames                                ----
+#----                         getEventCovariates                            ----
 #_______________________________________________________________________________
 
-#' @rdname getIOVNames
-setMethod("getIOVNames", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getIOVNames())
+#' @rdname getEventCovariates
+setMethod("getEventCovariates", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getEventCovariates())
 })
 
 #_______________________________________________________________________________
-#----                         getOccasionNames                              ----
+#----                         getFixedCovariates                            ----
 #_______________________________________________________________________________
 
-#' @rdname getOccasionNames
-setMethod("getOccasionNames", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getOccasionNames())
+#' @rdname getFixedCovariates
+setMethod("getFixedCovariates", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getFixedCovariates())
 })
 
 #_______________________________________________________________________________
-#----                     getTimeVaryingCovariateNames                      ----
+#----                       getTimeVaryingCovariates                        ----
 #_______________________________________________________________________________
 
-#' @rdname getTimeVaryingCovariateNames
-setMethod("getTimeVaryingCovariateNames", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getTimeVaryingCovariateNames())
+#' @rdname getTimeVaryingCovariates
+setMethod("getTimeVaryingCovariates", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getTimeVaryingCovariates())
+})
+
+#_______________________________________________________________________________
+#----                              getIOVs                                  ----
+#_______________________________________________________________________________
+
+#' @rdname getIOVs
+setMethod("getIOVs", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getIOVs())
+})
+
+#_______________________________________________________________________________
+#----                            getOccasions                               ----
+#_______________________________________________________________________________
+
+#' @rdname getOccasions
+setMethod("getOccasions", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% getOccasions())
 })
 
 #_______________________________________________________________________________
@@ -216,26 +234,6 @@ generateIIV <- function(omega, n) {
   return(iiv)
 }
 
-#' Process distribution-derived objects as covariates.
-#' 
-#' @param list list of distribution-derived objects
-#' @return a list of covariates that can be easily processed
-#' @keywords internal
-#' 
-processAsCovariate <- function(list) {
-  covariates <- new("covariates")
-  for (distribution in list) {
-    dist <- distribution@distribution
-    if (is(dist, "sampled_distribution")) {
-      name <- distribution %>% getColumnName()
-      covariates <- covariates %>% add(Covariate(name=name, distribution=dist))
-    } else {
-      stop(paste0("Unknown distribution class: ", as.character(class(dist))))
-    }
-  }
-  return(covariates)
-}
-
 #' Sample covariates list.
 #' 
 #' @param covariates list of covariates to sample
@@ -303,7 +301,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param nocb nocb value, logical value
 #' @param ... extra arguments
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
-#' @importFrom dplyr arrange left_join
+#' @importFrom dplyr arrange bind_rows left_join
 #' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
@@ -356,6 +354,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     }
     observations <- protocol@observations
     covariates <- arm@covariates
+    timeVaryingCovariates <- covariates %>% campsismod::select("time_varying_covariate")
     treatmentIovs <- treatment@iovs
     occasions <- treatment@occasions
     doseAdaptations <- treatment@dose_adaptations
@@ -367,12 +366,44 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     needsDV <- observations@list %>% purrr::map_lgl(~.x@dv %>% length() > 0) %>% any()
     table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID, needsDV=needsDV))
     table <- table %>% dplyr::arrange(ID, TIME, EVID)
-    
+
     # Sampling covariates
     cov <- sampleCovariatesList(covariates, n=length(ids))
+    
     if (nrow(cov) > 0) {
+      # Retrieve all covariate names (including time-varying ones)
+      allCovariateNames <- colnames(cov)
+      
+      # Left join all covariates as fixed (one value per subjet)
       cov <- cov %>% tibble::add_column(ID=ids, .before=1)
       table <- table %>% dplyr::left_join(cov, by="ID")
+
+      # Retrieve time-varying covariate names
+      timeVaryingCovariateNames <- timeVaryingCovariates %>% getNames()
+      
+      # Merge time-varying covariate names
+      if (timeVaryingCovariateNames %>% length() > 0) {
+        # Only keep first row. Please note that NA's will be filled in 
+        # by the final export method (depending on variables nocb & nocbvars)
+        table <- table %>% dplyr::group_by(ID) %>%
+          dplyr::mutate_at(.vars=timeVaryingCovariateNames,
+                           .funs=~ifelse(dplyr::row_number()==1, .x, as.numeric(NA))) %>%
+          dplyr::ungroup()
+        
+        # Merge all time varying covariate tables into a single table
+        # The idea is to use 1 EVID=2 row per subject time
+        timeCov <- mergeTimeVaryingCovariates(timeVaryingCovariates, ids) %>%
+          sampleTimeVaryingCovariates(armID=armID, needsDV=needsDV)
+        
+        # Bind with treatment and observations and sort
+        table <- dplyr::bind_rows(table, timeCov)
+        table <- table %>% dplyr::arrange(ID, TIME, EVID)
+        
+        # Fill NA values of fixed covariates that were introduced by EVID=2 rows
+        table <- table %>% dplyr::group_by(ID) %>%
+          tidyr::fill(allCovariateNames[!(allCovariateNames %in% timeVaryingCovariateNames)], .direction="down") %>%
+          dplyr::ungroup()
+      }  
     }
     
     # Sampling IOV's
@@ -477,10 +508,11 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
   nocbvars <- campsismod::processExtraArg(list(...), "nocbvars", default=NULL)
-  
-  # IOV/OCC post-processing
-  iovOccNames <- object %>% getIOVNames()
-  iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
+
+  # IOV / Occasion / Time-varying covariates post-processing
+  iovOccNames <- c(object %>% getIOVs() %>% getNames(),
+                   object %>% getOccasions() %>% getNames(),
+                   object %>% getTimeVaryingCovariates() %>% getNames())
   iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
@@ -501,9 +533,10 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
   nocbvars <- campsismod::processExtraArg(list(...), "nocbvars",  default=NULL)
   
-  # IOV/OCC post-processing
-  iovOccNames <- object %>% getIOVNames()
-  iovOccNames <- iovOccNames %>% append(object %>% getOccasionNames())
+  # IOV / Occasion / Time-varying covariates post-processing
+  iovOccNames <- c(object %>% getIOVs() %>% getNames(),
+                   object %>% getOccasions() %>% getNames(),
+                   object %>% getTimeVaryingCovariates() %>% getNames())
   iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
@@ -516,4 +549,16 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   }
   
   return(table %>% dplyr::ungroup())
+})
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("dataset"), definition=function(object) {
+  if (object@arms@list %>% length() <= 1) {
+    cat(paste0("Dataset (N=", object %>% length(), ")"))
+    cat("\n")
+  }
+  show(object@arms)
 })

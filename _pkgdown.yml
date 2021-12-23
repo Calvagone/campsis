@@ -34,6 +34,7 @@ reference:
   - Dataset
   - DatasetConfig
   - DoseAdaptation
+  - EventCovariate
   - Infusion
   - IOV
   - Observations
@@ -94,7 +95,9 @@ reference:
   - dose_adaptation-class
   - dose_adaptations-class
   - event-class
+  - event_covariate-class
   - events-class
+  - fixed_covariate-class
   - fixed_distribution-class
   - function_distribution-class
   - infusion-class
@@ -118,12 +121,13 @@ reference:
   contents:
   - dosingOnly
   - generateIIV
-  - getColumnName
-  - getCovariateNames
-  - getIOVNames
-  - getOccasionNames
+  - getCovariates
+  - getEventCovariates
+  - getFixedCovariates
+  - getIOVs
+  - getOccasions
   - getTimes
-  - getTimeVaryingCovariateNames
+  - getTimeVaryingCovariates
   - length,arm-method
   - length,dataset-method
   - obsOnly

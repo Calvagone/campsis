@@ -41,3 +41,17 @@ setMethod("getName", signature = c("dose_adaptation"), definition = function(x) 
 DoseAdaptation <- function(formula, compartments=integer(0)) {
   return(new("dose_adaptation", formula=formula, compartments=as.integer(compartments)))
 }
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("dose_adaptation"), definition=function(object) {
+  str <- "-> Dose adaptation (CMT="
+  if (object@compartments %>% length() == 0) {
+    str <- paste0(str, "ALL): ")
+  } else {
+    str <- paste0(str, paste0(object@compartments, collapse=","), "): ")
+  }
+  cat(paste0(str, object@formula))
+})

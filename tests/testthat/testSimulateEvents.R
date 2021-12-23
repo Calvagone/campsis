@@ -82,7 +82,7 @@ test_that("Daily dose in dataset + daily dose through events  (RxODE/mrgsolve)",
   outputRegressionTest(results2, output="CP", filename=regFilename)
 })
 
-test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
+test_that("Body weight as an event covariate (RxODE/mrgsolve)", {
   model <- model_library$advan2_trans2
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -93,7 +93,7 @@ test_that("Body weight as a time varying covariate (RxODE/mrgsolve)", {
     dataset <- dataset %>% add(Bolus(time=day*24, amount=1000))
   }
   dataset <- dataset %>% add(Observations(times=seq(0,24*2, by=1)))
-  dataset <- dataset %>% add(TimeVaryingCovariate("BW", 100))
+  dataset <- dataset %>% add(EventCovariate("BW", 100))
   
   events <- Events()
   event1 <- Event(name="Event 1", times=15, fun=function(inits) {
@@ -123,7 +123,7 @@ test_that("Dose adaptation based on Ctrough (RxODE/mrgsolve)", {
   dataset <- Dataset(5)
   days <- 7
   dataset <- dataset %>% add(Observations(times=seq(0,24*days, by=1)))
-  dataset <- dataset %>% add(TimeVaryingCovariate("DOSE", 1500))
+  dataset <- dataset %>% add(EventCovariate("DOSE", 1500))
   
   events <- Events()
   event1 <- Event(name="Dose adaptation", times=(seq_len(days)-1)*24, fun=function(inits) {

@@ -22,3 +22,13 @@ setClass(
 setMethod("getTimes", signature = c("observations_set"), definition = function(object) {
   return(object@list %>% purrr::map(.f=~.x@times) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
 })
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("observations_set"), definition=function(object) {
+  times <- object %>% getTimes()
+  cat(paste0("-> Obs. times: ", paste0(times, collapse=","), " (",
+             times %>% length() , " observations in total)"))
+})

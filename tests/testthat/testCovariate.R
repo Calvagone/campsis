@@ -8,6 +8,7 @@ test_that("Constant covariate", {
   expect_equal(covariate@name, "WT")
   expect_equal(covariate@distribution@value, 70)
   expect_equal(is(covariate, "covariate"), TRUE)
+  expect_equal(is(covariate, "fixed_covariate"), TRUE)
   expect_equal(is(covariate, "time_varying_covariate"), FALSE)
   
   # No distribution argument is provided
@@ -94,15 +95,39 @@ test_that("Bootstrap covariate", {
   expect_equal(covariate@distribution@sampled_values, data[c(9,4,7,1,2,7,2,3,1,5,5,10)]) # match(covariate@values, data) 
 })
 
-test_that("Time-varying covariate", {
-  covariate <- TimeVaryingCovariate("DOSE", 100) 
+test_that("Event-related covariate", {
+  covariate <- EventCovariate("DOSE", 100) 
   expect_equal(covariate@name, "DOSE")
   expect_equal(covariate@distribution@value, 100)
   expect_equal(is(covariate, "covariate"), TRUE)
-  expect_equal(is(covariate, "time_varying_covariate"), TRUE)
+  expect_equal(is(covariate, "event_covariate"), TRUE)
   
   # No initial distribution argument is provided
-  expect_error(TimeVaryingCovariate("DOSE"))
+  expect_error(EventCovariate("DOSE"))
+})
+
+test_that("Time-varying covariate", {
+  
+  expect_error(TimeVaryingCovariate("BW", table=data.frame()),
+               regexp="TIME and VALUE are mandatory columns")
+  
+  expect_error(TimeVaryingCovariate("BW", data.frame(TIME=1, VALUE=50)),
+               regexp="Please provide a value for time 0")
+
+  expect_error(TimeVaryingCovariate("BW", table=data.frame(ID=c(1,2,3), TIME=c(0,1,1), VALUE=c(50,50,50))),
+               regexp="Some ID's don't have a value for time 0: 2,3")
+  
+  expect_error(TimeVaryingCovariate("BW", table=data.frame(ID=c(1,1,2), TIME=c(0,0,0), VALUE=c(50,50,100))),
+               regexp="Some ID's have several values for time 0")
+  
+  bw1 <- data.frame(ID=1, TIME=c(0), VALUE=c(70)) # Constant
+  bw2 <- data.frame(ID=2, TIME=c(0, 24), VALUE=c(100, 90))
+  bw3 <- data.frame(ID=3, TIME=c(0, 12, 25, 36), VALUE=c(90, 80, 70, 60))
+  bw4 <- data.frame(ID=4, TIME=c(0, 12, 25, 36), VALUE=c(50, 40, 30, 20))
+  cov <- TimeVaryingCovariate("BW", table=dplyr::bind_rows(bw1, bw2, bw3, bw4))
+  
+  expect_equal(cov@distribution, FixedDistribution(c(70,100,90,50)))
+  expect_equal(cov@table, data.frame(ID=c(2,3,3,3,4,4,4), TIME=c(24,12,25,36,12,25,36), VALUE=c(90,80,70,60,40,30,20)))
 })
 
 

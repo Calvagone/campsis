@@ -7,7 +7,7 @@
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param gather FALSE: med, low & up columns, TRUE: metric column
 #' @return summary
-#' @importFrom dplyr across group_by_at mutate rename_at summarise
+#' @importFrom dplyr across all_of group_by_at mutate rename_at summarise
 #' @importFrom tidyr gather
 #' @export
 PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
