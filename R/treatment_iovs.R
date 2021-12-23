@@ -14,3 +14,14 @@ setClass(
   contains="pmx_list",
   prototype = prototype(type="treatment_iov")
 )
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("treatment_iovs"), definition=function(object) {
+  if (object %>% length() > 0) {
+    cat("-> Treatment IOV:", paste0(object %>% getNames(), collapse=","))
+    cat("\n")
+  }
+})

@@ -184,4 +184,7 @@ setMethod("show", signature=c("treatment"), definition=function(object) {
     cat(getAdminString(object, adminTypes[index,] %>% as.list()))
     cat("\n")
   }
+  show(object@iovs)
+  show(object@occasions)
+  show(object@dose_adaptations)
 })

@@ -36,8 +36,6 @@ test_that("Simulate infusion using duration in dataset, then in model", {
   
   model <- model %>% add(InfusionDuration(compartment=1, rhs="5"))
   
-  show(dataset) # Explicit call to show
-  
   results3 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   spaghettiPlot(results3, "CP")
   expect_equal(nrow(results3), 49)
