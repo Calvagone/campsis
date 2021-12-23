@@ -28,5 +28,7 @@ setMethod("getTimes", signature = c("observations_set"), definition = function(o
 #_______________________________________________________________________________
 
 setMethod("show", signature=c("observations_set"), definition=function(object) {
-  cat(paste0("-> Obs. times: ", paste0(object %>% getTimes(), collapse=",")))
+  times <- object %>% getTimes()
+  cat(paste0("-> Obs. times: ", paste0(times, collapse=","), " (",
+             times %>% length() , " observations in total)"))
 })

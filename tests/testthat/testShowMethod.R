@@ -5,29 +5,34 @@ context("Test the show method applied on a dataset")
 test_that("Applying method show on a few datasets works as expected", {
   
   # Dataset with dose adaptation, CMT not specified (1)
-  dataset <- Dataset(2)
-  dataset <- dataset %>% add(Bolus(time=seq(0,6)*24, amount=0.5)) # 0.5mg / kg
-  dataset <- dataset %>% add(Observations(times=seq(0,7*24, by=4)))
-  dataset <- dataset %>% add(Covariate("WT", c(100, 50)))
-  dataset <- dataset %>% add(DoseAdaptation("AMT*WT"))
+  dataset <- Dataset(2) %>%
+    add(Bolus(time=seq(0,6)*24, amount=0.5)) %>% # 0.5mg / kg
+    add(Observations(times=seq(0,7*24, by=4))) %>%
+    add(Covariate("WT", c(100, 50))) %>%
+    add(DoseAdaptation("AMT*WT"))
   show(dataset)
+  expect_true("-> Dose adaptation (CMT=ALL): AMT*WT" %in% capture.output(show(dataset)))
   
   # Dataset with dose adaptation, CMT=1 (2)
   times <- seq(0,7*24, by=4)
-  dataset <- Dataset(2)
-  dataset <- dataset %>% add(Bolus(time=0, amount=0.5, compartment=1, ii=24, addl=6))
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=5))
-  dataset <- dataset %>% add(Observations(times=times))
-  dataset <- dataset %>% add(Covariate("WT", c(100, 50)))
-  dataset <- dataset %>% add(DoseAdaptation("AMT*WT", compartments=1))
+  dataset <- Dataset(2) %>%
+    add(Bolus(time=0, amount=0.5, compartment=1, ii=24, addl=6)) %>%
+    add(Bolus(time=0, amount=1000, compartment=5)) %>%
+    add(Observations(times=times)) %>%
+    add(Covariate("WT", c(100, 50))) %>%
+    add(Covariate("WT2", c(100, 50))) %>%
+    add(DoseAdaptation("AMT*WT", compartments=1))
   show(dataset)
+  expect_true("-> Dose adaptation (CMT=1): AMT*WT" %in% capture.output(show(dataset)))
   
   # Dataset with an Infusion, IOV
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Infusion(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
-  dataset <- dataset %>% add(IOV("IOV_KA", NormalDistribution(0, 1)))
+  dataset <- Dataset() %>%
+    add(Infusion(time=0, amount=1000, compartment=1)) %>%
+    add(Observations(times=seq(0,24, by=0.5))) %>%
+    add(IOV("IOV_KA", NormalDistribution(0, 1)))
   show(dataset)
+  expect_true("-> Adm. times (infusion into CMT=1): 0 (1000)" %in% capture.output(show(dataset)))
+  expect_true("-> Treatment IOV: IOV_KA" %in% capture.output(show(dataset)))
   
   # Dataset with 2 arms and timevarying covariates
   bw1_1 <- data.frame(ID=1, TIME=c(0), VALUE=c(70)) # Constant
@@ -47,14 +52,33 @@ test_that("Applying method show on a few datasets works as expected", {
   
   ds <- Dataset() %>% add(c(arm1, arm2))
   show(ds)
+  expect_true("Arm 1 (N=2)" %in% capture.output(show(ds)))
+  expect_true("Arm 2 (N=2)" %in% capture.output(show(ds)))
+  expect_true("Time-varying covariates: BW" %in% capture.output(show(ds)))
   
-  # Dataset with occasions
-  ds <- Dataset()
-  ds <- ds %>% add(Bolus(time=0, amount=100))
-  ds <- ds %>% add(Bolus(time=24, amount=100))
-  ds <- ds %>% add(Bolus(time=48, amount=100))
-  ds <- ds %>% add(Observations(times=seq(0, 60, by=10)))
-  ds <- ds %>% add(Occasion("MY_OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
-  show(ds) 
+  # Dataset with occasions, multiple ascending doses
+  ds <- Dataset() %>%
+    add(Bolus(time=0, amount=100)) %>%
+    add(Bolus(time=24, amount=100)) %>%
+    add(Bolus(time=48, amount=200)) %>%
+    add(Bolus(time=72, amount=200)) %>%
+    add(Bolus(time=96, amount=300)) %>%
+    add(Bolus(time=120, amount=400)) %>%
+    add(Observations(times=seq(0, 60, by=10))) %>%
+    add(Occasion("MY_OCC", values=c(1,2,3), doseNumbers=c(1,2,3)))
+  show(ds)
+  expect_true("-> Adm. times (bolus into DEFAULT): 0 (100),24,48 (200),72,96 (300),120 (400)" %in% capture.output(show(ds)))
+  expect_true("-> Treatment occasions: MY_OCC" %in% capture.output(show(ds)))
   
+  # Dataset with observations-only and event-related covariates
+  ds <- Dataset(3) %>% 
+    add(Covariate("BAS", 0.02)) %>%
+    add(Covariate("WT", 70)) %>%
+    add(Observations(0:336)) %>%
+    add(Covariate("ROUT", 0)) %>%
+    add(EventCovariate("CURRENT_DOSE", 0)) %>%
+    add(EventCovariate("LAST_DOSE", 0.1))
+  show(ds)
+  expect_true("Covariates: BAS,WT,ROUT" %in% capture.output(show(ds)))
+  expect_true("Event-related covariates: CURRENT_DOSE,LAST_DOSE" %in% capture.output(show(ds)))
 })
