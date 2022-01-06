@@ -278,7 +278,7 @@ applyCompartmentCharacteristics <- function(table, properties) {
         table <- table %>% dplyr::mutate(RATE=0)
       }
       rateValue <- ifelse(isRate, -1, -2)
-      table <- table %>% dplyr::mutate(RATE=ifelse(EVID==1 & CMT==compartment & IS_INFUSION %in% TRUE, rateValue, RATE))
+      table <- table %>% dplyr::mutate(RATE=ifelse(EVID==1 & CMT==compartment & INFUSION_TYPE %in% c(-1,-2), rateValue, RATE))
     }
   }
   return(table)
@@ -312,7 +312,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
   args <- list(...)
   model <- args$model
   if (!is.null(model) && !is(model, "campsis_model")) {
-    stop("Please provide a valid PMX model.")
+    stop("Please provide a valid CAMPSIS model.")
   }
   
   # Set seed value
@@ -430,11 +430,19 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     for (doseAdaptation in doseAdaptations@list) {
       compartments <- doseAdaptation@compartments
       expr <- rlang::parse_expr(doseAdaptation@formula)
+      # If a duration was specified, same duration applies on new AMT (i.e. RATE is recomputed)
+      # If a rate was specified, same rate applies on new AMT (nothing to do)
       if (compartments %>% length() > 0) {
-        table <- table %>% dplyr::mutate(AMT=ifelse(CMT %in% compartments, eval(expr), AMT))
+        table <- table %>% 
+          dplyr::mutate(AMT_=ifelse(CMT %in% compartments, eval(expr), AMT),
+                        RATE=ifelse((CMT %in% compartments) & !is.na(INFUSION_TYPE) & INFUSION_TYPE==-2, RATE*AMT_/AMT, RATE))
       } else {
-        table <- table %>% dplyr::mutate(AMT=eval(expr))
+        table <- table %>% 
+          dplyr::mutate(AMT_=eval(expr),
+                        RATE=ifelse(!is.na(INFUSION_TYPE) & INFUSION_TYPE==-2, RATE*AMT_/AMT, RATE))
       }
+      # Keep final rate and remove temporary column AMT_
+      table <- table %>% dplyr::mutate(AMT=AMT_) %>% dplyr::select(-AMT_)
     }
     
     return(table)
@@ -445,8 +453,8 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     retValue <- applyCompartmentCharacteristics(retValue, model@compartments@properties)
   }
   
-  # Remove IS_INFUSION column
-  retValue <- retValue %>% dplyr::select(-IS_INFUSION)
+  # Remove INFUSION_TYPE column
+  retValue <- retValue %>% dplyr::select(-INFUSION_TYPE)
   
   return(retValue)
 }

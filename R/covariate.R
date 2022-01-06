@@ -192,10 +192,10 @@ sampleTimeVaryingCovariates <- function(object, armID, needsDV) {
   retValue <- tibble::tibble(
     ID=object$ID, ARM=as.integer(armID), TIME=object$TIME,
     EVID=as.integer(2), MDV=as.integer(0), AMT=as.numeric(NA), CMT=as.integer(NA), RATE=as.numeric(0), DOSENO=as.integer(NA),
-    IS_INFUSION=as.logical(NA), EVENT_RELATED=as.integer(0)
+    INFUSION_TYPE=as.integer(NA), EVENT_RELATED=as.integer(0)
   )
   if (needsDV) {
-    retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="IS_INFUSION")
+    retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="INFUSION_TYPE")
   }
   
   retValue <- cbind(retValue, object[, covNames])
