@@ -197,10 +197,10 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   retValue <- tibble::tibble(
     ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, 
     EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number,
-    IS_INFUSION=FALSE, EVENT_RELATED=as.integer(FALSE)
+    INFUSION_TYPE=as.integer(0), EVENT_RELATED=as.integer(FALSE)
   )
   if (needsDV) {
-    retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="IS_INFUSION")
+    retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="INFUSION_TYPE")
   }
   return(retValue)
 })
@@ -224,19 +224,19 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   retValue <- tibble::tibble(
     ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, 
     EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number,
-    IS_INFUSION=TRUE, EVENT_RELATED=as.integer(FALSE)
+    INFUSION_TYPE=as.integer(-2), EVENT_RELATED=as.integer(FALSE)
   )
   
   # Duration or rate
   if (!is(object@duration, "undefined_distribution")) {
     duration <- sampleTrtDistribution(object@duration, n, default=0)
-    retValue <- retValue %>% dplyr::mutate(RATE=AMT/duration)
+    retValue <- retValue %>% dplyr::mutate(RATE=AMT/duration, INFUSION_TYPE=as.integer(-2))
   } else if (!is(object@rate, "undefined_distribution")) {
     rate <- sampleTrtDistribution(object@rate, n, default=0)
-    retValue <- retValue %>% dplyr::mutate(RATE=rate)
+    retValue <- retValue %>% dplyr::mutate(RATE=rate, INFUSION_TYPE=as.integer(-1))
   }
   if (needsDV) {
-    retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="IS_INFUSION")
+    retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="INFUSION_TYPE")
   }
   return(retValue)
 })

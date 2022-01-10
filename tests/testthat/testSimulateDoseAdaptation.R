@@ -30,6 +30,56 @@ test_that("Dose adaptations based on weight work well (RxODE/mrgsolve)", {
   # spaghettiPlot(results2, "CP", "id")
 })
 
+test_that("Dose adaptations preserve specified infusion duration (RxODE/mrgsolve)", {
+  model <- model_library$advan3_trans4 %>% disable("IIV")
+  regFilename <- "dose_adaptation_by_bw_infusion"
+  
+  dataset <- Dataset(2) %>%
+    add(Infusion(time=seq(0,6)*24, amount=0.5, duration=10)) %>% # 0.5mg/kg, 10 hours 
+    add(Observations(times=seq(0,7*24, by=4))) %>%
+    add(Covariate("WT", c(100, 50))) %>%
+    add(DoseAdaptation("AMT*WT"))
+  
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  
+  datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
+  
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
+  
+  # spaghettiPlot(results1, "CP", "ID")
+  # spaghettiPlot(results2, "CP", "ID")
+})
+
+test_that("Dose adaptations preserve specified infusion rate (RxODE/mrgsolve)", {
+  model <- model_library$advan3_trans4 %>% disable("IIV")
+  regFilename <- "dose_adaptation_by_bw_infusion"
+  
+  subj1 <- Arm(subjects=1) %>%
+    add(Infusion(time=seq(0,6)*24, amount=0.5, rate=5)) %>% # 0.5mg/kg, 50mg/10h=5mg/h 
+    add(Observations(times=seq(0,7*24, by=4))) %>%
+    add(Covariate("WT", 100)) %>%
+    add(DoseAdaptation("AMT*WT"))
+  
+  subj2 <- Arm(subjects=1) %>%
+    add(Infusion(time=seq(0,6)*24, amount=0.5, rate=2.5)) %>% # 0.5mg/kg, 25mg/10h=2.5mg/h 
+    add(Observations(times=seq(0,7*24, by=4))) %>%
+    add(Covariate("WT", 50)) %>%
+    add(DoseAdaptation("AMT*WT"))
+  
+  dataset <- Dataset() %>% add(c(subj1, subj2))
+  
+  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
+  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  
+  outputRegressionTest(results1, output="CP", filename=regFilename)
+  outputRegressionTest(results2, output="CP", filename=regFilename)
+  
+  # spaghettiPlot(results1, "CP", "ID")
+  # spaghettiPlot(results2, "CP", "ID")
+})
+
 test_that("Dose adaptations based on weight work well, check argument compartments works as expected (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw"

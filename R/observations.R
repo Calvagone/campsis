@@ -93,7 +93,7 @@ setMethod("sample", signature = c("observations", "integer"), definition = funct
   retValue <- tibble::tibble(
     ID=rep(ids, each=length(object@times)), ARM=as.integer(armID), TIME=rep(object@times, n),
     EVID=as.integer(0), MDV=as.integer(0), AMT=as.numeric(NA), CMT=obsCmt, RATE=as.numeric(0), DOSENO=as.integer(NA),
-    IS_INFUSION=as.logical(NA), EVENT_RELATED=as.integer(isEventRelated)
+    INFUSION_TYPE=as.integer(NA), EVENT_RELATED=as.integer(isEventRelated)
   )
   if (needsDV) {
     if (object@dv %>% length() > 0) {
@@ -101,7 +101,7 @@ setMethod("sample", signature = c("observations", "integer"), definition = funct
     } else {
       dv <- rep(as.numeric(0), object@times %>% length())
     }
-    retValue <- retValue %>% tibble::add_column(DV=rep(dv, n), .before="IS_INFUSION")
+    retValue <- retValue %>% tibble::add_column(DV=rep(dv, n), .before="INFUSION_TYPE")
   }
   return(retValue)
 })
