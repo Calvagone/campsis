@@ -1,7 +1,7 @@
 library(testthat)
 library(ggplot2)
 
-context("Simulation with full uncertainty (variance-covariance matrix)")
+context("Study can be replicated using argument 'replicates'")
 
 overwriteNonRegressionFiles <<- FALSE
 testFolder <<- ""
@@ -52,5 +52,25 @@ test_that("VPC on both CP and Y (function)", {
 
   # vpcOutputRegressionTest(results1, output="Y", filename=regFilename) # Not a good test because seed is controlled by RxODE
   vpcOutputRegressionTest(results1, output="CP", filename=regFilename)
+})
+
+test_that("Study replication also works with scenarios", {
+  
+  model <- model_library$advan2_trans1
+  ds <- Dataset(10) %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(times=c(0,1,2,4,8,12)))
+  
+  scenarios <- Scenarios() %>%
+    add(Scenario(name="Base model")) %>%
+    add(Scenario(name="Increased KA", model=~.x %>% replace(Theta(name="KA", value=3)))) # 3 instead of 1
+  
+  results <- model %>% simulate(dataset=ds, dest="RxODE", replicates=5,
+                                outfun=~PI(.x, output="CP"),
+                                seed=seed, scenarios=scenarios)
+  expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results)))
+  expect_true(all(results$SCENARIO %>% unique()==c("Base model", "Increased KA")))
+  
+  vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO)
 })
 

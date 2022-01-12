@@ -220,7 +220,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
                                     tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
                                     nocb=nocb, dosing=dosing, replicate=replicate, iterations=iterations, summary=summary, ...)
     if (scenarios %>% length() > 1) {
-      inner <- inner %>% tibble::add_column(SCENARIO=scenario@name, .before="ARM")
+      inner <- inner %>% dplyr::mutate(SCENARIO=scenario@name)
     }
     return(inner)
   })
@@ -402,9 +402,9 @@ reorderColumns <- function(results, dosing) {
   # Use of any_of with relocate because ARM column may not be there if simulate
   # is used with a 2-dimensional dataset
   if (dosing) {
-    results <- results %>% dplyr::relocate(dplyr::any_of(c("ID", "EVID", "CMT", "AMT", "TIME", "ARM")))
+    results <- results %>% dplyr::relocate(dplyr::any_of(c("ID", "EVID", "CMT", "AMT", "TIME", "SCENARIO", "ARM")))
   } else {
-    results <- results %>% dplyr::relocate(dplyr::any_of(c("ID", "TIME", "ARM")))
+    results <- results %>% dplyr::relocate(dplyr::any_of(c("ID", "TIME", "SCENARIO", "ARM")))
   }
   return(results)
 }
