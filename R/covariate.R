@@ -160,11 +160,11 @@ TimeVaryingCovariate <- function(name, table) {
 mergeTimeVaryingCovariates <- function(covariates, ids) {
   startingID <- min(ids)
   timeVaryingCovariates <- covariates %>% campsismod::select("time_varying_covariate")
-  tables <- timeVaryingCovariates %>% .@list %>%
+  tables <- timeVaryingCovariates@list %>%
     purrr::map_df(.f=function(covariate) {
       table <- covariate@table %>% dplyr::mutate(VARIABLE=covariate@name)
       if (("ID" %in% colnames(table))) {
-        return(table %>% dplyr::mutate(ID=ID + startingID - 1))
+        return(table %>% dplyr::mutate(ID=.data$ID + startingID - 1))
       } else {
         retValue <- ids %>% purrr::map_df(.f=function(id) {
           return(cbind(ID=id, table))

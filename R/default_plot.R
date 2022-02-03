@@ -26,7 +26,7 @@ factorScenarios <- function(x, scenarios=NULL) {
 #' @export
 obsOnly <- function(x) {
   if ("EVID" %in% colnames(x)) {
-    return(x %>% dplyr::filter(EVID==0))
+    return(x %>% dplyr::filter(.data$EVID==0))
   } else {
     return(x)
   }

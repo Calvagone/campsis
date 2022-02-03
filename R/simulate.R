@@ -117,6 +117,7 @@ getDatasetMaxTime <- function(dataset) {
 #' @param replicate current replicate number
 #' @param iterations number of iterations
 #' @keywords internal
+#' @importFrom dplyr across bind_rows group_by slice ungroup
 #' 
 simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, replicate, iterations, ...) {
   destEngine <- getSimulationEngineType(dest)
@@ -137,7 +138,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     results_$TIME <- results_$TIME + iteration@start
     
     # Store initial values for next iteration
-    inits <- results_ %>% dplyr::group_by(ID) %>% dplyr::slice(which.max(TIME))
+    inits <- results_ %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::slice(which.max(.data$TIME))
     
     # Set seed for next simulation
     iterationSeed <- getSeedForIteration(seed=seed, replicate=replicate, iterations=iterations %>% length(), iteration=iteration@index)
@@ -152,7 +153,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     
     # Get rid of event related observations and remove column
     
-    results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0) %>% dplyr::select(-EVENT_RELATED)
+    results_ <- results_ %>% dplyr::filter(.data$EVENT_RELATED==0) %>% dplyr::select(-dplyr::all_of("EVENT_RELATED"))
     
     # Append simulation results to global results
     # Except for iteration 1 from 0 to 0 which is a special case
@@ -163,7 +164,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   # Reorder results dataframe if at least 1 interruption in order to group results by ID
   # Otherwise, the dataframe is already ordered
   if (iterations %>% length() > 0) {
-    results <- results %>% dplyr::arrange(ID)
+    results <- results %>% dplyr::arrange(dplyr::across("ID"))
   }
   return(outfun(results))
 }
@@ -184,7 +185,7 @@ processArmLabels <- function(campsis, arms) {
   armLabels <- arms@list %>% purrr::map_chr(~.x@label)
   if (any(!is.na(armLabels))) {
     armLabels <- ifelse(is.na(armLabels), paste("ARM", armIds), armLabels)
-    campsis <- campsis %>% dplyr::mutate(ARM=plyr::mapvalues(ARM, from=armIds, to=armLabels))
+    campsis <- campsis %>% dplyr::mutate(ARM=plyr::mapvalues(.data$ARM, from=armIds, to=armLabels))
   }
   return(campsis)
 }
@@ -358,7 +359,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
   
   # Prepare all subdatasets (1 event dataframe per slice/round)
   subdatasets <- purrr::map2(sliceRounds$start, sliceRounds$end, .f=function(.x, .y){
-    subdataset <- dataset %>% dplyr::filter(ID >= .x & ID <= .y)
+    subdataset <- dataset %>% dplyr::filter(.data$ID >= .x & .data$ID <= .y)
     return(subdataset)
   })
   
@@ -384,7 +385,7 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
     inits <- NULL
   } else {
     assertthat::assert_that(currentID %>% length()==1, msg=paste0("Not a single ID: ", paste0(currentID, collapse=",")))
-    inits <- iteration@inits %>% dplyr::filter(ID==currentID) %>% unlist()
+    inits <- iteration@inits %>% dplyr::filter(.data$ID==currentID) %>% unlist()
     inits <- inits[cmtNames]
   }
   return(inits)
@@ -451,14 +452,14 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     
     # RxODE does not add the 'ID' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
-      tmp <- tmp %>% tibble::add_column(ID=unique(subdataset$ID), .before=1) %>% dplyr::rename(TIME=time)
+      tmp <- tmp %>% tibble::add_column(ID=unique(subdataset$ID), .before=1) %>% dplyr::rename(TIME="time")
     } else {
       # Use same ID and TIME columns as NONMEM/mrgsolve
-      tmp <- tmp %>% dplyr::rename(ID=id, TIME=time)
+      tmp <- tmp %>% dplyr::rename(ID="id", TIME="time")
     }
     if (dosing) {
       # Rename dosing-related columns
-      tmp <- tmp %>% dplyr::rename(EVID=evid, CMT=cmt, AMT=amt)
+      tmp <- tmp %>% dplyr::rename(EVID="evid", CMT="cmt", AMT="amt")
     }
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))

@@ -479,19 +479,19 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
 #' @param columnNames the column names to fill
 #' @param downDirectionFirst TRUE: first fill down then fill up (by ID & TIME). FALSE: First fill up (by ID & TIME), then fill down
 #' @return 2-dimensional dataset
-#' @importFrom dplyr all_of group_by mutate_at
+#' @importFrom dplyr across all_of group_by mutate_at
 #' @importFrom tidyr fill
 #' @keywords internal
 #' 
 fillIOVOccColumns <- function(table, columnNames, downDirectionFirst) {
   if (downDirectionFirst) {
-    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
-    table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")       # 2
-    table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+    table <- table %>% dplyr::group_by(dplyr::across("ID")) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
+    table <- table %>% dplyr::group_by(dplyr::across(c("ID","TIME"))) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")      # 2
+    table <- table %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
   } else {
-    table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")       # 2
-    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
-    table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+    table <- table %>% dplyr::group_by(dplyr::across(c("ID","TIME"))) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")      # 2
+    table <- table %>% dplyr::group_by(dplyr::across("ID")) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
+    table <- table %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
   }
   return(table)
 }
