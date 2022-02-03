@@ -17,9 +17,9 @@ PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
   retValue <- x %>% dplyr::rename_at(.vars=output, .funs=~"variable_") %>%
     dplyr::group_by_at(c("TIME", scenarios)) %>%
     dplyr::summarise(
-      med=stats::median(variable_),
-      low=stats::quantile(variable_, (1-level)/2),
-      up=stats::quantile(variable_, 1-(1-level)/2)
+      med=stats::median(.data$variable_),
+      low=stats::quantile(.data$variable_, (1-level)/2),
+      up=stats::quantile(.data$variable_, 1-(1-level)/2)
     )
   # Gather data if requested
   if (gather) {
@@ -49,6 +49,9 @@ PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
 VPC <- function(x, scenarios=NULL, level=0.90) {
   x_ <- factorScenarios(x, scenarios=scenarios)
   retValue <- PI(x=x_, output="value", scenarios=c("metric", scenarios), level=level, gather=FALSE)
-  retValue_ <- retValue %>% tidyr::pivot_wider(names_from=metric, names_glue="{metric}_{.value}", values_from=c(low, med, up))
+  retValue_ <- retValue %>%
+    tidyr::pivot_wider(names_from="metric",
+                       names_glue="{metric}_{.value}",
+                       values_from=c("low", "med", "up"))
   return(retValue_)
 }

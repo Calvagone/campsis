@@ -287,11 +287,12 @@ applyCompartmentCharacteristics <- function(table, properties) {
   return(table)
 }
 
+#' @importFrom dplyr all_of
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, nocb=FALSE, event_related_column=FALSE, ...) {
   destinationEngine <- getSimulationEngineType(dest)
   table <- object %>% export(destinationEngine, seed=seed, nocb=nocb, ...)
   if (!event_related_column) {
-    table <- table %>% dplyr::select(-EVENT_RELATED)
+    table <- table %>% dplyr::select(-dplyr::all_of("EVENT_RELATED"))
   }
   return(table)
 })

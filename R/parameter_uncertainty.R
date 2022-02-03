@@ -4,6 +4,9 @@
 #_______________________________________________________________________________
 
 #' @rdname sample
+#' @importFrom stats setNames
+#' @importFrom MASS mvrnorm
+#' @importFrom purrr accumulate map map_dbl pluck
 setMethod("sample", signature = c("campsis_model", "integer"), definition = function(object, n) {
   
   varcov <- object@parameters@varcov
@@ -18,7 +21,7 @@ setMethod("sample", signature = c("campsis_model", "integer"), definition = func
     # Variance-covariance matrix detected, generate parameters
     originalParams <- colnames(varcov) %>% purrr::map(.f=function(.x){
       return(object@parameters %>% getByName(.x)) 
-    }) %>% setNames(colnames(varcov))
+    }) %>% stats::setNames(colnames(varcov))
     
     mean <- originalParams %>% purrr::map_dbl(~.x@value)
     parametersTable <- MASS::mvrnorm(n=n, mu=mean, Sigma=varcov)

@@ -106,7 +106,7 @@ setClass(
 #'  max number of subjects in the dataset/arm can be used. All ID's must have a VALUE
 #'  defined for TIME 0.
 #' @return a time-varying covariate
-#' @importFrom dplyr arrange filter
+#' @importFrom dplyr across arrange filter
 #' @export
 TimeVaryingCovariate <- function(name, table) {
   if (!(all(c("TIME", "VALUE") %in% colnames(table)))) {
@@ -116,12 +116,12 @@ TimeVaryingCovariate <- function(name, table) {
   
   # Sort dataframe
   if (hasID) {
-    table <- table %>% dplyr::arrange(ID, TIME)
+    table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME")))
   } else {
-    table <- table %>% dplyr::arrange(TIME)
+    table <- table %>% dplyr::arrange(dplyr::across("TIME"))
   }
-  tableT0 <- table %>% dplyr::filter(TIME==0)
-  tableAfterT0 <- table %>% dplyr::filter(TIME>0)
+  tableT0 <- table %>% dplyr::filter(.data$TIME==0)
+  tableAfterT0 <- table %>% dplyr::filter(.data$TIME>0)
   
   if (hasID) {
     requiredIDs <- seq_len(max(table$ID))
