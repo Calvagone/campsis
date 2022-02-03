@@ -40,3 +40,6 @@ docs/
 
 # R Environment Variables
 .Renviron
+
+# Other files or folders to ignore
+/README_files/
