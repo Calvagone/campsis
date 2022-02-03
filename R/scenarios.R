@@ -28,10 +28,11 @@ Scenarios <- function() {
 #----                           add                                   ----
 #_______________________________________________________________________________
 
+#' @importFrom methods callNextMethod
 setMethod("add", signature = c("scenarios", "scenario"), definition = function(object, x) {
   # Create default name is name was not set
   if (is.na(x@name)) {
     x@name <- paste("Scenario", object %>% length() + 1)
   } 
-  return(callNextMethod(object, x))
+  return(methods::callNextMethod(object, x))
 })

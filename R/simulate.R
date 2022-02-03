@@ -193,7 +193,7 @@ processArmLabels <- function(campsis, arms) {
 #' 
 #' @inheritParams simulate
 #' @keywords internal
-#' 
+#' @importFrom methods validObject
 simulateScenarios <- function(scenarios, model, dataset, dest, events,
                               tablefun, outvars, outfun, seed, replicates,
                               nocb, dosing, replicate, ...) {
@@ -202,10 +202,10 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     dataset <- dataset %>% applyScenario(scenario)
     
     # Validate CAMPSIS model in depth
-    validObject(model, complete=TRUE)
+    methods::validObject(model, complete=TRUE)
     
     # Validate CAMPSIS dataset in depth (btw, validObject also works on non S4 objects)
-    validObject(dataset, complete=TRUE)
+    methods::validObject(dataset, complete=TRUE)
     
     maxTime <- getDatasetMaxTime(dataset)
     iterations <- getEventIterations(events, maxTime=maxTime)
@@ -231,7 +231,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' 
 #' @inheritParams simulate
 #' @keywords internal
-#' 
+#' @importFrom methods validObject
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   # Single replicate: don't use parameter uncertainty
   if (replicates==1) {
@@ -241,7 +241,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   # More than 1 replicate: parameter uncertainty enabled
   } else {
     # First make sure CAMPSIS model is valid
-    validObject(model, complete=TRUE)
+    methods::validObject(model, complete=TRUE)
     
     # Get as many models as replicates
     parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)

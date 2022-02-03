@@ -275,9 +275,10 @@ setMethod("replace", signature = c("arm", "covariate"), definition = function(ob
 #_______________________________________________________________________________
 
 #' @rdname setLabel
+#' @importFrom methods validObject
 setMethod("setLabel", signature = c("arm", "character"), definition = function(object, x) {
   object@label <- x
-  validObject(object)
+  methods::validObject(object)
   return(object)
 })
 
@@ -286,9 +287,10 @@ setMethod("setLabel", signature = c("arm", "character"), definition = function(o
 #_______________________________________________________________________________
 
 #' @rdname setSubjects
+#' @importFrom methods validObject
 setMethod("setSubjects", signature = c("arm", "integer"), definition = function(object, x) {
   object@subjects <- x
-  validObject(object)
+  methods::validObject(object)
   return(object)
 })
 

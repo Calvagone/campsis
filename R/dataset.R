@@ -203,12 +203,13 @@ setMethod("replace", signature = c("dataset", "pmx_element"), definition = funct
 #_______________________________________________________________________________
 
 #' @rdname setSubjects
+#' @importFrom methods validObject
 setMethod("setSubjects", signature = c("dataset", "integer"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@subjects <- x
   object <- object %>% replace(arm)
-  validObject(object)
+  methods::validObject(object)
   return(object)
 })
 

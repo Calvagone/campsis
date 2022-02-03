@@ -23,6 +23,7 @@ Imports:
     plyr,
     purrr,
     rlang,
+    stats,
     tibble,
     tidyr
 Suggests: 
@@ -44,6 +45,7 @@ Language: en-US
 LazyData: true
 RoxygenNote: 7.1.1
 Collate:
+    'global.R'
     'utilities.R'
     'check.R'
     'generic.R'

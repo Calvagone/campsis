@@ -8,7 +8,8 @@
 #' @param gather FALSE: med, low & up columns, TRUE: metric column
 #' @return summary
 #' @importFrom dplyr across all_of group_by_at mutate rename_at summarise
-#' @importFrom tidyr gather
+#' @importFrom tidyr pivot_longer
+#' @importFrom stats median quantile
 #' @export
 PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
   assertthat::assert_that(is.character(output) && length(output)==1)
@@ -16,21 +17,16 @@ PI <- function(x, output, scenarios=NULL, level=0.90, gather=TRUE) {
   retValue <- x %>% dplyr::rename_at(.vars=output, .funs=~"variable_") %>%
     dplyr::group_by_at(c("TIME", scenarios)) %>%
     dplyr::summarise(
-      med=median(variable_),
-      low=quantile(variable_, (1-level)/2),
-      up=quantile(variable_, 1-(1-level)/2)
+      med=stats::median(variable_),
+      low=stats::quantile(variable_, (1-level)/2),
+      up=stats::quantile(variable_, 1-(1-level)/2)
     )
   # Gather data if requested
   if (gather) {
     # Remove attributes in columns low, med, up (5%, 95%, coming from the quantile method)
     # This causes warnings
     retValue <- retValue %>% dplyr::mutate(dplyr::across(c("low", "med", "up"), as.vector))
-    
-    if (is.null(scenarios)) {
-      retValue <- retValue %>% tidyr::gather(key="metric", value="value", -TIME)
-    } else {
-      retValue <- retValue %>% tidyr::gather(key="metric", value="value", -TIME, -dplyr::all_of(scenarios))
-    }
+    retValue <- retValue %>% tidyr::pivot_longer(-dplyr::all_of(c("TIME", scenarios)), names_to="metric", values_to="value")
   }
 
   return(retValue)
