@@ -39,7 +39,7 @@ obsOnly <- function(x) {
 #' @export
 dosingOnly <- function(x) {
   if ("EVID" %in% colnames(x)) {
-    return(x %>% dplyr::filter(EVID==1))
+    return(x %>% dplyr::filter(.data$EVID==1))
   } else {
     return(x)
   }

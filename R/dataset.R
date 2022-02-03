@@ -304,7 +304,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param nocb nocb value, logical value
 #' @param ... extra arguments
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
-#' @importFrom dplyr arrange bind_rows left_join
+#' @importFrom dplyr across all_of arrange bind_rows group_by left_join
 #' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
@@ -367,8 +367,9 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     
     # Create the base table with all treatment entries and observations
     needsDV <- observations@list %>% purrr::map_lgl(~.x@dv %>% length() > 0) %>% any()
-    table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID, needsDV=needsDV))
-    table <- table %>% dplyr::arrange(ID, TIME, EVID)
+    table <- c(treatment@list, observations@list) %>%
+      purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID, needsDV=needsDV))
+    table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))
 
     # Sampling covariates
     cov <- sampleCovariatesList(covariates, n=length(ids))
@@ -388,7 +389,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       if (timeVaryingCovariateNames %>% length() > 0) {
         # Only keep first row. Please note that NA's will be filled in 
         # by the final export method (depending on variables nocb & nocbvars)
-        table <- table %>% dplyr::group_by(ID) %>%
+        table <- table %>% dplyr::group_by(dplyr::across("ID")) %>%
           dplyr::mutate_at(.vars=timeVaryingCovariateNames,
                            .funs=~ifelse(dplyr::row_number()==1, .x, as.numeric(NA))) %>%
           dplyr::ungroup()
@@ -400,10 +401,10 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
         
         # Bind with treatment and observations and sort
         table <- dplyr::bind_rows(table, timeCov)
-        table <- table %>% dplyr::arrange(ID, TIME, EVID)
+        table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))
         
         # Fill NA values of fixed covariates that were introduced by EVID=2 rows
-        table <- table %>% dplyr::group_by(ID) %>%
+        table <- table %>% dplyr::group_by(dplyr::across("ID")) %>%
           tidyr::fill(allCovariateNames[!(allCovariateNames %in% timeVaryingCovariateNames)], .direction="down") %>%
           dplyr::ungroup()
       }  
@@ -437,15 +438,21 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       # If a rate was specified, same rate applies on new AMT (nothing to do)
       if (compartments %>% length() > 0) {
         table <- table %>% 
-          dplyr::mutate(AMT_=ifelse(CMT %in% compartments, eval(expr), AMT),
-                        RATE=ifelse((CMT %in% compartments) & !is.na(INFUSION_TYPE) & INFUSION_TYPE==-2, RATE*AMT_/AMT, RATE))
+          dplyr::mutate(AMT_=ifelse(.data$CMT %in% compartments,
+                                    eval(expr),
+                                    .data$AMT),
+                        RATE=ifelse((.data$CMT %in% compartments) & !is.na(.data$INFUSION_TYPE) & .data$INFUSION_TYPE==-2,
+                                    .data$RATE*.data$AMT_/.data$AMT,
+                                    .data$RATE))
       } else {
         table <- table %>% 
           dplyr::mutate(AMT_=eval(expr),
-                        RATE=ifelse(!is.na(INFUSION_TYPE) & INFUSION_TYPE==-2, RATE*AMT_/AMT, RATE))
+                        RATE=ifelse(!is.na(.data$INFUSION_TYPE) & .data$INFUSION_TYPE==-2,
+                                    .data$RATE*.data$AMT_/.data$AMT,
+                                    .data$RATE))
       }
       # Keep final rate and remove temporary column AMT_
-      table <- table %>% dplyr::mutate(AMT=AMT_) %>% dplyr::select(-AMT_)
+      table <- table %>% dplyr::mutate(AMT=.data$AMT_) %>% dplyr::select(-dplyr::all_of("AMT_"))
     }
     
     return(table)
@@ -457,7 +464,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
   }
   
   # Remove INFUSION_TYPE column
-  retValue <- retValue %>% dplyr::select(-INFUSION_TYPE)
+  retValue <- retValue %>% dplyr::select(-dplyr::all_of("INFUSION_TYPE"))
   
   return(retValue)
 }
