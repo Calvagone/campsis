@@ -1,5 +1,48 @@
-Package: campsis
 Type: Package
+Package: campsis
+Title: CAMPSIS Simulation Package
+Version: 1.2.0
+Authors@R: 
+    person(given = "Nicolas",
+           family = "Luyckx",
+           role = c("aut", "cre"),
+           email = "nicolas.luyckx@calvagone.com")
+Description: A generic PK/PD simulation platform based on RxODE and
+    mrgsolve engines.
+License: GPL (>= 3)
+URL: https://github.com/Calvagone/campsis
+BugReports: https://github.com/Calvagone/campsis/issues
+Depends: 
+    campsismod,
+    R (>= 4.0.0)
+Imports: 
+    assertthat,
+    dplyr,
+    ggplot2,
+    MASS,
+    plyr,
+    purrr,
+    rlang,
+    tibble,
+    tidyr
+Suggests: 
+    bookdown,
+    devtools,
+    gridExtra,
+    knitr,
+    mrgsolve,
+    pkgdown,
+    rmarkdown,
+    roxygen2,
+    RxODE,
+    stringr,
+    testthat
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+RoxygenNote: 7.1.1
 Collate:
     'utilities.R'
     'check.R'
@@ -36,20 +79,3 @@ Collate:
     'simulate.R'
     'results_processing.R'
     'default_plot.R'
-Title: CAMPSIS package
-Version: 1.1.2
-Authors@R: c(
-  person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
-  )
-Description: A generic PK/PD simulation platform based on RxODE and mrgsolve engines
-Depends: R (>= 4.0.0), campsismod
-Imports: assertthat, dplyr, ggplot2, MASS, plyr, purrr, rlang, tibble, tidyr
-License: file LICENSE
-Encoding: UTF-8
-Language: en-US
-LazyData: true
-Suggests: bookdown, devtools, knitr, gridExtra, mrgsolve, stringr, pkgdown, rmarkdown, roxygen2, RxODE, testthat 
-RoxygenNote: 7.1.1
-VignetteBuilder: knitr
-URL: https://github.com/Calvagone/campsis 
-BugReports: https://github.com/Calvagone/campsis/issues
