@@ -494,11 +494,11 @@ fillIOVOccColumns <- function(table, columnNames, downDirectionFirst) {
 #' @param table current table
 #' @param columnNames columns to be counter-balanced
 #' @return 2-dimensional dataset
-#' @importFrom dplyr group_by mutate_at n
+#' @importFrom dplyr across group_by mutate_at n
 #' @keywords internal
 #'
 counterBalanceNocbMode <- function(table, columnNames) {
-  return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[1], .x[-dplyr::n()])))
+  return(table %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[1], .x[-dplyr::n()])))
 }
 
 #' Counter-balance LOCF mode for occasions & IOV.
@@ -507,11 +507,11 @@ counterBalanceNocbMode <- function(table, columnNames) {
 #' @param table current table
 #' @param columnNames columns to be counter-balanced
 #' @return 2-dimensional dataset
-#' @importFrom dplyr group_by mutate_at n
+#' @importFrom dplyr across group_by mutate_at n
 #' @keywords internal
 #'
 counterBalanceLocfMode <- function(table, columnNames) {
-  return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[-1], .x[dplyr::n()])))
+  return(table %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[-1], .x[dplyr::n()])))
 }
 
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
