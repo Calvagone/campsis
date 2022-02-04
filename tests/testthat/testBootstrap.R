@@ -32,6 +32,7 @@ test_that("Sample from bootstrap (random=TRUE, replacement=FALSE)", {
   covariates <- bootstrap %>% sample(3L)
   expect_equal(covariates[[1]], Covariate("WT", c(10,30,20)))
   expect_equal(covariates[[2]], Covariate("AGE", c(3,9,6)))
+  expect_equal(bootstrap %>% getNames(), c("WT", "AGE"))
 })
 
 test_that("Sample from bootstrap (random=TRUE, replacement=TRUE)", {

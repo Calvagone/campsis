@@ -7,6 +7,10 @@
 Bootstrap(data, replacement = FALSE, random = FALSE, output_id = FALSE)
 }
 \arguments{
+\item{data}{data frame to be bootstrapped. Column 'BS_ID' is mandatory and
+corresponds to the original ID from the bootstrap. It must be numeric and unique.
+Other columns are covariates to be bootstrapped (row by row).}
+
 \item{replacement}{values can be reused or not, logical}
 
 \item{random}{values are drawn randomly, logical}
@@ -19,11 +23,3 @@ a covariate
 \description{
 Create a bootstrap object.
 }
-\section{Slots}{
-
-\describe{
-\item{\code{data}}{data frame to be bootstrapped. Column 'BS_ID' is mandatory and
-corresponds to the original ID from the bootstrap. It must be numeric and unique.
-Other columns are covariates to be bootstrapped (row by row).}
-}}
-

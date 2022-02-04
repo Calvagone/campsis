@@ -40,7 +40,7 @@ setMethod("getName", signature = c("bootstrap"), definition = function(x) {
 #'
 #' Create a bootstrap object.
 #'
-#' @slot data data frame to be bootstrapped. Column 'BS_ID' is mandatory and
+#' @param data data frame to be bootstrapped. Column 'BS_ID' is mandatory and
 #' corresponds to the original ID from the bootstrap. It must be numeric and unique.
 #' Other columns are covariates to be bootstrapped (row by row).
 #' @param replacement values can be reused or not, logical
@@ -53,6 +53,20 @@ Bootstrap <- function(data, replacement=FALSE, random=FALSE, output_id=FALSE) {
 }
 
 #_______________________________________________________________________________
+#----                            getNames                                   ----
+#_______________________________________________________________________________
+
+setMethod("getNames", signature=c("bootstrap"), definition=function(object) {
+  data <- object@data
+  covariableNames <- colnames(data)
+  output_id <- object@output_id
+  if (!output_id) {
+    covariableNames <- covariableNames[!(covariableNames %in% "BS_ID")]
+  }
+  return(covariableNames)
+})
+
+#_______________________________________________________________________________
 #----                             sample                                    ----
 #_______________________________________________________________________________
 
@@ -62,7 +76,6 @@ setMethod("sample", signature = c("bootstrap", "integer"), definition = function
   data <- object@data
   replacement <- object@replacement
   random <- object@random
-  output_id <- object@output_id
   nData <- nrow(data)
   
   if (nData == 0) {
@@ -79,11 +92,6 @@ setMethod("sample", signature = c("bootstrap", "integer"), definition = function
     # Case random=FALSE, replacement=FALSE
     # Do nothing
   }
-  
-  covariableNames <- colnames(data)
-  if (!output_id) {
-    covariableNames <- covariableNames[!(covariableNames %in% "BS_ID")]
-  }
-  return(covariableNames %>%
+  return(object %>% getNames() %>%
            purrr::map(~Covariate(name=.x, distribution=FixedDistribution(data %>% dplyr::pull(.x)))))
 })

@@ -29,7 +29,11 @@ DatasetSummary <- function() {
 toDatasetSummary <- function(dataset) {
   summary <- DatasetSummary()
   summary@iov_names <- dataset %>% getIOVs() %>% getNames()
-  summary@covariate_names <- dataset %>% getCovariates() %>% getNames()
+  
+  arm <- dataset@arms %>% default()
+  bootstrap <- arm@bootstrap
+  
+  summary@covariate_names <- c(dataset %>% getCovariates() %>% getNames(), bootstrap %>% getNames())
   summary@event_covariate_names <- dataset %>% getEventCovariates() %>% getNames()
   summary@occ_names <- dataset %>% getOccasions() %>% getNames()
   return(summary)
