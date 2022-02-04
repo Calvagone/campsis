@@ -338,7 +338,7 @@ setMethod("sample", signature = c("constant_distribution", "integer"), definitio
 setMethod("sample", signature = c("fixed_distribution", "integer"), definition = function(object, n) {
   object@sampled_values <- object@values
   if (length(object@values) != n) {
-    stop(paste0("A fixed distribution should have exactly ", n, "values, not ", length(object@values)))
+    stop(paste0("A fixed distribution should have exactly ", n, " values, not ", length(object@values)))
   }
   return(object)
 })

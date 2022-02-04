@@ -15,6 +15,7 @@ checkArm <- function(object) {
 #' @slot label arm label, single character string
 #' @slot protocol protocol
 #' @slot covariates covariates
+#' @slot bootstrap covariates to be bootstrapped
 #' @export
 setClass(
   "arm",
@@ -23,11 +24,13 @@ setClass(
     subjects = "integer",
     label = "character",
     protocol = "protocol",
-    covariates = "covariates"
+    covariates = "covariates",
+    bootstrap = "bootstrap"
   ),
   contains="pmx_element",
   prototype=prototype(id=as.integer(NA), subjects=as.integer(1), label=as.character(NA),
-                      protocol=new("protocol"), covariates=new("covariates"))
+                      protocol=new("protocol"), covariates=new("covariates"),
+                      bootstrap=Bootstrap(data=data.frame()))
 )
 
 #'
@@ -151,6 +154,11 @@ setMethod("add", signature = c("arm", "observations"), definition = function(obj
 
 setMethod("add", signature = c("arm", "covariate"), definition = function(object, x) {
   object@covariates <- object@covariates %>% add(x)
+  return(object)
+})
+
+setMethod("add", signature = c("arm", "bootstrap"), definition = function(object, x) {
+  object@bootstrap <- x
   return(object)
 })
 

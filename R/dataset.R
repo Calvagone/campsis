@@ -350,6 +350,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     armID <- arm@id
     subjects <- arm@subjects
     protocol <- arm@protocol
+    bootstrap <- arm@bootstrap
     treatment <- protocol@treatment %>% assignDoseNumber()
     if (treatment %>% length() > 0) {
       maxDoseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
@@ -357,7 +358,8 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       maxDoseNumber <- 1 # Default
     }
     observations <- protocol@observations
-    covariates <- arm@covariates
+    # covariates = initial covariates + covariates from bootstrap
+    covariates <- arm@covariates %>% add(bootstrap %>% sample(subjects))
     timeVaryingCovariates <- covariates %>% campsismod::select("time_varying_covariate")
     treatmentIovs <- treatment@iovs
     occasions <- treatment@occasions

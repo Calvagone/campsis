@@ -44,7 +44,7 @@ VignetteBuilder:
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Collate:
     'global.R'
     'utilities.R'
@@ -66,6 +66,7 @@ Collate:
     'observations_set.R'
     'covariate.R'
     'covariates.R'
+    'bootstrap.R'
     'protocol.R'
     'arm.R'
     'arms.R'
