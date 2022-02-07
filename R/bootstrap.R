@@ -71,6 +71,7 @@ setMethod("getName", signature = c("bootstrap"), definition = function(x) {
 #' Other columns are covariates to bootstrap. They must all be numeric.
 #' Whatever the configuration of the bootstrap, these covariates are always read
 #' row by row and belong to a same individual. 
+#' @param id unique identifier column name in data
 #' @param replacement values can be reused or not when drawn, logical
 #' @param random values are drawn randomly, logical
 #' @param export_id tell CAMPSIS if the identifier 'BS_ID' must be output or not, logical

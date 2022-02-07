@@ -19,6 +19,8 @@ Other columns are covariates to bootstrap. They must all be numeric.
 Whatever the configuration of the bootstrap, these covariates are always read
 row by row and belong to a same individual.}
 
+\item{id}{unique identifier column name in data}
+
 \item{replacement}{values can be reused or not when drawn, logical}
 
 \item{random}{values are drawn randomly, logical}
