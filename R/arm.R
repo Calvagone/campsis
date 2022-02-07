@@ -30,7 +30,7 @@ setClass(
   contains="pmx_element",
   prototype=prototype(id=as.integer(NA), subjects=as.integer(1), label=as.character(NA),
                       protocol=new("protocol"), covariates=new("covariates"),
-                      bootstrap=Bootstrap(data=data.frame()))
+                      bootstrap=Bootstrap(data=data.frame(BS_ID=integer())))
 )
 
 #'

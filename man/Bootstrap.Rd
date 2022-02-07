@@ -4,21 +4,29 @@
 \alias{Bootstrap}
 \title{Create a bootstrap object.}
 \usage{
-Bootstrap(data, replacement = FALSE, random = FALSE, output_id = FALSE)
+Bootstrap(
+  data,
+  id = "BS_ID",
+  replacement = FALSE,
+  random = FALSE,
+  export_id = FALSE
+)
 }
 \arguments{
-\item{data}{data frame to be bootstrapped. Column 'BS_ID' is mandatory and
-corresponds to the original ID from the bootstrap. It must be numeric and unique.
-Other columns are covariates to be bootstrapped (row by row).}
+\item{data}{data frame to be bootstrapped. It must have a unique identifier column
+named according to the specified argument 'id' (default value is 'BS_ID').
+Other columns are covariates to bootstrap. They must all be numeric.
+Whatever the configuration of the bootstrap, these covariates are always read
+row by row and belong to a same individual.}
 
-\item{replacement}{values can be reused or not, logical}
+\item{replacement}{values can be reused or not when drawn, logical}
 
 \item{random}{values are drawn randomly, logical}
 
-\item{output_id}{tell CAMPSIS if 'BS_ID' must be output or not, logical}
+\item{export_id}{tell CAMPSIS if the identifier 'BS_ID' must be output or not, logical}
 }
 \value{
-a covariate
+a bootstrap object
 }
 \description{
 Create a bootstrap object.
