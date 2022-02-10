@@ -251,10 +251,21 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     
     # Run all models
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
-      return(simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
-                               tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                               nocb=nocb, dosing=dosing, replicate=replicate, ...))
-    }, .id="replicate") %>% dplyr::mutate(replicate=as.integer(replicate)))
+      retValue <- NULL
+      tryCatch(
+        expr={
+          retValue <- simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
+                                            tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                            nocb=nocb, dosing=dosing, replicate=replicate, ...)
+          retValue <- dplyr::bind_cols(replicate=replicate, retValue)
+        },
+        error=function(cond) {
+          message(paste0("Error with replicate number ", replicate, ":"))
+          print(cond)
+        }
+      )
+      return(retValue)
+    }))
   }
 }
 
