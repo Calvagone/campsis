@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the declare argument of the simulate function")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Declare argument with mrgsolve", {
   model <- model_library$advan4_trans4

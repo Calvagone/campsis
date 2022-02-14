@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test all methods from the dataset class")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Set subjects works as expected", {
   dataset <- Dataset() %>% setSubjects(3)

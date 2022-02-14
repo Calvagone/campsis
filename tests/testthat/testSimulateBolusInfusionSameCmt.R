@@ -2,11 +2,8 @@ library(testthat)
 
 context("Simulate boluses and infusions into the same compartment")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
-seed <<- 1
-
-source(paste0(testFolder, "testUtils.R"))
+seed <- 1
+source(paste0("", "testUtils.R"))
 
 test_that("Bolus and infusion in CMT 1", {
   

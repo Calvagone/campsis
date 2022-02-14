@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the simulate method with initial conditions")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Simulate initial conditions, observations starting at 0 (RxODE/mrgsolve)", {
   model <- model_library$advan3_trans4

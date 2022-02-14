@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the simulate method with 2-dimensional datasets")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Simulate a bolus (RxODE/mrgsolve) by giving the exported dataset (table form)", {
   model <- model_library$advan4_trans4

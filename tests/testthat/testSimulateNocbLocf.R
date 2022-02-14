@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the simulate method with the NOCB/LOCF switch")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Weight as a time-varying covariate (NOCB vs LOCF)", {
   model <- model_library$advan4_trans4

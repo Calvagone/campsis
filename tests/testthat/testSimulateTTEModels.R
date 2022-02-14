@@ -2,10 +2,7 @@ library(testthat)
 
 context("Test the simulate method with time-to-event models (TTE)")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Simulate simple TTE model (RxODE/mrgsolve)", {
   

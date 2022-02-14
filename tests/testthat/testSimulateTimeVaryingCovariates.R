@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the simulate method with timevarying covariates")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Body weight as a true time varying covariate (RxODE/mrgsolve)", {
   model <- model_library$advan2_trans2

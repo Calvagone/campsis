@@ -3,11 +3,8 @@ library(ggplot2)
 
 context("Study can be replicated using argument 'replicates'")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("VPC on CP (predicate)", {
   model <- model_library$my_model1

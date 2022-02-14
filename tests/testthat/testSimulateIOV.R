@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the simulate method with IOV")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Simulate 1000mg QD with IOV on KA (1)", {
   regFilename <- "3_boluses_iov_ka_1"

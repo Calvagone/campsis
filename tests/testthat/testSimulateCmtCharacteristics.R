@@ -1,7 +1,7 @@
 library(testthat)
 
 context("Test the simulate method with characteristics implemented in model")
-seed <<- 1
+seed <- 1
 
 test_that("Add lag time to model", {
   model <- model_library$advan4_trans4

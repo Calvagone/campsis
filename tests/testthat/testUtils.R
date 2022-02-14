@@ -2,7 +2,10 @@
 # setwd("C:/prj/campsis/")
 # roxygen2::roxygenise()
 # setwd("C:/prj/campsis/tests/")
-# testFolder <<- "C:/prj/campsis/tests/testthat/"
+# testFolder <- "C:/prj/campsis/tests/testthat/"
+
+overwriteNonRegressionFiles <- FALSE
+testFolder <- ""
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
