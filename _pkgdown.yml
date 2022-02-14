@@ -1,13 +1,7 @@
-resource_files:
-  - resources/readme_plot.png
 
-## This file configures the building process for pkgdown::build_site()
 template:
-  params:
-    noindex: false # tells search engines to index the site
-
-home:
-  strip_header: true
+  bootstrap: 5
+  bootswatch: spacelab
 
 development:
   mode: auto  # detect based on version number
@@ -23,6 +17,8 @@ navbar:
     - articles
     - news
     right: github
+    
+url: https://calvagone.github.io/campsis.doc/
     
 reference:
 
