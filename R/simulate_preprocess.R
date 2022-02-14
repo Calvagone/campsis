@@ -1,4 +1,33 @@
 
+#' Pre-process destination engine. Throw an error message if the destination 
+#' engine is not installed.
+#'
+#' @param dest destination engine
+#' @return 'RxODE', 'mrgsolve'
+#' @keywords internal
+#' 
+preprocessDest <- function(dest) {
+  if (is.null(dest)) {
+    if (find.package("RxODE", quiet=TRUE) %>% length() > 0) {
+      dest <- "RxODE"
+    } else if (find.package("mrgsolve", quiet=TRUE) %>% length() > 0) {
+      dest <- "mrgsolve"
+    } else {
+      stop("Simulation engine 'RxODE' or 'mrgsolve' is required to run CAMPSIS")
+    }
+  } else if (is.vector(dest)) {
+    if (!(dest %in% c("mrgsolve", "RxODE"))) {
+      stop("Argument 'dest' must be one of: 'RxODE', 'mrgsolve' or NULL")
+    }
+    if (find.package(dest, quiet=TRUE) %>% length()==0) {
+      stop(paste0("Simulation engine '", dest, "' is not installed"))
+    }
+  } else {
+    # Do nothing, dest can also be the simulation engine in its S4 form
+  }
+  return(dest)
+}
+
 #' Pre-process events.
 #'
 #' @param events interruption events

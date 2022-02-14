@@ -9,8 +9,12 @@ test_that("Argument dest works well", {
   dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
-  # Default is RxODE
-  expect_error(model %>% simulate(dataset=dataset, dest="ENGINE3"), regexp="Only RxODE and mrgsolve are supported for now")
+  # Unknown engine
+  expect_error(model %>% simulate(dataset=dataset, dest="ENGINE3"), regexp="Argument 'dest' must be one of: 'RxODE', 'mrgsolve' or NULL")
+  
+  # Default engine (RxODE)
+  results <- model %>% simulate(dataset=dataset)
+  expect_equal(nrow(results), 49)
 })
 
 test_that("Auto seed value vs fix seed + default engine", {

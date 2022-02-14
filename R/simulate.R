@@ -25,10 +25,7 @@ simulate <- function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tab
 }
 
 setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, dosing=FALSE, ...) {
-  if (is.null(dest)) {
-    # Default engine
-    dest <- "RxODE"
-  }
+  dest <- preprocessDest(dest)
   events <- preprocessEvents(events)
   scenarios <- preprocessScenarios(scenarios)
   tablefun <- preprocessFunction(tablefun, "tablefun")
