@@ -54,7 +54,7 @@ gridExtra::grid.arrange(spaghettiPlot(results, "CP", "SCENARIO"),
                         spaghettiPlot(results, "BW", "SCENARIO"), ncol=1)
 ```
 
-Finally, time-varying covariates can also be individualised by specifying an ID column:
+Finally, time-varying covariates can also be individualized by specifying an ID column:
 
 ```{r event_bw_as_time_varying_covariate_by_id, fig.align='center', fig.height=4, fig.width=8}
 dataset <- Dataset(2) %>%

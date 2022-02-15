@@ -8,7 +8,7 @@ checkConfig <- function(object) {
 }
 
 #' 
-#' Dataset config class.
+#' Dataset configuration class.
 #' 
 #' @slot def_depot_cmt default depot compartment, integer
 #' @slot def_obs_cmt default observation compartment, integer

@@ -2,8 +2,8 @@
 % Please edit documentation in R/simulate_preprocess.R
 \name{preprocessOutvars}
 \alias{preprocessOutvars}
-\title{Preprocess 'outvars' argument. Outvars is a character vector which tells
-pmxsim the mandatory columns to keep in the output dataframe.}
+\title{Preprocess 'outvars' argument. 'Outvars' is a character vector which tells
+CAMPSIS the mandatory columns to keep in the output dataframe.}
 \usage{
 preprocessOutvars(outvars)
 }
@@ -14,7 +14,7 @@ preprocessOutvars(outvars)
 outvars
 }
 \description{
-Preprocess 'outvars' argument. Outvars is a character vector which tells
-pmxsim the mandatory columns to keep in the output dataframe.
+Preprocess 'outvars' argument. 'Outvars' is a character vector which tells
+CAMPSIS the mandatory columns to keep in the output dataframe.
 }
 \keyword{internal}

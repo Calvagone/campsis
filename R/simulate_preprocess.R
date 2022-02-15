@@ -82,8 +82,8 @@ preprocessFunction <- function(fun, name) {
   }
 }
 
-#' Preprocess 'outvars' argument. Outvars is a character vector which tells
-#' pmxsim the mandatory columns to keep in the output dataframe.
+#' Preprocess 'outvars' argument. 'Outvars' is a character vector which tells
+#' CAMPSIS the mandatory columns to keep in the output dataframe.
 #'
 #' @param outvars character vector or function
 #' @return outvars

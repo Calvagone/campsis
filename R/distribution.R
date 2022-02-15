@@ -214,13 +214,13 @@ DiscreteDistribution <- function(x, prob, replace=TRUE) {
 }
 
 #' 
-#' Retrieve the parameter value (standardised) for the specified parameter name.
+#' Retrieve the parameter value (standardized) for the specified parameter name.
 #' 
 #' @param model model
 #' @param paramName parameter name
-#' @param default defaut value if not found
+#' @param default default value if not found
 #' @param mandatory must be in model or not
-#' @return the standardised parameter value or the given default value if not found
+#' @return the standardized parameter value or the given default value if not found
 #' @importFrom assertthat assert_that
 #' @export
 retrieveParameterValue <- function(model, paramName, default=NULL, mandatory=FALSE) {

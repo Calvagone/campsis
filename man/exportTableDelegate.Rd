@@ -16,7 +16,7 @@ exportTableDelegate(
 )
 }
 \arguments{
-\item{model}{generic PMX model}
+\item{model}{generic CAMPSIS model}
 
 \item{dataset}{CAMPSIS dataset or 2-dimensional table}
 

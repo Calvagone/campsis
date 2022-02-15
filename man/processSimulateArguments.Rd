@@ -7,7 +7,7 @@
 processSimulateArguments(model, dataset, dest, outvars, dosing, ...)
 }
 \arguments{
-\item{model}{PMX model}
+\item{model}{CAMPSIS model}
 
 \item{dataset}{dataset, data.frame form}
 

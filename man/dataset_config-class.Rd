@@ -3,9 +3,9 @@
 \docType{class}
 \name{dataset_config-class}
 \alias{dataset_config-class}
-\title{Dataset config class.}
+\title{Dataset configuration class.}
 \description{
-Dataset config class.
+Dataset configuration class.
 }
 \section{Slots}{
 

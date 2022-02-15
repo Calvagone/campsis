@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{importCampsismodToNamespace}
 \alias{importCampsismodToNamespace}
-\title{Import the whole campsismod package into NAMESPACE when parsed by roxygen.}
+\title{Import the whole campsismod package into NAMESPACE when parsed by 'roxygen'.}
 \usage{
 importCampsismodToNamespace()
 }
@@ -10,6 +10,6 @@ importCampsismodToNamespace()
 always TRUE
 }
 \description{
-Import the whole campsismod package into NAMESPACE when parsed by roxygen.
+Import the whole campsismod package into NAMESPACE when parsed by 'roxygen'.
 }
 \keyword{internal}

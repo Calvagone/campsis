@@ -4,7 +4,7 @@
 
 #' Simulate function.
 #' 
-#' @param model generic PMX model
+#' @param model generic CAMPSIS model
 #' @param dataset CAMPSIS dataset or 2-dimensional table
 #' @param dest destination simulation engine, default is 'RxODE'
 #' @param events interruption events
@@ -308,7 +308,7 @@ removeInitialConditions <- function(model) {
 
 #' Preprocess arguments of the simulate method.
 #' 
-#' @param model PMX model
+#' @param model CAMPSIS model
 #' @param dataset dataset, data.frame form
 #' @param dest destination engine
 #' @param outvars outvars
@@ -348,12 +348,12 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
   summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
   declare <- unique(c(summary@iov_names, summary@covariate_names, summary@occ_names, user_declare, "ARM", "EVENT_RELATED"))    
 
-  # Remove initial conditions from PMX model before export (if present)
+  # Remove initial conditions from CAMPSIS model before export (if present)
   if (iteration@index > 1) {
     model <- removeInitialConditions(model)
   }
   
-  # Export PMX model
+  # Export CAMPSIS model
   if (is(dest, "rxode_engine")) {
     engineModel <- model %>% export(dest="RxODE")
   } else if (is(dest, "mrgsolve_engine")) {
@@ -384,7 +384,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
 
 #' Get initial conditions at simulation start-up.
 #' 
-#' @param subdataset subdataset to simulate
+#' @param subdataset subset of the dataset to simulate
 #' @param iteration current iteration
 #' @param cmtNames compartment names
 #' @return named numeric vector with the new initial conditions

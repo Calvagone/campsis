@@ -37,7 +37,7 @@ dataset <- Dataset() %>%
     add(Observations(times=seq(0,24,by=0.5)))
 ```
 
-To visualise clearly the effect of the covariates, we will disable the inter-individual variability on the model.
+To visualize clearly the effect of the covariates, we will disable the inter-individual variability on the model.
 
 ```{r}
 model <- model %>% disable("IIV")
@@ -52,7 +52,7 @@ ds <- dataset %>% setSubjects(5) %>%
   add(Covariate("BW", 70))
 ```
 
-All simulated subjects will be exacty the same, as IIV was removed.
+All simulated subjects will be exactly the same, as IIV was removed.
 
 ```{r covariates_constant_bw , fig.align='center', fig.height=4, fig.width=8}
 results <- model %>% simulate(dataset=ds, dest="mrgsolve")
@@ -123,7 +123,7 @@ results <- model %>% simulate(dataset=ds, dest="mrgsolve", outvars=c("CP", "BW")
 gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP"), nrow=1)
 ```
 
-### Boostrap
+### Bootstrap
 
 Body weight can also be bootstrapped from a real dataset.
 Let's create a fictive one:

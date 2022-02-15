@@ -1,8 +1,8 @@
 ---
-title: "Complex PK/PD models from litterature"
+title: "Complex PK/PD models from literature"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Complex PK/PD models from litterature}
+  %\VignetteIndexEntry{Complex PK/PD models from literature}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
