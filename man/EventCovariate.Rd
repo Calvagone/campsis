@@ -2,7 +2,7 @@
 % Please edit documentation in R/covariate.R
 \name{EventCovariate}
 \alias{EventCovariate}
-\title{Create an event covariate. These covariates can be modified further in the
+\title{Create an event covariate. These covariates can be modified further in
 interruption events.}
 \usage{
 EventCovariate(name, distribution)
@@ -16,6 +16,6 @@ EventCovariate(name, distribution)
 a time-varying covariate
 }
 \description{
-Create an event covariate. These covariates can be modified further in the
+Create an event covariate. These covariates can be modified further in
 interruption events.
 }

@@ -64,6 +64,7 @@ getEventIterations <- function(events, maxTime) {
 #' @param table whole table, data frame
 #' @param iteration current iteration being processed
 #' @param summary dataset summary
+#' @return a data frame
 #' @importFrom dplyr across all_of group_by left_join mutate row_number ungroup
 #' @keywords internal
 #' 

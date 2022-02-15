@@ -30,6 +30,9 @@ exportTableDelegate(
 
 \item{nocb}{next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE}
 }
+\value{
+a data frame
+}
 \description{
 Export table delegate.
 }

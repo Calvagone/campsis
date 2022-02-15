@@ -2,7 +2,7 @@
 % Please edit documentation in R/distribution.R
 \name{BootstrapDistribution}
 \alias{BootstrapDistribution}
-\title{Create a bootstrap distribution. During function sampling, PMXsim will generate
+\title{Create a bootstrap distribution. During function sampling, CAMPSIS will generate
 values depending on the given data and arguments.}
 \usage{
 BootstrapDistribution(data, replacement = FALSE, random = FALSE)
@@ -15,9 +15,9 @@ BootstrapDistribution(data, replacement = FALSE, random = FALSE)
 \item{random}{values are drawn randomly, logical}
 }
 \value{
-a covariate
+a bootstrap distribution
 }
 \description{
-Create a bootstrap distribution. During function sampling, PMXsim will generate
+Create a bootstrap distribution. During function sampling, CAMPSIS will generate
 values depending on the given data and arguments.
 }

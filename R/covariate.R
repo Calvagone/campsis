@@ -43,7 +43,7 @@ setClass(
 )
 
 #' 
-#' Create a fixed covariate.
+#' Create a non time-varying (fixed) covariate.
 #' 
 #' @param name covariate name, single character value
 #' @param distribution covariate distribution
@@ -69,7 +69,7 @@ setClass(
 )
 
 #' 
-#' Create an event covariate. These covariates can be modified further in the
+#' Create an event covariate. These covariates can be modified further in
 #' interruption events.
 #' 
 #' @param name covariate name, character

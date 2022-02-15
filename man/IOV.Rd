@@ -16,7 +16,7 @@ IOV(colname, distribution, doseNumbers = NULL)
 \item{doseNumbers}{dose numbers, if provided, IOV is generated at these doses only. By default, IOV is generated for all doses.}
 }
 \value{
-IOV
+an IOV object
 }
 \description{
 Define inter-occasion variability (IOV) into the dataset. A new variable of name

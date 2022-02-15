@@ -6,6 +6,9 @@
 \usage{
 importCampsismodToNamespace()
 }
+\value{
+always TRUE
+}
 \description{
 Import the whole campsismod package into NAMESPACE when parsed by roxygen.
 }

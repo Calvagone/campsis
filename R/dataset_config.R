@@ -10,8 +10,8 @@ checkConfig <- function(object) {
 #' 
 #' Dataset config class.
 #' 
-#' @param defDepotCmt default depot compartment, integer
-#' @param defObsCmt default observation compartment, integer
+#' @slot def_depot_cmt default depot compartment, integer
+#' @slot def_obs_cmt default observation compartment, integer
 #' @export
 setClass(
   "dataset_config",
@@ -29,7 +29,7 @@ setClass(
 #'
 #' @param defDepotCmt default depot compartment, integer
 #' @param defObsCmt default observation compartment, integer
-#' @return configuration
+#' @return a dataset configuration
 #' @export
 DatasetConfig <- function(defDepotCmt=1, defObsCmt=1) {
   return(new("dataset_config", def_depot_cmt=as.integer(defDepotCmt), def_obs_cmt=as.integer(defObsCmt)))

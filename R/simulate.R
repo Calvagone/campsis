@@ -16,7 +16,7 @@
 #' @param replicates number of replicates, default is 1
 #' @param nocb next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE
 #' @param dosing output dosing information, default is FALSE
-#' @param ... optional arguments like declare
+#' @param ... optional arguments like 'declare' and 'nocbvars'
 #' @return dataframe with all results
 #' @export
 #' @rdname simulate
@@ -59,6 +59,7 @@ getSimulationEngineType <- function(dest) {
 #' Export table delegate.
 #' 
 #' @inheritParams simulate
+#' @return a data frame
 #' @keywords internal
 #' 
 exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, nocb, nocbvars) {
@@ -113,6 +114,7 @@ getDatasetMaxTime <- function(dataset) {
 #' @inheritParams simulate
 #' @param replicate current replicate number
 #' @param iterations number of iterations
+#' @return a data frame with the results
 #' @keywords internal
 #' @importFrom dplyr across bind_rows group_by slice ungroup
 #' 
@@ -190,6 +192,7 @@ processArmLabels <- function(campsis, arms) {
 #' Simulation scenarios.
 #' 
 #' @inheritParams simulate
+#' @return a data frame with the results
 #' @keywords internal
 #' @importFrom methods validObject
 simulateScenarios <- function(scenarios, model, dataset, dest, events,
@@ -228,6 +231,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' Simulation delegate (several replicates).
 #' 
 #' @inheritParams simulate
+#' @return a data frame with the results
 #' @keywords internal
 #' @importFrom methods validObject
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {

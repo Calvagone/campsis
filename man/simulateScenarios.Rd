@@ -46,7 +46,10 @@ simulateScenarios(
 
 \item{dosing}{output dosing information, default is FALSE}
 
-\item{...}{optional arguments like declare}
+\item{...}{optional arguments like 'declare' and 'nocbvars'}
+}
+\value{
+a data frame with the results
 }
 \description{
 Simulation scenarios.

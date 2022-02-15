@@ -13,6 +13,9 @@ checkIIandADDL(time, ii, addl)
 
 \item{addl}{number of additional doses}
 }
+\value{
+no return value
+}
 \description{
 Check ii and addl arguments in addition to time.
 }

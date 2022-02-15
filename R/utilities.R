@@ -4,6 +4,7 @@
 #' 
 #' @import campsismod
 #' @keywords internal
+#' @return always TRUE
 #' 
 importCampsismodToNamespace <- function() {
   return(TRUE)

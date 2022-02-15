@@ -48,7 +48,10 @@ simulateDelegateCore(
 
 \item{iterations}{number of iterations}
 
-\item{...}{optional arguments like declare}
+\item{...}{optional arguments like 'declare' and 'nocbvars'}
+}
+\value{
+a data frame with the results
 }
 \description{
 Simulation delegate core (single replicate).

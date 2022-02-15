@@ -13,6 +13,9 @@ cutTableForEvent(table, iteration, summary)
 
 \item{summary}{dataset summary}
 }
+\value{
+a data frame
+}
 \description{
 Cut table according to given iteration.
 }

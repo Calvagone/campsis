@@ -11,7 +11,7 @@ FixedDistribution(values)
 \item{values}{covariate values, numeric vector (1 value per sample)}
 }
 \value{
-a covariate
+a fixed distribution (1 value per sample)
 }
 \description{
 Create a fixed distribution.

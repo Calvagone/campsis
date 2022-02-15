@@ -16,7 +16,7 @@ retrieveParameterValue(model, paramName, default = NULL, mandatory = FALSE)
 \item{mandatory}{must be in model or not}
 }
 \value{
-the parameter value (or a defautl value if parameter is not found)
+the standardised parameter value or the given default value if not found
 }
 \description{
 Retrieve the parameter value (standardised) for the specified parameter name.

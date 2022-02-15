@@ -80,7 +80,7 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
 #' @param scenarios scenarios
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
-#' @return plot
+#' @return a ggplot object
 #' @importFrom ggplot2 aes_string ggplot geom_line geom_ribbon ylab
 #' @export
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
@@ -97,13 +97,13 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
   return(plot)
 }
 
-#' VPC plot (1 plot per scenario).
+#' VPC plot.
 #' 
 #' @param x data frame, output of CAMPSIS with replicates
 #' @param scenarios scenarios, character vector, NULL is default
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
-#' @return plot
+#' @return a ggplot object
 #' @importFrom dplyr all_of
 #' @importFrom ggplot2 aes_string facet_wrap ggplot ylab
 #' @export

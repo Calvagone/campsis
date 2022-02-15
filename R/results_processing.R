@@ -6,7 +6,7 @@
 #' @param scenarios scenarios, character vector, NULL is default
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param gather FALSE: med, low & up columns, TRUE: metric column
-#' @return summary
+#' @return a summary table
 #' @importFrom dplyr across all_of group_by_at mutate rename_at summarise
 #' @importFrom tidyr pivot_longer
 #' @importFrom stats median quantile

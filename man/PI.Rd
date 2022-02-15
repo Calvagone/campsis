@@ -18,7 +18,7 @@ PI(x, output, scenarios = NULL, level = 0.9, gather = TRUE)
 \item{gather}{FALSE: med, low & up columns, TRUE: metric column}
 }
 \value{
-summary
+a summary table
 }
 \description{
 Compute the prediction interval summary over time.

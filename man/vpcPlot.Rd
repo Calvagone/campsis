@@ -2,7 +2,7 @@
 % Please edit documentation in R/default_plot.R
 \name{vpcPlot}
 \alias{vpcPlot}
-\title{VPC plot (1 plot per scenario).}
+\title{VPC plot.}
 \usage{
 vpcPlot(x, scenarios = NULL, level = 0.9, alpha = 0.15)
 }
@@ -16,8 +16,8 @@ vpcPlot(x, scenarios = NULL, level = 0.9, alpha = 0.15)
 \item{alpha}{alpha parameter (transparency) given to geom_ribbon}
 }
 \value{
-plot
+a ggplot object
 }
 \description{
-VPC plot (1 plot per scenario).
+VPC plot.
 }

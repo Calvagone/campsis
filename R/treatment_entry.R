@@ -47,6 +47,7 @@ setClass(
 #' @param time treatment time(s)
 #' @param ii interdose interval
 #' @param addl number of additional doses
+#' @return no return value
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/covariate.R
 \name{Covariate}
 \alias{Covariate}
-\title{Create a fixed covariate.}
+\title{Create a non time-varying (fixed) covariate.}
 \usage{
 Covariate(name, distribution)
 }
@@ -15,5 +15,5 @@ Covariate(name, distribution)
 a fixed covariate
 }
 \description{
-Create a fixed covariate.
+Create a non time-varying (fixed) covariate.
 }

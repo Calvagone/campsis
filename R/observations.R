@@ -39,7 +39,7 @@ setClass(
 #'
 #' @param times observation times, numeric vector
 #' @param compartment compartment index, integer
-#' @return observations
+#' @return an observations list
 #' @export
 Observations <- function(times, compartment=NA) {
   return(new("observations", times=base::sort(unique(times)), compartment=as.integer(compartment)))

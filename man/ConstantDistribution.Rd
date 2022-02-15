@@ -10,7 +10,7 @@ ConstantDistribution(value)
 \item{value}{covariate value, single numeric value}
 }
 \value{
-a covariate
+a constant distribution (same value for all samples)
 }
 \description{
 Create a constant distribution. Its value will be constant across all generated samples.

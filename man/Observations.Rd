@@ -13,7 +13,7 @@ Observations(times, compartment = NA)
 \item{compartment}{compartment index, integer}
 }
 \value{
-observations
+an observations list
 }
 \description{
 Create an observations list. Please note that the provided 'times' will 

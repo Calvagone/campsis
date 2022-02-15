@@ -13,7 +13,7 @@ DatasetConfig(defDepotCmt = 1, defObsCmt = 1)
 \item{defObsCmt}{default observation compartment, integer}
 }
 \value{
-configuration
+a dataset configuration
 }
 \description{
 Create a dataset configuration. This configuration allows CAMPSIS to know which

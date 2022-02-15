@@ -15,7 +15,7 @@ setClass(
 #' 
 #' Create a dataset summary (internal method).
 #' 
-#' @return dataset summary
+#' @return a dataset summary
 #' @keywords internal
 DatasetSummary <- function() {
   return(new("dataset_summary"))
@@ -24,7 +24,7 @@ DatasetSummary <- function() {
 #' 
 #' Convert dataset to dataset summary (internal method).
 #' 
-#' @return dataset summary
+#' @return a dataset summary
 #' @keywords internal
 toDatasetSummary <- function(dataset) {
   summary <- DatasetSummary()
