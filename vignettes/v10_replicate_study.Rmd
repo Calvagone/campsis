@@ -40,22 +40,18 @@ for (day in 0:6) {
 ds <- ds %>% add(Observations(times=seq(0, 7*24)))
 ```
 
-Let's now simulate this model with or without parameter uncertainty.  
-Argument `replicates` specifies how many times the simulation will be replicated.  
+Let's now simulate this model with parameter uncertainty.  
+Argument `replicates` specifies how many times the simulation is replicated.  
 Argument `outfun` is a function that is going to be called after each simulation on the output data frame.
 
 ```{r}
-results_with_varcov <- model %>% simulate(dataset=ds, dest="RxODE", replicates=50, outfun=~PI(.x, output="Y"), seed=1)
-results_with_varcov %>% head()
-results_without_varcov <- model %>% disable("VARCOV") %>% simulate(dataset=ds, dest="RxODE", replicates=50, outfun=~PI(.x, output="Y"), seed=1)
+results <- model %>% simulate(dataset=ds, dest="RxODE", replicates=10, outfun=~PI(.x, output="Y"), seed=1)
+results %>% head()
 ```
 
 Function `vpcPlot` allows to quickly visualize such results.
 
 ```{r replicate_your_study_varcov , fig.align='center', fig.height=4, fig.width=8}
-vpcPlot(results_with_varcov)
+vpcPlot(results)
 ```
 
-```{r replicate_your_study_no_varcov , fig.align='center', fig.height=4, fig.width=8}
-vpcPlot(results_without_varcov)
-```
