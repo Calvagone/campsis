@@ -6,6 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that("Weight as a time-varying covariate (NOCB vs LOCF)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -50,6 +51,7 @@ test_that("Weight as a time-varying covariate (NOCB vs LOCF)", {
 
 
 test_that("NOCB/LOCF should not have any effect on treatment occasion", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   model <- model %>% delete(Equation("KA"))
   model <- model %>% add(Equation("KA", "0"))
@@ -93,6 +95,7 @@ test_that("NOCB/LOCF should not have any effect on treatment occasion", {
 })
 
 test_that("NOCB/LOCF should not have any effect on IOV (e.g. on clearance)", {
+  if (skipLongTest) return(TRUE)
   regFilename <- "3_boluses_iov_cl"
   model <- model_library$advan4_trans4
   model <- model %>% replace(Equation("CL", rhs="THETA_CL*exp(ETA_CL + IOV_CL)"))

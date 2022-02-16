@@ -7,6 +7,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that("VPC on CP (predicate)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
@@ -27,7 +28,7 @@ test_that("VPC on CP (predicate)", {
 })
 
 test_that("VPC on both CP and Y (function)", {
-
+  if (skipLongTest) return(TRUE)
   model <- model_library$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
@@ -52,7 +53,7 @@ test_that("VPC on both CP and Y (function)", {
 })
 
 test_that("Study replication also works with scenarios", {
-  
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan2_trans1
   ds <- Dataset(10) %>%
     add(Bolus(time=0, amount=1000)) %>%
@@ -72,7 +73,7 @@ test_that("Study replication also works with scenarios", {
 })
 
 test_that("Try/catch works as expected if one replicate fails", {
-  
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan2_trans2
   
   # Add high uncertainty on THETA_KA (variance of 1)
