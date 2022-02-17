@@ -7,3 +7,4 @@
 ^cran-comments\.md$
 ^docs$
 ^CRAN-SUBMISSION$
+^CRAN-RELEASE$
