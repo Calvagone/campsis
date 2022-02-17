@@ -79,7 +79,7 @@ setClass(
 #' Create a constant distribution. Its value will be constant across all generated samples.
 #' 
 #' @param value covariate value, single numeric value
-#' @return a covariate  
+#' @return a constant distribution (same value for all samples)  
 #' @export
 ConstantDistribution <- function(value) {
   return(new("constant_distribution", value=as.numeric(value)))
@@ -112,7 +112,7 @@ setClass(
 #' Each sample will be assigned a fixed value coming from vector 'values'.
 #'
 #' @param values covariate values, numeric vector (1 value per sample)
-#' @return a covariate
+#' @return a fixed distribution (1 value per sample)
 #' @export
 FixedDistribution <- function(values) {
   return(new("fixed_distribution", values=values))
@@ -175,8 +175,8 @@ UniformDistribution <- function(min, max) {
 #'
 #' Create a normal distribution.
 #'
-#' @param mean mean
-#' @param sd sd
+#' @param mean mean value of distribution
+#' @param sd standard deviation of distribution
 #' @return a normal distribution
 #' @export
 NormalDistribution <- function(mean, sd) {
@@ -188,8 +188,8 @@ NormalDistribution <- function(mean, sd) {
 #'
 #' Create a log normal distribution.
 #'
-#' @param meanlog mean in log domain
-#' @param sdlog sd in log domain
+#' @param meanlog mean value of distribution in log domain
+#' @param sdlog standard deviation of distribution in log domain
 #' @return a log normal distribution
 #' @export
 LogNormalDistribution <- function(meanlog, sdlog) {
@@ -214,13 +214,13 @@ DiscreteDistribution <- function(x, prob, replace=TRUE) {
 }
 
 #' 
-#' Retrieve the parameter value (standardised) for the specified parameter name.
+#' Retrieve the parameter value (standardized) for the specified parameter name.
 #' 
 #' @param model model
 #' @param paramName parameter name
-#' @param default defaut value if not found
+#' @param default default value if not found
 #' @param mandatory must be in model or not
-#' @return the parameter value (or a defautl value if parameter is not found)
+#' @return the standardized parameter value or the given default value if not found
 #' @importFrom assertthat assert_that
 #' @export
 retrieveParameterValue <- function(model, paramName, default=NULL, mandatory=FALSE) {
@@ -263,7 +263,7 @@ ParameterDistribution <- function(model, theta, omega=NULL) {
 
 #' 
 #' Create an ETA distribution. The resulting distribution is a
-#' normal distribution, with mean=0 and sd=sqrt(OMEGA)
+#' normal distribution, with mean=0 and sd=sqrt(OMEGA).
 #' 
 #' @param model model
 #' @param omega corresponding THETA name, character
@@ -304,13 +304,13 @@ setClass(
 )
 
 #'
-#' Create a bootstrap distribution. During function sampling, PMXsim will generate
+#' Create a bootstrap distribution. During function sampling, CAMPSIS will generate
 #' values depending on the given data and arguments.
 #'
 #' @param data values to draw, numeric vector
 #' @param replacement values can be reused or not, logical
 #' @param random values are drawn randomly, logical
-#' @return a covariate
+#' @return a bootstrap distribution
 #' @export
 BootstrapDistribution <- function(data, replacement=FALSE, random=FALSE) {
   return(new("bootstrap_distribution", data=data, replacement=replacement, random=random))
@@ -338,7 +338,7 @@ setMethod("sample", signature = c("constant_distribution", "integer"), definitio
 setMethod("sample", signature = c("fixed_distribution", "integer"), definition = function(object, n) {
   object@sampled_values <- object@values
   if (length(object@values) != n) {
-    stop(paste0("A fixed distribution should have exactly ", n, "values, not ", length(object@values)))
+    stop(paste0("A fixed distribution should have exactly ", n, " values, not ", length(object@values)))
   }
   return(object)
 })

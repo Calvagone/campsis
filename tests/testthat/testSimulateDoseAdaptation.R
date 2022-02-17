@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test simple dose adaptations (based on a covariate present in dataset)")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Dose adaptations based on weight work well (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4 %>% disable("IIV")

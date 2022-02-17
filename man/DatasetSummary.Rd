@@ -7,7 +7,7 @@
 DatasetSummary()
 }
 \value{
-dataset summary
+a dataset summary
 }
 \description{
 Create a dataset summary (internal method).

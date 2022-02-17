@@ -2,11 +2,11 @@
 % Please edit documentation in R/utilities.R
 \name{toExplicitDistribution}
 \alias{toExplicitDistribution}
-\title{Convert user-given distribution to an explicit pmxsim distribution.
+\title{Convert user-given distribution to an explicit CAMPSIS distribution.
 Passed distribution can be:
-- a NULL value. In that case, it will be converted into is a 'UndefinedDistribution'.
-- a single numeric value. In that case, it will be converted into is a 'ConstantDistribution'.
-- a numeric vector. In that case, it will be converted into is a 'FixedDistribution'.
+- a NULL value. In that case, it will be converted into an 'UndefinedDistribution'.
+- a single numeric value. In that case, it will be converted into a 'ConstantDistribution'.
+- a numeric vector. In that case, it will be converted into a 'FixedDistribution'.
 - all available types of distribution. In this case, no conversion is applied.}
 \usage{
 toExplicitDistribution(distribution)
@@ -18,11 +18,11 @@ toExplicitDistribution(distribution)
 a distribution object
 }
 \description{
-Convert user-given distribution to an explicit pmxsim distribution.
+Convert user-given distribution to an explicit CAMPSIS distribution.
 Passed distribution can be:
-- a NULL value. In that case, it will be converted into is a 'UndefinedDistribution'.
-- a single numeric value. In that case, it will be converted into is a 'ConstantDistribution'.
-- a numeric vector. In that case, it will be converted into is a 'FixedDistribution'.
+- a NULL value. In that case, it will be converted into an 'UndefinedDistribution'.
+- a single numeric value. In that case, it will be converted into a 'ConstantDistribution'.
+- a numeric vector. In that case, it will be converted into a 'FixedDistribution'.
 - all available types of distribution. In this case, no conversion is applied.
 }
 \keyword{internal}

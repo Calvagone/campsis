@@ -26,7 +26,7 @@ factorScenarios <- function(x, scenarios=NULL) {
 #' @export
 obsOnly <- function(x) {
   if ("EVID" %in% colnames(x)) {
-    return(x %>% dplyr::filter(EVID==0))
+    return(x %>% dplyr::filter(.data$EVID==0))
   } else {
     return(x)
   }
@@ -39,7 +39,7 @@ obsOnly <- function(x) {
 #' @export
 dosingOnly <- function(x) {
   if ("EVID" %in% colnames(x)) {
-    return(x %>% dplyr::filter(EVID==1))
+    return(x %>% dplyr::filter(.data$EVID==1))
   } else {
     return(x)
   }
@@ -80,8 +80,8 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
 #' @param scenarios scenarios
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
-#' @return plot
-#' @importFrom ggplot2 aes aes_string ggplot geom_line geom_ribbon ylab
+#' @return a ggplot object
+#' @importFrom ggplot2 aes_string ggplot geom_line geom_ribbon ylab
 #' @export
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
   x <- PI(x=x %>% obsOnly(), output=output, scenarios=scenarios, level=level, gather=FALSE)
@@ -91,21 +91,21 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
     colour <- NULL
   }
   plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes_string(x="TIME", colour=colour)) +
-    ggplot2::geom_line(ggplot2::aes(y=med)) +
+    ggplot2::geom_line(ggplot2::aes_string(y="med")) +
     ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low", ymax="up", colour=colour, fill=colour), colour=NA, alpha=alpha)
   plot <- plot + ggplot2::ylab(output)
   return(plot)
 }
 
-#' VPC plot (1 plot per scenario).
+#' VPC plot.
 #' 
 #' @param x data frame, output of CAMPSIS with replicates
 #' @param scenarios scenarios, character vector, NULL is default
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
-#' @return plot
+#' @return a ggplot object
 #' @importFrom dplyr all_of
-#' @importFrom ggplot2 aes facet_wrap ggplot ylab
+#' @importFrom ggplot2 aes_string facet_wrap ggplot ylab
 #' @export
 vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
   if (length(scenarios) > 1) {
@@ -113,10 +113,10 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
   }
   summary <- VPC(x=x, scenarios=scenarios, level=level)
 
-  plot <- ggplot2::ggplot(summary, ggplot2::aes(x=TIME, group=scenarios)) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=med_low, ymax=med_up), alpha=alpha, color=NA, fill="red") +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=low_low, ymax=low_up), alpha=alpha, color=NA, fill="blue") +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=up_low, ymax=up_up), alpha=alpha, color=NA, fill="blue") +
+  plot <- ggplot2::ggplot(summary, ggplot2::aes_string(x="TIME", group=scenarios)) +
+    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="med_low", ymax="med_up"), alpha=alpha, color=NA, fill="red") +
+    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low_low", ymax="low_up"), alpha=alpha, color=NA, fill="blue") +
+    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="up_low", ymax="up_up"), alpha=alpha, color=NA, fill="blue") +
     ggplot2::ylab("")
   
   return(plot)

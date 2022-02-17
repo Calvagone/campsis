@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the simulate method with minimalist examples")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Simulate a minimalist model (no parameter files, no IIV & error model)", {
   regFilename <- "minimalist_model"

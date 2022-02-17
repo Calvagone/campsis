@@ -19,5 +19,7 @@ Arm class.
 \item{\code{protocol}}{protocol}
 
 \item{\code{covariates}}{covariates}
+
+\item{\code{bootstrap}}{covariates to be bootstrapped}
 }}
 

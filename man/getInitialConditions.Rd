@@ -7,7 +7,7 @@
 getInitialConditions(subdataset, iteration, cmtNames)
 }
 \arguments{
-\item{subdataset}{subdataset to simulate}
+\item{subdataset}{subset of the dataset to simulate}
 
 \item{iteration}{current iteration}
 

@@ -2,13 +2,11 @@ library(testthat)
 
 context("Test the events/interruption logic")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Simple interrutpions - No events - (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   regFilename <- "simple_bolus" # Existing non-regression file (see testSimulateBolus.R)
   
@@ -44,6 +42,7 @@ test_that("Simple interrutpions - No events - (RxODE/mrgsolve)", {
 })
 
 test_that("Interruptions at doses times - BW covariate - No events - (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -84,6 +83,7 @@ test_that("Interruptions at doses times - BW covariate - No events - (RxODE/mrgs
 })
 
 test_that("Interruptions at doses times - BW covariate - IOV on KA - No events - (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -132,6 +132,7 @@ test_that("Interruptions at doses times - BW covariate - IOV on KA - No events -
 
 
 test_that("Simulate initial conditions + events (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan3_trans4
   model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
   
@@ -157,6 +158,7 @@ test_that("Simulate initial conditions + events (RxODE/mrgsolve)", {
 })
 
 test_that("Simulate multiple arms + events (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   
   regFilename <- "event_in_multiple_arms"

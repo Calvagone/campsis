@@ -69,7 +69,7 @@ results_d1 <- model %>% simulate(dataset=ds1, dest="RxODE", seed=1)
 shadedPlot(results_d1, "CP")
 ```
 
-### Infusion duration or rate inplemented in dataset
+### Infusion duration or rate implemented in dataset
 
 The same simulation can be performed by defining the infusion duration in the dataset.
 

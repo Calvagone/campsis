@@ -11,7 +11,7 @@ Event(name = NULL, times, fun, debug = FALSE)
 
 \item{times}{interruption times, numeric vector}
 
-\item{fun}{event function to apply at each interrution}
+\item{fun}{event function to apply at each interruption}
 
 \item{debug}{output the variables that were changed through this event}
 }

@@ -14,7 +14,7 @@ Event class.
 
 \item{\code{times}}{interruption times, numeric vector}
 
-\item{\code{fun}}{event function to apply at each interrution}
+\item{\code{fun}}{event function to apply at each interruption}
 
 \item{\code{debug}}{output the variables that were changed through this event}
 }}

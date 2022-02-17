@@ -7,9 +7,9 @@
 NormalDistribution(mean, sd)
 }
 \arguments{
-\item{mean}{mean}
+\item{mean}{mean value of distribution}
 
-\item{sd}{sd}
+\item{sd}{standard deviation of distribution}
 }
 \value{
 a normal distribution

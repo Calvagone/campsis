@@ -7,9 +7,9 @@
 LogNormalDistribution(meanlog, sdlog)
 }
 \arguments{
-\item{meanlog}{mean in log domain}
+\item{meanlog}{mean value of distribution in log domain}
 
-\item{sdlog}{sd in log domain}
+\item{sdlog}{standard deviation of distribution in log domain}
 }
 \value{
 a log normal distribution

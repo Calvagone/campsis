@@ -203,12 +203,13 @@ setMethod("replace", signature = c("dataset", "pmx_element"), definition = funct
 #_______________________________________________________________________________
 
 #' @rdname setSubjects
+#' @importFrom methods validObject
 setMethod("setSubjects", signature = c("dataset", "integer"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   arm <- object@arms %>% default()
   arm@subjects <- x
   object <- object %>% replace(arm)
-  validObject(object)
+  methods::validObject(object)
   return(object)
 })
 
@@ -278,17 +279,20 @@ applyCompartmentCharacteristics <- function(table, properties) {
         table <- table %>% dplyr::mutate(RATE=0)
       }
       rateValue <- ifelse(isRate, -1, -2)
-      table <- table %>% dplyr::mutate(RATE=ifelse(EVID==1 & CMT==compartment & INFUSION_TYPE %in% c(-1,-2), rateValue, RATE))
+      table <- table %>% dplyr::mutate(
+        RATE=ifelse(.data$EVID==1 & .data$CMT==compartment & .data$INFUSION_TYPE %in% c(-1,-2),
+                    rateValue, .data$RATE))
     }
   }
   return(table)
 }
 
+#' @importFrom dplyr all_of
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, nocb=FALSE, event_related_column=FALSE, ...) {
   destinationEngine <- getSimulationEngineType(dest)
   table <- object %>% export(destinationEngine, seed=seed, nocb=nocb, ...)
   if (!event_related_column) {
-    table <- table %>% dplyr::select(-EVENT_RELATED)
+    table <- table %>% dplyr::select(-dplyr::all_of("EVENT_RELATED"))
   }
   return(table)
 })
@@ -301,7 +305,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param nocb nocb value, logical value
 #' @param ... extra arguments
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
-#' @importFrom dplyr arrange bind_rows left_join
+#' @importFrom dplyr across all_of arrange bind_rows group_by left_join
 #' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
@@ -346,6 +350,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     armID <- arm@id
     subjects <- arm@subjects
     protocol <- arm@protocol
+    bootstrap <- arm@bootstrap
     treatment <- protocol@treatment %>% assignDoseNumber()
     if (treatment %>% length() > 0) {
       maxDoseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
@@ -353,7 +358,8 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       maxDoseNumber <- 1 # Default
     }
     observations <- protocol@observations
-    covariates <- arm@covariates
+    # covariates = initial covariates + covariates from bootstrap
+    covariates <- arm@covariates %>% add(bootstrap %>% sample(subjects))
     timeVaryingCovariates <- covariates %>% campsismod::select("time_varying_covariate")
     treatmentIovs <- treatment@iovs
     occasions <- treatment@occasions
@@ -364,8 +370,9 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     
     # Create the base table with all treatment entries and observations
     needsDV <- observations@list %>% purrr::map_lgl(~.x@dv %>% length() > 0) %>% any()
-    table <- c(treatment@list, observations@list) %>% purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID, needsDV=needsDV))
-    table <- table %>% dplyr::arrange(ID, TIME, EVID)
+    table <- c(treatment@list, observations@list) %>%
+      purrr::map_df(.f=~sample(.x, n=subjects, ids=ids, config=config, armID=armID, needsDV=needsDV))
+    table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))
 
     # Sampling covariates
     cov <- sampleCovariatesList(covariates, n=length(ids))
@@ -385,7 +392,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       if (timeVaryingCovariateNames %>% length() > 0) {
         # Only keep first row. Please note that NA's will be filled in 
         # by the final export method (depending on variables nocb & nocbvars)
-        table <- table %>% dplyr::group_by(ID) %>%
+        table <- table %>% dplyr::group_by(dplyr::across("ID")) %>%
           dplyr::mutate_at(.vars=timeVaryingCovariateNames,
                            .funs=~ifelse(dplyr::row_number()==1, .x, as.numeric(NA))) %>%
           dplyr::ungroup()
@@ -397,10 +404,10 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
         
         # Bind with treatment and observations and sort
         table <- dplyr::bind_rows(table, timeCov)
-        table <- table %>% dplyr::arrange(ID, TIME, EVID)
+        table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))
         
         # Fill NA values of fixed covariates that were introduced by EVID=2 rows
-        table <- table %>% dplyr::group_by(ID) %>%
+        table <- table %>% dplyr::group_by(dplyr::across("ID")) %>%
           tidyr::fill(allCovariateNames[!(allCovariateNames %in% timeVaryingCovariateNames)], .direction="down") %>%
           dplyr::ungroup()
       }  
@@ -434,15 +441,21 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       # If a rate was specified, same rate applies on new AMT (nothing to do)
       if (compartments %>% length() > 0) {
         table <- table %>% 
-          dplyr::mutate(AMT_=ifelse(CMT %in% compartments, eval(expr), AMT),
-                        RATE=ifelse((CMT %in% compartments) & !is.na(INFUSION_TYPE) & INFUSION_TYPE==-2, RATE*AMT_/AMT, RATE))
+          dplyr::mutate(AMT_=ifelse(.data$CMT %in% compartments,
+                                    eval(expr),
+                                    .data$AMT),
+                        RATE=ifelse((.data$CMT %in% compartments) & !is.na(.data$INFUSION_TYPE) & .data$INFUSION_TYPE==-2,
+                                    .data$RATE*.data$AMT_/.data$AMT,
+                                    .data$RATE))
       } else {
         table <- table %>% 
           dplyr::mutate(AMT_=eval(expr),
-                        RATE=ifelse(!is.na(INFUSION_TYPE) & INFUSION_TYPE==-2, RATE*AMT_/AMT, RATE))
+                        RATE=ifelse(!is.na(.data$INFUSION_TYPE) & .data$INFUSION_TYPE==-2,
+                                    .data$RATE*.data$AMT_/.data$AMT,
+                                    .data$RATE))
       }
       # Keep final rate and remove temporary column AMT_
-      table <- table %>% dplyr::mutate(AMT=AMT_) %>% dplyr::select(-AMT_)
+      table <- table %>% dplyr::mutate(AMT=.data$AMT_) %>% dplyr::select(-dplyr::all_of("AMT_"))
     }
     
     return(table)
@@ -454,7 +467,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
   }
   
   # Remove INFUSION_TYPE column
-  retValue <- retValue %>% dplyr::select(-INFUSION_TYPE)
+  retValue <- retValue %>% dplyr::select(-dplyr::all_of("INFUSION_TYPE"))
   
   return(retValue)
 }
@@ -468,19 +481,19 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
 #' @param columnNames the column names to fill
 #' @param downDirectionFirst TRUE: first fill down then fill up (by ID & TIME). FALSE: First fill up (by ID & TIME), then fill down
 #' @return 2-dimensional dataset
-#' @importFrom dplyr all_of group_by mutate_at
+#' @importFrom dplyr across all_of group_by mutate_at
 #' @importFrom tidyr fill
 #' @keywords internal
 #' 
 fillIOVOccColumns <- function(table, columnNames, downDirectionFirst) {
   if (downDirectionFirst) {
-    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
-    table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")       # 2
-    table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+    table <- table %>% dplyr::group_by(dplyr::across("ID")) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
+    table <- table %>% dplyr::group_by(dplyr::across(c("ID","TIME"))) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")      # 2
+    table <- table %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
   } else {
-    table <- table %>% dplyr::group_by(ID, TIME) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")       # 2
-    table <- table %>% dplyr::group_by(ID) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
-    table <- table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
+    table <- table %>% dplyr::group_by(dplyr::across(c("ID","TIME"))) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="up")      # 2
+    table <- table %>% dplyr::group_by(dplyr::across("ID")) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
+    table <- table %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::mutate_at(.vars=columnNames, .funs=~ifelse(is.na(.x), 0, .x)) # 3
   }
   return(table)
 }
@@ -491,11 +504,11 @@ fillIOVOccColumns <- function(table, columnNames, downDirectionFirst) {
 #' @param table current table
 #' @param columnNames columns to be counter-balanced
 #' @return 2-dimensional dataset
-#' @importFrom dplyr group_by mutate_at n
+#' @importFrom dplyr across group_by mutate_at n
 #' @keywords internal
 #'
 counterBalanceNocbMode <- function(table, columnNames) {
-  return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[1], .x[-dplyr::n()])))
+  return(table %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[1], .x[-dplyr::n()])))
 }
 
 #' Counter-balance LOCF mode for occasions & IOV.
@@ -504,11 +517,11 @@ counterBalanceNocbMode <- function(table, columnNames) {
 #' @param table current table
 #' @param columnNames columns to be counter-balanced
 #' @return 2-dimensional dataset
-#' @importFrom dplyr group_by mutate_at n
+#' @importFrom dplyr across group_by mutate_at n
 #' @keywords internal
 #'
 counterBalanceLocfMode <- function(table, columnNames) {
-  return(table %>% dplyr::group_by(ID) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[-1], .x[dplyr::n()])))
+  return(table %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[-1], .x[dplyr::n()])))
 }
 
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {

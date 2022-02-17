@@ -1,8 +1,10 @@
 
+# campsis <img src='man/figures/logo.png' align="right" alt="" width="120" />
+
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/Calvagone/campsis/workflows/R-CMD-check/badge.svg)](https://github.com/Calvagone/campsis/actions)
-[![codecov](https://codecov.io/gh/Calvagone/campsis/branch/main/graph/badge.svg?token=C629TACTSU)](https://codecov.io/gh/Calvagone/campsis)
+[![codecov](https://codecov.io/gh/Calvagone/campsis/branch/main/graph/badge.svg?token=C629TACTSU)](https://app.codecov.io/gh/Calvagone/campsis)
 <!-- badges: end -->
 
 ## Requirements
@@ -30,9 +32,9 @@ library(campsis)
 Create your dataset:
 
 ``` r
-ds <- Dataset(50)
-ds <- ds %>% add(Bolus(time=0, amount=1000, ii=12, addl=2))
-ds <- ds %>% add(Observations(times=seq(0, 36, by=0.5)))
+ds <- Dataset(50) %>%
+  add(Bolus(time=0, amount=1000, ii=12, addl=2)) %>%
+  add(Observations(times=seq(0, 36, by=0.5)))
 ```
 
 Load your own model or use a built-in model from the library:

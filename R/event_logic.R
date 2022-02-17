@@ -64,7 +64,8 @@ getEventIterations <- function(events, maxTime) {
 #' @param table whole table, data frame
 #' @param iteration current iteration being processed
 #' @param summary dataset summary
-#' @importFrom dplyr all_of group_by left_join mutate row_number ungroup
+#' @return a data frame
+#' @importFrom dplyr across all_of group_by left_join mutate row_number ungroup
 #' @keywords internal
 #' 
 cutTableForEvent <- function(table, iteration, summary) {
@@ -73,13 +74,14 @@ cutTableForEvent <- function(table, iteration, summary) {
   inits <- iteration@inits
   
   # Filter on iteration
-  table_ <- table %>% dplyr::filter((EVID==1 & TIME >= start & TIME < end) |
-                                      (EVID==0 & TIME >= start & TIME <= end))
+  table_ <- table %>% dplyr::filter((.data$EVID==1 & .data$TIME >= start & .data$TIME < end) |
+                                    (.data$EVID==0 & .data$TIME >= start & .data$TIME <= end))
 
   # First observation should always be EVENT_RELATED
   # Except for first iteration
   if (start > 0) {
-    table_ <- table_ %>% dplyr::group_by(ID) %>% dplyr::mutate(EVENT_RELATED=ifelse(dplyr::row_number()==1, as.integer(TRUE), EVENT_RELATED))
+    table_ <- table_ %>% dplyr::group_by(dplyr::across("ID")) %>%
+      dplyr::mutate(EVENT_RELATED=ifelse(dplyr::row_number()==1, as.integer(TRUE), .data$EVENT_RELATED))
   }
   
   # Update time-varying covariates

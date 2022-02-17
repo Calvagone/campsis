@@ -4,7 +4,7 @@
 
 #' Simulate function.
 #' 
-#' @param model generic PMX model
+#' @param model generic CAMPSIS model
 #' @param dataset CAMPSIS dataset or 2-dimensional table
 #' @param dest destination simulation engine, default is 'RxODE'
 #' @param events interruption events
@@ -16,7 +16,7 @@
 #' @param replicates number of replicates, default is 1
 #' @param nocb next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE
 #' @param dosing output dosing information, default is FALSE
-#' @param ... optional arguments like declare
+#' @param ... optional arguments like 'declare' and 'nocbvars'
 #' @return dataframe with all results
 #' @export
 #' @rdname simulate
@@ -25,10 +25,7 @@ simulate <- function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tab
 }
 
 setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, nocb=NULL, dosing=FALSE, ...) {
-  if (is.null(dest)) {
-    # Default engine
-    dest <- "RxODE"
-  }
+  dest <- preprocessDest(dest)
   events <- preprocessEvents(events)
   scenarios <- preprocessScenarios(scenarios)
   tablefun <- preprocessFunction(tablefun, "tablefun")
@@ -62,6 +59,7 @@ getSimulationEngineType <- function(dest) {
 #' Export table delegate.
 #' 
 #' @inheritParams simulate
+#' @return a data frame
 #' @keywords internal
 #' 
 exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, nocb, nocbvars) {
@@ -116,7 +114,9 @@ getDatasetMaxTime <- function(dataset) {
 #' @inheritParams simulate
 #' @param replicate current replicate number
 #' @param iterations number of iterations
+#' @return a data frame with the results
 #' @keywords internal
+#' @importFrom dplyr across bind_rows group_by slice ungroup
 #' 
 simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, nocb, dosing, replicate, iterations, ...) {
   destEngine <- getSimulationEngineType(dest)
@@ -137,7 +137,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     results_$TIME <- results_$TIME + iteration@start
     
     # Store initial values for next iteration
-    inits <- results_ %>% dplyr::group_by(ID) %>% dplyr::slice(which.max(TIME))
+    inits <- results_ %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::slice(which.max(.data$TIME))
     
     # Set seed for next simulation
     iterationSeed <- getSeedForIteration(seed=seed, replicate=replicate, iterations=iterations %>% length(), iteration=iteration@index)
@@ -152,7 +152,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     
     # Get rid of event related observations and remove column
     
-    results_ <- results_ %>% dplyr::filter(EVENT_RELATED==0) %>% dplyr::select(-EVENT_RELATED)
+    results_ <- results_ %>% dplyr::filter(.data$EVENT_RELATED==0) %>% dplyr::select(-dplyr::all_of("EVENT_RELATED"))
     
     # Append simulation results to global results
     # Except for iteration 1 from 0 to 0 which is a special case
@@ -163,7 +163,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   # Reorder results dataframe if at least 1 interruption in order to group results by ID
   # Otherwise, the dataframe is already ordered
   if (iterations %>% length() > 0) {
-    results <- results %>% dplyr::arrange(ID)
+    results <- results %>% dplyr::arrange(dplyr::across("ID"))
   }
   return(outfun(results))
 }
@@ -184,7 +184,7 @@ processArmLabels <- function(campsis, arms) {
   armLabels <- arms@list %>% purrr::map_chr(~.x@label)
   if (any(!is.na(armLabels))) {
     armLabels <- ifelse(is.na(armLabels), paste("ARM", armIds), armLabels)
-    campsis <- campsis %>% dplyr::mutate(ARM=plyr::mapvalues(ARM, from=armIds, to=armLabels))
+    campsis <- campsis %>% dplyr::mutate(ARM=plyr::mapvalues(.data$ARM, from=armIds, to=armLabels))
   }
   return(campsis)
 }
@@ -192,8 +192,9 @@ processArmLabels <- function(campsis, arms) {
 #' Simulation scenarios.
 #' 
 #' @inheritParams simulate
+#' @return a data frame with the results
 #' @keywords internal
-#' 
+#' @importFrom methods validObject
 simulateScenarios <- function(scenarios, model, dataset, dest, events,
                               tablefun, outvars, outfun, seed, replicates,
                               nocb, dosing, replicate, ...) {
@@ -202,10 +203,10 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     dataset <- dataset %>% applyScenario(scenario)
     
     # Validate CAMPSIS model in depth
-    validObject(model, complete=TRUE)
+    methods::validObject(model, complete=TRUE)
     
     # Validate CAMPSIS dataset in depth (btw, validObject also works on non S4 objects)
-    validObject(dataset, complete=TRUE)
+    methods::validObject(dataset, complete=TRUE)
     
     maxTime <- getDatasetMaxTime(dataset)
     iterations <- getEventIterations(events, maxTime=maxTime)
@@ -230,8 +231,9 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' Simulation delegate (several replicates).
 #' 
 #' @inheritParams simulate
+#' @return a data frame with the results
 #' @keywords internal
-#' 
+#' @importFrom methods validObject
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
   # Single replicate: don't use parameter uncertainty
   if (replicates==1) {
@@ -241,7 +243,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   # More than 1 replicate: parameter uncertainty enabled
   } else {
     # First make sure CAMPSIS model is valid
-    validObject(model, complete=TRUE)
+    methods::validObject(model, complete=TRUE)
     
     # Get as many models as replicates
     parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
@@ -250,10 +252,21 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     
     # Run all models
     return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
-      return(simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
-                               tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                               nocb=nocb, dosing=dosing, replicate=replicate, ...))
-    }, .id="replicate") %>% dplyr::mutate(replicate=as.integer(replicate)))
+      retValue <- NULL
+      tryCatch(
+        expr={
+          retValue <- simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
+                                            tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                            nocb=nocb, dosing=dosing, replicate=replicate, ...)
+          retValue <- dplyr::bind_cols(replicate=replicate, retValue)
+        },
+        error=function(cond) {
+          message(paste0("Error with replicate number ", replicate, ":"))
+          print(cond)
+        }
+      )
+      return(retValue)
+    }))
   }
 }
 
@@ -295,7 +308,7 @@ removeInitialConditions <- function(model) {
 
 #' Preprocess arguments of the simulate method.
 #' 
-#' @param model PMX model
+#' @param model CAMPSIS model
 #' @param dataset dataset, data.frame form
 #' @param dest destination engine
 #' @param outvars outvars
@@ -335,12 +348,12 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
   summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
   declare <- unique(c(summary@iov_names, summary@covariate_names, summary@occ_names, user_declare, "ARM", "EVENT_RELATED"))    
 
-  # Remove initial conditions from PMX model before export (if present)
+  # Remove initial conditions from CAMPSIS model before export (if present)
   if (iteration@index > 1) {
     model <- removeInitialConditions(model)
   }
   
-  # Export PMX model
+  # Export CAMPSIS model
   if (is(dest, "rxode_engine")) {
     engineModel <- model %>% export(dest="RxODE")
   } else if (is(dest, "mrgsolve_engine")) {
@@ -358,7 +371,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
   
   # Prepare all subdatasets (1 event dataframe per slice/round)
   subdatasets <- purrr::map2(sliceRounds$start, sliceRounds$end, .f=function(.x, .y){
-    subdataset <- dataset %>% dplyr::filter(ID >= .x & ID <= .y)
+    subdataset <- dataset %>% dplyr::filter(.data$ID >= .x & .data$ID <= .y)
     return(subdataset)
   })
   
@@ -371,7 +384,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
 
 #' Get initial conditions at simulation start-up.
 #' 
-#' @param subdataset subdataset to simulate
+#' @param subdataset subset of the dataset to simulate
 #' @param iteration current iteration
 #' @param cmtNames compartment names
 #' @return named numeric vector with the new initial conditions
@@ -384,7 +397,7 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
     inits <- NULL
   } else {
     assertthat::assert_that(currentID %>% length()==1, msg=paste0("Not a single ID: ", paste0(currentID, collapse=",")))
-    inits <- iteration@inits %>% dplyr::filter(ID==currentID) %>% unlist()
+    inits <- iteration@inits %>% dplyr::filter(.data$ID==currentID) %>% unlist()
     inits <- inits[cmtNames]
   }
   return(inits)
@@ -451,14 +464,14 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     
     # RxODE does not add the 'ID' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
-      tmp <- tmp %>% tibble::add_column(ID=unique(subdataset$ID), .before=1) %>% dplyr::rename(TIME=time)
+      tmp <- tmp %>% tibble::add_column(ID=unique(subdataset$ID), .before=1) %>% dplyr::rename(TIME="time")
     } else {
       # Use same ID and TIME columns as NONMEM/mrgsolve
-      tmp <- tmp %>% dplyr::rename(ID=id, TIME=time)
+      tmp <- tmp %>% dplyr::rename(ID="id", TIME="time")
     }
     if (dosing) {
       # Rename dosing-related columns
-      tmp <- tmp %>% dplyr::rename(EVID=evid, CMT=cmt, AMT=amt)
+      tmp <- tmp %>% dplyr::rename(EVID="evid", CMT="cmt", AMT="amt")
     }
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))

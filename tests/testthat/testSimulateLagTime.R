@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the simulate method with lag times")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
-seed <<- 1
-
-source(paste0(testFolder, "testUtils.R"))
+seed <- 1
+source(paste0("", "testUtils.R"))
 
 test_that("Simulate a bolus with fixed lag time in dataset", {
   model <- model_library$advan4_trans4

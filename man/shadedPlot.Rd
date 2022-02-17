@@ -18,7 +18,7 @@ shadedPlot(x, output, scenarios = NULL, level = 0.9, alpha = 0.25)
 \item{alpha}{alpha parameter (transparency) given to geom_ribbon}
 }
 \value{
-plot
+a ggplot object
 }
 \description{
 Shaded plot (or prediction interval plot).

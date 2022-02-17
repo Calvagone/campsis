@@ -3,13 +3,11 @@ library(ggplot2)
 
 context("Study can be replicated using argument 'replicates'")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("VPC on CP (predicate)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
@@ -30,7 +28,7 @@ test_that("VPC on CP (predicate)", {
 })
 
 test_that("VPC on both CP and Y (function)", {
-
+  if (skipLongTest) return(TRUE)
   model <- model_library$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
@@ -55,7 +53,7 @@ test_that("VPC on both CP and Y (function)", {
 })
 
 test_that("Study replication also works with scenarios", {
-  
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan2_trans1
   ds <- Dataset(10) %>%
     add(Bolus(time=0, amount=1000)) %>%
@@ -74,3 +72,32 @@ test_that("Study replication also works with scenarios", {
   vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO)
 })
 
+test_that("Try/catch works as expected if one replicate fails", {
+  if (skipLongTest) return(TRUE)
+  model <- model_library$advan2_trans2
+  
+  # Add high uncertainty on THETA_KA (variance of 1)
+  varcov <- matrix(1)
+  row.names(varcov) <- "THETA_KA"
+  colnames(varcov) <- "THETA_KA"
+  
+  model@parameters@varcov <- varcov
+  
+  dataset <- Dataset(10) %>% 
+    add(Bolus(time=0, amount=10, compartment=1)) %>%
+    add(Observations(c(0,1,2,4,8,10000)))
+  
+  # Simulation with mrgsolve
+  # An error is thrown by mrgsolve for the first replicate and caught by the try/catch statement
+  results_mrgsolve <- simulate(model=model, dataset=dataset, seed=13, replicates=3, outvars="KA", dest="mrgsolve")
+  expect_equal(results_mrgsolve$replicate %>% unique(), c(2,3)) # Replicate 1 has error
+  expect_false(any(is.na(results_mrgsolve$CP)))
+  
+  # Simulation with RxODE
+  # An warning is thrown by RxODE for the first replicate
+  results_rxode <- expect_warning(simulate(model=model, dataset=dataset, seed=13, replicates=3, outvars="KA", dest="RxODE"),
+                                  regexp="some ID\\(s\\) could not solve the ODEs correctly")
+  expect_equal(results_rxode$replicate %>% unique(), c(1,2,3))
+  expect_true(any(is.na(results_rxode$CP))) # Some NA's in replicate 1
+  expect_false(any(is.na(results_rxode %>% dplyr::filter(replicate != 1) %>% dplyr::pull(CP))))
+})

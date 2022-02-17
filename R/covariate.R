@@ -43,7 +43,7 @@ setClass(
 )
 
 #' 
-#' Create a fixed covariate.
+#' Create a non time-varying (fixed) covariate.
 #' 
 #' @param name covariate name, single character value
 #' @param distribution covariate distribution
@@ -69,7 +69,7 @@ setClass(
 )
 
 #' 
-#' Create an event covariate. These covariates can be modified further in the
+#' Create an event covariate. These covariates can be modified further in
 #' interruption events.
 #' 
 #' @param name covariate name, character
@@ -106,7 +106,7 @@ setClass(
 #'  max number of subjects in the dataset/arm can be used. All ID's must have a VALUE
 #'  defined for TIME 0.
 #' @return a time-varying covariate
-#' @importFrom dplyr arrange filter
+#' @importFrom dplyr across arrange filter
 #' @export
 TimeVaryingCovariate <- function(name, table) {
   if (!(all(c("TIME", "VALUE") %in% colnames(table)))) {
@@ -116,12 +116,12 @@ TimeVaryingCovariate <- function(name, table) {
   
   # Sort dataframe
   if (hasID) {
-    table <- table %>% dplyr::arrange(ID, TIME)
+    table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME")))
   } else {
-    table <- table %>% dplyr::arrange(TIME)
+    table <- table %>% dplyr::arrange(dplyr::across("TIME"))
   }
-  tableT0 <- table %>% dplyr::filter(TIME==0)
-  tableAfterT0 <- table %>% dplyr::filter(TIME>0)
+  tableT0 <- table %>% dplyr::filter(.data$TIME==0)
+  tableAfterT0 <- table %>% dplyr::filter(.data$TIME>0)
   
   if (hasID) {
     requiredIDs <- seq_len(max(table$ID))
@@ -160,11 +160,11 @@ TimeVaryingCovariate <- function(name, table) {
 mergeTimeVaryingCovariates <- function(covariates, ids) {
   startingID <- min(ids)
   timeVaryingCovariates <- covariates %>% campsismod::select("time_varying_covariate")
-  tables <- timeVaryingCovariates %>% .@list %>%
+  tables <- timeVaryingCovariates@list %>%
     purrr::map_df(.f=function(covariate) {
       table <- covariate@table %>% dplyr::mutate(VARIABLE=covariate@name)
       if (("ID" %in% colnames(table))) {
-        return(table %>% dplyr::mutate(ID=ID + startingID - 1))
+        return(table %>% dplyr::mutate(ID=.data$ID + startingID - 1))
       } else {
         retValue <- ids %>% purrr::map_df(.f=function(id) {
           return(cbind(ID=id, table))

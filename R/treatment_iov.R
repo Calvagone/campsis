@@ -34,7 +34,7 @@ setClass(
 #' @param colname name of the column that will be output in dataset
 #' @param distribution distribution
 #' @param doseNumbers dose numbers, if provided, IOV is generated at these doses only. By default, IOV is generated for all doses.
-#' @return IOV
+#' @return an IOV object
 #' @export
 IOV <- function(colname, distribution, doseNumbers=NULL) {
   if (is.null(doseNumbers)) {

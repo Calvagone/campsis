@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the simulate method with different bioavailabilities")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
-seed <<- 1
-
-source(paste0(testFolder, "testUtils.R"))
+seed <- 1
+source(paste0("", "testUtils.R"))
 
 test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
   model <- model_library$advan4_trans4

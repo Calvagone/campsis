@@ -59,7 +59,7 @@ getSeedForIteration <- function(seed, replicate, iterations, iteration) {
   return(getSeedForDatasetExport(seed, replicate, iterations) + iteration)
 }
 
-#' Set the seed. The goal of this method is to centralise all calls to
+#' Set the seed. The goal of this method is to centralize all calls to
 #' the R method 'set.seed'.
 #' 
 #' @param seed seed value, not NULL

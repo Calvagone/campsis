@@ -3,7 +3,7 @@
 \name{EtaDistribution}
 \alias{EtaDistribution}
 \title{Create an ETA distribution. The resulting distribution is a
-normal distribution, with mean=0 and sd=sqrt(OMEGA)}
+normal distribution, with mean=0 and sd=sqrt(OMEGA).}
 \usage{
 EtaDistribution(model, omega)
 }
@@ -17,5 +17,5 @@ an ETA distribution
 }
 \description{
 Create an ETA distribution. The resulting distribution is a
-normal distribution, with mean=0 and sd=sqrt(OMEGA)
+normal distribution, with mean=0 and sd=sqrt(OMEGA).
 }

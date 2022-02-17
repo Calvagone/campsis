@@ -2,7 +2,11 @@
 # setwd("C:/prj/campsis/")
 # roxygen2::roxygenise()
 # setwd("C:/prj/campsis/tests/")
-# testFolder <<- "C:/prj/campsis/tests/testthat/"
+# testFolder <- "C:/prj/campsis/tests/testthat/"
+
+overwriteNonRegressionFiles <- FALSE
+testFolder <- ""
+skipLongTest <- FALSE
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
@@ -86,5 +90,8 @@ vpcOutputRegressionTest <- function(results, output, filename) {
   }
   
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
+  
+  # Re-arrange data frame for backwards compatibility
+  results2 <- results2 %>% dplyr::arrange(replicate, TIME)
   expect_equal(results1, results2)
 }

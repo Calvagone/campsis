@@ -1,6 +1,61 @@
-Package: campsis
 Type: Package
+Package: campsis
+Title: Generic PK/PD Simulation Platform CAMPSIS
+Version: 1.2.0
+Authors@R: 
+    person(given = "Nicolas",
+           family = "Luyckx",
+           role = c("aut", "cre"),
+           email = "nicolas.luyckx@calvagone.com")
+Description: A generic, easy-to-use and intuitive PK/PD simulation
+    platform based on R packages 'RxODE' and 'mrgsolve'. CAMPSIS provides
+    an abstraction layer over the underlying processes of writing a PK/PD
+    model, assembling a custom dataset and running a simulation. CAMPSIS
+    has a strong dependency to the R package 'campsismod', which allows to
+    read/write a model from/to files and adapt it further on the fly in
+    the R environment. Package 'campsis' allows the user to assemble a
+    dataset in an intuitive manner. Once the user’s dataset is ready, the
+    package is in charge of preparing the simulation, calling 'RxODE' or
+    'mrgsolve' and returning the results, for the given model, dataset and
+    desired simulation settings.
+License: GPL (>= 3)
+URL: https://github.com/Calvagone/campsis, https://calvagone.github.io/
+BugReports: https://github.com/Calvagone/campsis/issues
+Depends: 
+    campsismod,
+    R (>= 4.0.0)
+Imports: 
+    assertthat,
+    dplyr,
+    ggplot2,
+    MASS,
+    methods,
+    plyr,
+    purrr,
+    rlang,
+    stats,
+    tibble,
+    tidyr
+Suggests: 
+    bookdown,
+    devtools,
+    gridExtra,
+    knitr,
+    mrgsolve,
+    pkgdown,
+    rmarkdown,
+    roxygen2,
+    RxODE,
+    stringr,
+    testthat
+VignetteBuilder: 
+    knitr
+Encoding: UTF-8
+Language: en-US
+LazyData: true
+RoxygenNote: 7.1.1
 Collate:
+    'global.R'
     'utilities.R'
     'check.R'
     'generic.R'
@@ -20,6 +75,7 @@ Collate:
     'observations_set.R'
     'covariate.R'
     'covariates.R'
+    'bootstrap.R'
     'protocol.R'
     'arm.R'
     'arms.R'
@@ -36,20 +92,3 @@ Collate:
     'simulate.R'
     'results_processing.R'
     'default_plot.R'
-Title: CAMPSIS package
-Version: 1.1.2
-Authors@R: c(
-  person("Nicolas", "Luyckx", role = c("aut", "cre"), email = "nicolas.luyckx@calvagone.com")
-  )
-Description: A generic PK/PD simulation platform based on RxODE and mrgsolve engines
-Depends: R (>= 4.0.0), campsismod
-Imports: assertthat, dplyr, ggplot2, MASS, plyr, purrr, rlang, tibble, tidyr
-License: file LICENSE
-Encoding: UTF-8
-Language: en-US
-LazyData: true
-Suggests: bookdown, devtools, knitr, gridExtra, mrgsolve, stringr, pkgdown, rmarkdown, roxygen2, RxODE, testthat 
-RoxygenNote: 7.1.1
-VignetteBuilder: knitr
-URL: https://github.com/Calvagone/campsis 
-BugReports: https://github.com/Calvagone/campsis/issues

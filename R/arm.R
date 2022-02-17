@@ -15,6 +15,7 @@ checkArm <- function(object) {
 #' @slot label arm label, single character string
 #' @slot protocol protocol
 #' @slot covariates covariates
+#' @slot bootstrap covariates to be bootstrapped
 #' @export
 setClass(
   "arm",
@@ -23,11 +24,13 @@ setClass(
     subjects = "integer",
     label = "character",
     protocol = "protocol",
-    covariates = "covariates"
+    covariates = "covariates",
+    bootstrap = "bootstrap"
   ),
   contains="pmx_element",
   prototype=prototype(id=as.integer(NA), subjects=as.integer(1), label=as.character(NA),
-                      protocol=new("protocol"), covariates=new("covariates"))
+                      protocol=new("protocol"), covariates=new("covariates"),
+                      bootstrap=Bootstrap(data=data.frame(BS_ID=integer())))
 )
 
 #'
@@ -154,6 +157,11 @@ setMethod("add", signature = c("arm", "covariate"), definition = function(object
   return(object)
 })
 
+setMethod("add", signature = c("arm", "bootstrap"), definition = function(object, x) {
+  object@bootstrap <- x
+  return(object)
+})
+
 #_______________________________________________________________________________
 #----                               contains                                ----
 #_______________________________________________________________________________
@@ -275,9 +283,10 @@ setMethod("replace", signature = c("arm", "covariate"), definition = function(ob
 #_______________________________________________________________________________
 
 #' @rdname setLabel
+#' @importFrom methods validObject
 setMethod("setLabel", signature = c("arm", "character"), definition = function(object, x) {
   object@label <- x
-  validObject(object)
+  methods::validObject(object)
   return(object)
 })
 
@@ -286,9 +295,10 @@ setMethod("setLabel", signature = c("arm", "character"), definition = function(o
 #_______________________________________________________________________________
 
 #' @rdname setSubjects
+#' @importFrom methods validObject
 setMethod("setSubjects", signature = c("arm", "integer"), definition = function(object, x) {
   object@subjects <- x
-  validObject(object)
+  methods::validObject(object)
   return(object)
 })
 

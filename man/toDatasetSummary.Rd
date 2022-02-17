@@ -7,7 +7,7 @@
 toDatasetSummary(dataset)
 }
 \value{
-dataset summary
+a dataset summary
 }
 \description{
 Convert dataset to dataset summary (internal method).

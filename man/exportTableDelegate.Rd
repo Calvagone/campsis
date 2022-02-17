@@ -16,7 +16,7 @@ exportTableDelegate(
 )
 }
 \arguments{
-\item{model}{generic PMX model}
+\item{model}{generic CAMPSIS model}
 
 \item{dataset}{CAMPSIS dataset or 2-dimensional table}
 
@@ -29,6 +29,9 @@ exportTableDelegate(
 \item{tablefun}{function or lambda formula to apply on exported 2-dimensional dataset}
 
 \item{nocb}{next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE}
+}
+\value{
+a data frame
 }
 \description{
 Export table delegate.

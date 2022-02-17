@@ -47,6 +47,7 @@ setClass(
 #' @param time treatment time(s)
 #' @param ii interdose interval
 #' @param addl number of additional doses
+#' @return no return value
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #'
@@ -230,7 +231,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   # Duration or rate
   if (!is(object@duration, "undefined_distribution")) {
     duration <- sampleTrtDistribution(object@duration, n, default=0)
-    retValue <- retValue %>% dplyr::mutate(RATE=AMT/duration, INFUSION_TYPE=as.integer(-2))
+    retValue <- retValue %>% dplyr::mutate(RATE=.data$AMT/duration, INFUSION_TYPE=as.integer(-2))
   } else if (!is(object@rate, "undefined_distribution")) {
     rate <- sampleTrtDistribution(object@rate, n, default=0)
     retValue <- retValue %>% dplyr::mutate(RATE=rate, INFUSION_TYPE=as.integer(-1))

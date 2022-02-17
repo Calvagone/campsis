@@ -70,7 +70,7 @@ results_no_f1 <- model_library$advan4_trans4 %>% simulate(dataset=ds1, dest="RxO
 gridExtra::grid.arrange(shadedPlot(results_f1, "CP"), shadedPlot(results_no_f1, "CP"), nrow=1)
 ```
 
-### Bioavailability inplemented in dataset
+### Bioavailability implemented in dataset
 
 The same simulation can be performed by adapting the column `AMT` in the dataset.
 

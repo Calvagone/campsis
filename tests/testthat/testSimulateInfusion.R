@@ -2,13 +2,11 @@ library(testthat)
 
 context("Test the simulate method with infusions")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
-seed <<- 1
-
-source(paste0(testFolder, "testUtils.R"))
+seed <- 1
+source(paste0("", "testUtils.R"))
 
 test_that("Simulate infusion using duration in dataset, then in model", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan3_trans4
   regFilename <- "infusion_duration"
   

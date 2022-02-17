@@ -3,12 +3,15 @@
 \docType{class}
 \name{dataset_config-class}
 \alias{dataset_config-class}
-\title{Dataset config class.}
-\arguments{
-\item{defDepotCmt}{default depot compartment, integer}
-
-\item{defObsCmt}{default observation compartment, integer}
-}
+\title{Dataset configuration class.}
 \description{
-Dataset config class.
+Dataset configuration class.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{def_depot_cmt}}{default depot compartment, integer}
+
+\item{\code{def_obs_cmt}}{default observation compartment, integer}
+}}
+

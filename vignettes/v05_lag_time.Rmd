@@ -70,7 +70,7 @@ results_no_alag <- model_library$advan4_trans4 %>% simulate(dataset=ds1, dest="R
 gridExtra::grid.arrange(shadedPlot(results_alag, "CP"), shadedPlot(results_no_alag, "CP"), nrow=1)
 ```
 
-### Lag time inplemented in dataset
+### Lag time implemented in dataset
 
 The same simulation can be performed by defining a lag time to the bolus in the dataset.
 

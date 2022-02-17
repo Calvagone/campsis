@@ -2,11 +2,8 @@ library(testthat)
 
 context("Test the simulate method with scenarios")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Simulate scenarios - make few changes on dataset (RxODE/mrgsolve)", {
   

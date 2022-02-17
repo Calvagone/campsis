@@ -2,7 +2,7 @@
 % Please edit documentation in R/seed.R
 \name{setSeed}
 \alias{setSeed}
-\title{Set the seed. The goal of this method is to centralise all calls to
+\title{Set the seed. The goal of this method is to centralize all calls to
 the R method 'set.seed'.}
 \usage{
 setSeed(seed)
@@ -11,7 +11,7 @@ setSeed(seed)
 \item{seed}{seed value, not NULL}
 }
 \description{
-Set the seed. The goal of this method is to centralise all calls to
+Set the seed. The goal of this method is to centralize all calls to
 the R method 'set.seed'.
 }
 \keyword{internal}

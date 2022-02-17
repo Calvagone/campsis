@@ -2,13 +2,11 @@ library(testthat)
 
 context("Test the simulate method with events")
 
-overwriteNonRegressionFiles <<- FALSE
-testFolder <<- ""
 seed <- 1
-
-source(paste0(testFolder, "testUtils.R"))
+source(paste0("", "testUtils.R"))
 
 test_that("Clear central compartment events (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   regFilename <- "clear_central_event"
   
@@ -34,6 +32,7 @@ test_that("Clear central compartment events (RxODE/mrgsolve)", {
 })
 
 test_that("Give daily dose in absortion (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   regFilename <- "event_daily_dose"
   
@@ -58,6 +57,7 @@ test_that("Give daily dose in absortion (RxODE/mrgsolve)", {
 })
 
 test_that("Daily dose in dataset + daily dose through events  (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   regFilename <- "event_daily_dose"
   
@@ -83,6 +83,7 @@ test_that("Daily dose in dataset + daily dose through events  (RxODE/mrgsolve)",
 })
 
 test_that("Body weight as an event covariate (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan2_trans2
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -117,6 +118,7 @@ test_that("Body weight as an event covariate (RxODE/mrgsolve)", {
 })
 
 test_that("Dose adaptation based on Ctrough (RxODE/mrgsolve)", {
+  if (skipLongTest) return(TRUE)
   model <- model_library$advan2_trans2
   regFilename <- "dose_adaptation_ctrough"
   
