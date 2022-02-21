@@ -33,10 +33,9 @@ test_that("Auto seed value vs fix seed + default engine", {
   # Check RxODE was chosen as default engine
   expect_true(all(c("KA", "CL", "V2") %in% colnames(results1)))
   
-  # Random seed
-  results1 <- model %>% simulate(dataset=dataset)
-  someOperationThatTakesTime <- rnorm(n=25000000, mean=0, sd=1)
-  results2 <- model %>% simulate(dataset=dataset)
+  # Auto seed vs fixed seed
+  results1 <- model %>% simulate(dataset=dataset) # Auto
+  results2 <- model %>% simulate(dataset=dataset, seed=10) # Fixed
   expect_false(all(results1$CP==results2$CP))
   
 })
