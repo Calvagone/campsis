@@ -7,15 +7,19 @@ data <- data.frame(BS_ID=c(1,2,3), WT=c(10,20,30), AGE=c(3,6,9))
 test_that("Create a few correct/incorrect bootstraps", {
   # Simple working bootstrap
   bootstrap <- Bootstrap(data=data)
-  expect_equal(bootstrap@data, data)
+  expect_equal(bootstrap@data, data %>% tibble::as_tibble())
   expect_equal(bootstrap@replacement, FALSE)
   expect_equal(bootstrap@random, FALSE)
+  
+  # Check the same bootstrap in its tibble version is working as well
+  bootstrap <- Bootstrap(data=data %>% tibble::as_tibble())
+  expect_equal(bootstrap@data, data %>% tibble::as_tibble())
   
   # Simple working bootstrap, custom ID
   data2 <- data %>% dplyr::rename(MY_CUSTOM_ID=BS_ID)
   expect_error(Bootstrap(data=data2), regexp="Unique identifier 'BS_ID' not part of data")
   bootstrap <- Bootstrap(data=data2, id="MY_CUSTOM_ID")
-  expect_equal(bootstrap@data, data)
+  expect_equal(bootstrap@data, data %>% tibble::as_tibble())
 
   # BS_ID not unique
   data3 <- data
