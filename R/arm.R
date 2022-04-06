@@ -307,7 +307,7 @@ setMethod("setSubjects", signature = c("arm", "integer"), definition = function(
 #_______________________________________________________________________________
 
 setMethod("show", signature=c("arm"), definition=function(object) {
-  if (object@id != 0) {
+  if (!is.na(object@id) && object@id != 0) {
     if (is.na(object@label)) {
       armLabel <- paste("Arm", object@id)
     } else {
