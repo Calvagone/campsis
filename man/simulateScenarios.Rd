@@ -18,6 +18,7 @@ simulateScenarios(
   nocb,
   dosing,
   replicate,
+  progress,
   ...
 )
 }

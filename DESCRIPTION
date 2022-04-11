@@ -31,6 +31,7 @@ Imports:
     MASS,
     methods,
     plyr,
+    progress,
     purrr,
     rlang,
     stats,
@@ -87,6 +88,7 @@ Collate:
     'dataset.R'
     'parameter_uncertainty.R'
     'event_logic.R'
+    'simulation_progress.R'
     'dataset_summary.R'
     'simulate_preprocess.R'
     'simulate.R'

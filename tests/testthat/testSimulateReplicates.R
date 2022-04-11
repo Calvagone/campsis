@@ -12,11 +12,9 @@ test_that("VPC on CP (predicate)", {
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
   
-  ds <- Dataset(100)
-  for (day in 0:2) {
-    ds <- ds %>% add(Infusion(time=day*24, amount=1000, compartment=1))
-  }
-  ds <- ds %>% add(Observations(times=seq(0, 3*24, by=4)))
+  ds <- Dataset(100) %>%
+    add(Infusion(time=0, amount=1000, compartment=1, ii=24, addl=2)) %>%
+    add(Observations(times=seq(0, 3*24, by=4)))
 
   results1 <- model %>% simulate(dataset=ds, dest="RxODE", replicates=5, outfun=~PI(.x, output="CP"), seed=seed)
   vpcPlot(results1)
