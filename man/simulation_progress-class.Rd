@@ -9,11 +9,15 @@
 
 \item{scenarios}{total number of scenarios to simulate}
 
+\item{iterations}{total number of iterations to simulate}
+
 \item{slices}{total number of slices to simulate}
 
 \item{replicate}{current replicate number being simulated}
 
 \item{scenario}{current scenario number being simulated}
+
+\item{iteration}{current iteration number being simulated}
 
 \item{slice}{current slice number being simulated}
 }

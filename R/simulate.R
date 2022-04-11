@@ -124,15 +124,21 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   nocbvars <- processExtraArg(list(...), name="nocbvars", default=NULL, mandatory=FALSE)
   table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, nocb=nocb, nocbvars=nocbvars)
   summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
-
+  progress <- processExtraArg(list(...), name="progress", default=NULL, mandatory=TRUE)
+  progress@iterations <- iterations %>% length()
+  
   inits <- data.frame()
   results <- NULL
   for (iteration in iterations) {
+    # Update iteration counter
+    progress <- progress %>% updateIteration(iteration@index)
+    
     iteration@inits <- inits
     table_ <- cutTableForEvent(table, iteration, summary)
     #print(table_)
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
-                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing, replicate=replicate, iteration=iteration, ...)
+                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb,
+                         dosing=dosing, replicate=replicate, iteration=iteration, progress=progress, ...)
     # Shift times back to their original value
     results_$TIME <- results_$TIME + iteration@start
     
@@ -481,7 +487,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   # Prepare simulation
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
 
-  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
+  results <- purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Covariate interpolation
@@ -492,7 +498,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
                           keep=keep, inits=inits, covs_interpolation=covs_interpolation, addDosing=dosing)
     
     # Tick progress
-    config$progress <- config$progress %>% incrementSlice()
+    config$progress <- config$progress %>% updateSlice(index)
     config$progress <- config$progress %>% tick()
     
     # RxODE does not add the 'ID' column if only 1 subject
@@ -542,7 +548,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   # Instantiate mrgsolve model
   mod <- suppressMessages(mrgsolve::mcode(model="model", code=mrgmod %>% toString(), quiet=TRUE))
   
-  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
+  results <-  purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
@@ -555,7 +561,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=nocb) %>% tibble::as_tibble()
 
     # Tick progress
-    config$progress <- config$progress %>% incrementSlice()
+    config$progress <- config$progress %>% updateSlice(index)
     config$progress <- config$progress %>% tick()
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))

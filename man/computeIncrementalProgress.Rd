@@ -10,8 +10,9 @@ computeIncrementalProgress(object)
 \item{object}{simulation progress object}
 }
 \value{
-a
+incremental progress, in percentage
 }
 \description{
 Compute incremental progress.
 }
+\keyword{internal}

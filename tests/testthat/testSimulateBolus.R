@@ -9,9 +9,9 @@ test_that("Simulate a bolus (RxODE/mrgsolve)", {
   model <- model_library$advan4_trans4
   regFilename <- "simple_bolus"
   
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  dataset <- Dataset(1) %>%
+    add(Bolus(time=0, amount=1000, compartment=1)) %>%
+    add(Observations(times=seq(0,24, by=0.5)))
 
   # RxODE
   results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
