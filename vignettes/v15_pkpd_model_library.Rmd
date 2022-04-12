@@ -39,7 +39,7 @@ pkpd <- pkpd %>% replace(Equation("PK_CONC", "A_CENTRAL/S2"))
 
 Simulate the PK/PD model with a basic dataset:
 
-```{r direct_effect_model, fig.align='center', fig.height=4, fig.width=8}
+```{r direct_effect_model, fig.align='center', fig.height=4, fig.width=8, message=F}
 library(campsis)
 dataset <- Dataset(25) %>% 
   add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=6)) %>%
@@ -68,7 +68,7 @@ pkpd <- pkpd %>% replace(Equation("PK_CONC", "A_CENTRAL/S2"))
 
 Simulate the PK/PD model with a basic dataset:
 
-```{r effect_compartment_model, fig.align='center', fig.height=4, fig.width=8}
+```{r effect_compartment_model, fig.align='center', fig.height=4, fig.width=8, message=F}
 library(campsis)
 dataset <- Dataset(25) %>% 
   add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=2)) %>%
@@ -96,7 +96,7 @@ pkpd <- pkpd %>% replace(Equation("PK_CONC", "A_CENTRAL/S2"))
 
 Simulate the PK/PD model with a basic dataset:
 
-```{r transit_compartment_model, fig.align='center', fig.height=4, fig.width=8}
+```{r transit_compartment_model, fig.align='center', fig.height=4, fig.width=8, message=F}
 library(campsis)
 dataset <- Dataset(25) %>% 
   add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=35)) %>%
@@ -124,7 +124,7 @@ pkpd <- pkpd %>% replace(Equation("PK_CONC", "A_CENTRAL/S2"))
 
 Simulate the PK/PD model with a basic dataset:
 
-```{r indirect_response_model, fig.align='center', fig.height=4, fig.width=8}
+```{r indirect_response_model, fig.align='center', fig.height=4, fig.width=8, message=F}
 library(campsis)
 dataset <- Dataset(25) %>% 
   add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=35)) %>%

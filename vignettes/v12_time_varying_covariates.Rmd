@@ -36,7 +36,7 @@ dataset <- Dataset(1) %>%
 
 The typical profile can be simulated in the following way:
 
-```{r event_bw_as_time_varying_covariate, fig.align='center', fig.height=4, fig.width=8}
+```{r event_bw_as_time_varying_covariate, fig.align='center', fig.height=4, fig.width=8, message=F}
 results <- model %>% disable("IIV") %>% simulate(dataset, seed=1, outvars="BW")
 gridExtra::grid.arrange(spaghettiPlot(results, "CP"),
                         spaghettiPlot(results, "BW"), ncol=1)
@@ -44,7 +44,7 @@ gridExtra::grid.arrange(spaghettiPlot(results, "CP"),
 
 Let's now compare this profile with another typical individual having a constant body weight of 70 kg:
 
-```{r event_bw_as_time_varying_covariate_scenarios, fig.align='center', fig.height=4, fig.width=8}
+```{r event_bw_as_time_varying_covariate_scenarios, fig.align='center', fig.height=4, fig.width=8, message=F}
 scenarios <- Scenarios() %>%
   add(Scenario("BW as time-varying covarite")) %>%
   add(Scenario("Fixed BW", dataset=~.x %>% replace(Covariate("BW", 70))))
@@ -56,7 +56,7 @@ gridExtra::grid.arrange(spaghettiPlot(results, "CP", "SCENARIO"),
 
 Finally, time-varying covariates can also be individualized by specifying an ID column:
 
-```{r event_bw_as_time_varying_covariate_by_id, fig.align='center', fig.height=4, fig.width=8}
+```{r event_bw_as_time_varying_covariate_by_id, fig.align='center', fig.height=4, fig.width=8, message=F}
 dataset <- Dataset(2) %>%
   add(Bolus(time=0, amount=1000)) %>%
   add(Observations(times=seq(0,30,by=0.1))) %>%

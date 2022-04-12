@@ -39,7 +39,7 @@ dataset <- Dataset(10) %>%
 
 Simulate this very simple protocol:
 
-```{r}
+```{r, message=F}
 results <- model %>% simulate(dataset, seed=1)
 head(results)
 ```
@@ -62,7 +62,7 @@ shadedPlot(results, "CP")
 
 We can also simulate two different treatment arms. Say the first arm receives 1000mg QD and the second arm 2000mg QD. This can be implemented as follows:
 
-```{r get_started_2arms_plot, fig.align='center', fig.height=4, fig.width=8}
+```{r get_started_2arms_plot, fig.align='center', fig.height=4, fig.width=8, message=F}
 # First treatment arm
 arm1 <- Arm(subjects=50, label="1000 mg QD") %>%
   add(Bolus(time=0, amount=1000, ii=24, addl=2)) %>%

@@ -52,7 +52,7 @@ scenarios <- Scenarios() %>%
 
 A quick simulation gives us the plasma concentration of filgrastim, as well as the absolute neutrophil count (ANC):
 
-```{r filgrastim_pkpd_model, fig.align='center', fig.height=6, fig.width=8}
+```{r filgrastim_pkpd_model, fig.align='center', fig.height=6, fig.width=8, message=F}
 library(ggplot2)
 
 results <- pkpd %>% simulate(dataset=baseDataset, scenarios=scenarios, seed=1)
