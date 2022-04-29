@@ -3,19 +3,17 @@ Package: campsis
 Title: Generic PK/PD Simulation Platform CAMPSIS
 Version: 1.2.1
 Authors@R: 
-    person(given = "Nicolas",
-           family = "Luyckx",
-           role = c("aut", "cre"),
-           email = "nicolas.luyckx@calvagone.com")
-Description: A generic, easy-to-use and intuitive PK/PD simulation
-    platform based on R packages 'RxODE' and 'mrgsolve'. CAMPSIS provides
-    an abstraction layer over the underlying processes of writing a PK/PD
-    model, assembling a custom dataset and running a simulation. CAMPSIS
-    has a strong dependency to the R package 'campsismod', which allows to
-    read/write a model from/to files and adapt it further on the fly in
-    the R environment. Package 'campsis' allows the user to assemble a
-    dataset in an intuitive manner. Once the user’s dataset is ready, the
-    package is in charge of preparing the simulation, calling 'RxODE' or
+    person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
+Description: A generic, easy-to-use and intuitive
+    pharmacokinetic/pharmacodynamic (PK/PD) simulation platform based on R
+    packages 'RxODE' and 'mrgsolve'. CAMPSIS provides an abstraction layer
+    over the underlying processes of writing a PK/PD model, assembling a
+    custom dataset and running a simulation. CAMPSIS has a strong
+    dependency to the R package 'campsismod', which allows to read/write a
+    model from/to files and adapt it further on the fly in the R
+    environment. Package 'campsis' allows the user to assemble a dataset
+    in an intuitive manner. Once the user’s dataset is ready, the package
+    is in charge of preparing the simulation, calling 'RxODE' or
     'mrgsolve' and returning the results, for the given model, dataset and
     desired simulation settings.
 License: GPL (>= 3)

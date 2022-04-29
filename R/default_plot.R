@@ -22,6 +22,7 @@ factorScenarios <- function(x, scenarios=NULL) {
 #' Filter CAMPSIS output on observation rows.
 #' 
 #' @param x data frame, CAMPSIS output
+#' @return a data frame with the observation rows
 #' @importFrom dplyr filter
 #' @export
 obsOnly <- function(x) {
@@ -35,6 +36,7 @@ obsOnly <- function(x) {
 #' Filter CAMPSIS output on dosing rows.
 #' 
 #' @param x data frame, CAMPSIS output
+#' @return a data frame with the dosing rows
 #' @importFrom dplyr filter
 #' @export
 dosingOnly <- function(x) {
