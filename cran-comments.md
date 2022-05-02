@@ -19,5 +19,11 @@ In the tests of that flavor, I see:
 *	Package suggested but not available for checking: ‘RxODE’
 *	And then, as a consequence, all simulation tests with RxODE do not pass (which is logic!)
 
-Regarding the intermittent M1mac additional issues of this package, they disappeared after a few days on CRAN.
+Regarding the intermittent M1mac additional issues of this package (which occur with package mrgsolve only), they disappeared after a few days on CRAN.
 Please let me know if they still appear in this new submission. Thanks!
+
+For information, I tried the online macbuilder service. In the tests, I have the following error message (for every test with RxODE):
+Error: .onLoad failed in loadNamespace() for 'RxODE', details:
+  call: NULL
+  error: RxODE compiled with PreciseSums '0.4' but PreciseSums '0.5' is loaded
+Recompile RxODE with the this version of PreciseSums
