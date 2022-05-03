@@ -6,7 +6,7 @@
 
 overwriteNonRegressionFiles <- FALSE
 testFolder <- ""
-skipLongTest <- TRUE
+skipLongTest <- FALSE
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
