@@ -40,7 +40,7 @@ dataset <- dataset %>% add(DoseAdaptation("AMT*WT"))
 
 Let's simulate this simple dataset. In order to check that the dose adaptation formula was well applied, we set the argument `dosing` to TRUE. Dosing rows will then be returned.
 
-```{r dose_adaptation_bw , fig.align='center', fig.height=4, fig.width=8}
+```{r dose_adaptation_bw , fig.align='center', fig.height=4, fig.width=8, message=F}
 results <- model %>% disable("IIV") %>% simulate(dataset=dataset, dosing=TRUE, seed=1)
 spaghettiPlot(results, "CP", "ID")
 ```

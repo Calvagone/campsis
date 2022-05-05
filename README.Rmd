@@ -53,22 +53,22 @@ model <- model_library$advan4_trans4
 
 Simulate your results with your preferred simulation engine:
 
-```{r}
+```{r, message=F}
 results <- model %>% simulate(dataset=ds, dest="RxODE", seed=1)
 ```
 
 Plot your results:
 
-```{r, fig.show='hide'}
+```{r readme_plot, fig.show='hide'}
 shadedPlot(results, "CP")
 ```
 
-```{r, eval=TRUE, echo=FALSE, results='hide'}
+```{r, eval=FALSE, echo=FALSE, results='hide'}
 file_vignette <- "vignettes/resources/readme_plot.png"
 ggplot2::ggsave(filename=file_vignette, width=8, height=4, dpi=100)
 ```
 
-```{r, echo=FALSE, results='hide'}
+```{r, eval=FALSE, echo=FALSE, results='hide'}
 file.copy(file_vignette, "docs/articles/resources/")
 ```
 

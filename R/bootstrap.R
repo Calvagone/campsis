@@ -11,6 +11,8 @@
 #' @slot replacement values can be reused or not, logical
 #' @slot random values are drawn randomly, logical
 #' @slot export_id tell CAMPSIS if 'BS_ID' must be exported into the dataset, logical
+#' @importFrom dplyr pull
+#' @importFrom purrr map_lgl
 #' @export
 setClass(
   "bootstrap",
@@ -47,7 +49,7 @@ setClass(
     check2 <- NULL
     covariableNames <- object %>% getNames()
     covariableNames <- covariableNames[!(covariableNames %in% "BS_ID")]
-    check2_lgl <- !covariableNames %>% purrr::map_lgl(.f=~object@data[,.x] %>% is.numeric())
+    check2_lgl <- !covariableNames %>% purrr::map_lgl(.f=~object@data %>% dplyr::pull(.x) %>% is.numeric())
     if (any(check2_lgl)) {
       check2 <- paste0("Column(s) ", paste0(covariableNames[check2_lgl], collapse=","), " are not numeric")
     }
@@ -78,10 +80,12 @@ setMethod("getName", signature = c("bootstrap"), definition = function(x) {
 #' @return a bootstrap object
 #' @importFrom assertthat assert_that
 #' @importFrom dplyr rename
+#' @importFrom tibble as_tibble
 #' @export
 Bootstrap <- function(data, id="BS_ID", replacement=FALSE, random=FALSE, export_id=FALSE) {
   assertthat::assert_that(is(data, "data.frame"), msg="data not a data frame")
   assertthat::assert_that(id %in% colnames(data), msg=paste0("Unique identifier '", id, "' not part of data"))
+  data <- data %>% tibble::as_tibble()
   if (id != "BS_ID") {
     data <- data %>% dplyr::rename(BS_ID=id)
   }

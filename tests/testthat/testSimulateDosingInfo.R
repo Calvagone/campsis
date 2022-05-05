@@ -32,7 +32,7 @@ test_that("Dose adaptations can be checked in CAMPSIS output if dosing is TRUE (
   expect_equal(results2b %>% nrow(), expectedLength)
   
   expect_equal(results1b %>% dosingOnly() %>% dplyr::pull(AMT), c(rep(50,7), rep(25,7)))
-  expect_equal(results2b %>% dosingOnly() %>% dplyr::pull(AMT), c(rep(50,7), rep(25,7)))
+  expect_equal(results2b %>% dosingOnly() %>% dplyr::pull(AMT), c(rep(50,7), rep(25,7))) # Not working on M1 MAC (arch="aarch64")
   
   # Check defaut plots are working
   spaghettiPlot(results1b, "A_DEPOT") # RxODE always puts dose before the observation for same time

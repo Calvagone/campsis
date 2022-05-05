@@ -25,14 +25,14 @@ test_that("Simulate simple TTE model (RxODE/mrgsolve)", {
     return(inits)
   })
   
-  ds <- Dataset(2)
-  ds <- ds %>% add(EventCovariate("COUNT", 0))
-  ds <- ds %>% add(EventCovariate("TRIGGER", UniformDistribution(0, 1)))
-  ds <- ds %>% add(Observations(times=seq(0, duration, by=0.1)))
+  ds <- Dataset(2) %>%
+    add(EventCovariate("COUNT", 0)) %>%
+    add(EventCovariate("TRIGGER", UniformDistribution(0, 1))) %>%
+    add(Observations(times=seq(0, duration, by=0.1)))
   
   events <- events %>% add(event)
   results1 <- model %>% simulate(dataset=ds, dest="RxODE", events=events, outvars=c("COUNT", "TRIGGER"), seed=5)
-  results2 <- suppressWarnings(model %>% simulate(dataset=ds, dest="mrgsolve", events=events, outvars=c("COUNT", "TRIGGER"), seed=5))
+  results2 <- model %>% simulate(dataset=ds, dest="mrgsolve", events=events, outvars=c("COUNT", "TRIGGER"), seed=5)
   
   # p1 <- spaghettiPlot(results1, "A_SURVIVAL")
   # p2 <- spaghettiPlot(results1, "COUNT")

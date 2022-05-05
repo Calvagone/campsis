@@ -9,6 +9,9 @@ obsOnly(x)
 \arguments{
 \item{x}{data frame, CAMPSIS output}
 }
+\value{
+a data frame with the observation rows
+}
 \description{
 Filter CAMPSIS output on observation rows.
 }

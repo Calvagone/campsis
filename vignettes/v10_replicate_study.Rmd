@@ -44,7 +44,7 @@ Let's now simulate this model with parameter uncertainty.
 Argument `replicates` specifies how many times the simulation is replicated.  
 Argument `outfun` is a function that is going to be called after each simulation on the output data frame.
 
-```{r}
+```{r, message=F}
 results <- model %>% simulate(dataset=ds, dest="RxODE", replicates=10, outfun=~PI(.x, output="Y"), seed=1)
 results %>% head()
 ```

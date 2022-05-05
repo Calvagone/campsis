@@ -31,7 +31,7 @@ Create your dataset in CAMPSIS. For instance, let's give 1000mg QD for 3 days an
 
 ```{r}
 dataset <- Dataset(10) %>%
-  add(Bolus(time=c(0,24,48), amount=1000)) %>%
+  add(Bolus(time=0, amount=1000, ii=24, addl=2)) %>%
   add(Observations(times=seq(0,72, by=1)))
 ```
 
@@ -39,8 +39,8 @@ dataset <- Dataset(10) %>%
 
 Simulate this very simple protocol:
 
-```{r}
-results <- model %>% simulate(dataset, dest="RxODE", seed=1)
+```{r, message=F}
+results <- model %>% simulate(dataset, seed=1)
 head(results)
 ```
 
@@ -60,20 +60,25 @@ shadedPlot(results, "CP")
 
 ### Simulate 2 arms
 
-We can also simulate two different treatment arms. Say the first arm receives 1000mg QD and the second arm 2000mg QD.
+We can also simulate two different treatment arms. Say the first arm receives 1000mg QD and the second arm 2000mg QD. This can be implemented as follows:
 
-```{r get_started_2arms_plot, fig.align='center', fig.height=4, fig.width=8}
-arm1 <- Arm(subjects=50, label="1000 mg QD")
-arm2 <- Arm(subjects=50, label="2000 mg QD")
+```{r get_started_2arms_plot, fig.align='center', fig.height=4, fig.width=8, message=F}
+# First treatment arm
+arm1 <- Arm(subjects=50, label="1000 mg QD") %>%
+  add(Bolus(time=0, amount=1000, ii=24, addl=2)) %>%
+  add(Observations(times=seq(0,72, by=1)))
 
-arm1 <- arm1 %>% add(Bolus(time=c(0,24,48), amount=1000))
-arm1 <- arm1 %>% add(Observations(times=seq(0,72, by=1)))
-
-arm2 <- arm2 %>% add(Bolus(time=c(0,24,48), amount=2000))
-arm2 <- arm2 %>% add(Observations(times=seq(0,72, by=1)))
+# Second treatment arm
+arm2 <- Arm(subjects=50, label="2000 mg QD") %>%
+  add(Bolus(time=0, amount=2000, ii=24, addl=2)) %>%
+  add(Observations(times=seq(0,72, by=1)))
 
 dataset <- Dataset() %>% add(c(arm1, arm2))
 
-results <- model %>% simulate(dataset, dest="RxODE", seed=1)
+results <- model %>% simulate(dataset, seed=1)
 shadedPlot(results, "CP", scenarios="ARM")
 ```
+
+### Going further
+
+We invite you to check out the other [vignettes](https://calvagone.github.io/campsis.doc/articles/). Have fun with CAMPSIS!

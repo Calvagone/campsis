@@ -124,15 +124,21 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   nocbvars <- processExtraArg(list(...), name="nocbvars", default=NULL, mandatory=FALSE)
   table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, nocb=nocb, nocbvars=nocbvars)
   summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
+  progress <- processExtraArg(list(...), name="progress", default=NULL, mandatory=TRUE)
+  progress@iterations <- iterations %>% length()
   
   inits <- data.frame()
   results <- NULL
   for (iteration in iterations) {
+    # Update iteration counter
+    progress <- progress %>% updateIteration(iteration@index)
+    
     iteration@inits <- inits
     table_ <- cutTableForEvent(table, iteration, summary)
     #print(table_)
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
-                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb, dosing=dosing, replicate=replicate, iteration=iteration, ...)
+                         outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, nocb=nocb,
+                         dosing=dosing, replicate=replicate, iteration=iteration, progress=progress, ...)
     # Shift times back to their original value
     results_$TIME <- results_$TIME + iteration@start
     
@@ -197,8 +203,8 @@ processArmLabels <- function(campsis, arms) {
 #' @importFrom methods validObject
 simulateScenarios <- function(scenarios, model, dataset, dest, events,
                               tablefun, outvars, outfun, seed, replicates,
-                              nocb, dosing, replicate, ...) {
-  outer <- scenarios@list %>% purrr::map_df(.f=function(scenario) {
+                              nocb, dosing, replicate, progress, ...) {
+  outer <-  purrr::map2_df(.x=scenarios@list, .y=seq_along(scenarios@list), .f=function(scenario, scenarioIndex) {
     model <- model %>% applyScenario(scenario)
     dataset <- dataset %>% applyScenario(scenario)
     
@@ -217,9 +223,13 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     } else {
       summary <- DatasetSummary() # Default
     }
+    
+    # Update scenario counter
+    progress <- progress %>% updateScenario(scenarioIndex)
+    
     inner <- simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
                                     tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                    nocb=nocb, dosing=dosing, replicate=replicate, iterations=iterations, summary=summary, ...)
+                                    nocb=nocb, dosing=dosing, replicate=replicate, iterations=iterations, summary=summary, progress=progress, ...)
     if (scenarios %>% length() > 1) {
       inner <- inner %>% dplyr::mutate(SCENARIO=scenario@name)
     }
@@ -235,11 +245,23 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @keywords internal
 #' @importFrom methods validObject
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
+  # Record progress
+  progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length())
+  progress@pb$tick(0)
+  
   # Single replicate: don't use parameter uncertainty
   if (replicates==1) {
-    return(simulateScenarios(scenarios=scenarios, model=model, dataset=dataset, dest=dest, events=events,
-                             tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                             nocb=nocb, dosing=dosing, replicate=1, ...))
+    
+    # Update replicate counter
+    progress <- progress %>% updateReplicate(1)
+    
+    retValue <- simulateScenarios(scenarios=scenarios, model=model, dataset=dataset, dest=dest, events=events,
+                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                  nocb=nocb, dosing=dosing, replicate=1, progress=progress, ...)
+    # Hide progress bar at the end
+    progress@pb$terminate()
+    
+    return(retValue)
   # More than 1 replicate: parameter uncertainty enabled
   } else {
     # First make sure CAMPSIS model is valid
@@ -251,13 +273,17 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     models <- model %>% sample(replicates)
     
     # Run all models
-    return(purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
+    allRep <- purrr::map2_df(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
       retValue <- NULL
+      
+      # Update replicate counter
+      progress <- progress %>% updateReplicate(replicate)
+      
       tryCatch(
         expr={
           retValue <- simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
-                                            tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                            nocb=nocb, dosing=dosing, replicate=replicate, ...)
+                                        tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                        nocb=nocb, dosing=dosing, replicate=replicate, progress=progress, ...)
           retValue <- dplyr::bind_cols(replicate=replicate, retValue)
         },
         error=function(cond) {
@@ -266,7 +292,12 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
         }
       )
       return(retValue)
-    }))
+    })
+    
+    # Hide progress bar at the end
+    progress@pb$terminate()
+    
+    return(allRep)
   }
 }
 
@@ -375,11 +406,15 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
     return(subdataset)
   })
   
+  # Update number of slices in progress
+  progress <- processExtraArg(args, name="progress", default=NULL, mandatory=TRUE)
+  progress@slices <- subdatasets %>% length()
+  
   # Compartment names
   cmtNames <- model@compartments@list %>% purrr::map_chr(~.x %>% toString())
   
   return(list(declare=declare, engineModel=engineModel, subdatasets=subdatasets,
-              dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames))
+              dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames, progress=progress))
 }
 
 #' Get initial conditions at simulation start-up.
@@ -452,7 +487,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   # Prepare simulation
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
 
-  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
+  results <- purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Covariate interpolation
@@ -461,6 +496,10 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     # Launch simulation with RxODE
     tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
                           keep=keep, inits=inits, covs_interpolation=covs_interpolation, addDosing=dosing)
+    
+    # Tick progress
+    config$progress <- config$progress %>% updateSlice(index)
+    config$progress <- config$progress %>% tick()
     
     # RxODE does not add the 'ID' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
@@ -507,9 +546,9 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   }
   
   # Instantiate mrgsolve model
-  mod <- mrgsolve::mcode("model", mrgmod %>% toString())
+  mod <- suppressMessages(mrgsolve::mcode(model="model", code=mrgmod %>% toString(), quiet=TRUE))
   
-  results <- config$subdatasets %>% purrr::map_df(.f=function(subdataset) {
+  results <-  purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
@@ -521,6 +560,10 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=nocb) %>% tibble::as_tibble()
 
+    # Tick progress
+    config$progress <- config$progress %>% updateSlice(index)
+    config$progress <- config$progress %>% tick()
+    
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   })
   return(results %>% reorderColumns(dosing=dosing))
