@@ -9,11 +9,11 @@ test_that("Dose adaptations can be checked in CAMPSIS output if dosing is TRUE (
   model <- model_library$advan4_trans4
 
   times <- seq(0,7*24, by=4)
-  dataset <- Dataset(2)
-  dataset <- dataset %>% add(Bolus(time=seq(0,6)*24, amount=0.5)) # 0.5mg / kg
-  dataset <- dataset %>% add(Observations(times=times))
-  dataset <- dataset %>% add(Covariate("WT", c(100, 50)))
-  dataset <- dataset %>% add(DoseAdaptation("AMT*WT"))
+  dataset <- Dataset(2) %>%
+    add(Bolus(time=seq(0,6)*24, amount=0.5)) %>% # 0.5mg / kg
+    add(Observations(times=times)) %>%
+    add(Covariate("WT", c(100, 50))) %>%
+    add(DoseAdaptation("AMT*WT"))
   
   results1a <- model %>% simulate(dataset, dest="RxODE", seed=seed)
   results2a <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
@@ -32,6 +32,7 @@ test_that("Dose adaptations can be checked in CAMPSIS output if dosing is TRUE (
   expect_equal(results2b %>% nrow(), expectedLength)
   
   expect_equal(results1b %>% dosingOnly() %>% dplyr::pull(AMT), c(rep(50,7), rep(25,7)))
+  results2b
   expect_equal(results2b %>% dosingOnly() %>% dplyr::pull(AMT), c(rep(50,7), rep(25,7))) # Not working on M1 MAC (arch="aarch64")
   
   # Check defaut plots are working
@@ -39,4 +40,24 @@ test_that("Dose adaptations can be checked in CAMPSIS output if dosing is TRUE (
   spaghettiPlot(results2b, "A_DEPOT")
   shadedPlot(results1b, "A_DEPOT")
   shadedPlot(results2b, "A_DEPOT")
+})
+
+test_that("Debug previous test with mrgsolve on M1 Mac", {
+  model <- model_library$advan4_trans4
+  
+  times <- seq(0,7*24, by=4)
+  dataset <- Dataset(2) %>%
+    add(Bolus(time=seq(0,6)*24, amount=0.5)) %>% # 0.5mg / kg
+    add(Observations(times=times)) %>%
+    add(Covariate("WT", c(100, 50))) %>%
+    add(DoseAdaptation("AMT*WT"))
+  
+  table <- dataset %>% export(dest="mrgsolve")
+  
+  mrgmod <- model %>% export(dest="mrgsolve", outvars=c("EVID", "CMT", "AMT"))
+  mod <- suppressMessages(mrgsolve::mcode(model="model", code=mrgmod %>% toString(), quiet=TRUE))
+  
+  results <- mod %>% mrgsolve::data_set(data=table) %>% mrgsolve::mrgsim(obsonly=FALSE, output="df", nocb=TRUE) %>% tibble::as_tibble()
+  results %>% dosingOnly()
+  expect_equal(results %>% dosingOnly() %>% dplyr::pull(AMT), c(rep(50,7), rep(25,7)))
 })
