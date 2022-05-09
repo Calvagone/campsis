@@ -544,10 +544,15 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   for (variable in config$declare) {
     mrgmod@param <- mrgmod@param %>% append(paste0(variable, " : ", 0, " : ", variable))
   }
-  
+
   # Instantiate mrgsolve model
-  mod <- suppressMessages(mrgsolve::mcode(model="model", code=mrgmod %>% toString(), quiet=TRUE))
-  
+  withCallingHandlers({
+    mod <- mrgsolve::mcode(model="model", code=mrgmod %>% toString(), quiet=TRUE)
+  }, message = function(msg) {
+    if (msg$message %>% startsWith("(waiting)"))
+      invokeRestart("muffleMessage")
+  })
+
   results <-  purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
