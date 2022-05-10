@@ -26,6 +26,6 @@ test_that("Incorrect Campsis model does not compile and a clear error message is
     }, error=function(cond){
       # Do nothing
     }),
-    regexp="['‘]BW['’] was not declared in this scope"
+    regexp="(['‘]BW['’] was not declared in this scope)|(use of undeclared identifier 'BW')"
   )
 })
