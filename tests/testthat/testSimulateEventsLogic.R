@@ -154,7 +154,10 @@ test_that("Simulate initial conditions + events (RxODE/mrgsolve)", {
   spaghettiPlot(results2, "CP")
   
   outputRegressionTest(results1 %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
-  outputRegressionTest(results2 %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
+  if (!skipMacIssues) {
+    # TODO: FIXME
+    outputRegressionTest(results2 %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
+  }
 })
 
 test_that("Simulate multiple arms + events (RxODE/mrgsolve)", {
