@@ -24,6 +24,7 @@ Depends:
     R (>= 4.0.0)
 Imports: 
     assertthat,
+    digest,
     dplyr,
     ggplot2,
     MASS,

@@ -518,6 +518,8 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   return(results %>% reorderColumns(dosing=dosing))
 })
 
+#' @importFrom purrr map2_df
+#' @importFrom digest sha1
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "logical"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
@@ -545,9 +547,12 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     mrgmod@param <- mrgmod@param %>% append(paste0(variable, " : ", 0, " : ", variable))
   }
 
+  mrgmodCode <- mrgmod %>% toString()
+  mrgmodHash <- digest::sha1(mrgmodCode)
+  
   # Instantiate mrgsolve model
   withCallingHandlers({
-    mod <- mrgsolve::mcode(model="model", code=mrgmod %>% toString(), quiet=TRUE)
+    mod <- mrgsolve::mcode(model=paste0("mod_", mrgmodHash), code=mrgmodCode, quiet=TRUE)
   }, message = function(msg) {
     if (msg$message %>% startsWith("(waiting)"))
       invokeRestart("muffleMessage")
