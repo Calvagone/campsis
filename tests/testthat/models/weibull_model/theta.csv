@@ -1,0 +1,6 @@
+name,index,value,fix
+TAU,1,50,FALSE
+SH,2,3,FALSE
+CL,3,3,FALSE
+VC,4,60,FALSE
+PROP_RUV,5,0.15,FALSE

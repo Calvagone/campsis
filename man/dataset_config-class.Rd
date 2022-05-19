@@ -13,5 +13,9 @@ Dataset configuration class.
 \item{\code{def_depot_cmt}}{default depot compartment, integer}
 
 \item{\code{def_obs_cmt}}{default observation compartment, integer}
+
+\item{\code{export_tsld}}{export column TSLD, logical}
+
+\item{\code{export_tdos}}{export column TDOS, logical}
 }}
 
