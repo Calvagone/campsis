@@ -560,7 +560,10 @@ getTimeVaryingVariables <- function(object) {
 #'
 preprocessTSLDAndTDOSColumn <- function(table, config) {
   if (config@export_tsld) {
-    table <- table %>% dplyr::mutate(TIME_TSLD=TIME) # Duplicate TIME column
+    # Time column needs to be duplicated for the computation of TSLD
+    # This is because TSLD is derived from TDOS and TIME_TSLD, and is 
+    # sensitive to 'nocb'.
+    table <- table %>% dplyr::mutate(TIME_TSLD=.data$TIME) # Duplicate TIME column
   }
   return(table)
 }
@@ -574,6 +577,8 @@ preprocessNocbvars <- function(nocbvars) {
   if ("TSLD" %in% nocbvars) {
     stop("As 'TSLD' is derived from 'TDOS', please use 'TDOS' in argument nocbvars")
   }
+  # If 'TDOS' column is shifted because of 'nocb', then 'TIME_TSLD' also
+  # must be shifted. This allows to correctly derive TSLD.
   if ("TDOS" %in% nocbvars) {
     nocbvars <- nocbvars %>% append("TIME_TSLD")
   }
