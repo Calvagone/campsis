@@ -4,6 +4,7 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^_pkgdown\.yml$
+^pkgdown$
 ^cran-comments\.md$
 ^docs$
 ^CRAN-SUBMISSION$
