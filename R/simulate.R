@@ -377,7 +377,8 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
   # Extra argument declare (for mrgsolve only)
   user_declare <- processExtraArg(args, name="declare", mandatory=FALSE)
   summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
-  declare <- unique(c(summary@iov_names, summary@covariate_names, summary@occ_names, user_declare, "ARM", "EVENT_RELATED"))    
+  declare <- unique(c(summary@iov_names, summary@covariate_names, summary@occ_names,
+                      summary@tsld_tdos_names, user_declare, "ARM", "EVENT_RELATED"))    
 
   # Remove initial conditions from CAMPSIS model before export (if present)
   if (iteration@index > 1) {
@@ -518,6 +519,8 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   return(results %>% reorderColumns(dosing=dosing))
 })
 
+#' @importFrom purrr map2_df
+#' @importFrom digest sha1
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "logical"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, nocb, dosing, ...) {
@@ -544,10 +547,18 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   for (variable in config$declare) {
     mrgmod@param <- mrgmod@param %>% append(paste0(variable, " : ", 0, " : ", variable))
   }
+
+  mrgmodCode <- mrgmod %>% toString()
+  mrgmodHash <- digest::sha1(mrgmodCode)
   
   # Instantiate mrgsolve model
-  mod <- suppressMessages(mrgsolve::mcode(model="model", code=mrgmod %>% toString(), quiet=TRUE))
-  
+  withCallingHandlers({
+    mod <- mrgsolve::mcode(model=paste0("mod_", mrgmodHash), code=mrgmodCode, quiet=TRUE)
+  }, message = function(msg) {
+    if (msg$message %>% startsWith("(waiting)"))
+      invokeRestart("muffleMessage")
+  })
+
   results <-  purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 

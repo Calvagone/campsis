@@ -5,10 +5,11 @@
 setClass(
   "dataset_summary",
   representation(
-    covariate_names = "character",
-    iov_names = "character",
-    event_covariate_names = "character",
-    occ_names = "character"
+    covariate_names="character",
+    iov_names="character",
+    event_covariate_names="character",
+    occ_names="character",
+    tsld_tdos_names="character"
   )
 )
 
@@ -36,5 +37,13 @@ toDatasetSummary <- function(dataset) {
   summary@covariate_names <- c(dataset %>% getCovariates() %>% getNames(), bootstrap %>% getNames())
   summary@event_covariate_names <- dataset %>% getEventCovariates() %>% getNames()
   summary@occ_names <- dataset %>% getOccasions() %>% getNames()
+  
+  config <- dataset@config
+  if (config@export_tsld) {
+    summary@tsld_tdos_names <- c(summary@tsld_tdos_names, "TSLD")
+  }
+  if (config@export_tdos) {
+    summary@tsld_tdos_names <- c(summary@tsld_tdos_names, "TDOS")
+  }
   return(summary)
 }

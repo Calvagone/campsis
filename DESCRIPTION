@@ -1,7 +1,7 @@
 Type: Package
 Package: campsis
 Title: Generic PK/PD Simulation Platform CAMPSIS
-Version: 1.2.1
+Version: 1.2.2
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
 Description: A generic, easy-to-use and intuitive
@@ -24,6 +24,7 @@ Depends:
     R (>= 4.0.0)
 Imports: 
     assertthat,
+    digest,
     dplyr,
     ggplot2,
     MASS,

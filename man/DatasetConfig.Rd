@@ -5,12 +5,21 @@
 \title{Create a dataset configuration. This configuration allows CAMPSIS to know which
 are the default depot and observed compartments.}
 \usage{
-DatasetConfig(defDepotCmt = 1, defObsCmt = 1)
+DatasetConfig(
+  defDepotCmt = 1,
+  defObsCmt = 1,
+  exportTSLD = FALSE,
+  exportTDOS = FALSE
+)
 }
 \arguments{
 \item{defDepotCmt}{default depot compartment, integer}
 
 \item{defObsCmt}{default observation compartment, integer}
+
+\item{exportTSLD}{export column TSLD (time since last dose), logical}
+
+\item{exportTDOS}{export column TDOS (time of last dose), logical}
 }
 \value{
 a dataset configuration

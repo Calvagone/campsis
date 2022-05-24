@@ -469,6 +469,11 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
   # Remove INFUSION_TYPE column
   retValue <- retValue %>% dplyr::select(-dplyr::all_of("INFUSION_TYPE"))
   
+  # If TSLD or TDOS column is asked, we add TDOS column
+  if (config@export_tsld || config@export_tdos) {
+    retValue <- retValue %>% dplyr::mutate(TDOS=ifelse(.data$EVID==1, .data$TIME, NA))
+  }
+  
   return(retValue)
 }
 
@@ -524,16 +529,92 @@ counterBalanceLocfMode <- function(table, columnNames) {
   return(table %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::mutate_at(.vars=columnNames, .funs=~c(.x[-1], .x[dplyr::n()])))
 }
 
+#' Get all time-varying variables. These variables are likely to be influenced
+#' by the NOCB mode chosen and by the 'nocbvars' vector.
+#' 
+#' @param object dataset
+#' @return character vector with all time-varying variables of the dataset
+#' @keywords internal
+#'
+getTimeVaryingVariables <- function(object) {
+  config <- object@config
+  retValue <- c(object %>% getIOVs() %>% getNames(),
+                object %>% getOccasions() %>% getNames(),
+                object %>% getTimeVaryingCovariates() %>% getNames())
+  if (config@export_tsld || config@export_tdos) {
+    retValue <- retValue %>% append("TDOS")
+  }
+  if (config@export_tsld) {
+    retValue <- retValue %>% append("TIME_TSLD")
+  }
+  return(retValue)
+}
+
+
+#' Preprocess TSLD and TDOS columns according to given dataset configuration.
+#' 
+#' @param table current table
+#' @param config dataset config
+#' @return updated table
+#' @keywords internal
+#'
+preprocessTSLDAndTDOSColumn <- function(table, config) {
+  if (config@export_tsld) {
+    # Time column needs to be duplicated for the computation of TSLD
+    # This is because TSLD is derived from TDOS and TIME_TSLD, and is 
+    # sensitive to 'nocb'.
+    table <- table %>% dplyr::mutate(TIME_TSLD=.data$TIME) # Duplicate TIME column
+  }
+  return(table)
+}
+
+#' Preprocess 'nocbvars' argument.
+#' 
+#' @param nocbvars nocbvars argument, character vector
+#' @keywords internal
+#' 
+preprocessNocbvars <- function(nocbvars) {
+  if ("TSLD" %in% nocbvars) {
+    stop("As 'TSLD' is derived from 'TDOS', please use 'TDOS' in argument nocbvars")
+  }
+  # If 'TDOS' column is shifted because of 'nocb', then 'TIME_TSLD' also
+  # must be shifted. This allows to correctly derive TSLD.
+  if ("TDOS" %in% nocbvars) {
+    nocbvars <- nocbvars %>% append("TIME_TSLD")
+  }
+  return(nocbvars)
+}
+
+#' Process TSLD and TDOS columns according to given dataset configuration.
+#' 
+#' @param table current table
+#' @param config dataset config
+#' @return updated table
+#' @keywords internal
+#'
+processTSLDAndTDOSColumn <- function(table, config) {
+  if (config@export_tsld) {
+    table <- table %>% dplyr::mutate(TSLD=.data$TIME_TSLD - .data$TDOS)
+    table <- table %>% dplyr::select(-dplyr::all_of("TIME_TSLD"))
+  }
+  if (!config@export_tdos && config@export_tsld) {
+    table <- table %>% dplyr::select(-dplyr::all_of("TDOS"))
+  }
+  return(table)
+}
+
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
   
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
   nocbvars <- campsismod::processExtraArg(list(...), "nocbvars", default=NULL)
+  nocbvars <- preprocessNocbvars(nocbvars)
 
+  # TSLD/TDOS preprocessing
+  table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
+  
   # IOV / Occasion / Time-varying covariates post-processing
-  iovOccNames <- c(object %>% getIOVs() %>% getNames(),
-                   object %>% getOccasions() %>% getNames(),
-                   object %>% getTimeVaryingCovariates() %>% getNames())
+  iovOccNames <- getTimeVaryingVariables(object)
   iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
@@ -545,6 +626,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
   }
   
+  # TSLD/TDOS processing
+  table <- table %>% processTSLDAndTDOSColumn(config=object@config)
+  
   return(table %>% dplyr::ungroup())
 })
 
@@ -553,11 +637,13 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
   nocbvars <- campsismod::processExtraArg(list(...), "nocbvars",  default=NULL)
+  nocbvars <- preprocessNocbvars(nocbvars)
+
+  # TSLD/TDOS preprocessing
+  table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
   
   # IOV / Occasion / Time-varying covariates post-processing
-  iovOccNames <- c(object %>% getIOVs() %>% getNames(),
-                   object %>% getOccasions() %>% getNames(),
-                   object %>% getTimeVaryingCovariates() %>% getNames())
+  iovOccNames <- getTimeVaryingVariables(object)
   iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
   
@@ -568,6 +654,9 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
     table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
     table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
   }
+  
+  # TSLD/TDOS processing
+  table <- table %>% processTSLDAndTDOSColumn(config=object@config)
   
   return(table %>% dplyr::ungroup())
 })

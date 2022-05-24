@@ -7,6 +7,7 @@
 overwriteNonRegressionFiles <- FALSE
 testFolder <- ""
 skipLongTest <- FALSE
+skipMacIssues <- FALSE # Temporary flag
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
