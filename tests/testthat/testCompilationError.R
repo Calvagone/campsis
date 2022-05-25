@@ -9,16 +9,16 @@ source(paste0("", "testUtils.R"))
 test_that("Incorrect Campsis model does not compile and a clear error message is shown", {
   model <- model_library$advan2_trans2 %>%
     replace(Equation("V", "THETA_V*exp(ETA_V)*BW/70"))
-  
+
   ds <- Dataset(1) %>%
     add(Observations(0:12))
-  
-  # RxODE throws a clear error message
-  expect_error(simulate(model=model, dataset=ds, dest="RxODE"), regexp="The following parameter\\(s\\) are required for solving: BW")
-  
+
+  # rxode2 throws a clear error message
+  expect_error(simulate(model=model, dataset=ds, dest="rxode2"), regexp="The following parameter\\(s\\) are required for solving: BW")
+
   # Mrgsolve throws an error but message is displayed with cat and cannot be retrieved straightaway
   expect_error(simulate(model=model, dataset=ds, dest="mrgsolve"), regexp="the model build step failed")
-  
+
   # Message can be captured as follows
   expect_message(
     tryCatch({

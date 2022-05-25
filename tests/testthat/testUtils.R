@@ -10,8 +10,8 @@ skipLongTest <- FALSE
 skipMacIssues <- FALSE # Temporary flag
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
-  table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
-  
+  table <- dataset %>% export(dest="rxode2", model=model, seed=seed)
+
   # Keep doses only
   if (doseOnly) {
     table <- table %>% dplyr::filter(EVID==1)
@@ -20,7 +20,7 @@ datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
 }
 
 #' Test there is no regression in the exported dataset.
-#' 
+#'
 #' @param dataset newly generated CAMPSIS dataset
 #' @param model CAMPSIS model
 #' @param seed seed that was used for export
@@ -30,19 +30,19 @@ datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
 datasetRegressionTest <- function(dataset, model=NULL, seed, doseOnly=TRUE, filename) {
   dataset1 <- datasetInMemory(dataset=dataset, model=model, seed=seed, doseOnly=doseOnly)
   dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6)
-  
+
   file <- paste0(testFolder, "non_regression/", paste0(filename, ".csv"))
-  
+
   if (overwriteNonRegressionFiles) {
     write.table(dataset1, file=file, sep=",", row.names=FALSE)
   }
-  
+
   dataset2 <- read.csv(file=file) %>% tibble::as_tibble()
   expect_equal(dataset1, dataset2)
 }
 
 #' Test there is no regression in the simulated output.
-#' 
+#'
 #' @param results newly generated results
 #' @param output variables to compare
 #' @param filename reference file (output will be appended automatically)
@@ -53,9 +53,9 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
   selectedColumns <- unique(c("ID", "TIME", output))
   results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)
   suffix <- paste0(output, collapse="_") %>% tolower()
-  
+
   file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
-  
+
   if (overwriteNonRegressionFiles) {
     write.table(results1, file=file, sep=",", row.names=FALSE)
   }
@@ -68,7 +68,7 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 }
 
 #' Test there is no regression in the simulated output.
-#' 
+#'
 #' @param results newly generated results
 #' @param output variables to compare
 #' @param filename reference file (output will be appended automatically)
@@ -80,18 +80,18 @@ vpcOutputRegressionTest <- function(results, output, filename) {
     results <- results %>% dplyr::filter(output2 %in% output)
     results <- results %>% dplyr::select(-output2)
   }
-  
+
   results1 <- results %>% dplyr::mutate_if(is.numeric, round, digits=2)
   suffix <- paste0(output, collapse="_") %>% tolower()
-  
+
   file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
-  
+
   if (overwriteNonRegressionFiles) {
     write.table(results1, file=file, sep=",", row.names=FALSE)
   }
-  
+
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
-  
+
   # Re-arrange data frame for backwards compatibility
   results2 <- results2 %>% dplyr::arrange(replicate, TIME)
   expect_equal(results1, results2)

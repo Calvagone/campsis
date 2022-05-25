@@ -1,23 +1,23 @@
 
-#' Pre-process destination engine. Throw an error message if the destination 
+#' Pre-process destination engine. Throw an error message if the destination
 #' engine is not installed.
 #'
 #' @param dest destination engine
-#' @return 'RxODE', 'mrgsolve'
+#' @return 'rxode2', 'mrgsolve'
 #' @keywords internal
-#' 
+#'
 preprocessDest <- function(dest) {
   if (is.null(dest)) {
-    if (find.package("RxODE", quiet=TRUE) %>% length() > 0) {
-      dest <- "RxODE"
+    if (find.package("rxode2", quiet=TRUE) %>% length() > 0) {
+      dest <- "rxode2"
     } else if (find.package("mrgsolve", quiet=TRUE) %>% length() > 0) {
       dest <- "mrgsolve"
     } else {
-      stop("Simulation engine 'RxODE' or 'mrgsolve' is required to run CAMPSIS")
+      stop("Simulation engine 'rxode2' or 'mrgsolve' is required to run CAMPSIS")
     }
   } else if (is.vector(dest)) {
-    if (!(dest %in% c("mrgsolve", "RxODE"))) {
-      stop("Argument 'dest' must be one of: 'RxODE', 'mrgsolve' or NULL")
+    if (!(dest %in% c("mrgsolve", "rxode2"))) {
+      stop("Argument 'dest' must be one of: 'rxode2', 'mrgsolve' or NULL")
     }
     if (find.package(dest, quiet=TRUE) %>% length()==0) {
       stop(paste0("Simulation engine '", dest, "' is not installed"))
@@ -32,7 +32,7 @@ preprocessDest <- function(dest) {
 #'
 #' @param events interruption events
 #' @keywords internal
-#' 
+#'
 preprocessEvents <- function(events) {
   if (is.null(events)) {
     return(Events())
@@ -45,7 +45,7 @@ preprocessEvents <- function(events) {
 #'
 #' @param scenarios scenarios
 #' @keywords internal
-#' 
+#'
 preprocessScenarios <- function(scenarios) {
   if (is.null(scenarios)) {
     return(Scenarios() %>% add(Scenario()))
@@ -63,7 +63,7 @@ preprocessScenarios <- function(scenarios) {
 #' @importFrom plyr is.formula
 #' @importFrom rlang as_function
 #' @keywords internal
-#' 
+#'
 preprocessFunction <- function(fun, name) {
   if (is.null(fun)) {
     fun <- function(x){x}
@@ -89,14 +89,14 @@ preprocessFunction <- function(fun, name) {
 #' @return outvars
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocessOutvars <- function(outvars) {
   if (is.null(outvars)) {
     return(character(0))
   } else {
-    assertthat::assert_that(is.character(outvars), 
+    assertthat::assert_that(is.character(outvars),
                             msg="outvars must be a character vector with the column names to keep")
-    
+
     # In any cases, we should never see these special variables
     outvars <- outvars[!(toupper(outvars) %in% c("ID", "EVID", "CMT", "AMT", "TIME", "ARM"))]
     return(outvars)
@@ -104,12 +104,12 @@ preprocessOutvars <- function(outvars) {
 }
 
 #' Preprocess 'replicates' argument.
-#' 
+#'
 #' @param replicates number of replicates
 #' @return same number, but as integer
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocessReplicates <- function(replicates) {
   assertthat::assert_that(is.numeric(replicates) && replicates%%1==0 && replicates > 0,
                           msg="replicates not a positive integer")
@@ -117,13 +117,13 @@ preprocessReplicates <- function(replicates) {
 }
 
 #' Preprocess 'nocb' argument.
-#' 
+#'
 #' @param nocb nocb argument, logical value
 #' @param dest destination engine
-#' @return user value, if not specified, return TRUE for mrgsolve and FALSE for RxODE
+#' @return user value, if not specified, return TRUE for mrgsolve and FALSE for rxode2
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocessNocb <- function(nocb, dest) {
   if (is.null(nocb)) {
     if (dest=="mrgsolve") {
@@ -138,12 +138,12 @@ preprocessNocb <- function(nocb, dest) {
 }
 
 #' Preprocess 'dosing' argument.
-#' 
+#'
 #' @param dosing dosing argument, logical value
 #' @return user value, if not specified, return FALSE (observations only)
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocessDosing <- function(dosing) {
   if (is.null(dosing)) {
     dosing <- FALSE
@@ -154,12 +154,12 @@ preprocessDosing <- function(dosing) {
 }
 
 #' Preprocess subjects ID's.
-#' 
+#'
 #' @param dataset current dataset, data frame form
 #' @return list of consecutive ID's
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocessIds <- function(dataset) {
   ids <- unique(dataset$ID)
   maxID <- max(ids)
@@ -168,13 +168,13 @@ preprocessIds <- function(dataset) {
 }
 
 #' Preprocess ARM column. Add ARM equation in model automatically.
-#' 
+#'
 #' @param dataset current dataset, data frame form
 #' @param model model
 #' @return updated model
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocessArmColumn <- function(dataset, model) {
   if ("ARM" %in% colnames(dataset)) {
     pkRecord <- model@model %>% getByName("MAIN")
@@ -190,12 +190,12 @@ preprocessArmColumn <- function(dataset, model) {
 }
 
 #' Preprocess 'slices' argument.
-#' 
+#'
 #' @param slices slices argument corresponding to the number of subjects simulated at once
 #' @return slices if not NULL, otherwise total number of subjects
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocessSlices <- function(slices, maxID) {
   if (is.null(slices)) {
     return(maxID)
@@ -207,11 +207,11 @@ preprocessSlices <- function(slices, maxID) {
 }
 
 #' Return the 'DROP_OTHERS' string that may be used in the 'outvars' vector for
-#' RxODE/mrgsolve to drop all others variables that are usually output in the resulting data frame.
-#' 
+#' rxode2/mrgsolve to drop all others variables that are usually output in the resulting data frame.
+#'
 #' @return a character value
 #' @keywords internal
-#' 
+#'
 dropOthers <- function() {
   return("DROP_OTHERS")
 }
@@ -223,7 +223,7 @@ dropOthers <- function() {
 #' @param dropOthers logical value
 #' @return processed data frame
 #' @keywords internal
-#' 
+#'
 processDropOthers <- function(x, outvars=character(0), dropOthers) {
   if (!dropOthers) {
     return(x)

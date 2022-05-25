@@ -65,8 +65,8 @@ ds1 <- Dataset(50) %>%
 
 
 ```{r lag_time_model , fig.align='center', fig.height=4, fig.width=8, message=F}
-results_alag <- model %>% simulate(dataset=ds1, dest="RxODE", seed=1)
-results_no_alag <- model_library$advan4_trans4 %>% simulate(dataset=ds1, dest="RxODE", seed=1)
+results_alag <- model %>% simulate(dataset=ds1, dest="rxode2", seed=1)
+results_no_alag <- model_library$advan4_trans4 %>% simulate(dataset=ds1, dest="rxode2", seed=1)
 gridExtra::grid.arrange(shadedPlot(results_alag, "CP"), shadedPlot(results_no_alag, "CP"), nrow=1)
 ```
 
@@ -96,12 +96,12 @@ ds2 <- Dataset(50) %>%
 Here is an overview of the dataset in its table form if we filter on the doses:
 
 ```{r}
-ds2 %>% export(dest="RxODE") %>% dosingOnly() %>% head()
+ds2 %>% export(dest="rxode2") %>% dosingOnly() %>% head()
 ```
 
 Let's now simulate this dataset using the original model.
 
 ```{r lag_time_dataset , fig.align='center', fig.height=4, fig.width=8, message=F}
-results_alag <- model_library$advan4_trans4 %>% simulate(dataset=ds2, dest="RxODE", seed=1)
+results_alag <- model_library$advan4_trans4 %>% simulate(dataset=ds2, dest="rxode2", seed=1)
 shadedPlot(results_alag, "CP")
 ```

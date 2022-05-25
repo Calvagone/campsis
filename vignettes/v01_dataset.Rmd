@@ -88,7 +88,7 @@ So far so good! The dataset contains 5 subjects, 1 bolus and 1 infusion.
 We are going to export it to a 2-dimensional table. This step is implicitly done by CAMPSIS when you simulate your model.
 
 ```{r}
-table <- ds %>% export(dest="RxODE")
+table <- ds %>% export(dest="rxode2")
 table
 ```
 
@@ -139,6 +139,6 @@ ds %>% length()
 The resulting exported table is as follows:
 
 ```{r}
-table <- ds %>% export(dest="RxODE")
+table <- ds %>% export(dest="rxode2")
 table
 ```

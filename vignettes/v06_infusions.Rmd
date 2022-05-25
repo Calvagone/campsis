@@ -65,7 +65,7 @@ ds1 <- Dataset(50) %>%
 
 
 ```{r infusion_model , fig.align='center', fig.height=4, fig.width=8, message=F}
-results_d1 <- model %>% simulate(dataset=ds1, dest="RxODE", seed=1)
+results_d1 <- model %>% simulate(dataset=ds1, dest="rxode2", seed=1)
 shadedPlot(results_d1, "CP")
 ```
 
@@ -95,12 +95,12 @@ ds2 <- Dataset(50) %>%
 Here is an overview of the dataset in its table form if we filter on the doses:
 
 ```{r}
-ds2 %>% export(dest="RxODE") %>% dosingOnly() %>% head()
+ds2 %>% export(dest="rxode2") %>% dosingOnly() %>% head()
 ```
 
 Let's now simulate this dataset using the original model.
 
 ```{r infusion_dataset , fig.align='center', fig.height=4, fig.width=8, message=F}
-results_d1 <- model_library$advan4_trans4 %>% simulate(dataset=ds2, dest="RxODE", seed=1)
+results_d1 <- model_library$advan4_trans4 %>% simulate(dataset=ds2, dest="rxode2", seed=1)
 shadedPlot(results_d1, "CP")
 ```

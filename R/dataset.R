@@ -3,9 +3,9 @@
 #----                         dataset class                                 ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Dataset class.
-#' 
+#'
 #' @slot arms a list of treatment arms
 #' @slot config dataset configuration for export
 #' @slot iiv data frame containing the inter-individual variability (all ETAS) for the export
@@ -43,7 +43,7 @@ Dataset <- function(subjects=NULL) {
 createDefaultArmIfNotExists <- function(object) {
   # Get default arm
   arm <- object@arms %>% default()
-  
+
   # Add it if not yet added to list
   if (object@arms %>% length() == 0) {
     object@arms <- object@arms %>% add(arm)
@@ -59,7 +59,7 @@ setMethod("add", signature = c("dataset", "list"), definition = function(object,
 })
 
 setMethod("add", signature = c("dataset", "arm"), definition = function(object, x) {
-  object@arms <- object@arms %>% add(x) 
+  object@arms <- object@arms %>% add(x)
   return(object)
 })
 
@@ -176,11 +176,11 @@ setMethod("getTimes", signature = c("dataset"), definition = function(object) {
 #_______________________________________________________________________________
 
 #' Return the number of subjects contained in this dataset.
-#' 
+#'
 #' @param x dataset
 #' @return a number
 setMethod("length", signature=c("dataset"), definition=function(x) {
-  subjectsPerArm <- x@arms@list %>% purrr::map_int(.f=~.x@subjects) 
+  subjectsPerArm <- x@arms@list %>% purrr::map_int(.f=~.x@subjects)
   return(sum(subjectsPerArm))
 })
 
@@ -218,7 +218,7 @@ setMethod("setSubjects", signature = c("dataset", "integer"), definition = funct
 #_______________________________________________________________________________
 
 #' Generate IIV.
-#' 
+#'
 #' @param omega omega matrix
 #' @param n number of subjects
 #' @return IIV data frame
@@ -236,12 +236,12 @@ generateIIV <- function(omega, n) {
 }
 
 #' Sample covariates list.
-#' 
+#'
 #' @param covariates list of covariates to sample
 #' @param n number of desired samples
 #' @return a dataframe of n rows, 1 column per covariate
 #' @keywords internal
-#' 
+#'
 sampleCovariatesList <- function(covariates, n) {
   retValue <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
     sampleDistributionAsTibble(covariate@distribution, n=n, colname=covariate@name)
@@ -250,7 +250,7 @@ sampleCovariatesList <- function(covariates, n) {
 }
 
 #' Sample a distribution and return a tibble.
-#' 
+#'
 #' @param distribution any distribution
 #' @param n number of desired samples
 #' @param colname name of the unique column in tibble
@@ -263,12 +263,12 @@ sampleDistributionAsTibble <- function(distribution, n, colname) {
 
 #' Apply compartment characteristics from model.
 #' In practice, only compartment infusion duration needs to be applied.
-#' 
+#'
 #' @param table current dataset
 #' @param properties compartment properties from model
 #' @return updated dataset
 #' @importFrom dplyr mutate
-#' 
+#'
 applyCompartmentCharacteristics <- function(table, properties) {
   for (property in properties@list) {
     isInfusion <- is(property, "compartment_infusion_duration")
@@ -297,55 +297,55 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
   return(table)
 })
 
-#' Export delegate method. This method is common to RxODE and mrgsolve.
-#' 
+#' Export delegate method. This method is common to rxode2 and mrgsolve.
+#'
 #' @param object current dataset
 #' @param dest destination engine
 #' @param seed seed value
 #' @param nocb nocb value, logical value
 #' @param ... extra arguments
-#' @return 2-dimensional dataset, same for RxODE and mrgsolve
+#' @return 2-dimensional dataset, same for rxode2 and mrgsolve
 #' @importFrom dplyr across all_of arrange bind_rows group_by left_join
 #' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
 #' @importFrom rlang parse_expr
 #' @keywords internal
-#' 
+#'
 exportDelegate <- function(object, dest, seed, nocb, ...) {
   args <- list(...)
   model <- args$model
   if (!is.null(model) && !is(model, "campsis_model")) {
     stop("Please provide a valid CAMPSIS model.")
   }
-  
+
   # Set seed value
   setSeed(getSeed(seed))
-  
+
   # Generate IIV only if model is provided
   if (is.null(model)) {
     iiv <- data.frame()
   } else {
-    rxmod <- model %>% export(dest="RxODE")
+    rxmod <- model %>% export(dest="rxode2")
     subjects <- object %>% length()
     iiv <- generateIIV(omega=rxmod@omega, n=subjects)
     if (nrow(iiv) > 0) {
       iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
     }
   }
-  
+
   # Retrieve dataset configuration
   config <- object@config
-  
+
   # Use either arms or default_arm
   arms <- object@arms
   if (length(arms) == 0) {
     stop("No entry in dataset. Not able to export anything...")
   }
-  
+
   # Compute max ID per arm
   maxIDPerArm <- arms@list %>% purrr::map_int(~.x@subjects) %>% purrr::accumulate(~(.x+.y))
-  
+
   retValue <- purrr::map2_df(arms@list, maxIDPerArm, .f=function(arm, maxID) {
     armID <- arm@id
     subjects <- arm@subjects
@@ -354,7 +354,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     treatment <- protocol@treatment %>% assignDoseNumber()
     if (treatment %>% length() > 0) {
       maxDoseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
-    } else { 
+    } else {
       maxDoseNumber <- 1 # Default
     }
     observations <- protocol@observations
@@ -364,10 +364,10 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     treatmentIovs <- treatment@iovs
     occasions <- treatment@occasions
     doseAdaptations <- treatment@dose_adaptations
-    
+
     # Generating subject ID's
     ids <- seq_len(subjects) + maxID - subjects
-    
+
     # Create the base table with all treatment entries and observations
     needsDV <- observations@list %>% purrr::map_lgl(~.x@dv %>% length() > 0) %>% any()
     table <- c(treatment@list, observations@list) %>%
@@ -376,43 +376,43 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
 
     # Sampling covariates
     cov <- sampleCovariatesList(covariates, n=length(ids))
-    
+
     if (nrow(cov) > 0) {
       # Retrieve all covariate names (including time-varying ones)
       allCovariateNames <- colnames(cov)
-      
+
       # Left join all covariates as fixed (one value per subjet)
       cov <- cov %>% tibble::add_column(ID=ids, .before=1)
       table <- table %>% dplyr::left_join(cov, by="ID")
 
       # Retrieve time-varying covariate names
       timeVaryingCovariateNames <- timeVaryingCovariates %>% getNames()
-      
+
       # Merge time-varying covariate names
       if (timeVaryingCovariateNames %>% length() > 0) {
-        # Only keep first row. Please note that NA's will be filled in 
+        # Only keep first row. Please note that NA's will be filled in
         # by the final export method (depending on variables nocb & nocbvars)
         table <- table %>% dplyr::group_by(dplyr::across("ID")) %>%
           dplyr::mutate_at(.vars=timeVaryingCovariateNames,
                            .funs=~ifelse(dplyr::row_number()==1, .x, as.numeric(NA))) %>%
           dplyr::ungroup()
-        
+
         # Merge all time varying covariate tables into a single table
         # The idea is to use 1 EVID=2 row per subject time
         timeCov <- mergeTimeVaryingCovariates(timeVaryingCovariates, ids) %>%
           sampleTimeVaryingCovariates(armID=armID, needsDV=needsDV)
-        
+
         # Bind with treatment and observations and sort
         table <- dplyr::bind_rows(table, timeCov)
         table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))
-        
+
         # Fill NA values of fixed covariates that were introduced by EVID=2 rows
         table <- table %>% dplyr::group_by(dplyr::across("ID")) %>%
           tidyr::fill(allCovariateNames[!(allCovariateNames %in% timeVaryingCovariateNames)], .direction="down") %>%
           dplyr::ungroup()
-      }  
+      }
     }
-    
+
     # Sampling IOV's
     for (treatmentIov in treatmentIovs@list) {
       doseNumbers <- treatmentIov@dose_numbers
@@ -426,13 +426,13 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     if (nrow(iiv) > 0) {
       table <- table %>% dplyr::left_join(iiv, by="ID")
     }
-    
+
     # Joining occasions
     for (occasion in occasions@list) {
       occ <- tibble::tibble(DOSENO=occasion@dose_numbers, !!occasion@colname:=occasion@values)
       table <- table %>% dplyr::left_join(occ, by="DOSENO")
     }
-    
+
     # Apply formula if dose adaptations are present
     for (doseAdaptation in doseAdaptations@list) {
       compartments <- doseAdaptation@compartments
@@ -440,7 +440,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       # If a duration was specified, same duration applies on new AMT (i.e. RATE is recomputed)
       # If a rate was specified, same rate applies on new AMT (nothing to do)
       if (compartments %>% length() > 0) {
-        table <- table %>% 
+        table <- table %>%
           dplyr::mutate(AMT_=ifelse(.data$CMT %in% compartments,
                                     eval(expr),
                                     .data$AMT),
@@ -448,7 +448,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
                                     .data$RATE*.data$AMT_/.data$AMT,
                                     .data$RATE))
       } else {
-        table <- table %>% 
+        table <- table %>%
           dplyr::mutate(AMT_=eval(expr),
                         RATE=ifelse(!is.na(.data$INFUSION_TYPE) & .data$INFUSION_TYPE==-2,
                                     .data$RATE*.data$AMT_/.data$AMT,
@@ -457,31 +457,31 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       # Keep final rate and remove temporary column AMT_
       table <- table %>% dplyr::mutate(AMT=.data$AMT_) %>% dplyr::select(-dplyr::all_of("AMT_"))
     }
-    
+
     return(table)
   })
-  
+
   # Apply compartment properties coming from the model
   if (!is.null(model)) {
     retValue <- applyCompartmentCharacteristics(retValue, model@compartments@properties)
   }
-  
+
   # Remove INFUSION_TYPE column
   retValue <- retValue %>% dplyr::select(-dplyr::all_of("INFUSION_TYPE"))
-  
+
   # If TSLD or TDOS column is asked, we add TDOS column
   if (config@export_tsld || config@export_tdos) {
     retValue <- retValue %>% dplyr::mutate(TDOS=ifelse(.data$EVID==1, .data$TIME, NA))
   }
-  
+
   return(retValue)
 }
 
 #' Fill IOV/Occasion columns.
-#' 
-#' Problem in RxODE (LOCF mode) / mrgsolve (LOCF mode), if 2 rows have the same time (often: OBS then DOSE), first row covariate value is taken!
+#'
+#' Problem in rxode2 (LOCF mode) / mrgsolve (LOCF mode), if 2 rows have the same time (often: OBS then DOSE), first row covariate value is taken!
 #' Workaround: identify these rows (group by ID and TIME) and apply a fill in the UP direction.
-#' 
+#'
 #' @param table current table
 #' @param columnNames the column names to fill
 #' @param downDirectionFirst TRUE: first fill down then fill up (by ID & TIME). FALSE: First fill up (by ID & TIME), then fill down
@@ -489,7 +489,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
 #' @importFrom dplyr across all_of group_by mutate_at
 #' @importFrom tidyr fill
 #' @keywords internal
-#' 
+#'
 fillIOVOccColumns <- function(table, columnNames, downDirectionFirst) {
   if (downDirectionFirst) {
     table <- table %>% dplyr::group_by(dplyr::across("ID")) %>% tidyr::fill(dplyr::all_of(columnNames), .direction="down")           # 1
@@ -505,7 +505,7 @@ fillIOVOccColumns <- function(table, columnNames, downDirectionFirst) {
 
 #' Counter-balance NOCB mode for occasions & IOV.
 #' This function will simply shift all the related occasion & IOV columns to the right (by one).
-#' 
+#'
 #' @param table current table
 #' @param columnNames columns to be counter-balanced
 #' @return 2-dimensional dataset
@@ -518,7 +518,7 @@ counterBalanceNocbMode <- function(table, columnNames) {
 
 #' Counter-balance LOCF mode for occasions & IOV.
 #' This function will simply shift all the related occasion & IOV columns to the left (by one).
-#' 
+#'
 #' @param table current table
 #' @param columnNames columns to be counter-balanced
 #' @return 2-dimensional dataset
@@ -531,7 +531,7 @@ counterBalanceLocfMode <- function(table, columnNames) {
 
 #' Get all time-varying variables. These variables are likely to be influenced
 #' by the NOCB mode chosen and by the 'nocbvars' vector.
-#' 
+#'
 #' @param object dataset
 #' @return character vector with all time-varying variables of the dataset
 #' @keywords internal
@@ -552,7 +552,7 @@ getTimeVaryingVariables <- function(object) {
 
 
 #' Preprocess TSLD and TDOS columns according to given dataset configuration.
-#' 
+#'
 #' @param table current table
 #' @param config dataset config
 #' @return updated table
@@ -561,7 +561,7 @@ getTimeVaryingVariables <- function(object) {
 preprocessTSLDAndTDOSColumn <- function(table, config) {
   if (config@export_tsld) {
     # Time column needs to be duplicated for the computation of TSLD
-    # This is because TSLD is derived from TDOS and TIME_TSLD, and is 
+    # This is because TSLD is derived from TDOS and TIME_TSLD, and is
     # sensitive to 'nocb'.
     table <- table %>% dplyr::mutate(TIME_TSLD=.data$TIME) # Duplicate TIME column
   }
@@ -569,10 +569,10 @@ preprocessTSLDAndTDOSColumn <- function(table, config) {
 }
 
 #' Preprocess 'nocbvars' argument.
-#' 
+#'
 #' @param nocbvars nocbvars argument, character vector
 #' @keywords internal
-#' 
+#'
 preprocessNocbvars <- function(nocbvars) {
   if ("TSLD" %in% nocbvars) {
     stop("As 'TSLD' is derived from 'TDOS', please use 'TDOS' in argument nocbvars")
@@ -586,7 +586,7 @@ preprocessNocbvars <- function(nocbvars) {
 }
 
 #' Process TSLD and TDOS columns according to given dataset configuration.
-#' 
+#'
 #' @param table current table
 #' @param config dataset config
 #' @return updated table
@@ -604,7 +604,7 @@ processTSLDAndTDOSColumn <- function(table, config) {
 }
 
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
-  
+
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
   nocbvars <- campsismod::processExtraArg(list(...), "nocbvars", default=NULL)
@@ -612,12 +612,12 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
 
   # TSLD/TDOS preprocessing
   table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
-  
+
   # IOV / Occasion / Time-varying covariates post-processing
   iovOccNames <- getTimeVaryingVariables(object)
   iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
-  
+
   if (nocb) {
     table <- fillIOVOccColumns(table, columnNames=iovOccNamesNocb, downDirectionFirst=TRUE)
     table <- fillIOVOccColumns(table, columnNames=iovOccNamesLocf, downDirectionFirst=FALSE)
@@ -625,15 +625,15 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   } else {
     table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
   }
-  
+
   # TSLD/TDOS processing
   table <- table %>% processTSLDAndTDOSColumn(config=object@config)
-  
+
   return(table %>% dplyr::ungroup())
 })
 
 setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, ...) {
-  
+
   table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
   nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
   nocbvars <- campsismod::processExtraArg(list(...), "nocbvars",  default=NULL)
@@ -641,12 +641,12 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
 
   # TSLD/TDOS preprocessing
   table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
-  
+
   # IOV / Occasion / Time-varying covariates post-processing
   iovOccNames <- getTimeVaryingVariables(object)
   iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
   iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
-  
+
   if (nocb) {
     table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE) # TRUE/FALSE not important (like NONMEM)
     table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
@@ -654,10 +654,10 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
     table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
     table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
   }
-  
+
   # TSLD/TDOS processing
   table <- table %>% processTSLDAndTDOSColumn(config=object@config)
-  
+
   return(table %>% dplyr::ungroup())
 })
 

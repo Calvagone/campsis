@@ -34,7 +34,7 @@ arm3 <- Arm(subjects=10, label="2000 mg SD") %>%
   add(Bolus(time=0, 2000)) %>%
   add(Observations(times=seq(0, 24, by=0.1)))
 
-results <- model %>% simulate(dataset=Dataset() %>% add(c(arm1, arm2, arm3)), dest="RxODE", seed=1)
+results <- model %>% simulate(dataset=Dataset() %>% add(c(arm1, arm2, arm3)), dest="rxode2", seed=1)
 spaghettiPlot(results, "CP", "ARM") + ggplot2::facet_wrap(~ARM)
 ```
 
@@ -51,7 +51,7 @@ scenarios <- Scenarios() %>%
   add(Scenario("1500 mg SD", dataset=~.x %>% setSubjects(5) %>% add(Bolus(time=0, 1500)))) %>%
   add(Scenario("2000 mg SD", dataset=~.x %>% setSubjects(10) %>% add(Bolus(time=0, 2000))))
 
-results <- model %>% simulate(dataset=dataset, dest="RxODE", scenarios=scenarios, seed=1)
+results <- model %>% simulate(dataset=dataset, dest="rxode2", scenarios=scenarios, seed=1)
 spaghettiPlot(results, "CP", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO)
 ```
 
@@ -71,7 +71,7 @@ scenarios <- Scenarios() %>%
   add(Scenario("THETA_KA=3", model=~.x %>% replace(Theta(name="KA", value=3)))) %>%
   add(Scenario("THETA_KA=6", model=~.x %>% replace(Theta(name="KA", value=6))))
 
-results <- model %>% simulate(dataset=ds, dest="RxODE", scenarios=scenarios, seed=1)
+results <- model %>% simulate(dataset=ds, dest="rxode2", scenarios=scenarios, seed=1)
 shadedPlot(results, "CP", scenarios="SCENARIO")
 ```
 
@@ -94,6 +94,6 @@ scenarios <- Scenarios() %>%
   add(Scenario("BW ∼ Uniform distribution", dataset=~.x %>% replace(Covariate("BW", UniformDistribution(min=60, max=80))))) %>%
   add(Scenario("BW ∼ Normal distribution", dataset=~.x %>% replace(Covariate("BW", NormalDistribution(mean=70, sd=10)))))
 
-results <- model %>% simulate(dataset=ds, dest="RxODE", scenarios=scenarios, seed=1)
+results <- model %>% simulate(dataset=ds, dest="rxode2", scenarios=scenarios, seed=1)
 shadedPlot(results, "CP", scenarios="SCENARIO") + ggplot2::facet_wrap(~SCENARIO, ncol=1)
 ```
