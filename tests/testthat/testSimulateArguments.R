@@ -10,7 +10,7 @@ test_that("Argument dest works well", {
   dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
   
   # Unknown engine
-  expect_error(model %>% simulate(dataset=dataset, dest="ENGINE3"), regexp="Argument 'dest' must be one of: 'RxODE', 'mrgsolve' or NULL")
+  expect_error(model %>% simulate(dataset=dataset, dest="ENGINE3"), regexp="Argument 'dest' must be one of: 'rxode2', 'RxODE', 'mrgsolve' or NULL")
   
   # Default engine (RxODE)
   results <- model %>% simulate(dataset=dataset)

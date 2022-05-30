@@ -46,12 +46,14 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
 #' @keywords internal
 #' 
 getSimulationEngineType <- function(dest) {
-  if (dest=="RxODE") {
-    engine <- new("rxode_engine")
+  if (dest=="rxode2") {
+    engine <- new("rxode_engine", rxode2=TRUE)
+  } else if (dest=="RxODE") {
+    engine <- new("rxode_engine", rxode2=FALSE)
   } else if (dest=="mrgsolve") {
     engine <- new("mrgsolve_engine")
   } else {
-    stop("Only RxODE and mrgsolve are supported for now")
+    stop("Only rxode2, RxODE and mrgsolve are supported for now")
   }
   return(engine)
 }
@@ -471,7 +473,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
 
   # Instantiate RxODE model
   rxmod <- config$engineModel
-  mod <- RxODE::RxODE(paste0(rxmod@code, collapse="\n"))
+  if (dest@rxode2) {
+    mod <- rxode2::rxode2(paste0(rxmod@code, collapse="\n"))
+  } else {
+    mod <- RxODE::RxODE(paste0(rxmod@code, collapse="\n"))
+  }
   
   # Preparing parameters
   params <- rxmod@theta
@@ -491,12 +497,14 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   results <- purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
-    # Covariate interpolation
-    covs_interpolation <- ifelse(nocb, "nocb", "constant")
-    
     # Launch simulation with RxODE
-    tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
-                          keep=keep, inits=inits, covs_interpolation=covs_interpolation, addDosing=dosing)
+    if (dest@rxode2) {
+      tmp <- rxode2::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
+                            keep=keep, inits=inits, covsInterpolation=ifelse(nocb, "nocb", "locf"), addDosing=dosing, addCov=FALSE)
+    } else {
+      tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
+                            keep=keep, inits=inits, covs_interpolation=ifelse(nocb, "nocb", "constant"), addDosing=dosing)
+    }
     
     # Tick progress
     config$progress <- config$progress %>% updateSlice(index)
