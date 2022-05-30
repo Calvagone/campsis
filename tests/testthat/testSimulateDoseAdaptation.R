@@ -5,29 +5,26 @@ context("Test simple dose adaptations (based on a covariate present in dataset)"
 seed <- 1
 source(paste0("", "testUtils.R"))
 
-test_that("Dose adaptations based on weight work well (RxODE/mrgsolve)", {
+test_that(getTestName("Dose adaptations based on weight work well"), {
   model <- model_library$advan4_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw"
   
-  dataset <- Dataset(2)
-  dataset <- dataset %>% add(Bolus(time=seq(0,6)*24, amount=0.5)) # 0.5mg / kg
-  dataset <- dataset %>% add(Observations(times=seq(0,7*24, by=4)))
-  dataset <- dataset %>% add(Covariate("WT", c(100, 50)))
-  dataset <- dataset %>% add(DoseAdaptation("AMT*WT"))
-  
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
+  dataset <- Dataset(2) %>%
+    add(Bolus(time=seq(0,6)*24, amount=0.5)) %>% # 0.5mg / kg  
+    add(Observations(times=seq(0,7*24, by=4))) %>%
+    add(Covariate("WT", c(100, 50))) %>%
+    add(DoseAdaptation("AMT*WT"))
 
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
-  
-  outputRegressionTest(results1, output="CP", filename=regFilename)
-  outputRegressionTest(results2, output="CP", filename=regFilename)
-  
-  # spaghettiPlot(results1, "CP", "id")
-  # spaghettiPlot(results2, "CP", "id")
+
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Dose adaptations preserve specified infusion duration (RxODE/mrgsolve)", {
+test_that(getTestName("Dose adaptations preserve specified infusion duration"), {
   model <- model_library$advan3_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw_infusion"
   
@@ -36,20 +33,17 @@ test_that("Dose adaptations preserve specified infusion duration (RxODE/mrgsolve
     add(Observations(times=seq(0,7*24, by=4))) %>%
     add(Covariate("WT", c(100, 50))) %>%
     add(DoseAdaptation("AMT*WT"))
-  
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  
+
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
-  
-  outputRegressionTest(results1, output="CP", filename=regFilename)
-  outputRegressionTest(results2, output="CP", filename=regFilename)
-  
-  # spaghettiPlot(results1, "CP", "ID")
-  # spaghettiPlot(results2, "CP", "ID")
+
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Dose adaptations preserve specified infusion rate (RxODE/mrgsolve)", {
+test_that(getTestName("Dose adaptations preserve specified infusion rate"), {
   model <- model_library$advan3_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw_infusion"
   
@@ -67,17 +61,14 @@ test_that("Dose adaptations preserve specified infusion rate (RxODE/mrgsolve)", 
   
   dataset <- Dataset() %>% add(c(subj1, subj2))
   
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  
-  outputRegressionTest(results1, output="CP", filename=regFilename)
-  outputRegressionTest(results2, output="CP", filename=regFilename)
-  
-  # spaghettiPlot(results1, "CP", "ID")
-  # spaghettiPlot(results2, "CP", "ID")
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Dose adaptations based on weight work well, check argument compartments works as expected (RxODE/mrgsolve)", {
+test_that(getTestName("Dose adaptations based on weight work well, check argument compartments works as expected"), {
   model <- model_library$advan4_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw"
   
@@ -86,25 +77,20 @@ test_that("Dose adaptations based on weight work well, check argument compartmen
   model <- model %>% updateCompartments()
   
   times <- seq(0,7*24, by=4)
-  dataset <- Dataset(2)
-  dataset <- dataset %>% add(Bolus(time=0, amount=0.5, compartment=1, ii=24, addl=6))
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=5))
-  dataset <- dataset %>% add(Observations(times=times))
-  dataset <- dataset %>% add(Covariate("WT", c(100, 50)))
+  dataset <- Dataset(2) %>% 
+    add(Bolus(time=0, amount=0.5, compartment=1, ii=24, addl=6)) %>%
+    add(Bolus(time=0, amount=1000, compartment=5)) %>%
+    add(Observations(times=times)) %>%
+    add(Covariate("WT", c(100, 50)))
   
   # Dose adaptation only for compartment 1 (not 5!)
   dataset <- dataset %>% add(DoseAdaptation("AMT*WT", compartments=1))
-  
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  
-  outputRegressionTest(results1, output="CP", filename=regFilename)
-  outputRegressionTest(results2, output="CP", filename=regFilename)
-  
-  # Remove first time (RxODE:0, mrgsolve:1000)
-  outputRegressionTest(results1 %>% dplyr::filter(TIME != 0), output="A_TEST", filename=regFilename)
-  outputRegressionTest(results2 %>% dplyr::filter(TIME != 0), output="A_TEST", filename=regFilename)
-  
-  # spaghettiPlot(results1, "A_TEST", "id")
-  # spaghettiPlot(results2, "A_TEST", "id")
+
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename),
+    outputRegressionTest(results %>% dplyr::filter(TIME != 0), output="A_TEST", filename=regFilename), # Remove first time (RxODE:0, mrgsolve:1000)
+	  spaghettiPlot(results, "A_TEST", "ID")
+  )
+  campsisTest(simulation, test, env=environment())
 })

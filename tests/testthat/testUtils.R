@@ -8,7 +8,10 @@ overwriteNonRegressionFiles <- FALSE
 testFolder <- ""
 skipLongTest <- FALSE
 skipMacIssues <- FALSE # Temporary flag
-testEngines <- c("rxode2", "mrgsolve") 
+testEngines <- c("rxode2", "mrgsolve")
+skipMrgsolve <- !("mrgsolve" %in% testEngines)
+skipRxODE <- !("RxODE" %in% testEngines)
+skipRxode2 <- !("rxode2" %in% testEngines)
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
