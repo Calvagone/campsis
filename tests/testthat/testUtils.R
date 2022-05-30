@@ -8,6 +8,7 @@ overwriteNonRegressionFiles <- FALSE
 testFolder <- ""
 skipLongTest <- FALSE
 skipMacIssues <- FALSE # Temporary flag
+testEngines <- c("rxode2", "mrgsolve") 
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE) {
   table <- dataset %>% export(dest="RxODE", model=model, seed=seed)
@@ -95,4 +96,17 @@ vpcOutputRegressionTest <- function(results, output, filename) {
   # Re-arrange data frame for backwards compatibility
   results2 <- results2 %>% dplyr::arrange(replicate, TIME)
   expect_equal(results1, results2)
+}
+
+campsisTest <- function(simulation, test, env) {
+  # Iteration over all test engines to be tested
+  for (testEngine in testEngines) {
+    env$destEngine <-  testEngine
+    env$results <- eval(simulation, envir=env)
+    eval(test, envir=env)
+  }
+}
+
+getTestName <- function(name) {
+  return(paste0(name, " (", paste0(testEngines, collapse="/"), ")"))
 }
