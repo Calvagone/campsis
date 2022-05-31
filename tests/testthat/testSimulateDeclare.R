@@ -10,22 +10,28 @@ test_that("Declare argument with mrgsolve", {
   model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + SOMETHING)"))
   regFilename <- "simple_bolus"
   
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  dataset <- Dataset() %>%
+    add(Bolus(time=0, amount=1000, compartment=1)) %>% 
+    add(Observations(times=seq(0,24, by=0.5)))
+  
+  datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
   
   tablefun <- ~.x %>% dplyr::mutate(SOMETHING=0)
   
-  # RxODE does not complain
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, tablefun=tablefun)
-  
-  # mrgsolve complains and cannot build the model
-  expect_error(model %>% simulate(dataset, dest="mrgsolve", seed=seed, tablefun=tablefun))
-
-  # mrgsolve does not complain if SOMETHING variable is declared
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, tablefun=tablefun, declare="SOMETHING")
-  
-  datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
-  outputRegressionTest(results1, output="CP", filename=regFilename)
-  outputRegressionTest(results2, output="CP", filename=regFilename)
+  test <- expression(
+    if (destEngine %in% c("RxODE", "rxode2")) {
+      # RxODE does not complain
+      results <- model %>% simulate(dataset, dest=destEngine, seed=seed, tablefun=tablefun)
+      outputRegressionTest(results, output="CP", filename=regFilename)
+    },
+    if (destEngine %in% c("mrgsolve")) {
+      # mrgsolve complains and cannot build the model
+      expect_error(model %>% simulate(dataset, dest=destEngine, seed=seed, tablefun=tablefun))
+      
+      # mrgsolve does not complain if SOMETHING variable is declared
+      results <- model %>% simulate(dataset, dest=destEngine, seed=seed, tablefun=tablefun, declare="SOMETHING")
+      outputRegressionTest(results, output="CP", filename=regFilename)
+    }
+  )
+  campsisTest(expression(), test, env=environment())
 })

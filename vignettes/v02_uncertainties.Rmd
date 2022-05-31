@@ -33,7 +33,7 @@ ds <- Dataset(25) %>%
 All subjects are different due to IIV and RUV.
 
 ```{r uncertainties_all_enabled , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- refModel %>% simulate(dataset=ds, dest="RxODE", seed=1)
+results <- refModel %>% simulate(dataset=ds, seed=1)
 spaghettiPlot(results, "Y")
 ```
 
@@ -49,7 +49,7 @@ model@parameters
 In that case, Y (the observed concentration) is identical as CP (the model-simulated plasma concentration).
 
 ```{r uncertainties_no_ruv_y , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, dest="RxODE", seed=1)
+results <- model %>% simulate(dataset=ds, seed=1)
 spaghettiPlot(results, "Y")
 ```
 
@@ -69,6 +69,6 @@ model@parameters
 Now, the typical profile is shown for all subjects.
 
 ```{r uncertainties_no_ruv_no_iiv , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, dest="RxODE", seed=1)
+results <- model %>% simulate(dataset=ds, seed=1)
 spaghettiPlot(results, "Y")
 ```

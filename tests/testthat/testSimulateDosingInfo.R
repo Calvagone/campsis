@@ -34,24 +34,3 @@ test_that(getTestName("Dose adaptations can be checked in CAMPSIS output if dosi
   )
   campsisTest(simulation, test, env=environment())
 })
-
-test_that("Debug previous test with mrgsolve on M1 Mac", {
-  if (skipMrgsolve) return(TRUE)
-  model <- model_library$advan4_trans4
-  
-  times <- seq(0,7*24, by=4)
-  dataset <- Dataset(2) %>%
-    add(Bolus(time=seq(0,6)*24, amount=0.5)) %>% # 0.5mg / kg
-    add(Observations(times=times)) %>%
-    add(Covariate("WT", c(100, 50))) %>%
-    add(DoseAdaptation("AMT*WT"))
-  
-  table <- dataset %>% export(dest="mrgsolve")
-  
-  mrgmod <- model %>% export(dest="mrgsolve", outvars=c("EVID", "CMT", "AMT"))
-  mod <- suppressMessages(mrgsolve::mcode(model="model", code=mrgmod %>% toString(), quiet=TRUE))
-  
-  results <- mod %>% mrgsolve::data_set(data=table) %>% mrgsolve::mrgsim(obsonly=FALSE, output="df", nocb=TRUE) %>% tibble::as_tibble()
-  results %>% dosingOnly()
-  expect_equal(results %>% dosingOnly() %>% dplyr::pull(AMT), c(rep(50,7), rep(25,7)))
-})

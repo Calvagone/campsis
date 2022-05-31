@@ -10,7 +10,7 @@
 ## Requirements
 
 -   R package `campsismod` must be installed beforehand
--   Simulation engine must be installed too (either `RxODE` or
+-   Simulation engine must be installed too (`rxode2`, `RxODE` or
     `mrgsolve`)
 
 ## Installation
@@ -43,10 +43,11 @@ Load your own model or use a built-in model from the library:
 model <- model_library$advan4_trans4
 ```
 
-Simulate your results with your preferred simulation engine:
+Simulate your results with your preferred simulation engine (`rxode2`,
+`RxODE` or `mrgsolve` at your choice!):
 
 ``` r
-results <- model %>% simulate(dataset=ds, dest="RxODE", seed=1)
+results <- model %>% simulate(dataset=ds, dest="rxode2", seed=1)
 ```
 
 Plot your results:

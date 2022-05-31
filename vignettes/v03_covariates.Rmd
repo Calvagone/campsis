@@ -55,7 +55,7 @@ ds <- dataset %>% setSubjects(5) %>%
 All simulated subjects will be exactly the same, as IIV was removed.
 
 ```{r covariates_constant_bw , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, dest="mrgsolve")
+results <- model %>% simulate(dataset=ds)
 spaghettiPlot(results, "CP")
 ```
 
@@ -71,7 +71,7 @@ ds <- dataset %>% setSubjects(5) %>%
 Simulated subjects should now be different.
 
 ```{r covariates_fixed_bw , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, dest="mrgsolve")
+results <- model %>% simulate(dataset=ds)
 spaghettiPlot(results, "CP")
 ```
 
@@ -87,7 +87,7 @@ ds <- dataset %>% setSubjects(40) %>%
 Simulated weights will then be sampled from a uniform distribution with a min value of 50 and a max value of 90.
 
 ```{r covariates_uniform_distribution , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, dest="mrgsolve", outvars=c("CP", "BW"), seed=1)
+results <- model %>% simulate(dataset=ds, outvars=c("CP", "BW"), seed=1)
 gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP"), nrow=1)
 ```
 
@@ -103,7 +103,7 @@ ds <- dataset %>% setSubjects(40) %>%
 Simulated weights will then be sampled from a normal distribution with a mean of 70 and a standard deviation of 10.
 
 ```{r covariates_normal_distribution , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, dest="mrgsolve", outvars=c("CP", "BW"), seed=1)
+results <- model %>% simulate(dataset=ds, outvars=c("CP", "BW"), seed=1)
 gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP"), nrow=1)
 ```
 
@@ -119,7 +119,7 @@ ds <- dataset %>% setSubjects(40) %>%
 Simulated weights will then be sampled from a log-normal distribution with a median of 70 and a coefficient of variation of 20%.
 
 ```{r covariates_lognormal_distribution , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, dest="mrgsolve", outvars=c("CP", "BW"), seed=1)
+results <- model %>% simulate(dataset=ds, outvars=c("CP", "BW"), seed=1)
 gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP"), nrow=1)
 ```
 
@@ -140,7 +140,7 @@ ds <- dataset %>% setSubjects(10) %>%
 Simulated weights will then be sampled from a log-normal distribution with a median of 70 and a coefficient of variation of 20%.
 
 ```{r covariates_bootstrap , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, dest="mrgsolve", outvars=c("CP", "BW"), seed=2)
+results <- model %>% simulate(dataset=ds, outvars=c("CP", "BW"), seed=2)
 gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CP"), nrow=1)
 ```
 

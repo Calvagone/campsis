@@ -83,21 +83,23 @@ test_that(getTestName("Try/catch works as expected if one replicate fails"), {
     add(Bolus(time=0, amount=10, compartment=1)) %>%
     add(Observations(c(0,1,2,4,8,10000)))
   
-  if (!skipMrgsolve) {
-    # Simulation with mrgsolve
-    # An error is thrown by mrgsolve for the first replicate and caught by the try/catch statement
-    results_mrgsolve <- simulate(model=model, dataset=dataset, seed=13, replicates=3, outvars="KA", dest="mrgsolve")
-    expect_equal(results_mrgsolve$replicate %>% unique(), c(2,3)) # Replicate 1 has error
-    expect_false(any(is.na(results_mrgsolve$CP)))
-  }
-  
-  if (!skipRxODE) {
-    # Simulation with RxODE
-    # An warning is thrown by RxODE for the first replicate
-    results_rxode <- expect_warning(simulate(model=model, dataset=dataset, seed=13, replicates=3, outvars="KA", dest="RxODE"),
-                                    regexp="some ID\\(s\\) could not solve the ODEs correctly")
-    expect_equal(results_rxode$replicate %>% unique(), c(1,2,3))
-    expect_true(any(is.na(results_rxode$CP))) # Some NA's in replicate 1
-    expect_false(any(is.na(results_rxode %>% dplyr::filter(replicate != 1) %>% dplyr::pull(CP))))
-  }
+  test <- expression(
+    if (destEngine %in% c("RxODE", "rxode2")) {
+      # Simulation with RxODE
+      # An warning is thrown by RxODE for the first replicate
+      results <- expect_warning(simulate(model=model, dataset=dataset, seed=13, replicates=3, outvars="KA", dest=destEngine),
+                                      regexp="some ID\\(s\\) could not solve the ODEs correctly")
+      expect_equal(results$replicate %>% unique(), c(1,2,3))
+      expect_true(any(is.na(results$CP))) # Some NA's in replicate 1
+      expect_false(any(is.na(results %>% dplyr::filter(replicate != 1) %>% dplyr::pull(CP))))
+    },
+    if (destEngine %in% c("mrgsolve")) {
+      # Simulation with mrgsolve
+      # An error is thrown by mrgsolve for the first replicate and caught by the try/catch statement
+      results <- simulate(model=model, dataset=dataset, seed=13, replicates=3, outvars="KA", dest=destEngine)
+      expect_equal(results$replicate %>% unique(), c(2,3)) # Replicate 1 has error
+      expect_false(any(is.na(results$CP)))
+    }
+  )
+  campsisTest(expression(), test, env=environment())
 })

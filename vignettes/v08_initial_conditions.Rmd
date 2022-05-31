@@ -46,6 +46,6 @@ ds <- Dataset(50) %>%
 We can now simulate this model:
 
 ```{r initial_condition , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, dest="RxODE", seed=1)
+results <- model %>% simulate(dataset=ds, seed=1)
 shadedPlot(results, "CP")
 ```

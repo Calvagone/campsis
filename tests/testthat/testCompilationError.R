@@ -16,16 +16,16 @@ test_that(getTestName("Incorrect Campsis model does not compile and a clear erro
   test <- expression(
     if (destEngine %in% c("RxODE", "rxode2")) {
       # RxODE throws a clear error message
-      expect_error(simulate(model=model, dataset=ds, dest="RxODE"), regexp="The following parameter\\(s\\) are required for solving: BW")
+      expect_error(simulate(model=model, dataset=ds, dest=destEngine), regexp="The following parameter\\(s\\) are required for solving: BW")
     },
     if (destEngine %in% c("mrgsolve")) {
       # Mrgsolve throws an error but message is displayed with cat and cannot be retrieved straightaway
-      expect_error(simulate(model=model, dataset=ds, dest="mrgsolve"), regexp="the model build step failed")
+      expect_error(simulate(model=model, dataset=ds, dest=destEngine), regexp="the model build step failed")
       
       # Message can be captured as follows
       expect_message(
         tryCatch({
-          simulate(model=model, dataset=ds, dest="mrgsolve")
+          simulate(model=model, dataset=ds, dest=destEngine)
         }, error=function(cond){
           # Do nothing
         }),
