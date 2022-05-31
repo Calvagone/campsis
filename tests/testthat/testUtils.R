@@ -7,7 +7,6 @@
 overwriteNonRegressionFiles <- FALSE
 testFolder <- ""
 skipLongTest <- FALSE
-skipMacIssues <- FALSE # Temporary flag
 testEngines <- c("rxode2", "mrgsolve")
 skipMrgsolve <- !("mrgsolve" %in% testEngines)
 skipRxODE <- !("RxODE" %in% testEngines)

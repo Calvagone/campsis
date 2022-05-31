@@ -1,55 +1,71 @@
 library(testthat)
 
 context("Test that simulations with weird cases work as expected")
+
 seed <- 1
+source(paste0("", "testUtils.R"))
 
-test_that("Simulate a bolus without observation", {
+test_that(getTestName("Simulate a bolus without observation"), {
   model <- model_library$advan4_trans4
   
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000))
+  dataset <- Dataset() %>%
+    add(Bolus(time=0, amount=1000))
 
-  expect_error(model %>% simulate(dataset, dest="RxODE", seed=seed), regexp="Dataset does not contain any observation")
+  simulation <- expression()
+  test <- expression(
+    expect_error(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed),
+                 regexp="Dataset does not contain any observation")
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Simulate a bolus with single observation at time 0 (RxODE/mrgsolve)", {
+test_that(getTestName("Simulate a bolus with single observation at time 0"), {
   model <- model_library$advan4_trans4
   
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000))
-  dataset <- dataset %>% add(Observations(time=0))
+  dataset <- Dataset() %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(time=0))
   
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed)
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed)
-  
-  expect_equal(nrow(results1), 1)
-  expect_equal(nrow(results2), 1)
-  variables <- c("ID", "TIME", "CP")
-  expect_equal(results1[variables], results2[variables])
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
+  test <- expression(
+    expect_equal(nrow(results), 1),
+    expect_equal(results[c("ID", "TIME", "CP")], tibble::tibble(ID=1, TIME=0, CP=0))
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Simulate a model which is not valid", {
+test_that(getTestName("Simulate a model which is not valid"), {
   model <- model_library$advan4_trans4
   
   # Corrupt name slot of parameter KA
   model@parameters@list[[1]]@name <- c("KA", "KA2")
   
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000))
-  dataset <- dataset %>% add(Observations(time=0))
+  dataset <- Dataset() %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(time=0))
   
-  expect_error(model %>% simulate(dataset, dest="RxODE"), regexp="name is length 2. Should be 1.")
+  simulation <- expression()
+  test <- expression(
+    expect_error(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed),
+                 regexp="name is length 2. Should be 1.")
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Simulate a dataset which is not valid", {
+test_that(getTestName("Simulate a dataset which is not valid"), {
   model <- model_library$advan4_trans4
   
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000))
-  dataset <- dataset %>% add(Observations(time=0))
+  dataset <- Dataset() %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(time=0))
   
   # Corrupt amount slot of first bolus
   dataset@arms@list[[1]]@protocol@treatment@list[[1]]@amount <- c(1000,1000)
   
-  expect_error(model %>% simulate(dataset, dest="RxODE"), regexp="amount is length 2. Should be 1.")
+  simulation <- expression()
+  test <- expression(
+    expect_error(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed),
+                 regexp="amount is length 2. Should be 1.")
+  )
+  campsisTest(simulation, test, env=environment())
 })

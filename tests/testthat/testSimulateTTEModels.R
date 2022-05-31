@@ -4,7 +4,7 @@ context("Test the simulate method with time-to-event models (TTE)")
 
 source(paste0("", "testUtils.R"))
 
-test_that("Simulate simple TTE model (RxODE/mrgsolve)", {
+test_that(getTestName("Simulate simple TTE model"), {
   if (skipLongTest) return(TRUE)
   regFilename <- "simple_tte_model"
   model <- read.campsis(paste0(testFolder, "models/simple_tte_model/"))
@@ -31,9 +31,7 @@ test_that("Simulate simple TTE model (RxODE/mrgsolve)", {
     add(Observations(times=seq(0, duration, by=0.1)))
   
   events <- events %>% add(event)
-  results1 <- model %>% simulate(dataset=ds, dest="RxODE", events=events, outvars=c("COUNT", "TRIGGER"), seed=5)
-  results2 <- model %>% simulate(dataset=ds, dest="mrgsolve", events=events, outvars=c("COUNT", "TRIGGER"), seed=5)
-  
+
   # p1 <- spaghettiPlot(results1, "A_SURVIVAL")
   # p2 <- spaghettiPlot(results1, "COUNT")
   # p3 <- spaghettiPlot(results1, "TRIGGER")
@@ -44,9 +42,10 @@ test_that("Simulate simple TTE model (RxODE/mrgsolve)", {
   # p3 <- spaghettiPlot(results2, "TRIGGER")
   # gridExtra::grid.arrange(p1, p2, p3, ncol=1)
   
-  outputRegressionTest(results1, output=c("A_SURVIVAL", "TRIGGER"), filename=regFilename)
-  if (!skipMacIssues) {
-    # TODO: FIXME
-    outputRegressionTest(results2, output=c("A_SURVIVAL", "TRIGGER"), filename=regFilename)
-  }
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine,
+                                    events=events, outvars=c("COUNT", "TRIGGER"), seed=5))
+  test <- expression(
+    outputRegressionTest(results, output=c("A_SURVIVAL", "TRIGGER"), filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
