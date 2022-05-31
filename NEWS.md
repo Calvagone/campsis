@@ -1,3 +1,8 @@
+# campsis 1.3.0
+
+* Add new simulation engine rxode2 #92.
+* Refactor all tests to support an unlimited number of engines #92
+
 # campsis 1.2.2
 
 * Fix CRAN issues on M1 Mac architecture #90.
