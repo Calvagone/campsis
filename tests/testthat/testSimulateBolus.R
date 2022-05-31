@@ -15,7 +15,7 @@ test_that(getTestName("Simulate a bolus"), {
   
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
 
-  simulation <- expression(model %>% simulate(dataset, dest=destEngine, seed=seed))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
   test <- expression(
     expect_equal(nrow(results), 49),
     outputRegressionTest(results, output="CP", filename=regFilename)

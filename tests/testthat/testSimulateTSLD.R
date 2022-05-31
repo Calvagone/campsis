@@ -5,7 +5,7 @@ context("Simulate models that depend on TSLD or TDOS")
 seed <- 1
 source(paste0("", "testUtils.R"))
 
-test_that("Weibull model simulation works as expected (RxODE/mrgsolve)", {
+test_that(getTestName("Weibull model simulation works as expected"), {
   regFilename <- "weibull_model"
   model <- suppressWarnings(read.campsis(paste0(testFolder, "models/", regFilename)))
   config <- DatasetConfig(exportTDOS=TRUE)
@@ -17,29 +17,32 @@ test_that("Weibull model simulation works as expected (RxODE/mrgsolve)", {
     add(config)
   
   nocbvars <- "TDOS" # This is needed for mrgsolve because TDOS is considered as a time-varying covariate
-  table1 <- ds %>% export(dest="RxODE", config=config, nocb=FALSE, nocbvars=nocbvars)
-  expect_equal(table1$TDOS %>% unique(), c(0, 48))
   
-  table2 <- ds %>% export(dest="mrgsolve", config=config, nocb=TRUE, nocbvars=nocbvars)
-  expect_equal(table2$TDOS %>% unique(), c(0, 48))
+  # Export TDOS only
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, seed=seed, nocbvars=nocbvars))
+  test <- expression(
+    outputRegressionTest(results, output="CONC", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
   
-  results1 <- simulate(model=model, dataset=ds, dest="RxODE", seed=seed, nocbvars=nocbvars)
-  spaghettiPlot(results1, "CONC")
-  outputRegressionTest(results1, output="CONC", filename=regFilename)
-  
-  results2 <- simulate(model=model, dataset=ds, dest="mrgsolve", seed=seed, nocbvars=nocbvars)
-  spaghettiPlot(results2, "CONC")
-  outputRegressionTest(results2, output="CONC", filename=regFilename)
-  
+
   # Now export TSLD as well
   config <- DatasetConfig(exportTSLD=TRUE, exportTDOS=TRUE)
   ds <- ds %>% add(config)
   
-  table1 <- ds %>% export(dest="RxODE", config=config, nocb=FALSE, nocbvars=nocbvars)
-  table1Subj1 <- table1 %>% dplyr::filter(ID==1)
-  expect_equal(table1Subj1$TSLD, c(c(0,0,4,8,12,16,20,24,28,32,36,40,44,0), c(0,4,8,12,16,20,24,28,32,36,40,44,48)))
-  
-  table2 <- ds %>% export(dest="mrgsolve", config=config, nocb=TRUE, nocbvars=nocbvars)
-  table2Subj1 <- table2 %>% dplyr::filter(ID==1)
-  expect_equal(table2Subj1$TSLD, c(c(0,0,0,4,8,12,16,20,24,28,32,36,40,44), c(0,0,4,8,12,16,20,24,28,32,36,40,44)))
+  # Not really a simulation here...
+  simulation <- expression(
+    nocb <- if (destEngine %in% c("RxODE", "rxode2")) {FALSE} else {TRUE},
+    ds %>% export(dest=destEngine, config=config, nocb=nocb, nocbvars=nocbvars)
+  )
+  test <- expression(
+    results_ <- results %>% dplyr::filter(ID==1),
+    expected <- if (destEngine %in% c("RxODE", "rxode2")) {
+      c(c(0,0,4,8,12,16,20,24,28,32,36,40,44,0), c(0,4,8,12,16,20,24,28,32,36,40,44,48))
+    } else {
+      c(c(0,0,0,4,8,12,16,20,24,28,32,36,40,44), c(0,0,4,8,12,16,20,24,28,32,36,40,44))
+    },
+    expect_equal(results_$TSLD, expected)
+  )
+  campsisTest(simulation, test, env=environment())
 })

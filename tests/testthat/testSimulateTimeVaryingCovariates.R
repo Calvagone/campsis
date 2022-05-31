@@ -5,28 +5,25 @@ context("Test the simulate method with timevarying covariates")
 seed <- 1
 source(paste0("", "testUtils.R"))
 
-test_that("Body weight as a true time varying covariate (RxODE/mrgsolve)", {
+test_that(getTestName("Body weight as a true time varying covariate"), {
   model <- model_library$advan2_trans2
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
   regFilename <- "event_varying_bw"
   
-  dataset <- Dataset(3)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, ii=24, addl=2))
-  dataset <- dataset %>% add(Observations(times=seq(0,24*2, by=1)))
-  dataset <- dataset %>% add(TimeVaryingCovariate("BW", data.frame(TIME=c(0,15,30), VALUE=c(100, 60, 30))))
+  dataset <- Dataset(3) %>%
+    add(Bolus(time=0, amount=1000, ii=24, addl=2)) %>%
+    add(Observations(times=seq(0,24*2, by=1))) %>%
+    add(TimeVaryingCovariate("BW", data.frame(TIME=c(0,15,30), VALUE=c(100, 60, 30))))
   
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, outvars="BW", nocbvars="BW")
-  spaghettiPlot(results1, "CP")
-  
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, outvars="BW", nocbvars="BW")
-  spaghettiPlot(results2, "CP")
-  
-  outputRegressionTest(results1, output="CP", filename=regFilename)
-  outputRegressionTest(results2, output="CP", filename=regFilename)
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, outvars="BW", nocbvars="BW"))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Body weight as a true time varying covariate, 2 arms, individual body weights (RxODE/mrgsolve)", {
+test_that(getTestName("Body weight as a true time varying covariate, 2 arms, individual body weights"), {
   model <- model_library$advan2_trans2
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -48,15 +45,13 @@ test_that("Body weight as a true time varying covariate, 2 arms, individual body
     add(TimeVaryingCovariate("BW", dplyr::bind_rows(bw2_1, bw2_2)))
   
   ds <- Dataset() %>% add(c(arm1, arm2))
-
-  results1 <- model %>% disable("IIV") %>% simulate(ds, dest="RxODE", seed=seed, outvars="BW", nocbvars="BW")
-  spaghettiPlot(results1, "CP", "ID")
-  spaghettiPlot(results1, "BW", "ID")
   
-  results2 <- model %>% disable("IIV") %>% simulate(ds, dest="mrgsolve", seed=seed, outvars="BW", nocbvars="BW")
-  spaghettiPlot(results2, "CP", "ID")
-  spaghettiPlot(results2, "BW", "ID")
-  
-  outputRegressionTest(results1, output="CP", filename=regFilename)
-  outputRegressionTest(results2, output="CP", filename=regFilename)
+  simulation <- expression(simulate(model=model %>% disable("IIV"), dataset=ds,
+                                    dest=destEngine, seed=seed, outvars="BW", nocbvars="BW"))
+  test <- expression(
+    spaghettiPlot(results, "CP", "ID"),
+    spaghettiPlot(results, "BW", "ID"),
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
