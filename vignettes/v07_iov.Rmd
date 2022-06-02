@@ -48,7 +48,7 @@ ds_no_iov <- ds_iov %>% replace(IOV("IOV_KA", 0))
 We can now run the model with IOV on `KA` and without.
 
 ```{r lag_time_model , fig.align='center', fig.height=4, fig.width=8, message=F}
-results_iov <- model %>% simulate(dataset=ds_iov, dest="RxODE", seed=1)
-results_no_iov <- model %>% simulate(dataset=ds_no_iov , dest="RxODE", seed=1)
+results_iov <- model %>% simulate(dataset=ds_iov, seed=1)
+results_no_iov <- model %>% simulate(dataset=ds_no_iov, seed=1)
 gridExtra::grid.arrange(shadedPlot(results_iov, "CP"), shadedPlot(results_no_iov, "CP"), nrow=1)
 ```

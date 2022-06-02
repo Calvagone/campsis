@@ -3,7 +3,14 @@
 \docType{class}
 \name{rxode_engine-class}
 \alias{rxode_engine-class}
-\title{RxODE engine class.}
+\title{RxODE/rxode2 engine class.}
 \description{
-RxODE engine class.
+RxODE/rxode2 engine class.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{rxode2}}{logical field to indicate if CAMPSIS should use rxode2 (field set to TRUE)
+or RxODE (field set to FALSE). Default is TRUE.}
+}}
+

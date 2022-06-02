@@ -5,14 +5,14 @@ context("Test the events/interruption logic")
 seed <- 1
 source(paste0("", "testUtils.R"))
 
-test_that("Simple interrutpions - No events - (RxODE/mrgsolve)", {
+test_that(getTestName("Simple interrutpions - No events"), {
   if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   regFilename <- "simple_bolus" # Existing non-regression file (see testSimulateBolus.R)
   
-  dataset <- Dataset()
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,24, by=0.5)))
+  dataset <- Dataset() %>%
+    add(Bolus(time=0, amount=1000, compartment=1)) %>%
+    add(Observations(times=seq(0,24, by=0.5)))
   
   events <- Events()
   # 10 is part of the observations
@@ -23,36 +23,33 @@ test_that("Simple interrutpions - No events - (RxODE/mrgsolve)", {
   })
   events <- events %>% add(event1)
   
-  results1a <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed)
-  spaghettiPlot(results1a, "CP")
+  # With events
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, events=events, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
   
-  results1b <- model %>% simulate(dataset, dest="RxODE", events=NULL, seed=seed)
-  spaghettiPlot(results1b, "CP")
-  
-  results2a <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed)
-  spaghettiPlot(results2a, "CP")
-  
-  results2b <- model %>% simulate(dataset, dest="mrgsolve", events=NULL, seed=seed)
-  spaghettiPlot(results2b, "CP")
-  
-  outputRegressionTest(results1a, output="CP", filename=regFilename)
-  outputRegressionTest(results1b, output="CP", filename=regFilename)
-  outputRegressionTest(results2a, output="CP", filename=regFilename)
-  outputRegressionTest(results2b, output="CP", filename=regFilename)
+  # Without events
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, events=NULL, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Interruptions at doses times - BW covariate - No events - (RxODE/mrgsolve)", {
+test_that(getTestName("Interruptions at doses times - BW covariate - No events"), {
   if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
   regFilename <- "event_interruption_at_dose"
   
-  dataset <- Dataset(2)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,48,by=5)))
-  dataset <- dataset %>% add(Covariate(name="BW", 70))
+  dataset <- Dataset(2) %>%
+    add(Bolus(time=0, amount=1000, compartment=1)) %>%
+    add(Bolus(time=24, amount=1000, compartment=1)) %>%
+    add(Observations(times=seq(0,48,by=5))) %>%
+    add(Covariate(name="BW", 70))
   
   events <- Events()
   # 10 is part of the observations
@@ -64,25 +61,22 @@ test_that("Interruptions at doses times - BW covariate - No events - (RxODE/mrgs
   })
   events <- events %>% add(event1)
   
-  results1a <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed)
-  spaghettiPlot(results1a, "CP")
+  # With events
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, events=events, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
   
-  results1b <- model %>% simulate(dataset, dest="RxODE", events=NULL, seed=seed)
-  spaghettiPlot(results1b, "CP")
-  
-  results2a <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed)
-  spaghettiPlot(results2a, "CP")
-  
-  results2b <- model %>% simulate(dataset, dest="mrgsolve", events=NULL, seed=seed)
-  spaghettiPlot(results2b, "CP")
-  
-  outputRegressionTest(results1a, output="CP", filename=regFilename)
-  outputRegressionTest(results1b, output="CP", filename=regFilename)
-  outputRegressionTest(results2a, output="CP", filename=regFilename)
-  outputRegressionTest(results2b, output="CP", filename=regFilename)
+  # Without events
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, events=NULL, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Interruptions at doses times - BW covariate - IOV on KA - No events - (RxODE/mrgsolve)", {
+test_that(getTestName("Interruptions at doses times - BW covariate - IOV on KA - No events"), {
   if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   equation <- model %>% find(Equation("CL"))
@@ -90,12 +84,12 @@ test_that("Interruptions at doses times - BW covariate - IOV on KA - No events -
   model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
   regFilename <- "event_interruption_at_dose_iov"
   
-  dataset <- Dataset(2)
-  dataset <- dataset %>% add(Bolus(time=0, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Bolus(time=24, amount=1000, compartment=1))
-  dataset <- dataset %>% add(Observations(times=seq(0,48,by=5)))
-  dataset <- dataset %>% add(Covariate(name="BW", 70))
-  dataset <- dataset %>% add(IOV(colname="IOV_KA", distribution=NormalDistribution(0, sd=0.3)))
+  dataset <- Dataset(2) %>%
+    add(Bolus(time=0, amount=1000, compartment=1)) %>%
+    add(Bolus(time=24, amount=1000, compartment=1)) %>%
+    add(Observations(times=seq(0,48,by=5))) %>%
+    add(Covariate(name="BW", 70)) %>%
+    add(IOV(colname="IOV_KA", distribution=NormalDistribution(0, sd=0.3)))
   
   # Uncomment these 2 lines to understand how IOV is exported!
   # dataset <- dataset %>% add(new("event_related_observations", times=c(10, 23, 24, 34), compartment=as.integer(NA)))
@@ -112,26 +106,23 @@ test_that("Interruptions at doses times - BW covariate - IOV on KA - No events -
   })
   events <- events %>% add(event1)
 
-  results1a <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed)
-  spaghettiPlot(results1a, "CP")
+  # With events
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, events=events, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
   
-  results1b <- model %>% simulate(dataset, dest="RxODE", events=NULL, seed=seed)
-  spaghettiPlot(results1b, "CP")
-  
-  results2a <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed)
-  spaghettiPlot(results2a, "CP")
-  
-  results2b <- model %>% simulate(dataset, dest="mrgsolve", events=NULL, seed=seed)
-  spaghettiPlot(results2b, "CP")
-  
-  outputRegressionTest(results1a, output="CP", filename=regFilename)
-  outputRegressionTest(results1b, output="CP", filename=regFilename)
-  outputRegressionTest(results2a, output="CP", filename=regFilename)
-  outputRegressionTest(results2b, output="CP", filename=regFilename)
+  # Without events
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, events=NULL, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
 
-test_that("Simulate initial conditions + events (RxODE/mrgsolve)", {
+test_that(getTestName("Simulate initial conditions + events"), {
   if (skipLongTest) return(TRUE)
   model <- model_library$advan3_trans4
   model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
@@ -147,20 +138,14 @@ test_that("Simulate initial conditions + events (RxODE/mrgsolve)", {
   })
   events <- events %>% add(event1)
   
-  results1 <- model %>% simulate(dataset, dest="RxODE", seed=seed, events=events)
-  spaghettiPlot(results1, "CP")
-  
-  results2 <- model %>% simulate(dataset, dest="mrgsolve", seed=seed, events=events)
-  spaghettiPlot(results2, "CP")
-  
-  outputRegressionTest(results1 %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
-  if (!skipMacIssues) {
-    # TODO: FIXME
-    outputRegressionTest(results2 %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
-  }
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, events=events, seed=seed))
+  test <- expression(
+    outputRegressionTest(results %>% dplyr::filter(TIME >=5), output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
-test_that("Simulate multiple arms + events (RxODE/mrgsolve)", {
+test_that(getTestName("Simulate multiple arms + events"), {
   if (skipLongTest) return(TRUE)
   model <- model_library$advan4_trans4
   
@@ -168,14 +153,15 @@ test_that("Simulate multiple arms + events (RxODE/mrgsolve)", {
 
   dataset <- Dataset()
   # Treatment arm 1
-  arm1 <- Arm(id=1, subjects=2)
-  arm1 <- arm1 %>% add(Bolus(time=c(0,24,48), amount=1000))
-  arm1 <- arm1 %>% add(Observations(times=seq(0,72, by=5)))
+  arm1 <- Arm(id=1, subjects=2) %>%
+    add(Bolus(time=c(0,24,48), amount=1000)) %>%
+    add(Observations(times=seq(0,72, by=5)))
   
   # Treatment arm 2
-  arm2 <- Arm(id=2, subjects=2)
-  arm2 <- arm2 %>% add(Bolus(time=c(5,29,53), amount=2000))
-  arm2 <- arm2 %>% add(Observations(times=seq(0,77, by=6)))
+  arm2 <- Arm(id=2, subjects=2) %>%
+    add(Bolus(time=c(5,29,53), amount=2000)) %>%
+    add(Observations(times=seq(0,77, by=6)))
+  
   dataset <- dataset %>% add(c(arm1, arm2))
   
   events <- Events()
@@ -184,21 +170,18 @@ test_that("Simulate multiple arms + events (RxODE/mrgsolve)", {
   })
   events <- events %>% add(event1)
   
-  results1a <- model %>% simulate(dataset, dest="RxODE", events=events, seed=seed)
-  spaghettiPlot(results1a, "CP")
+  # With events
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, events=events, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
   
-  results1b <- model %>% simulate(dataset, dest="RxODE", events=NULL, seed=seed)
-  spaghettiPlot(results1b, "CP")
-  
-  results2a <- model %>% simulate(dataset, dest="mrgsolve", events=events, seed=seed)
-  spaghettiPlot(results2a, "CP")
-  
-  results2b <- model %>% simulate(dataset, dest="mrgsolve", events=NULL, seed=seed)
-  spaghettiPlot(results2b, "CP")
-  
-  outputRegressionTest(results1a, output="CP", filename=regFilename)
-  outputRegressionTest(results1b, output="CP", filename=regFilename)
-  outputRegressionTest(results2a, output="CP", filename=regFilename)
-  outputRegressionTest(results2b, output="CP", filename=regFilename)
+  # Without events
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, events=NULL, seed=seed))
+  test <- expression(
+    outputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 

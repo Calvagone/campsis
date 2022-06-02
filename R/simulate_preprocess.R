@@ -3,21 +3,23 @@
 #' engine is not installed.
 #'
 #' @param dest destination engine
-#' @return 'RxODE', 'mrgsolve'
+#' @return 'rxode2', 'RxODE' or 'mrgsolve'
 #' @keywords internal
 #' 
 preprocessDest <- function(dest) {
   if (is.null(dest)) {
-    if (find.package("RxODE", quiet=TRUE) %>% length() > 0) {
+    if (find.package("rxode2", quiet=TRUE) %>% length() > 0) {
+      dest <- "rxode2" # Default package
+    } else if (find.package("RxODE", quiet=TRUE) %>% length() > 0) {
       dest <- "RxODE"
     } else if (find.package("mrgsolve", quiet=TRUE) %>% length() > 0) {
       dest <- "mrgsolve"
     } else {
-      stop("Simulation engine 'RxODE' or 'mrgsolve' is required to run CAMPSIS")
+      stop("Simulation engine 'rxode2', 'RxODE' or 'mrgsolve' is required to run CAMPSIS")
     }
   } else if (is.vector(dest)) {
-    if (!(dest %in% c("mrgsolve", "RxODE"))) {
-      stop("Argument 'dest' must be one of: 'RxODE', 'mrgsolve' or NULL")
+    if (!(dest %in% c("rxode2", "RxODE", "mrgsolve"))) {
+      stop("Argument 'dest' must be one of: 'rxode2', 'RxODE', 'mrgsolve' or NULL")
     }
     if (find.package(dest, quiet=TRUE) %>% length()==0) {
       stop(paste0("Simulation engine '", dest, "' is not installed"))
