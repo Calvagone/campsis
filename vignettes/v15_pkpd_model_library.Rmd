@@ -18,7 +18,7 @@ This vignette presents a couple of pharmacodynamic models (PD) from the model li
 In order to not repeat ourselves, all the below pharmacodynamic models will be linked to our reference 2-compartment PK model from the library.
 
 ```{r}
-pk <- model_library$advan4_trans4
+pk <- model_suite$nonmem$advan4_trans4
 ```
 
 ### Direct-effect model
@@ -26,7 +26,7 @@ pk <- model_library$advan4_trans4
 Load the direct-effect model from the model library:
 
 ```{r}
-pd <- model_library$direct_effect_model
+pd <- model_suite$pd$direct_effect_model
 pd
 ```
 
@@ -55,7 +55,7 @@ gridExtra::grid.arrange(shadedPlot(results, "CP"), shadedPlot(results, "EFFECT")
 Load the effect-compartment model from the model library:
 
 ```{r}
-pd <- model_library$effect_cmt_model
+pd <- model_suite$pd$effect_cmt_model
 pd
 ```
 
@@ -83,7 +83,7 @@ gridExtra::grid.arrange(shadedPlot(results, "CP"), shadedPlot(results, "A_EFFECT
 Load the transit-compartment model from the model library:
 
 ```{r}
-pd <- model_library$transit_cmt_model
+pd <- model_suite$pd$transit_cmt_model
 pd
 ```
 
@@ -111,7 +111,7 @@ gridExtra::grid.arrange(shadedPlot(results, "CP"), shadedPlot(results, "A_CIRC")
 Load one of the 4 indirect-response model (IRM) present in the model library:
 
 ```{r}
-pd <- model_library$irm_kout_inhibition
+pd <- model_suite$pd$irm_kout_inhibition
 pd
 ```
 

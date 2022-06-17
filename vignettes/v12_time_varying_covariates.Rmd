@@ -20,7 +20,7 @@ This vignette shows how time-varying covariates can be implemented.
 As a demonstration example, let's implement allometric scaling on the clearance and volume of a 1-compartment PK model:
 
 ```{r}
-model <- model_library$advan2_trans2
+model <- model_suite$nonmem$advan2_trans2
 model <- model %>% replace(Equation("CL", "THETA_CL*exp(ETA_CL)*pow(BW/70, 0.75)"))
 model <- model %>% replace(Equation("V", "THETA_V*exp(ETA_V)*BW/70"))
 ```

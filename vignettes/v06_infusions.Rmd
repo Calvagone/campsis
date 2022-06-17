@@ -26,7 +26,7 @@ In the second case, CAMPSIS will inject specific values in the RATE column of th
 Let's use a 2-compartment model without absorption compartment to illustrate how this can be achieved.
 
 ```{r}
-model <- model_library$advan3_trans4
+model <- model_suite$nonmem$advan3_trans4
 ```
 
 For this example, we're going to define a lag time `D1` for this absorption compartment.
@@ -101,6 +101,6 @@ ds2 %>% export(dest="RxODE") %>% dosingOnly() %>% head()
 Let's now simulate this dataset using the original model.
 
 ```{r infusion_dataset , fig.align='center', fig.height=4, fig.width=8, message=F}
-results_d1 <- model_library$advan4_trans4 %>% simulate(dataset=ds2, seed=1)
+results_d1 <- model_suite$nonmem$advan4_trans4 %>% simulate(dataset=ds2, seed=1)
 shadedPlot(results_d1, "CP")
 ```

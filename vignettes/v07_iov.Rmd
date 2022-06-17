@@ -20,7 +20,7 @@ This vignette shows how inter-occasion variability (IOV) can be added on a param
 Let's use a 2-compartment model with absorption compartment for this example.
 
 ```{r}
-model <- model_library$advan4_trans4
+model <- model_suite$nonmem$advan4_trans4
 ```
 
 We're going to add a term `IOV_KA` on parameter `KA`. This can be done as follows:

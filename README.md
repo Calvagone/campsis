@@ -40,7 +40,7 @@ ds <- Dataset(50) %>%
 Load your own model or use a built-in model from the library:
 
 ``` r
-model <- model_library$advan4_trans4
+model <- model_suite$pk$`2cpt_fo`
 ```
 
 Simulate your results with your preferred simulation engine (`rxode2`,
@@ -53,7 +53,7 @@ results <- model %>% simulate(dataset=ds, dest="rxode2", seed=1)
 Plot your results:
 
 ``` r
-shadedPlot(results, "CP")
+shadedPlot(results, "CONC")
 ```
 
 ![](vignettes/resources/readme_plot.png)

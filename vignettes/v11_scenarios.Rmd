@@ -20,7 +20,7 @@ This vignette shows how scenarios can be implemented.
 Using treatment arms:
 
 ```{r several_protocols_with_arms, fig.align='center', fig.height=4, fig.width=8, message=F}
-model <- model_library$advan4_trans4
+model <- model_suite$nonmem$advan4_trans4
 
 arm1 <- Arm(subjects=3, label="1000 mg SD") %>%
   add(Bolus(time=0, 1000)) %>%
@@ -41,7 +41,7 @@ spaghettiPlot(results, "CP", "ARM") + ggplot2::facet_wrap(~ARM)
 Using scenarios:
 
 ```{r several_protocols_with_scenarios, fig.align='center', fig.height=4, fig.width=8, message=F}
-model <- model_library$advan4_trans4
+model <- model_suite$nonmem$advan4_trans4
 
 dataset <- Dataset() %>%
     add(Observations(times=seq(0, 24, by=0.1)))
@@ -60,7 +60,7 @@ spaghettiPlot(results, "CP", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO)
 Assume we want to test different values of `THETA_KA`:
 
 ```{r scenarios_make_theta_ka_vary, fig.align='center', fig.height=4, fig.width=8, message=F}
-model <- model_library$advan4_trans4
+model <- model_suite$nonmem$advan4_trans4
 
 ds <- Dataset(50) %>%
   add(Bolus(time=0, amount=1000)) %>%
@@ -80,7 +80,7 @@ shadedPlot(results, "CP", scenarios="SCENARIO")
 Assume we want to compare different distributions of body weight `BW`:
 
 ```{r scenarios_compare_bw_distributions , fig.align='center', fig.height=6, fig.width=8, message=F}
-model <- model_library$advan1_trans2 %>% 
+model <- model_suite$nonmem$advan1_trans2 %>% 
   replace(Equation("CL", "THETA_CL*exp(ETA_CL)*pow(BW/70, 0.75)")) %>% 
   disable("IIV")
 
