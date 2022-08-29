@@ -99,6 +99,51 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
   return(plot)
 }
 
+#' Scatter plot (or X vs Y plot).
+#' 
+#' @param x data frame
+#' @param output the 2 variables to show, character vector
+#' @param scenarios scenarios
+#' @param time the time to look at those 2 variables, if NULL, min time is used (usually 0)
+#' @return a ggplot object
+#' @importFrom dplyr filter
+#' @importFrom ggplot2 aes_string ggplot geom_point
+#' @export
+scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
+  hasId <- "ID" %in% colnames(x)
+  x <- factorScenarios(x %>% obsOnly(), scenarios=scenarios)
+  
+  if (is.null(time)) {
+    time <- min(x$TIME)
+  }
+  x <- x %>% dplyr::filter(TIME %in% time)
+  
+  if (output %>% length() == 1) {
+    x$MY_OUTPUT_2 <- 0
+    output <- c(output, "MY_OUTPUT_2")
+  } else if (output %>% length() > 2) {
+    stop("Please provide 2 outputs at most !")
+  }
+  
+  if (hasId) {
+    if (length(scenarios) > 0) {
+      colour <- paste0(scenarios, collapse=":")
+      group <- paste0("interaction(", paste0(c("ID", scenarios), collapse=","), ")")
+    }
+    else {
+      colour <- NULL
+      group <- "ID"
+    }
+    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x=output[1], y=output[2], group=group, colour=colour)) +
+      ggplot2::geom_point()
+  }
+  else {
+    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x=output[1], y=output[2])) +
+      ggplot2::geom_point()
+  }
+  return(plot)
+}
+
 #' VPC plot.
 #' 
 #' @param x data frame, output of CAMPSIS with replicates
