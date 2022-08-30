@@ -7,7 +7,7 @@ source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simple interrutpions - No events"), {
   if (skipLongTest) return(TRUE)
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   regFilename <- "simple_bolus" # Existing non-regression file (see testSimulateBolus.R)
   
   dataset <- Dataset() %>%
@@ -40,7 +40,7 @@ test_that(getTestName("Simple interrutpions - No events"), {
 
 test_that(getTestName("Interruptions at doses times - BW covariate - No events"), {
   if (skipLongTest) return(TRUE)
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
   regFilename <- "event_interruption_at_dose"
@@ -78,7 +78,7 @@ test_that(getTestName("Interruptions at doses times - BW covariate - No events")
 
 test_that(getTestName("Interruptions at doses times - BW covariate - IOV on KA - No events"), {
   if (skipLongTest) return(TRUE)
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
   model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
@@ -124,7 +124,7 @@ test_that(getTestName("Interruptions at doses times - BW covariate - IOV on KA -
 
 test_that(getTestName("Simulate initial conditions + events"), {
   if (skipLongTest) return(TRUE)
-  model <- model_library$advan3_trans4
+  model <- model_suite$nonmem$advan3_trans4
   model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
   
   regFilename <- "initial_conditions"
@@ -147,7 +147,7 @@ test_that(getTestName("Simulate initial conditions + events"), {
 
 test_that(getTestName("Simulate multiple arms + events"), {
   if (skipLongTest) return(TRUE)
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   
   regFilename <- "event_in_multiple_arms"
 

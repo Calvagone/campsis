@@ -7,7 +7,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Incorrect Campsis model does not compile and a clear error message is shown"), {
-  model <- model_library$advan2_trans2 %>%
+  model <- model_suite$nonmem$advan2_trans2 %>%
     replace(Equation("V", "THETA_V*exp(ETA_V)*BW/70"))
   
   ds <- Dataset(1) %>%

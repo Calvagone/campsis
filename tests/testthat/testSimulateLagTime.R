@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate a bolus with fixed lag time in dataset"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   regFilename <- "bolus_fixed_lag_time"
   
   dataset <- Dataset(3) %>%
@@ -24,7 +24,7 @@ test_that(getTestName("Simulate a bolus with fixed lag time in dataset"), {
 })
 
 test_that(getTestName("Simulate a bolus with fixed lag time in model"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   regFilename <- "bolus_fixed_lag_time"
   
   dataset <- Dataset(3) %>%

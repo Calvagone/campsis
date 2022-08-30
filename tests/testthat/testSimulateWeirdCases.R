@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate a bolus without observation"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000))
@@ -20,7 +20,7 @@ test_that(getTestName("Simulate a bolus without observation"), {
 })
 
 test_that(getTestName("Simulate a bolus with single observation at time 0"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000)) %>%
@@ -35,7 +35,7 @@ test_that(getTestName("Simulate a bolus with single observation at time 0"), {
 })
 
 test_that(getTestName("Simulate a model which is not valid"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   
   # Corrupt name slot of parameter KA
   model@parameters@list[[1]]@name <- c("KA", "KA2")
@@ -53,7 +53,7 @@ test_that(getTestName("Simulate a model which is not valid"), {
 })
 
 test_that(getTestName("Simulate a dataset which is not valid"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000)) %>%
