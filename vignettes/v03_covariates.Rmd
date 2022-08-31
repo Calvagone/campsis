@@ -18,7 +18,7 @@ library(campsis)
 Let's use a simple 1-compartment model to illustrate how covariates are managed by CAMPSIS.
 
 ```{r}
-model <- model_library$advan1_trans2
+model <- model_suite$nonmem$advan1_trans2
 ```
 
 For this example, we're going to add allometric scaling on the clearance parameter.

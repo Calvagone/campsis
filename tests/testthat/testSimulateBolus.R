@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate a bolus"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   regFilename <- "simple_bolus"
   
   dataset <- Dataset(1) %>%
@@ -24,7 +24,7 @@ test_that(getTestName("Simulate a bolus"), {
 })
 
 test_that(getTestName("Simulate a bolus, 2 arms"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   regFilename <- "bolus_2arms"
 
   arm1 <- Arm(1, subjects=10) %>%
@@ -50,7 +50,7 @@ test_that(getTestName("Simulate a bolus, 2 arms"), {
 })
 
 test_that(getTestName("Simulate a bolus, 2 labelled arms"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   regFilename <- "bolus_2arms"
 
   arm1 <- Arm(1, subjects=10, label="TRT 1") %>%

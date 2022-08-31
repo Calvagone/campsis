@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Dose adaptations based on weight work well"), {
-  model <- model_library$advan4_trans4 %>% disable("IIV")
+  model <- model_suite$nonmem$advan4_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw"
   
   dataset <- Dataset(2) %>%
@@ -25,7 +25,7 @@ test_that(getTestName("Dose adaptations based on weight work well"), {
 })
 
 test_that(getTestName("Dose adaptations preserve specified infusion duration"), {
-  model <- model_library$advan3_trans4 %>% disable("IIV")
+  model <- model_suite$nonmem$advan3_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw_infusion"
   
   dataset <- Dataset(2) %>%
@@ -44,7 +44,7 @@ test_that(getTestName("Dose adaptations preserve specified infusion duration"), 
 })
 
 test_that(getTestName("Dose adaptations preserve specified infusion rate"), {
-  model <- model_library$advan3_trans4 %>% disable("IIV")
+  model <- model_suite$nonmem$advan3_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw_infusion"
   
   subj1 <- Arm(subjects=1) %>%
@@ -69,7 +69,7 @@ test_that(getTestName("Dose adaptations preserve specified infusion rate"), {
 })
 
 test_that(getTestName("Dose adaptations based on weight work well, check argument compartments works as expected"), {
-  model <- model_library$advan4_trans4 %>% disable("IIV")
+  model <- model_suite$nonmem$advan4_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw"
   
   # Add independant ODE

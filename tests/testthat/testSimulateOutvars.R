@@ -5,7 +5,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("NULL outvars"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
 
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000, compartment=1)) %>%
@@ -24,7 +24,7 @@ test_that(getTestName("NULL outvars"), {
 })
 
 test_that(getTestName("Not NULL outvars"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000, compartment=1)) %>%
@@ -43,7 +43,7 @@ test_that(getTestName("Not NULL outvars"), {
 })
 
 test_that(getTestName("Not NULL outvars + DROP_OTHERS"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000, compartment=1)) %>%
@@ -58,7 +58,7 @@ test_that(getTestName("Not NULL outvars + DROP_OTHERS"), {
 })
 
 test_that(getTestName("Not NULL outvars from ERROR block + DROP_OTHERS"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000, compartment=1)) %>%
@@ -73,7 +73,7 @@ test_that(getTestName("Not NULL outvars from ERROR block + DROP_OTHERS"), {
 })
 
 test_that(getTestName("Covariates in outvars can be output well"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
 
   dataset <- Dataset(2) %>%
     add(Bolus(time=0, amount=1000, compartment=1)) %>%
@@ -90,7 +90,7 @@ test_that(getTestName("Covariates in outvars can be output well"), {
 })
 
 test_that(getTestName("ETAs in outvars can be output well"), {
-  model <- model_library$advan4_trans4
+  model <- model_suite$nonmem$advan4_trans4
 
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000, compartment=1)) %>%

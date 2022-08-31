@@ -26,7 +26,7 @@ In the second case, CAMPSIS will adapt automatically the time of the dose(s)
 Let's use a 2-compartment model with absorption compartment to illustrate how this can be achieved.
 
 ```{r}
-model <- model_library$advan4_trans4
+model <- model_suite$nonmem$advan4_trans4
 ```
 
 For this example, we're going to define a lag time `ALAG1` for this absorption compartment.
@@ -66,7 +66,7 @@ ds1 <- Dataset(50) %>%
 
 ```{r lag_time_model , fig.align='center', fig.height=4, fig.width=8, message=F}
 results_alag <- model %>% simulate(dataset=ds1, seed=1)
-results_no_alag <- model_library$advan4_trans4 %>% simulate(dataset=ds1, seed=1)
+results_no_alag <- model_suite$nonmem$advan4_trans4 %>% simulate(dataset=ds1, seed=1)
 gridExtra::grid.arrange(shadedPlot(results_alag, "CP"), shadedPlot(results_no_alag, "CP"), nrow=1)
 ```
 
@@ -102,6 +102,6 @@ ds2 %>% export(dest="RxODE") %>% dosingOnly() %>% head()
 Let's now simulate this dataset using the original model.
 
 ```{r lag_time_dataset , fig.align='center', fig.height=4, fig.width=8, message=F}
-results_alag <- model_library$advan4_trans4 %>% simulate(dataset=ds2, seed=1)
+results_alag <- model_suite$nonmem$advan4_trans4 %>% simulate(dataset=ds2, seed=1)
 shadedPlot(results_alag, "CP")
 ```

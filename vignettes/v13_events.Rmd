@@ -20,7 +20,7 @@ This vignette shows how interruption events can be implemented.
 As a first example of dose adaptation, we're going to adapt the dose based on `Ctrough`. Say we'd like `Ctrough` not to exceed an arbitrary safety limit of 5 mg/L. The rule could be as follows: if `Ctrough` is greater than 5, multiply the last dose by 0.75, otherwise continue with the same dose. Let's illustrate this simple rule using events. We will use the first compartment model with absorption from the model library for this purpose.
 
 ```{r event_dose_adaptation_ctrough, fig.align='center', fig.height=4, fig.width=8, message=F}
-model <- model_library$advan2_trans2
+model <- model_suite$nonmem$advan2_trans2
 
 dataset <- Dataset(10) %>%
   add(Observations(times=0:168)) %>%

@@ -20,7 +20,7 @@ This vignette shows how simple dose adaptations can be implemented.
 Assume that your drug needs to be dosed according to the subject's weight, for instance 0.5 mg per kg. To illustrate this, let's use our 2-compartment PK model with absorption compartment.
 
 ```{r}
-model <- model_library$advan4_trans4
+model <- model_suite$nonmem$advan4_trans4
 ```
 
 We're going to create a dataset with 4 individuals, weighing respectively 40, 60, 80 and 100 kg.

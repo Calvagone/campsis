@@ -20,7 +20,7 @@ This vignette shows how initial conditions may be used in CAMPSIS.
 Assume the following 2-compartment model is used.
 
 ```{r}
-model <- model_library$advan3_trans4
+model <- model_suite$nonmem$advan3_trans4
 ```
 
 We'd like to init the central compartment to a predefined value, e.g. 1000.  

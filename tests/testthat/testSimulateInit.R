@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate initial conditions, observations starting at 0"), {
-  model <- model_library$advan3_trans4
+  model <- model_suite$nonmem$advan3_trans4
   model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
 
   regFilename <- "initial_conditions"
@@ -22,7 +22,7 @@ test_that(getTestName("Simulate initial conditions, observations starting at 0")
 })
 
 test_that(getTestName("Simulate initial conditions, observations starting at 5"), {
-  model <- model_library$advan3_trans4
+  model <- model_suite$nonmem$advan3_trans4
   model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
 
   regFilename <- "initial_conditions"

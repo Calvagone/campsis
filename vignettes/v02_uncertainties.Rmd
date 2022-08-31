@@ -18,7 +18,7 @@ library(campsis)
 Let's use a simple 1-compartment model with absorption compartment to illustrate the different levels of uncertainties.
 
 ```{r}
-refModel <- model_library$advan2_trans2
+refModel <- model_suite$nonmem$advan2_trans2
 refModel
 ```
 

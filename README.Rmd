@@ -48,7 +48,7 @@ ds <- Dataset(50) %>%
 Load your own model or use a built-in model from the library:
 
 ```{r}
-model <- model_library$advan4_trans4
+model <- model_suite$pk$`2cpt_fo`
 ```
 
 Simulate your results with your preferred simulation engine (`rxode2`, `RxODE` or `mrgsolve` at your choice!):
@@ -60,7 +60,7 @@ results <- model %>% simulate(dataset=ds, dest="rxode2", seed=1)
 Plot your results:
 
 ```{r readme_plot, fig.show='hide'}
-shadedPlot(results, "CP")
+shadedPlot(results, "CONC")
 ```
 
 ```{r, eval=FALSE, echo=FALSE, results='hide'}

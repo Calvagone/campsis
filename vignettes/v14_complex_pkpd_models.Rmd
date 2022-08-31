@@ -20,7 +20,7 @@ This vignette intends to demonstrate that CAMPSIS can be used to implement almos
 Load the filgrastim PK/PD model from the model library as follows. Please note that this model was translated from NONMEM code. The original model file can be found [here](http://repository.ddmore.eu/model/DDMODEL00000077) on the DDMORE repository. Eventually, this model was updated with the final parameters from the corresponding publication ([Krzyzanski et al., 2010](https://pubmed.ncbi.nlm.nih.gov/20881223/)).
 
 ```{r}
-pkpd <- model_library$filgrastim_pkpd_krzyzanski
+pkpd <- model_suite$literature$filgrastim_pkpd_krzyzanski
 pkpd
 ```
 
