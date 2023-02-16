@@ -387,17 +387,40 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, ...)
     model <- removeInitialConditions(model)
   }
   
-  # Export CAMPSIS model
+  
+  
+  # Export to RxODE / rxode2
   if (is(dest, "rxode_engine")) {
     engineModel <- model %>% export(dest="RxODE")
+  
+  # Export to mrgsolve
   } else if (is(dest, "mrgsolve_engine")) {
+    
+    # Export structural model (all THETA's to 0, all OMEGA's to 0)
+    structuralModel <- model
+    structuralModel@parameters@list <- structuralModel@parameters@list %>% purrr::map(.f=function(parameter) {
+      if (is(parameter, "theta") || is(parameter, "omega")) {
+        parameter@value <- 0
+      }
+      return(parameter)
+    })
+    
+    # Set ETA's as extra parameters in mrgsolve
+    etaNames <- (model@parameters %>% select("omega"))@list %>%
+      purrr::keep(~isDiag(.x)) %>%
+      purrr::map_chr(~getNameInModel(.x))
+    
+    # Extra care to additional outputs which need to be explicitly declared with mrgsolve 
     outvars_ <- outvars[!(outvars %in% dropOthers())]
     outvars_ <- unique(c(outvars_, "ARM", "EVENT_RELATED"))
     if (dosing) {
       # These variables are not output by default in mrgsolve when dosing is TRUE
       outvars_ <- unique(c(outvars_, "EVID", "CMT", "AMT"))
     }
-    engineModel <- model %>% export(dest="mrgsolve", outvars=outvars_)
+    engineModel <- structuralModel %>% export(dest="mrgsolve", outvars=outvars_, extra_params=c(etaNames, declare))
+    
+    # Disable IIV in mrgsolve model
+    engineModel@omega <- character(0) # IIV managed by CAMPSIS
   }
   
   # Compute all slice rounds to perform
@@ -539,33 +562,22 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   # Retrieve mrgsolve model
   mrgmod <- config$engineModel
   
-  # Disable IIV in mrgsolve model
-  mrgmod@omega <- character(0) # IIV managed by CAMPSIS
-  
-  # Declare all ETA's in the PARAM block
-  omegas <- rxodeMatrix(model, type="omega")
-  for (omega in (model@parameters %>% select("omega"))@list) {
-    if(omega %>% isDiag()) {
-      etaName <- omega %>% getNameInModel()
-      mrgmod@param <- mrgmod@param %>% append(paste0(etaName, " : ", 0, " : ", etaName))
-    }
-  }
-  # Declare all covariates and IOV variables contained in dataset
-  # Also declare ARM and user-input variables in 'declare' extra arg
-  for (variable in config$declare) {
-    mrgmod@param <- mrgmod@param %>% append(paste0(variable, " : ", 0, " : ", variable))
-  }
-
   mrgmodCode <- mrgmod %>% toString()
   mrgmodHash <- digest::sha1(mrgmodCode)
   
   # Instantiate mrgsolve model
   withCallingHandlers({
-    mod <- mrgsolve::mcode(model=paste0("mod_", mrgmodHash), code=mrgmodCode, quiet=TRUE)
+    mod <- mrgsolve::mcode_cache(model=paste0("mod_", mrgmodHash), code=mrgmodCode, quiet=TRUE)
   }, message = function(msg) {
     if (msg$message %>% startsWith("(waiting)"))
       invokeRestart("muffleMessage")
   })
+  
+  # Retrieve THETA's
+  thetas <- model@parameters %>% select("theta")
+  thetaParams <- thetas@list %>%
+    purrr::set_names(thetas@list %>% purrr::map_chr(~.x %>% getNameInModel)) %>%
+    purrr::map(~.x@value)
 
   results <-  purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
@@ -573,6 +585,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {
       mod <- mod %>% mrgsolve::update(init=inits)
+    }
+    
+    # Inject THETA's into model
+    if (length(thetaParams) > 0) {
+      mod <- mod %>% mrgsolve::update(param=thetaParams)
     }
     
     # Launch simulation with mrgsolve
