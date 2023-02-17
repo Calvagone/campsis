@@ -499,7 +499,9 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   if (dest@rxode2) {
     mod <- rxode2::rxode2(paste0(rxmod@code, collapse="\n"))
   } else {
-    mod <- RxODE::RxODE(paste0(rxmod@code, collapse="\n"))
+    # For backwards compatibility since RxODE isn't on CRAN anymore
+    fun <- getExportedValue("RxODE", "RxODE")
+    mod <- do.call(fun, list(paste0(rxmod@code, collapse="\n")))
   }
   
   # Preparing parameters
@@ -523,10 +525,12 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     # Launch simulation with RxODE
     if (dest@rxode2) {
       tmp <- rxode2::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
-                            keep=keep, inits=inits, covsInterpolation=ifelse(nocb, "nocb", "locf"), addDosing=dosing, addCov=FALSE)
+                             keep=keep, inits=inits, covsInterpolation=ifelse(nocb, "nocb", "locf"), addDosing=dosing, addCov=FALSE)
     } else {
-      tmp <- RxODE::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
-                            keep=keep, inits=inits, covs_interpolation=ifelse(nocb, "nocb", "constant"), addDosing=dosing)
+      # For backwards compatibility since RxODE isn't on CRAN anymore
+      fun <- getExportedValue("RxODE", "rxSolve")
+      tmp <- do.call(fun, list(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
+                               keep=keep, inits=inits, covs_interpolation=ifelse(nocb, "nocb", "constant"), addDosing=dosing))
     }
     
     # Tick progress
