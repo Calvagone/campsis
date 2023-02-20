@@ -16,7 +16,8 @@ test_that(getTestName("Body weight as a true time varying covariate"), {
     add(Observations(times=seq(0,24*2, by=1))) %>%
     add(TimeVaryingCovariate("BW", data.frame(TIME=c(0,15,30), VALUE=c(100, 60, 30))))
   
-  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, outvars="BW", nocbvars="BW"))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine,
+                                    seed=seed, outvars="BW", settings=Settings(NOCB(variables="BW"))))
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename)
   )
@@ -47,7 +48,7 @@ test_that(getTestName("Body weight as a true time varying covariate, 2 arms, ind
   ds <- Dataset() %>% add(c(arm1, arm2))
   
   simulation <- expression(simulate(model=model %>% disable("IIV"), dataset=ds,
-                                    dest=destEngine, seed=seed, outvars="BW", nocbvars="BW"))
+                                    dest=destEngine, seed=seed, outvars="BW", settings=Settings(NOCB(variables="BW"))))
   test <- expression(
     spaghettiPlot(results, "CP", "ID"),
     spaghettiPlot(results, "BW", "ID"),

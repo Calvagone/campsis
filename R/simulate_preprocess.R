@@ -118,25 +118,33 @@ preprocessReplicates <- function(replicates) {
   return(as.integer(replicates))
 }
 
-#' Preprocess 'nocb' argument.
+#' Preprocess the simulation settings.
 #' 
-#' @param nocb nocb argument, logical value
+#' @param settings simulation settings
 #' @param dest destination engine
-#' @return user value, if not specified, return TRUE for mrgsolve and FALSE for RxODE
+#' @return updated simulation settings
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessNocb <- function(nocb, dest) {
-  if (is.null(nocb)) {
+preprocessSettings <- function(settings, dest) {
+  # Use default settings if not specified
+  if (is.null(settings)) {
+    settings <- Settings()
+  }
+  
+  # Check if NOCB is specified
+  enable <- settings@nocb@enable
+  if (is.na(enable)) {
     if (dest=="mrgsolve") {
-      nocb <- TRUE
+      enable <- TRUE
     } else {
-      nocb <- FALSE
+      enable <- FALSE
     }
   }
-  assertthat::assert_that(is.logical(nocb) && nocb %>% length()==1 && !is.na(nocb),
-                          msg="nocb not a logical value TRUE/FALSE")
-  return(nocb)
+  # Assign final value
+  settings@nocb@enable <- enable
+  
+  return(settings)
 }
 
 #' Preprocess 'dosing' argument.
