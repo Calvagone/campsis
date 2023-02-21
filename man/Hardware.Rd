@@ -4,12 +4,14 @@
 \alias{Hardware}
 \title{Create hardware settings.}
 \usage{
-Hardware(cpu = 6, parallel = FALSE)
+Hardware(cpu = 6, parallel = FALSE, slices = 6)
 }
 \arguments{
 \item{cpu}{number of CPU's to use, default is 6}
 
 \item{parallel}{enable parallel computing, logical value}
+
+\item{slices}{number of subjects per simulated slice, default is 6}
 }
 \value{
 hardware settings

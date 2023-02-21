@@ -20,6 +20,8 @@
 \item{iteration}{current iteration number being simulated}
 
 \item{slice}{current slice number being simulated}
+
+\item{p}{progressr progressor}
 }
 \description{
 Simulation progress class.

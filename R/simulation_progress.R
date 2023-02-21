@@ -9,6 +9,7 @@
 #' @param scenario current scenario number being simulated
 #' @param iteration current iteration number being simulated
 #' @param slice current slice number being simulated
+#' @param p progressr progressor
 #' @export
 setClass(
   "simulation_progress",
@@ -21,7 +22,7 @@ setClass(
     scenario="integer",
     iteration="integer",
     slice="integer",
-    pb="ANY"
+    p="ANY"
   ),
   validity=function(object) {
     return(c(expectOne(object, "replicates"),
@@ -41,15 +42,16 @@ setClass(
 #' 
 #' @param replicates total number of replicates to simulate
 #' @param scenarios total number of scenarios to simulate
+#' @param p progressr progressor
 #' @return a progress bar
+#' @importFrom progressr progressor
 #' @export
-SimulationProgress <- function(replicates=1, scenarios=1) {
+SimulationProgress <- function(replicates=1, scenarios=1, p) {
   return(new("simulation_progress",
              replicates=as.integer(replicates),
              scenarios=as.integer(scenarios),
              iterations=1L,
-             pb=progress::progress_bar$new(format=" :custom_field [:bar] :percent eta: :eta",
-                                           total=100, force=TRUE)))
+             p=p))
 }
 
 #' Compute incremental progress.
@@ -73,7 +75,7 @@ tick <- function(object) {
   } else {
     customMessage <- paste0("Simulating slice ", object@slice, "/", object@slices)
   }
-  object@pb$tick(increment, tokens=list(custom_field=customMessage))
+  object@p(message=customMessage, amount=increment)
   return(object)
 }
 

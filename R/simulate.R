@@ -248,13 +248,23 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @return a data frame with the results
 #' @keywords internal
 #' @importFrom methods validObject
+#' @importFrom furrr furrr_options future_map2_dfr
+#' @importFrom future plan multisession
+#' @importFrom progressr progressor
+#' 
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
-  # Record progress
-  progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length())
-  progress@pb$tick(0)
+  
+  p <- progressr::progressor(steps=100)
+  
+  # Prepare multi-threading simulation    
+  if (settings@hardware@parallel) {
+    future::plan(future::multisession, workers=settings@hardware@cpu)
+  }
   
   # Single replicate: don't use parameter uncertainty
   if (replicates==1) {
+    # Record progress
+    progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(), p=p)
     
     # Update replicate counter
     progress <- progress %>% updateReplicate(1)
@@ -262,9 +272,6 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     retValue <- simulateScenarios(scenarios=scenarios, model=model, dataset=dataset, dest=dest, events=events,
                                   tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
                                   dosing=dosing, settings=settings, replicate=1, progress=progress, ...)
-    # Hide progress bar at the end
-    progress@pb$terminate()
-    
     return(retValue)
   # More than 1 replicate: parameter uncertainty enabled
   } else {
@@ -276,11 +283,9 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     setSeed(parameterSamplingSeed)
     models <- model %>% sample(replicates)
 
-    # Prepare multi-threading simulation    
-    if (settings@hardware@parallel) {
-      future::plan(future::multisession, workers=settings@hardware@cpu)
-    }
-
+    # Record progress
+    progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(), p=p)
+    
     # Run all models
     allRep <- furrr::future_map2_dfr(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
       retValue <- NULL
@@ -301,9 +306,6 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
       )
       return(retValue)
     }, .options=furrr::furrr_options(seed=NULL))
-    
-    # Hide progress bar at the end
-    progress@pb$terminate()
     
     return(allRep)
   }
@@ -367,16 +369,13 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
   ids <- preprocessIds(dataset)
   maxID <- max(ids)
   
-  # Slice number, set to 6, as the default number of threads in RxODE
-  # This number must correspond to the number of cores available
-  # This should be set as static information (not in simulate method)
-  # Note that mrgsolve does not seem to have parallelisation (to check)
-  # It may also be interesting to parallelise the replicates (see later on)
+  # Events do no support multiple individuals per slice -> always 1
+  # Otherwise, the number of subjects per slice is defined in the hardware settings
   if (iteration@maxIndex > 1) {
     slices <- 1
     #print("Multiple events")
   } else {
-    slices <- preprocessSlices(1, maxID=maxID)
+    slices <- preprocessSlices(settings@hardware@slices, maxID=maxID)
     #print("Single event")
   }
   
@@ -489,6 +488,7 @@ reorderColumns <- function(results, dosing) {
   return(results)
 }
 
+#' @importFrom furrr future_map2_dfr furrr_options
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
@@ -525,7 +525,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   # Prepare simulation
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
 
-  results <- purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
+  results <- furrr::future_map2_dfr(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Launch simulation with RxODE
@@ -556,11 +556,12 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     }
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  })
+  }, .options=furrr::furrr_options(seed=TRUE))
+  
   return(results %>% reorderColumns(dosing=dosing))
 })
 
-#' @importFrom purrr map2_df
+#' @importFrom furrr future_map2_dfr furrr_options
 #' @importFrom digest sha1
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
@@ -589,7 +590,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     purrr::set_names(thetas@list %>% purrr::map_chr(~.x %>% getNameInModel)) %>%
     purrr::map(~.x@value)
 
-  results <-  purrr::map2_df(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
+  results <-  furrr::future_map2_dfr(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
@@ -611,6 +612,6 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     config$progress <- config$progress %>% tick()
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  })
+  }, .options=furrr::furrr_options(seed=TRUE))
   return(results %>% reorderColumns(dosing=dosing))
 })

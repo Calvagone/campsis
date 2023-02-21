@@ -13,5 +13,7 @@ Hardware settings class.
 \item{\code{cpu}}{number of CPU's to use, default is 6}
 
 \item{\code{parallel}}{enable parallel computing, logical value}
+
+\item{\code{slices}}{number of subjects per simulated slice, default is 6}
 }}
 

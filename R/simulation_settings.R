@@ -5,8 +5,8 @@
 #' 
 #' Simulation settings class.
 #' 
-#' @slot hardware_settings hardware settings object
-#' @slot nocb_settings NOCB settings object
+#' @slot hardware hardware settings object
+#' @slot nocb NOCB settings object
 #' @export
 setClass(
   "simulation_settings",

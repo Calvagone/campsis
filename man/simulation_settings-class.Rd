@@ -10,8 +10,8 @@ Simulation settings class.
 \section{Slots}{
 
 \describe{
-\item{\code{hardware_settings}}{hardware settings object}
+\item{\code{hardware}}{hardware settings object}
 
-\item{\code{nocb_settings}}{NOCB settings object}
+\item{\code{nocb}}{NOCB settings object}
 }}
 
