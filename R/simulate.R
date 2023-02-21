@@ -249,23 +249,27 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @keywords internal
 #' @importFrom methods validObject
 #' @importFrom furrr furrr_options future_map2_dfr
-#' @importFrom future plan multisession
+#' @importFrom future plan multisession sequential
 #' @importFrom progressr progressor
 #' 
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
-  
-  p <- progressr::progressor(steps=100)
-  
+
+  # Reset handlers and plan
+  future::plan(future::sequential)
+
   # Prepare multi-threading simulation    
   if (settings@hardware@parallel) {
     future::plan(future::multisession, workers=settings@hardware@cpu)
   }
+
+  # Create progressor
+  p <- progressr::progressor(steps=100)
+  
+  # Record progress
+  progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(), p=p, hardware=settings@hardware)
   
   # Single replicate: don't use parameter uncertainty
   if (replicates==1) {
-    # Record progress
-    progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(), p=p)
-    
     # Update replicate counter
     progress <- progress %>% updateReplicate(1)
     
@@ -273,7 +277,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
                                   tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
                                   dosing=dosing, settings=settings, replicate=1, progress=progress, ...)
     return(retValue)
-  # More than 1 replicate: parameter uncertainty enabled
+    # More than 1 replicate: parameter uncertainty enabled
   } else {
     # First make sure CAMPSIS model is valid
     methods::validObject(model, complete=TRUE)
@@ -282,9 +286,6 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
     setSeed(parameterSamplingSeed)
     models <- model %>% sample(replicates)
-
-    # Record progress
-    progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(), p=p)
     
     # Run all models
     allRep <- furrr::future_map2_dfr(.x=models, .y=seq_along(models), .f=function(model_, replicate) {

@@ -21,7 +21,9 @@
 
 \item{slice}{current slice number being simulated}
 
-\item{p}{progressr progressor}
+\item{progressor}{progressr progressor}
+
+\item{hardware}{hardware settings}
 }
 \description{
 Simulation progress class.

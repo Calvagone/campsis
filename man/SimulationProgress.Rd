@@ -4,14 +4,16 @@
 \alias{SimulationProgress}
 \title{Create a simulation progress object.}
 \usage{
-SimulationProgress(replicates = 1, scenarios = 1, p)
+SimulationProgress(replicates = 1, scenarios = 1, progressor, hardware)
 }
 \arguments{
 \item{replicates}{total number of replicates to simulate}
 
 \item{scenarios}{total number of scenarios to simulate}
 
-\item{p}{progressr progressor}
+\item{progressor}{progressr progressor}
+
+\item{hardware}{hardware settings}
 }
 \value{
 a progress bar

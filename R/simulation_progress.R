@@ -9,7 +9,8 @@
 #' @param scenario current scenario number being simulated
 #' @param iteration current iteration number being simulated
 #' @param slice current slice number being simulated
-#' @param p progressr progressor
+#' @param progressor progressr progressor
+#' @param hardware hardware settings
 #' @export
 setClass(
   "simulation_progress",
@@ -22,7 +23,8 @@ setClass(
     scenario="integer",
     iteration="integer",
     slice="integer",
-    p="ANY"
+    progressor="ANY",
+    hardware="hardware_settings"
   ),
   validity=function(object) {
     return(c(expectOne(object, "replicates"),
@@ -42,16 +44,18 @@ setClass(
 #' 
 #' @param replicates total number of replicates to simulate
 #' @param scenarios total number of scenarios to simulate
-#' @param p progressr progressor
+#' @param progressor progressr progressor
+#' @param hardware hardware settings
 #' @return a progress bar
 #' @importFrom progressr progressor
 #' @export
-SimulationProgress <- function(replicates=1, scenarios=1, p) {
+SimulationProgress <- function(replicates=1, scenarios=1, progressor, hardware) {
   return(new("simulation_progress",
              replicates=as.integer(replicates),
              scenarios=as.integer(scenarios),
              iterations=1L,
-             p=p))
+             progressor=progressor,
+             hardware=hardware))
 }
 
 #' Compute incremental progress.
@@ -75,7 +79,15 @@ tick <- function(object) {
   } else {
     customMessage <- paste0("Simulating slice ", object@slice, "/", object@slices)
   }
-  object@p(message=customMessage, amount=increment)
+  if (object@hardware@parallel) {
+    cpus <- paste0("cpu=", object@hardware@cpu)
+    if (object@replicates > 1) {
+      customMessage <- paste0("Simulating replicates in parallel (", cpus, ")")
+    } else {
+      customMessage <- paste0("Running simulation in parallel (", cpus, ")")
+    }
+  }
+  object@progressor(message=customMessage, amount=increment)
   return(object)
 }
 
@@ -105,3 +117,16 @@ updateSlice <- function(object, index) {
   return(object)
 }
 
+#' Suggested Campsis handler for showing the progress bar.
+#' 
+#' @param object simulation progress object
+#' @return a progressr handler
+#' @export
+campsis_handler <- function() {
+  return(list(
+    progressr::handler_progress(
+      format=" :message [:bar] :percent eta: :eta",
+      width=100
+    )
+  ))
+}
