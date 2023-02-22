@@ -6,11 +6,8 @@
 \usage{
 campsis_handler()
 }
-\arguments{
-\item{object}{simulation progress object}
-}
 \value{
-a progressr handler
+a progressr handler list
 }
 \description{
 Suggested Campsis handler for showing the progress bar.

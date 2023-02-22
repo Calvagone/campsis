@@ -119,8 +119,7 @@ updateSlice <- function(object, index) {
 
 #' Suggested Campsis handler for showing the progress bar.
 #' 
-#' @param object simulation progress object
-#' @return a progressr handler
+#' @return a progressr handler list
 #' @export
 campsis_handler <- function() {
   return(list(
