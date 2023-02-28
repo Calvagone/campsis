@@ -4,18 +4,16 @@
 \alias{exportDelegate}
 \title{Export delegate method. This method is common to RxODE and mrgsolve.}
 \usage{
-exportDelegate(object, dest, seed, nocb, ...)
+exportDelegate(object, dest, model, offset = 0)
 }
 \arguments{
 \item{object}{current dataset}
 
 \item{dest}{destination engine}
 
-\item{seed}{seed value}
+\item{model}{Campsis model, if provided, ETA's will be added to the dataset}
 
-\item{nocb}{nocb value, logical value}
-
-\item{...}{extra arguments}
+\item{offset}{ID offset, used when parallelisation is enabled}
 }
 \value{
 2-dimensional dataset, same for RxODE and mrgsolve

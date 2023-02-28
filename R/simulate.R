@@ -64,10 +64,8 @@ getSimulationEngineType <- function(dest) {
 #' @return a data frame
 #' @keywords internal
 #' 
-exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, nocb_settings) {
-  nocb <- nocb_settings@enable
-  nocbvars <- nocb_settings@variables
-    
+exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, settings) {
+
   if (is(dataset, "dataset")) {
     # Retrieve event times (same for all arms)
     eventTimes <- c(0, events %>% getTimes()) %>% unique()
@@ -85,7 +83,7 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, no
         dataset@arms@list[[armIndex]] <- dataset@arms@list[[armIndex]] %>% add(eventRelatedObs)
       }
     }
-    table <- dataset %>% export(dest=dest, model=model, seed=seed, nocb=nocb, event_related_column=TRUE, nocbvars=nocbvars)
+    table <- dataset %>% export(dest=dest, model=model, seed=seed, settings=settings, event_related_column=TRUE)
   } else {
     table <- dataset
     if (!("EVENT_RELATED" %in% colnames(table))) {
@@ -126,8 +124,7 @@ getDatasetMaxTime <- function(dataset) {
 simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, dosing, settings, replicate, iterations, ...) {
   destEngine <- getSimulationEngineType(dest)
   tableSeed <- getSeedForDatasetExport(seed=seed, replicate=replicate, iterations=iterations %>% length())
-  nocbvars <- processExtraArg(list(...), name="nocbvars", default=NULL, mandatory=FALSE)
-  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, nocb_settings=settings@nocb)
+  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, settings=settings)
   summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
   progress <- processExtraArg(list(...), name="progress", default=NULL, mandatory=TRUE)
   progress@iterations <- iterations %>% length()
@@ -253,14 +250,6 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @importFrom progressr progressor
 #' 
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
-
-  # Reset handlers and plan
-  future::plan(future::sequential)
-
-  # Prepare multi-threading simulation    
-  if (settings@hardware@parallel) {
-    future::plan(future::multisession, workers=settings@hardware@cpu)
-  }
 
   # Create progressor
   p <- progressr::progressor(steps=100)

@@ -92,6 +92,7 @@ Collate:
     'hardware_settings.R'
     'nocb_settings.R'
     'simulation_settings.R'
+    'cluster_setup.R'
     'simulation_progress.R'
     'dataset_summary.R'
     'simulate_preprocess.R'

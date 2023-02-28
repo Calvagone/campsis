@@ -288,22 +288,23 @@ applyCompartmentCharacteristics <- function(table, properties) {
 }
 
 #' @importFrom dplyr all_of
-setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, nocb=FALSE, event_related_column=FALSE, ...) {
+setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, model=NULL, settings=NULL, event_related_column=FALSE) {
   destinationEngine <- getSimulationEngineType(dest)
-  table <- object %>% export(destinationEngine, seed=seed, nocb=nocb, ...)
+  settings <- preprocessSettings(settings, dest) # In case of NULL settings
+  table <- object %>% export(destinationEngine, seed=seed, model=model, settings=settings)
   if (!event_related_column) {
     table <- table %>% dplyr::select(-dplyr::all_of("EVENT_RELATED"))
   }
   return(table)
 })
 
+
 #' Export delegate method. This method is common to RxODE and mrgsolve.
 #' 
 #' @param object current dataset
 #' @param dest destination engine
-#' @param seed seed value
-#' @param nocb nocb value, logical value
-#' @param ... extra arguments
+#' @param model Campsis model, if provided, ETA's will be added to the dataset
+#' @param offset ID offset, used when parallelisation is enabled
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
 #' @importFrom dplyr across all_of arrange bind_rows group_by left_join
 #' @importFrom campsismod export
@@ -312,16 +313,8 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @importFrom rlang parse_expr
 #' @keywords internal
 #' 
-exportDelegate <- function(object, dest, seed, nocb, ...) {
-  args <- list(...)
-  model <- args$model
-  if (!is.null(model) && !is(model, "campsis_model")) {
-    stop("Please provide a valid CAMPSIS model.")
-  }
-  
-  # Set seed value
-  setSeed(getSeed(seed))
-  
+exportDelegate <- function(object, dest, model, offset=0) {
+
   # Generate IIV only if model is provided
   if (is.null(model)) {
     iiv <- data.frame()
@@ -330,7 +323,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     subjects <- object %>% length()
     iiv <- generateIIV(omega=rxmod@omega, n=subjects)
     if (nrow(iiv) > 0) {
-      iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
+      iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects) + offset, .before=1)
     }
   }
   
@@ -366,7 +359,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     doseAdaptations <- treatment@dose_adaptations
     
     # Generating subject ID's
-    ids <- seq_len(subjects) + maxID - subjects
+    ids <- seq_len(subjects) + maxID - subjects + offset
     
     # Create the base table with all treatment entries and observations
     needsDV <- observations@list %>% purrr::map_lgl(~.x@dv %>% length() > 0) %>% any()
@@ -603,62 +596,145 @@ processTSLDAndTDOSColumn <- function(table, config) {
   return(table)
 }
 
-setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
+getSplittingConfiguration <- function(dataset, dataset_slice_size) {
   
-  table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
-  nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
-  nocbvars <- campsismod::processExtraArg(list(...), "nocbvars", default=NULL)
-  nocbvars <- preprocessNocbvars(nocbvars)
+  # Split each arm according to the given dataset slice (size)
+  retValue <- dataset@arms@list %>% purrr::imap(.f=function(arm, index) {
+    subjects <- arm@subjects
+    div <- subjects %/% dataset_slice_size
+    modulo <- subjects %% dataset_slice_size
+    subjects_ <- rep(dataset_slice_size, div)
+    if (modulo > 0) {
+      subjects_ <- c(subjects_, modulo)
+    }
+    return(list(subjects=subjects_, armIndex=index))
+  }) %>% purrr::map_dfr(.f=~tibble::tibble(subjects=as.integer(.x$subjects), armIndex=.x$armIndex))
+  
+  # Compute offset
+  offset <-  retValue$subjects %>%
+    purrr::accumulate(~(.x+.y))
+  offset <- c(0, offset[-length(offset)])
+  retValue$offset <- offset
+  
+  return(retValue)
+}
 
-  # TSLD/TDOS preprocessing
-  table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
+setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, model, settings) {
   
-  # IOV / Occasion / Time-varying covariates post-processing
-  iovOccNames <- getTimeVaryingVariables(object)
-  iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
-  iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
+  # NOCB management
+  nocb <- settings@nocb@enable
+  nocbvars <- preprocessNocbvars(settings@nocb@variables)
   
-  if (nocb) {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNamesNocb, downDirectionFirst=TRUE)
-    table <- fillIOVOccColumns(table, columnNames=iovOccNamesLocf, downDirectionFirst=FALSE)
-    table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
+  # Set seed value
+  setSeed(getSeed(seed))
+  
+  # Retrieve hardware settings
+  hardware <- settings@hardware
+  
+  # Retrieve splitting configuration (if requested)
+  if (hardware@parallel && hardware@dataset_parallel_export) {
+    splittingConfig <- getSplittingConfiguration(object, dataset_slice_size=hardware@dataset_slice_size)
+    splittingConfig <- split(splittingConfig, seq(nrow(splittingConfig)))
+    furrrSeed <- TRUE
   } else {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+    splittingConfig <- NA
+    furrrSeed <- NULL
   }
   
-  # TSLD/TDOS processing
-  table <- table %>% processTSLDAndTDOSColumn(config=object@config)
+  retValue <- furrr::future_map_dfr(.x=splittingConfig, .f=function(config) {
+    
+    if (all(is.na(config))) {
+      offset <- 0
+    } else {
+      offset <- config$offset
+      arm <- object@arms@list[[config$armIndex]] %>% setSubjects(config$subjects)
+      object@arms@list <- list(arm)
+    }
+
+    # Export table
+    table <- exportDelegate(object=object, dest=dest, model=model, offset=offset)
+
+    # TSLD/TDOS preprocessing
+    table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
+    
+    # IOV / Occasion / Time-varying covariates post-processing
+    iovOccNames <- getTimeVaryingVariables(object)
+    iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
+    iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
+    
+    if (nocb) {
+      table <- fillIOVOccColumns(table, columnNames=iovOccNamesNocb, downDirectionFirst=TRUE)
+      table <- fillIOVOccColumns(table, columnNames=iovOccNamesLocf, downDirectionFirst=FALSE)
+      table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
+    } else {
+      table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+    }
+    
+    # TSLD/TDOS processing
+    table <- table %>% processTSLDAndTDOSColumn(config=object@config)
+    
+    return(table %>% dplyr::ungroup())
+  }, .options=furrr::furrr_options(seed=furrrSeed))
   
-  return(table %>% dplyr::ungroup())
+  return(retValue)
 })
 
-setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, ...) {
+setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, model, settings) {
   
-  table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
-  nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
-  nocbvars <- campsismod::processExtraArg(list(...), "nocbvars",  default=NULL)
-  nocbvars <- preprocessNocbvars(nocbvars)
-
-  # TSLD/TDOS preprocessing
-  table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
+  # NOCB management
+  nocb <- settings@nocb@enable
+  nocbvars <- preprocessNocbvars(settings@nocb@variables)
   
-  # IOV / Occasion / Time-varying covariates post-processing
-  iovOccNames <- getTimeVaryingVariables(object)
-  iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
-  iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
+  # Set seed value
+  setSeed(getSeed(seed))
   
-  if (nocb) {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE) # TRUE/FALSE not important (like NONMEM)
-    table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
+  # Retrieve hardware settings
+  hardware <- settings@hardware
+  
+  # Retrieve splitting configuration (if requested)
+  if (hardware@parallel && hardware@dataset_parallel_export) {
+    splittingConfig <- getSplittingConfiguration(object, dataset_slice_size=hardware@dataset_slice_size)
+    splittingConfig <- split(splittingConfig, seq(nrow(splittingConfig)))
+    furrrSeed <- TRUE
   } else {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
-    table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
+    splittingConfig <- NA
+    furrrSeed <- NULL
   }
-  
-  # TSLD/TDOS processing
-  table <- table %>% processTSLDAndTDOSColumn(config=object@config)
-  
-  return(table %>% dplyr::ungroup())
+
+  retValue <- furrr::future_map_dfr(.x=splittingConfig, .f=function(config) {
+    
+    if (all(is.na(config))) {
+      offset <- 0
+    } else {
+      offset <- config$offset
+      arm <- object@arms@list[[config$armIndex]] %>% setSubjects(config$subjects)
+      object@arms@list <- list(arm)
+    }
+    
+    # Export table
+    table <- exportDelegate(object=object, dest=dest, model=model, offset=offset)
+    
+    # TSLD/TDOS preprocessing
+    table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
+    
+    # IOV / Occasion / Time-varying covariates post-processing
+    iovOccNames <- getTimeVaryingVariables(object)
+    iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
+    iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
+    
+    if (nocb) {
+      table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE) # TRUE/FALSE not important (like NONMEM)
+      table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
+    } else {
+      table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+      table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
+    }
+    
+    # TSLD/TDOS processing
+    table <- table %>% processTSLDAndTDOSColumn(config=object@config)
+    
+    return(table %>% dplyr::ungroup())
+  }, .options=furrr::furrr_options(seed=furrrSeed))
 })
 
 #_______________________________________________________________________________

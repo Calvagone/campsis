@@ -10,10 +10,14 @@ Hardware settings class.
 \section{Slots}{
 
 \describe{
-\item{\code{cpu}}{number of CPU's to use, default is 6}
+\item{\code{cpu}}{number of CPU's to use, default is 1}
 
-\item{\code{parallel}}{enable parallel computing, logical value}
+\item{\code{parallel}}{enable parallel computing, default is FALSE}
 
-\item{\code{slices}}{number of subjects per simulated slice, default is 6}
+\item{\code{slices}}{number of subjects per simulated slice, default is 5}
+
+\item{\code{dataset_parallel_export}}{enable parallelisation when exporting dataset into a table, default is FALSE}
+
+\item{\code{dataset_slice_size}}{dataset slice size when exporting subjects to a table, default is 250. Only applicable if 'dataset_parallel_export' is enabled.}
 }}
 

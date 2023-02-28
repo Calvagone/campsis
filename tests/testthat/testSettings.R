@@ -7,7 +7,7 @@ test_that("Default simulation settings work as expected", {
   settings <- Settings()
   
   # Hardware settings, default values
-  expect_equal(settings@hardware@cpu, 6)
+  expect_equal(settings@hardware@cpu, 1)
   expect_equal(settings@hardware@parallel, FALSE)
   
   # NOCB settings, default values
@@ -33,7 +33,7 @@ test_that("NOCB settings work as expected", {
   settings <- Settings(NOCB(FALSE, "OCC"))
   
   # Hardware settings, default values
-  expect_equal(settings@hardware@cpu, 6)
+  expect_equal(settings@hardware@cpu, 1)
   expect_equal(settings@hardware@parallel, FALSE)
   
   # NOCB settings, overridden values

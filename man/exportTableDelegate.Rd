@@ -4,15 +4,7 @@
 \alias{exportTableDelegate}
 \title{Export table delegate.}
 \usage{
-exportTableDelegate(
-  model,
-  dataset,
-  dest,
-  events,
-  seed,
-  tablefun,
-  nocb_settings
-)
+exportTableDelegate(model, dataset, dest, events, seed, tablefun, settings)
 }
 \arguments{
 \item{model}{generic CAMPSIS model}
@@ -26,6 +18,8 @@ exportTableDelegate(
 \item{seed}{seed value}
 
 \item{tablefun}{function or lambda formula to apply on exported 2-dimensional dataset}
+
+\item{settings}{advanced simulation settings}
 }
 \value{
 a data frame

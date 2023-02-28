@@ -21,13 +21,13 @@ setClass(
 #' Create advanced simulation settings.
 #'
 #' @param ... other settings like hardware settings, NOCB settings, etc.
-#' @param cpu number of CPU's to use, default is 6
+#' @param cpu number of CPU's to use, default is 1
 #' @param parallel enable parallel computing, logical value
 #'
 #' @return advanced simulation settings
 #' @importFrom purrr detect
 #' @export
-Settings <- function(..., cpu=6, parallel=FALSE) {
+Settings <- function(..., cpu=1, parallel=FALSE) {
   args <- list(...)
   nocb <- args %>% purrr::detect(~(is(.x, "nocb_settings")))
   if (is.null(nocb)) {

@@ -4,14 +4,24 @@
 \alias{Hardware}
 \title{Create hardware settings.}
 \usage{
-Hardware(cpu = 6, parallel = FALSE, slices = 6)
+Hardware(
+  cpu = 1,
+  parallel = FALSE,
+  slices = 5,
+  dataset_parallel_export = FALSE,
+  dataset_slice_size = 250
+)
 }
 \arguments{
-\item{cpu}{number of CPU's to use, default is 6}
+\item{cpu}{number of CPU's to use, default is 1}
 
-\item{parallel}{enable parallel computing, logical value}
+\item{parallel}{enable parallel computing, default is FALSE}
 
-\item{slices}{number of subjects per simulated slice, default is 6}
+\item{slices}{number of subjects per simulated slice, default is 5}
+
+\item{dataset_parallel_export}{enable parallelisation when exporting dataset into a table, default is FALSE}
+
+\item{dataset_slice_size}{dataset slice size when exporting subjects to a table, default is 250. Only applicable if 'dataset_parallel_export' is enabled.}
 }
 \value{
 hardware settings
