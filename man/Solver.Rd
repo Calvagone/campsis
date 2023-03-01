@@ -6,7 +6,7 @@
 \usage{
 Solver(
   atol = 1e-08,
-  rtol = 1e-06,
+  rtol = 1e-08,
   hmax = NA,
   maxsteps = 70000L,
   method = "liblsoda"

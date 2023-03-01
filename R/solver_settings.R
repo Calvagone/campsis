@@ -22,7 +22,7 @@ setClass(
     maxsteps="integer",
     method="character"
   ),
-  prototype=prototype(atol=1e-08, rtol=1e-06, hmax=as.numeric(NA), maxsteps=70000L, method="liblsoda")
+  prototype=prototype(atol=1e-08, rtol=1e-08, hmax=as.numeric(NA), maxsteps=70000L, method="liblsoda")
 )
 
 #'
@@ -36,6 +36,6 @@ setClass(
 #'
 #' @return solver settings
 #' @export
-Solver <- function(atol=1e-08, rtol=1e-06, hmax=NA, maxsteps=70000L, method="liblsoda") {
+Solver <- function(atol=1e-08, rtol=1e-08, hmax=NA, maxsteps=70000L, method="liblsoda") {
   return(new("solver_settings", atol=atol, rtol=rtol, hmax=as.numeric(hmax), maxsteps=as.integer(maxsteps), method=method))
 }
