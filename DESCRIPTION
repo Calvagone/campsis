@@ -90,6 +90,7 @@ Collate:
     'parameter_uncertainty.R'
     'event_logic.R'
     'hardware_settings.R'
+    'solver_settings.R'
     'nocb_settings.R'
     'simulation_settings.R'
     'cluster_setup.R'

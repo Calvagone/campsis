@@ -514,6 +514,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   
   # Prepare simulation
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
+  solver <- settings@solver # Solver settings
 
   results <- furrr::future_map2_dfr(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
@@ -521,11 +522,13 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     # Launch simulation with RxODE
     if (dest@rxode2) {
       tmp <- rxode2::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
+                             atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps, method=solver@method,
                              keep=keep, inits=inits, covsInterpolation=ifelse(config$nocb, "nocb", "locf"), addDosing=dosing, addCov=FALSE)
     } else {
       # For backwards compatibility since RxODE isn't on CRAN anymore
       fun <- getExportedValue("RxODE", "rxSolve")
       tmp <- do.call(fun, list(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
+                               atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps, method=solver@method,
                                keep=keep, inits=inits, covs_interpolation=ifelse(config$nocb, "nocb", "constant"), addDosing=dosing))
     }
     
@@ -579,6 +582,10 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   thetaParams <- thetas@list %>%
     purrr::set_names(thetas@list %>% purrr::map_chr(~.x %>% getNameInModel)) %>%
     purrr::map(~.x@value)
+  
+  # Apply solver settings
+  solver <- settings@solver
+  mod <- mod %>% mrgsolve::update(atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps)
 
   results <-  furrr::future_map2_dfr(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)

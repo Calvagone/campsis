@@ -7,7 +7,7 @@
 Settings(..., cpu = 1, parallel = FALSE)
 }
 \arguments{
-\item{...}{other settings like hardware settings, NOCB settings, etc.}
+\item{...}{other settings like hardware settings, solver settings, NOCB settings, etc.}
 
 \item{cpu}{number of CPU's to use, default is 1}
 

@@ -12,6 +12,8 @@ Simulation settings class.
 \describe{
 \item{\code{hardware}}{hardware settings object}
 
+\item{\code{solver}}{solver settings object}
+
 \item{\code{nocb}}{NOCB settings object}
 }}
 
