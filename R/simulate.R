@@ -255,7 +255,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   p <- progressr::progressor(steps=100)
   
   # Record progress
-  progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(), p=p, hardware=settings@hardware)
+  progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(), progressor=p, hardware=settings@hardware)
   
   # Single replicate: don't use parameter uncertainty
   if (replicates==1) {
