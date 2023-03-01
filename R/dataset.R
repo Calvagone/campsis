@@ -217,13 +217,13 @@ setMethod("setSubjects", signature = c("dataset", "integer"), definition = funct
 #----                                export                                 ----
 #_______________________________________________________________________________
 
-#' Generate IIV.
+#' Generate IIV matrix for the given OMEGA matrix.
 #' 
 #' @param omega omega matrix
 #' @param n number of subjects
 #' @return IIV data frame
 #' @export
-generateIIV <- function(omega, n) {
+generateIIV_ <- function(omega, n) {
   if (nrow(omega)==0) {
     return(data.frame())
   }
@@ -233,6 +233,39 @@ generateIIV <- function(omega, n) {
   }
   iiv <- iiv %>% as.data.frame()
   return(iiv)
+}
+
+#' Generate IIV matrix for the given Campsis model.
+#' 
+#' @param model Campsis model
+#' @param n number of subjects
+#' @param offset if specified, resulting ID will be ID + offset
+#' @return IIV data frame with ID column
+#' @export
+generateIIV <- function(model, n, offset=0) {
+  # Generate IIV only if model is provided
+  if (is.null(model)) {
+    iiv <- data.frame()
+  } else {
+    rxmod <- model %>% export(dest="RxODE")
+    iiv <- generateIIV_(omega=rxmod@omega, n=n)
+    if (nrow(iiv) > 0) {
+      iiv <- iiv %>% tibble::add_column(ID=seq_len(n) + offset, .before=1)
+    }
+  }
+  return(iiv)
+}
+
+#' Left-join IIV matrix.
+#' 
+#' @param table dataset, tabular form
+#' @param iiv IIV matrix
+#' @return updated table with IIV matrix
+leftJoinIIV <- function(table, iiv) {
+  if (nrow(iiv) > 0) {
+    table <- table %>% dplyr::left_join(iiv, by="ID")
+  }
+  return(table)
 }
 
 #' Sample covariates list.
@@ -298,13 +331,11 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
   return(table)
 })
 
-
 #' Export delegate method. This method is common to RxODE and mrgsolve.
 #' 
 #' @param object current dataset
 #' @param dest destination engine
 #' @param model Campsis model, if provided, ETA's will be added to the dataset
-#' @param offset ID offset, used when parallelisation is enabled
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
 #' @importFrom dplyr across all_of arrange bind_rows group_by left_join
 #' @importFrom campsismod export
@@ -315,18 +346,6 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' 
 exportDelegate <- function(object, dest, model, offset=0) {
 
-  # Generate IIV only if model is provided
-  if (is.null(model)) {
-    iiv <- data.frame()
-  } else {
-    rxmod <- model %>% export(dest="RxODE")
-    subjects <- object %>% length()
-    iiv <- generateIIV(omega=rxmod@omega, n=subjects)
-    if (nrow(iiv) > 0) {
-      iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects) + offset, .before=1)
-    }
-  }
-  
   # Retrieve dataset configuration
   config <- object@config
   
@@ -413,11 +432,6 @@ exportDelegate <- function(object, dest, model, offset=0) {
       iov <- sampleDistributionAsTibble(treatmentIov@distribution, n=length(ids)*length(doseNumbers), colname=treatmentIov@colname)
       iov <- iov %>% dplyr::mutate(ID=rep(ids, each=length(doseNumbers)), DOSENO=rep(doseNumbers, length(ids)))
       table <- table %>% dplyr::left_join(iov, by=c("ID","DOSENO"))
-    }
-
-    # Joining IIV
-    if (nrow(iiv) > 0) {
-      table <- table %>% dplyr::left_join(iiv, by="ID")
     }
     
     # Joining occasions
@@ -628,6 +642,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   # Set seed value
   setSeed(getSeed(seed))
   
+  # Generate IIV
+  iiv <- generateIIV(model=model, n=length(object))
+  
   # Retrieve hardware settings
   hardware <- settings@hardware
   
@@ -676,6 +693,9 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     return(table %>% dplyr::ungroup())
   }, .options=furrr::furrr_options(seed=furrrSeed))
   
+  # Left-join IIV matrix
+  retValue <- leftJoinIIV(table=retValue, iiv=iiv)
+  
   return(retValue)
 })
 
@@ -687,6 +707,9 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   
   # Set seed value
   setSeed(getSeed(seed))
+  
+  # Generate IIV
+  iiv <- generateIIV(model=model, n=length(object))
   
   # Retrieve hardware settings
   hardware <- settings@hardware
@@ -735,6 +758,11 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
     
     return(table %>% dplyr::ungroup())
   }, .options=furrr::furrr_options(seed=furrrSeed))
+  
+  # Left-join IIV matrix
+  retValue <- leftJoinIIV(table=retValue, iiv=iiv)
+  
+  return(retValue)
 })
 
 #_______________________________________________________________________________

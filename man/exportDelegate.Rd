@@ -12,8 +12,6 @@ exportDelegate(object, dest, model, offset = 0)
 \item{dest}{destination engine}
 
 \item{model}{Campsis model, if provided, ETA's will be added to the dataset}
-
-\item{offset}{ID offset, used when parallelisation is enabled}
 }
 \value{
 2-dimensional dataset, same for RxODE and mrgsolve
