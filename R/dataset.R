@@ -557,7 +557,6 @@ getTimeVaryingVariables <- function(object) {
   return(retValue)
 }
 
-
 #' Preprocess TSLD and TDOS columns according to given dataset configuration.
 #' 
 #' @param table current table
@@ -610,14 +609,35 @@ processTSLDAndTDOSColumn <- function(table, config) {
   return(table)
 }
 
-getSplittingConfiguration <- function(dataset, dataset_slice_size) {
+
+#' Get splitting configuration for parallel export.
+#' 
+#' @param dataset Campsis dataset to export
+#' @param hardware hardware configuration
+#' @return splitting configuration list (if 'parallel_dataset' is enabled) or
+#'  NA (if 'parallel_dataset' disabled or if the length of the dataset is less than the dataset export slice size)
+#' @export
+#'
+getSplittingConfiguration <- function(dataset, hardware) {
+  
+  sliceSize <- hardware@dataset_slice_size
+  
+  # Return NA if parallel export not needed
+  if (!hardware@dataset_parallel) {
+    return(NA)
+  }
+  
+  # Splitting not needed if number of subject <= sliceSize 
+  if (length(dataset) <= sliceSize) {
+    return(NA)
+  }
   
   # Split each arm according to the given dataset slice (size)
   retValue <- dataset@arms@list %>% purrr::imap(.f=function(arm, index) {
     subjects <- arm@subjects
-    div <- subjects %/% dataset_slice_size
-    modulo <- subjects %% dataset_slice_size
-    subjects_ <- rep(dataset_slice_size, div)
+    div <- subjects %/% sliceSize
+    modulo <- subjects %% sliceSize
+    subjects_ <- rep(sliceSize, div)
     if (modulo > 0) {
       subjects_ <- c(subjects_, modulo)
     }
@@ -630,7 +650,26 @@ getSplittingConfiguration <- function(dataset, dataset_slice_size) {
   offset <- c(0, offset[-length(offset)])
   retValue$offset <- offset
   
+  # Data frame to list conversion
+  retValue <- split(retValue, seq(nrow(retValue)))
+  
   return(retValue)
+}
+
+
+#' Split dataset according to config.
+#' 
+#' @param dataset Campsis dataset to export
+#' @param config current iteration in future_map_dfr
+#' @return a subset of the given dataset
+#' @keywords internal
+#'
+splitDataset <- function(dataset, config) {
+  if (is.list(config)) {
+    arm <- dataset@arms@list[[config$armIndex]] %>% setSubjects(config$subjects)
+    dataset@arms@list <- list(arm) # Only put previous arm into dataset
+  }
+  return(dataset)
 }
 
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, model, settings) {
@@ -645,31 +684,15 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   # Generate IIV
   iiv <- generateIIV(model=model, n=length(object))
   
-  # Retrieve hardware settings
-  hardware <- settings@hardware
+  # Retrieve splitting configuration
+  configList <- getSplittingConfiguration(dataset=object, hardware=settings@hardware)
+  furrrSeed <- if (is.list(configList)) {TRUE} else {NULL}
   
-  # Retrieve splitting configuration (if requested)
-  if (hardware@parallel && hardware@dataset_parallel_export) {
-    splittingConfig <- getSplittingConfiguration(object, dataset_slice_size=hardware@dataset_slice_size)
-    splittingConfig <- split(splittingConfig, seq(nrow(splittingConfig)))
-    furrrSeed <- TRUE
-  } else {
-    splittingConfig <- NA
-    furrrSeed <- NULL
-  }
-  
-  retValue <- furrr::future_map_dfr(.x=splittingConfig, .f=function(config) {
-    
-    if (all(is.na(config))) {
-      offset <- 0
-    } else {
-      offset <- config$offset
-      arm <- object@arms@list[[config$armIndex]] %>% setSubjects(config$subjects)
-      object@arms@list <- list(arm)
-    }
+  retValue <- furrr::future_map_dfr(.x=configList, .f=function(config) {
 
     # Export table
-    table <- exportDelegate(object=object, dest=dest, model=model, offset=offset)
+    offset <- ifelse(is.list(config), config$offset, 0)
+    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model, offset=offset)
 
     # TSLD/TDOS preprocessing
     table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
@@ -710,32 +733,16 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   
   # Generate IIV
   iiv <- generateIIV(model=model, n=length(object))
-  
-  # Retrieve hardware settings
-  hardware <- settings@hardware
-  
-  # Retrieve splitting configuration (if requested)
-  if (hardware@parallel && hardware@dataset_parallel_export) {
-    splittingConfig <- getSplittingConfiguration(object, dataset_slice_size=hardware@dataset_slice_size)
-    splittingConfig <- split(splittingConfig, seq(nrow(splittingConfig)))
-    furrrSeed <- TRUE
-  } else {
-    splittingConfig <- NA
-    furrrSeed <- NULL
-  }
 
-  retValue <- furrr::future_map_dfr(.x=splittingConfig, .f=function(config) {
-    
-    if (all(is.na(config))) {
-      offset <- 0
-    } else {
-      offset <- config$offset
-      arm <- object@arms@list[[config$armIndex]] %>% setSubjects(config$subjects)
-      object@arms@list <- list(arm)
-    }
+  # Retrieve splitting configuration
+  configList <- getSplittingConfiguration(dataset=object, hardware=settings@hardware)
+  furrrSeed <- if (is.list(configList)) {TRUE} else {NULL}
+
+  retValue <- furrr::future_map_dfr(.x=configList, .f=function(config) {
     
     # Export table
-    table <- exportDelegate(object=object, dest=dest, model=model, offset=offset)
+    offset <- ifelse(is.list(config), config$offset, 0)
+    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model, offset=offset)
     
     # TSLD/TDOS preprocessing
     table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
@@ -761,7 +768,7 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   
   # Left-join IIV matrix
   retValue <- leftJoinIIV(table=retValue, iiv=iiv)
-  
+
   return(retValue)
 })
 

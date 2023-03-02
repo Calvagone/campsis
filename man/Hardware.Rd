@@ -8,8 +8,8 @@ Hardware(
   cpu = 1,
   parallel = FALSE,
   slices = 5,
-  dataset_parallel_export = FALSE,
-  dataset_slice_size = 250
+  dataset_parallel = FALSE,
+  dataset_slice_size = 500
 )
 }
 \arguments{
@@ -19,9 +19,9 @@ Hardware(
 
 \item{slices}{number of subjects per simulated slice, default is 5}
 
-\item{dataset_parallel_export}{enable parallelisation when exporting dataset into a table, default is FALSE}
+\item{dataset_parallel}{enable parallelisation when exporting dataset into a table, default is FALSE}
 
-\item{dataset_slice_size}{dataset slice size when exporting subjects to a table, default is 250. Only applicable if 'dataset_parallel_export' is enabled.}
+\item{dataset_slice_size}{dataset slice size when exporting subjects to a table, default is 500. Only applicable if 'dataset_parallel' is enabled.}
 }
 \value{
 hardware settings
