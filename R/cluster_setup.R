@@ -5,8 +5,8 @@
 #' @return nothing
 #' @importFrom future multisession plan sequential
 #' @export
-setupPlan <- function(hardware) {
-  # Reset handlers and plan
+setupPlanDefault <- function(hardware) {
+  # Reset plan
   future::plan(future::sequential)
   
   # Prepare multi-threading simulation    

@@ -253,6 +253,11 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' 
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
 
+  # Setup plan automatically if parallel computing is required
+  if (settings@hardware@auto_setup_plan) {
+    setupPlanDefault(settings@hardware)
+  }
+  
   # Create progressor
   p <- progressr::progressor(steps=100)
   

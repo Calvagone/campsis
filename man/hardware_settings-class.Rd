@@ -23,5 +23,7 @@ Hardware settings class.
 \item{\code{dataset_parallel}}{enable parallelisation when exporting dataset into a table, default is FALSE}
 
 \item{\code{dataset_slice_size}}{dataset slice size when exporting subjects to a table, default is 500. Only applicable if 'dataset_parallel' is enabled.}
+
+\item{\code{auto_setup_plan}}{auto-setup plan with the library future, default is FALSE}
 }}
 
