@@ -3,6 +3,7 @@
 #' 
 #' @param hardware hardware settings object
 #' @return nothing
+#' @importFrom future multisession plan sequential
 #' @export
 setupPlan <- function(hardware) {
   # Reset handlers and plan
@@ -14,3 +15,6 @@ setupPlan <- function(hardware) {
   }
 }
 
+getFurrrScheduling <- function(parallel) {
+  return(ifelse(parallel, 1, 0))
+}

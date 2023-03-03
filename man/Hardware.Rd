@@ -6,6 +6,8 @@
 \usage{
 Hardware(
   cpu = 1,
+  replicate_parallel = FALSE,
+  scenario_parallel = FALSE,
   slice_parallel = FALSE,
   slice_size = NULL,
   dataset_parallel = FALSE,
@@ -14,6 +16,8 @@ Hardware(
 }
 \arguments{
 \item{cpu}{number of CPU's to use, default is 1}
+
+\item{replicate_parallel}{enable parallel computing for replicates, default is FALSE}
 
 \item{slice_parallel}{enable parallel computing for slices, default is FALSE}
 

@@ -8,6 +8,7 @@ test_that("Default simulation settings work as expected", {
   
   # Hardware settings, default values
   expect_equal(settings@hardware@cpu, 1)
+  expect_equal(settings@hardware@replicate_parallel, FALSE)
   expect_equal(settings@hardware@slice_parallel, FALSE)
   expect_equal(settings@hardware@slice_size, as.integer(NA))
   expect_equal(settings@hardware@dataset_parallel, FALSE)
@@ -32,6 +33,7 @@ test_that("Hardware settings work as expected", {
   
   # Hardware settings, default values
   expect_equal(settings@hardware@cpu, 10)
+  expect_equal(settings@hardware@replicate_parallel, FALSE)
   expect_equal(settings@hardware@slice_parallel, TRUE)
   expect_equal(settings@hardware@slice_size, as.integer(100))
   expect_equal(settings@hardware@dataset_parallel, TRUE)

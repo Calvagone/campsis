@@ -202,10 +202,12 @@ processArmLabels <- function(campsis, arms) {
 #' @return a data frame with the results
 #' @keywords internal
 #' @importFrom methods validObject
+#' @importFrom furrr future_imap_dfr
 simulateScenarios <- function(scenarios, model, dataset, dest, events,
                               tablefun, outvars, outfun, seed, replicates,
                               dosing, settings, replicate, progress, ...) {
-  outer <-  purrr::map2_df(.x=scenarios@list, .y=seq_along(scenarios@list), .f=function(scenario, scenarioIndex) {
+  
+  outer <-  furrr::future_imap_dfr(.x=scenarios@list, .f=function(scenario, scenarioIndex) {
     model <- model %>% applyScenario(scenario)
     dataset <- dataset %>% applyScenario(scenario)
     
@@ -235,7 +237,8 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
       inner <- inner %>% dplyr::mutate(SCENARIO=scenario@name)
     }
     return(inner)
-  })
+  }, .options=furrr::furrr_options(seed=NULL, scheduling=getFurrrScheduling(settings@hardware@scenario_parallel)))
+  
   return(outer)
 }
 
@@ -245,8 +248,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @return a data frame with the results
 #' @keywords internal
 #' @importFrom methods validObject
-#' @importFrom furrr furrr_options future_map2_dfr
-#' @importFrom future plan multisession sequential
+#' @importFrom furrr furrr_options future_imap_dfr
 #' @importFrom progressr progressor
 #' 
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
@@ -277,7 +279,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     models <- model %>% sample(replicates)
     
     # Run all models
-    allRep <- furrr::future_map2_dfr(.x=models, .y=seq_along(models), .f=function(model_, replicate) {
+    allRep <- furrr::future_imap_dfr(.x=models, .f=function(model_, replicate) {
       retValue <- NULL
       
       # Update replicate counter
@@ -295,7 +297,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
         }
       )
       return(retValue)
-    }, .options=furrr::furrr_options(seed=NULL))
+    }, .options=furrr::furrr_options(seed=NULL, scheduling=getFurrrScheduling(settings@hardware@replicate_parallel)))
     
     return(allRep)
   }
@@ -478,7 +480,7 @@ reorderColumns <- function(results, dosing) {
   return(results)
 }
 
-#' @importFrom furrr future_map2_dfr furrr_options
+#' @importFrom furrr future_imap_dfr furrr_options
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
@@ -516,7 +518,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
   solver <- settings@solver # Solver settings
 
-  results <- furrr::future_map2_dfr(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
+  results <- furrr::future_imap_dfr(.x=config$subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Launch simulation with RxODE
@@ -549,12 +551,12 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     }
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  }, .options=furrr::furrr_options(seed=TRUE, scheduling=ifelse(settings@hardware@slice_parallel, 1, 0)))
+  }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
   
   return(results %>% reorderColumns(dosing=dosing))
 })
 
-#' @importFrom furrr future_map2_dfr furrr_options
+#' @importFrom furrr future_imap_dfr furrr_options
 #' @importFrom digest sha1
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
@@ -587,7 +589,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   solver <- settings@solver
   mod <- mod %>% mrgsolve::update(atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps)
 
-  results <-  furrr::future_map2_dfr(.x=config$subdatasets, .y=seq_along(config$subdatasets), .f=function(subdataset, index) {
+  results <-  furrr::future_imap_dfr(.x=config$subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
@@ -609,6 +611,6 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     config$progress <- config$progress %>% tick()
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  }, .options=furrr::furrr_options(seed=TRUE, scheduling=ifelse(settings@hardware@slice_parallel, 1, 0)))
+  }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
   return(results %>% reorderColumns(dosing=dosing))
 })

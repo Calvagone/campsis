@@ -81,8 +81,10 @@ tick <- function(object) {
   }
   if (object@hardware@cpu > 1) {
     cpus <- paste0("cpu=", object@hardware@cpu)
-    if (object@replicates > 1) {
+    if (object@hardware@replicate_parallel) {
       customMessage <- paste0("Simulating replicates in parallel (", cpus, ")")
+    } else if (object@hardware@scenario_parallel) {
+      customMessage <- paste0("Simulating scenarios in parallel (", cpus, ")")
     } else {
       customMessage <- paste0("Running simulation in parallel (", cpus, ")")
     }
