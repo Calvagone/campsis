@@ -79,7 +79,7 @@ tick <- function(object) {
   } else {
     customMessage <- paste0("Simulating slice ", object@slice, "/", object@slices)
   }
-  if (object@hardware@parallel) {
+  if (object@hardware@cpu > 1) {
     cpus <- paste0("cpu=", object@hardware@cpu)
     if (object@replicates > 1) {
       customMessage <- paste0("Simulating replicates in parallel (", cpus, ")")

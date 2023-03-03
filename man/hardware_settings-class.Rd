@@ -12,9 +12,9 @@ Hardware settings class.
 \describe{
 \item{\code{cpu}}{number of CPU's to use, default is 1}
 
-\item{\code{parallel}}{enable parallel computing, default is FALSE}
+\item{\code{slice_parallel}}{enable parallel computing for slices, default is FALSE}
 
-\item{\code{slices}}{number of subjects per simulated slice, default is 5}
+\item{\code{slice_size}}{number of subjects per simulated slice, default is NULL (auto-configured by Campsis depending on the specified engine)}
 
 \item{\code{dataset_parallel}}{enable parallelisation when exporting dataset into a table, default is FALSE}
 

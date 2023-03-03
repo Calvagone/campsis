@@ -4,14 +4,10 @@
 \alias{Settings}
 \title{Create advanced simulation settings.}
 \usage{
-Settings(..., cpu = 1, parallel = FALSE)
+Settings(...)
 }
 \arguments{
-\item{...}{other settings like hardware settings, solver settings, NOCB settings, etc.}
-
-\item{cpu}{number of CPU's to use, default is 1}
-
-\item{parallel}{enable parallel computing, logical value}
+\item{...}{any required settings: hardware settings, solver settings, NOCB settings, etc.}
 }
 \value{
 advanced simulation settings

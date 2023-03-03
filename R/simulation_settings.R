@@ -22,20 +22,18 @@ setClass(
 #'
 #' Create advanced simulation settings.
 #'
-#' @param ... other settings like hardware settings, solver settings, NOCB settings, etc.
-#' @param cpu number of CPU's to use, default is 1
-#' @param parallel enable parallel computing, logical value
+#' @param ... any required settings: hardware settings, solver settings, NOCB settings, etc.
 #'
 #' @return advanced simulation settings
 #' @importFrom purrr detect
 #' @export
-Settings <- function(..., cpu=1, parallel=FALSE) {
+Settings <- function(...) {
   args <- list(...)
   
   # Check if hardware settings are specified
   hardware <- args %>% purrr::detect(~(is(.x, "hardware_settings")))
   if (is.null(hardware)) {
-    hardware <- Hardware(cpu=cpu, parallel=parallel)
+    hardware <- Hardware()
   }
   
   # Check if solver settings are specified

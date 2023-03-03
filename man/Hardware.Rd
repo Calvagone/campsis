@@ -6,8 +6,8 @@
 \usage{
 Hardware(
   cpu = 1,
-  parallel = FALSE,
-  slices = 5,
+  slice_parallel = FALSE,
+  slice_size = NULL,
   dataset_parallel = FALSE,
   dataset_slice_size = 500
 )
@@ -15,9 +15,9 @@ Hardware(
 \arguments{
 \item{cpu}{number of CPU's to use, default is 1}
 
-\item{parallel}{enable parallel computing, default is FALSE}
+\item{slice_parallel}{enable parallel computing for slices, default is FALSE}
 
-\item{slices}{number of subjects per simulated slice, default is 5}
+\item{slice_size}{number of subjects per simulated slice, default is NULL (auto-configured by Campsis depending on the specified engine)}
 
 \item{dataset_parallel}{enable parallelisation when exporting dataset into a table, default is FALSE}
 

@@ -9,7 +9,7 @@ setupPlan <- function(hardware) {
   future::plan(future::sequential)
   
   # Prepare multi-threading simulation    
-  if (hardware@parallel) {
+  if (hardware@cpu > 1) {
     future::plan(future::multisession, workers=hardware@cpu)
   }
 }

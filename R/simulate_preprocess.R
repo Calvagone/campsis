@@ -144,6 +144,18 @@ preprocessSettings <- function(settings, dest) {
   # Assign final value
   settings@nocb@enable <- enable
   
+  # Preprocess slice_size
+  if (is.na(settings@hardware@slice_size)) {
+     if (dest=="mrgsolve") {
+       settings@hardware@slice_size <- as.integer(500)
+     } else {
+       # There seems to be an issue in RxODE/rxode2 when dealing with large datasets
+       # From what I notice, a too large slice size (e.g. > 25) slows down RxODE/rxode2
+       # while mrgsolve can work with a large slice size without any problem...
+       settings@hardware@slice_size <- as.integer(6)
+     }
+  }
+  
   return(settings)
 }
 

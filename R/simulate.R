@@ -365,7 +365,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
     slices <- 1
     #print("Multiple events")
   } else {
-    slices <- preprocessSlices(settings@hardware@slices, maxID=maxID)
+    slices <- preprocessSlices(settings@hardware@slice_size, maxID=maxID)
     #print("Single event")
   }
   
@@ -523,13 +523,13 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     if (dest@rxode2) {
       tmp <- rxode2::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
                              atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps, method=solver@method,
-                             keep=keep, inits=inits, covsInterpolation=ifelse(config$nocb, "nocb", "locf"), addDosing=dosing, addCov=FALSE)
+                             keep=keep, inits=inits, covsInterpolation=ifelse(config$nocb, "nocb", "locf"), addDosing=dosing, addCov=FALSE, cores=1)
     } else {
       # For backwards compatibility since RxODE isn't on CRAN anymore
       fun <- getExportedValue("RxODE", "rxSolve")
       tmp <- do.call(fun, list(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
                                atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps, method=solver@method,
-                               keep=keep, inits=inits, covs_interpolation=ifelse(config$nocb, "nocb", "constant"), addDosing=dosing))
+                               keep=keep, inits=inits, covs_interpolation=ifelse(config$nocb, "nocb", "constant"), addDosing=dosing, cores=1))
     }
     
     # Tick progress
@@ -549,7 +549,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     }
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  }, .options=furrr::furrr_options(seed=TRUE))
+  }, .options=furrr::furrr_options(seed=TRUE, scheduling=ifelse(settings@hardware@slice_parallel, 1, 0)))
   
   return(results %>% reorderColumns(dosing=dosing))
 })
@@ -609,6 +609,6 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     config$progress <- config$progress %>% tick()
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  }, .options=furrr::furrr_options(seed=TRUE))
+  }, .options=furrr::furrr_options(seed=TRUE, scheduling=ifelse(settings@hardware@slice_parallel, 1, 0)))
   return(results %>% reorderColumns(dosing=dosing))
 })
