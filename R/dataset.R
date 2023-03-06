@@ -271,13 +271,22 @@ leftJoinIIV <- function(table, iiv) {
 #' Sample covariates list.
 #' 
 #' @param covariates list of covariates to sample
-#' @param n number of desired samples
+#' @param ids_within_arm ids within the current arm being sampled
+#' @param subset take subset of original values because export is parallelised
 #' @return a dataframe of n rows, 1 column per covariate
 #' @keywords internal
 #' 
-sampleCovariatesList <- function(covariates, n) {
+sampleCovariatesList <- function(covariates, ids_within_arm, subset) {
+  n <- length(ids_within_arm)
   retValue <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
-    sampleDistributionAsTibble(covariate@distribution, n=n, colname=covariate@name)
+    distribution <- covariate@distribution
+    if (subset && is(distribution, "fixed_distribution")) {
+      distribution@values <- distribution@values[ids_within_arm]
+      # print(ids_within_arm)
+      assertthat::assert_that(!any(is.na(distribution@values)),
+                              msg=paste0("NA's detected in covariate '", covariate@name, "'"))
+    }
+    sampleDistributionAsTibble(distribution, n=n, colname=covariate@name)
   })
   return(retValue)
 }
@@ -336,6 +345,11 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param object current dataset
 #' @param dest destination engine
 #' @param model Campsis model, if provided, ETA's will be added to the dataset
+#' @param arm_offset arm offset (on ID's) to apply when parallelisation is used.
+#' Default value is NULL, meaning parallelisation is disabled. Otherwise, it corresponds
+#' to the offset to apply for the current arm being exported (in parallel).
+#' @param offset_within_arm offset (on ID's) to apply within the current arm being
+#'  exported (only used when parallelisation is enabled), default is 0
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
 #' @importFrom dplyr across all_of arrange bind_rows group_by left_join
 #' @importFrom campsismod export
@@ -344,10 +358,13 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @importFrom rlang parse_expr
 #' @keywords internal
 #' 
-exportDelegate <- function(object, dest, model, offset=0) {
+exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_arm=0) {
 
   # Retrieve dataset configuration
   config <- object@config
+
+  # Subset covariates if parallelisation is enabled (arm_offset != NULL)
+  subsetCovariates <- !is.null(arm_offset)
   
   # Use either arms or default_arm
   arms <- object@arms
@@ -378,7 +395,11 @@ exportDelegate <- function(object, dest, model, offset=0) {
     doseAdaptations <- treatment@dose_adaptations
     
     # Generating subject ID's
-    ids <- seq_len(subjects) + maxID - subjects + offset
+    if (is.null(arm_offset)) {
+      arm_offset <- maxID - subjects
+    }
+    ids_within_arm <- seq_len(subjects) + offset_within_arm # ID's within arm
+    ids <- ids_within_arm + arm_offset                      # ID's within dataset
     
     # Create the base table with all treatment entries and observations
     needsDV <- observations@list %>% purrr::map_lgl(~.x@dv %>% length() > 0) %>% any()
@@ -387,7 +408,7 @@ exportDelegate <- function(object, dest, model, offset=0) {
     table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))
 
     # Sampling covariates
-    cov <- sampleCovariatesList(covariates, n=length(ids))
+    cov <- sampleCovariatesList(covariates, ids_within_arm=ids_within_arm, subset=subsetCovariates)
     
     if (nrow(cov) > 0) {
       # Retrieve all covariate names (including time-varying ones)
@@ -641,14 +662,21 @@ getSplittingConfiguration <- function(dataset, hardware) {
     if (modulo > 0) {
       subjects_ <- c(subjects_, modulo)
     }
-    return(list(subjects=subjects_, armIndex=index))
-  }) %>% purrr::map_dfr(.f=~tibble::tibble(subjects=as.integer(.x$subjects), armIndex=.x$armIndex))
+    offset <- subjects_ %>%
+      purrr::accumulate(~(.x+.y))
+    offset <- c(0, offset[-length(offset)])
+    return(list(subjects=subjects_, arm_index=index, offset_within_arm=offset))
+  }) %>% purrr::map_dfr(.f=~tibble::tibble(subjects=as.integer(.x$subjects),
+                                           arm_index=.x$arm_index,
+                                           offset_within_arm=.x$offset_within_arm))
   
-  # Compute offset
-  offset <-  retValue$subjects %>%
-    purrr::accumulate(~(.x+.y))
-  offset <- c(0, offset[-length(offset)])
-  retValue$offset <- offset
+  # Left join arm offset
+  armOffset <-  dataset@arms@list %>%
+    purrr::map_int(~.x@subjects) %>%
+    purrr::accumulate(~(.x + .y))
+  armOffset <- c(0, armOffset[-length(armOffset)])
+  retValue <- retValue %>%
+    dplyr::left_join(tibble::tibble(arm_index=seq_along(dataset@arms@list), arm_offset=armOffset), by="arm_index")
   
   # Data frame to list conversion
   retValue <- split(retValue, seq(nrow(retValue)))
@@ -666,7 +694,7 @@ getSplittingConfiguration <- function(dataset, hardware) {
 #'
 splitDataset <- function(dataset, config) {
   if (is.list(config)) {
-    arm <- dataset@arms@list[[config$armIndex]] %>% setSubjects(config$subjects)
+    arm <- dataset@arms@list[[config$arm_index]] %>% setSubjects(config$subjects)
     dataset@arms@list <- list(arm) # Only put previous arm into dataset
   }
   return(dataset)
@@ -691,8 +719,10 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   retValue <- furrr::future_map_dfr(.x=configList, .f=function(config) {
 
     # Export table
-    offset <- ifelse(is.list(config), config$offset, 0)
-    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model, offset=offset)
+    arm_offset <- if (is.list(config)) {config$arm_offset} else {NULL}
+    offset_within_arm <- if (is.list(config)) {config$offset_within_arm} else {0}
+    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model,
+                            arm_offset=arm_offset, offset_within_arm=offset_within_arm)
 
     # TSLD/TDOS preprocessing
     table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
@@ -741,8 +771,10 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   retValue <- furrr::future_map_dfr(.x=configList, .f=function(config) {
     
     # Export table
-    offset <- ifelse(is.list(config), config$offset, 0)
-    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model, offset=offset)
+    arm_offset <- if (is.list(config)) {config$arm_offset} else {NULL}
+    offset_within_arm <- if (is.list(config)) {config$offset_within_arm} else {0}
+    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model,
+                            arm_offset=arm_offset, offset_within_arm=offset_within_arm)
     
     # TSLD/TDOS preprocessing
     table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)

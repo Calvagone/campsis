@@ -4,7 +4,7 @@
 \alias{exportDelegate}
 \title{Export delegate method. This method is common to RxODE and mrgsolve.}
 \usage{
-exportDelegate(object, dest, model, offset = 0)
+exportDelegate(object, dest, model, arm_offset = NULL, offset_within_arm = 0)
 }
 \arguments{
 \item{object}{current dataset}
@@ -12,6 +12,13 @@ exportDelegate(object, dest, model, offset = 0)
 \item{dest}{destination engine}
 
 \item{model}{Campsis model, if provided, ETA's will be added to the dataset}
+
+\item{arm_offset}{arm offset (on ID's) to apply when parallelisation is used.
+Default value is NULL, meaning parallelisation is disabled. Otherwise, it corresponds
+to the offset to apply for the current arm being exported (in parallel).}
+
+\item{offset_within_arm}{offset (on ID's) to apply within the current arm being
+exported (only used when parallelisation is enabled), default is 0}
 }
 \value{
 2-dimensional dataset, same for RxODE and mrgsolve

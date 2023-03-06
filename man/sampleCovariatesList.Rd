@@ -4,12 +4,14 @@
 \alias{sampleCovariatesList}
 \title{Sample covariates list.}
 \usage{
-sampleCovariatesList(covariates, n)
+sampleCovariatesList(covariates, ids_within_arm, subset)
 }
 \arguments{
 \item{covariates}{list of covariates to sample}
 
-\item{n}{number of desired samples}
+\item{ids_within_arm}{ids within the current arm being sampled}
+
+\item{subset}{take subset of original values because export is parallelised}
 }
 \value{
 a dataframe of n rows, 1 column per covariate
