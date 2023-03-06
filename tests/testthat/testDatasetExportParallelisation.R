@@ -117,7 +117,7 @@ test_that("Dataset export may vary if parallelisation is used when covariates ar
 
   # Default setting (no parallelisation)
   settings1 <- Settings()
-  future::plan("sequential")
+  setupPlanSequential()
   table1 <- dataset %>% export(dest="RxODE", settings=settings1, seed=seed)
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilenameDisabled)
   
@@ -134,5 +134,5 @@ test_that("Dataset export may vary if parallelisation is used when covariates ar
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilenameEnabled, settings=settings3, dest="mrgsolve")
   
   # Back to sequential
-  future::plan("sequential")
+  setupPlanSequential()
 })
