@@ -16,15 +16,14 @@
 #' @param replicates number of replicates, default is 1
 #' @param dosing output dosing information, default is FALSE
 #' @param settings advanced simulation settings
-#' @param ... optional arguments like 'declare' and 'nocbvars'
 #' @return dataframe with all results
 #' @export
 #' @rdname simulate
-simulate <- function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, dosing=FALSE, settings=NULL, ...) {
+simulate <- function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, dosing=FALSE, settings=NULL) {
   stop("No default function is provided")
 }
 
-setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, dosing=FALSE, settings=NULL, ...) {
+setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, dosing=FALSE, settings=NULL) {
   dest <- preprocessDest(dest)
   events <- preprocessEvents(events)
   scenarios <- preprocessScenarios(scenarios)
@@ -121,14 +120,15 @@ getDatasetMaxTime <- function(dataset) {
 #' @keywords internal
 #' @importFrom dplyr across bind_rows group_by slice ungroup
 #' 
-simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, dosing, settings, replicate, iterations, ...) {
+simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   destEngine <- getSimulationEngineType(dest)
-  tableSeed <- getSeedForDatasetExport(seed=seed, replicate=replicate, iterations=iterations %>% length())
-  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, settings=settings)
-  summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
-  progress <- processExtraArg(list(...), name="progress", default=NULL, mandatory=TRUE)
-  progress@iterations <- iterations %>% length()
+  summary <- settings@internal@dataset_summary
+  progress <- settings@internal@progress
+  iterations <- settings@internal@iterations
   
+  tableSeed <- getSeedForDatasetExport(seed=seed, progress=progress)
+  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, settings=settings)
+
   inits <- data.frame()
   results <- NULL
   for (iteration in iterations) {
@@ -137,10 +137,14 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     
     iteration@inits <- inits
     table_ <- cutTableForEvent(table, iteration, summary)
-    #print(table_)
+    
+    # Update internal settings
+    settings@internal@progress <- progress
+    settings@internal@iterations[[iteration@index]] <- iteration
+    
     results_ <- simulate(model=model, dataset=table_, dest=destEngine, events=events, tablefun=tablefun,
                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing,
-                         settings=settings, replicate=replicate, iteration=iteration, progress=progress, ...)
+                         settings=settings)
     # Shift times back to their original value
     results_$TIME <- results_$TIME + iteration@start
     
@@ -148,7 +152,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     inits <- results_ %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::slice(which.max(.data$TIME))
     
     # Set seed for next simulation
-    iterationSeed <- getSeedForIteration(seed=seed, replicate=replicate, iterations=iterations %>% length(), iteration=iteration@index)
+    iterationSeed <- getSeedForIteration(seed=seed, progress=progress)
     setSeed(iterationSeed)
 
     # Calling events
@@ -205,7 +209,7 @@ processArmLabels <- function(campsis, arms) {
 #' @importFrom furrr future_imap_dfr
 simulateScenarios <- function(scenarios, model, dataset, dest, events,
                               tablefun, outvars, outfun, seed, replicates,
-                              dosing, settings, replicate, progress, ...) {
+                              dosing, settings) {
   
   outer <-  furrr::future_imap_dfr(.x=scenarios@list, .f=function(scenario, scenarioIndex) {
     model <- model %>% applyScenario(scenario)
@@ -217,22 +221,25 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     # Validate CAMPSIS dataset in depth (btw, validObject also works on non S4 objects)
     methods::validObject(dataset, complete=TRUE)
     
+    # Find out how many iterations are needed
     maxTime <- getDatasetMaxTime(dataset)
     iterations <- getEventIterations(events, maxTime=maxTime)
+    settings@internal@iterations <- iterations
+    
+    # Update number of iterations in progress object
+    settings@internal@progress@iterations <- iterations %>% length()
+    
+    # Update scenario counter
+    settings@internal@progress <- settings@internal@progress %>% updateScenario(scenarioIndex)
     
     # Make short summary of dataset
     if (is(dataset, "dataset")) {
-      summary <- toDatasetSummary(dataset)
-    } else {
-      summary <- DatasetSummary() # Default
+      settings@internal@dataset_summary <- toDatasetSummary(dataset)
     }
-    
-    # Update scenario counter
-    progress <- progress %>% updateScenario(scenarioIndex)
     
     inner <- simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
                                     tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                    dosing=dosing, settings=settings, replicate=replicate, iterations=iterations, summary=summary, progress=progress, ...)
+                                    dosing=dosing, settings=settings)
     if (scenarios %>% length() > 1) {
       inner <- inner %>% dplyr::mutate(SCENARIO=scenario@name)
     }
@@ -251,7 +258,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @importFrom furrr furrr_options future_imap_dfr
 #' @importFrom progressr progressor
 #' 
-simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
+simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
 
   # Setup plan automatically if parallel computing is required
   if (settings@hardware@auto_setup_plan) {
@@ -262,16 +269,17 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   p <- progressr::progressor(steps=100)
   
   # Record progress
-  progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(), progressor=p, hardware=settings@hardware)
+  settings@internal@progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(),
+                                                   progressor=p, hardware=settings@hardware)
   
   # Single replicate: don't use parameter uncertainty
   if (replicates==1) {
     # Update replicate counter
-    progress <- progress %>% updateReplicate(1)
+    settings@internal@progress <- settings@internal@progress %>% updateReplicate(1)
     
     retValue <- simulateScenarios(scenarios=scenarios, model=model, dataset=dataset, dest=dest, events=events,
                                   tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                  dosing=dosing, settings=settings, replicate=1, progress=progress, ...)
+                                  dosing=dosing, settings=settings)
     return(retValue)
     # More than 1 replicate: parameter uncertainty enabled
   } else {
@@ -288,12 +296,12 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
       retValue <- NULL
       
       # Update replicate counter
-      progress <- progress %>% updateReplicate(replicate)
+      settings@internal@progress <- settings@internal@progress %>% updateReplicate(replicate)
       tryCatch(
         expr={
           retValue <- simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
                                         tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                        dosing=dosing, settings=settings, replicate=replicate, progress=progress, ...)
+                                        dosing=dosing, settings=settings)
           retValue <- dplyr::bind_cols(replicate=replicate, retValue)
         },
         error=function(cond) {
@@ -310,24 +318,24 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
 
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
-          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
+          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   campsis <- simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
-                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings, ...)
+                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings)
   return(processArmLabels(campsis, dataset@arms))
 })
 
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "character", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
-          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
+          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
-                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings, ...))
+                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
-          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
+          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   return(simulateDelegate(model=model, dataset=tibble::as_tibble(dataset), dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
-                                    outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings, ...))
+                                    outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' Remove initial conditions.
@@ -352,15 +360,14 @@ removeInitialConditions <- function(model) {
 #' @param outvars outvars
 #' @param dosing add dosing information, logical value
 #' @param settings simulation settings
-#' @param ... all other arguments
 #' @return a simulation configuration
 #' @importFrom purrr map2
 #' @keywords internal
 #' 
-processSimulateArguments <- function(model, dataset, dest, outvars, dosing, settings, ...) {
-  # Check extra arguments
-  args <- list(...)
-  iteration <- args$iteration
+processSimulateArguments <- function(model, dataset, dest, outvars, dosing, settings) {
+
+  # Retrieve current iteration
+  iteration <- settings@internal@iterations[[settings@internal@progress@iteration]]
 
   # IDs
   ids <- preprocessIds(dataset)
@@ -370,18 +377,16 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
   # Otherwise, the number of subjects per slice is defined in the hardware settings
   if (iteration@maxIndex > 1) {
     slices <- 1
-    #print("Multiple events")
   } else {
     slices <- preprocessSlices(settings@hardware@slice_size, maxID=maxID)
-    #print("Single event")
   }
   
   # Drop others 'argument'
   dropOthers <- dropOthers() %in% outvars
 
   # Extra argument declare (for mrgsolve only)
-  user_declare <- processExtraArg(args, name="declare", mandatory=FALSE)
-  summary <- processExtraArg(args, name="summary", default=DatasetSummary(), mandatory=TRUE)
+  user_declare <- settings@declare@variables
+  summary <- settings@internal@dataset_summary
   declare <- unique(c(summary@iov_names, summary@covariate_names, summary@occ_names,
                       summary@tsld_tdos_names, user_declare, "ARM", "EVENT_RELATED"))    
 
@@ -432,17 +437,12 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
     subdataset <- dataset %>% dplyr::filter(.data$ID >= .x & .data$ID <= .y)
     return(subdataset)
   })
-  
-  # Update number of slices in progress
-  progress <- processExtraArg(args, name="progress", default=NULL, mandatory=TRUE)
-  progress@slices <- subdatasets %>% length()
-  
+
   # Compartment names
   cmtNames <- model@compartments@list %>% purrr::map_chr(~.x %>% toString())
   
   return(list(declare=declare, engineModel=engineModel, subdatasets=subdatasets,
-              dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames,
-              progress=progress, nocb=settings@nocb@enable))
+              dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames))
 }
 
 #' Get initial conditions at simulation start-up.
@@ -488,14 +488,16 @@ reorderColumns <- function(results, dosing) {
 #' @importFrom furrr future_imap_dfr furrr_options
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
-          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
+          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   
   # Add ARM equation in model
   model <- preprocessArmColumn(dataset, model)
-  summary <- processExtraArg(list(...), name="summary", default=DatasetSummary(), mandatory=TRUE)
+  summary <- settings@internal@dataset_summary
   
   # Retrieve simulation config
-  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, settings=settings, ...)
+  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, settings=settings)
+  progress <- settings@internal@progress
+  progress@slices <- config$subdatasets %>% length()
 
   # Instantiate RxODE model
   rxmod <- config$engineModel
@@ -522,6 +524,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   # Prepare simulation
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
   solver <- settings@solver # Solver settings
+  nocb <- settings@nocb@enable
 
   results <- furrr::future_imap_dfr(.x=config$subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
@@ -530,18 +533,18 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     if (dest@rxode2) {
       tmp <- rxode2::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
                              atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps, method=solver@method,
-                             keep=keep, inits=inits, covsInterpolation=ifelse(config$nocb, "nocb", "locf"), addDosing=dosing, addCov=FALSE, cores=1)
+                             keep=keep, inits=inits, covsInterpolation=ifelse(nocb, "nocb", "locf"), addDosing=dosing, addCov=FALSE, cores=1)
     } else {
       # For backwards compatibility since RxODE isn't on CRAN anymore
       fun <- getExportedValue("RxODE", "rxSolve")
       tmp <- do.call(fun, list(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
                                atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps, method=solver@method,
-                               keep=keep, inits=inits, covs_interpolation=ifelse(config$nocb, "nocb", "constant"), addDosing=dosing, cores=1))
+                               keep=keep, inits=inits, covs_interpolation=ifelse(nocb, "nocb", "constant"), addDosing=dosing, cores=1))
     }
     
     # Tick progress
-    config$progress <- config$progress %>% updateSlice(index)
-    config$progress <- config$progress %>% tick()
+    progress <- progress %>% updateSlice(index)
+    progress <- progress %>% tick()
     
     # RxODE does not add the 'ID' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
@@ -565,10 +568,12 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
 #' @importFrom digest sha1
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
-          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings, ...) {
+          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   
   # Retrieve simulation config
-  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, dosing=dosing, settings=settings, ...)
+  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, dosing=dosing, settings=settings)
+  progress <- settings@internal@progress
+  progress@slices <- config$subdatasets %>% length()
   
   # Retrieve mrgsolve model
   mrgmod <- config$engineModel
@@ -593,6 +598,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   # Apply solver settings
   solver <- settings@solver
   mod <- mod %>% mrgsolve::update(atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps)
+  nocb <- settings@nocb@enable
 
   results <-  furrr::future_imap_dfr(.x=config$subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
@@ -609,11 +615,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     
     # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
-    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=config$nocb) %>% tibble::as_tibble()
+    tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=nocb) %>% tibble::as_tibble()
 
     # Tick progress
-    config$progress <- config$progress %>% updateSlice(index)
-    config$progress <- config$progress %>% tick()
+    progress <- progress %>% updateSlice(index)
+    progress <- progress %>% tick()
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))

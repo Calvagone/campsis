@@ -29,7 +29,7 @@ test_that("Declare argument with mrgsolve", {
       expect_error(model %>% simulate(dataset, dest=destEngine, seed=seed, tablefun=tablefun))
       
       # mrgsolve does not complain if SOMETHING variable is declared
-      results <- model %>% simulate(dataset, dest=destEngine, seed=seed, tablefun=tablefun, declare="SOMETHING")
+      results <- model %>% simulate(dataset, dest=destEngine, seed=seed, tablefun=tablefun, settings=Settings(Declare("SOMETHING")))
       outputRegressionTest(results, output="CP", filename=regFilename)
     }
   )

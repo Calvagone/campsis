@@ -4,16 +4,12 @@
 \alias{getSeedForIteration}
 \title{Get seed for iteration.}
 \usage{
-getSeedForIteration(seed, replicate, iterations, iteration)
+getSeedForIteration(seed, progress)
 }
 \arguments{
 \item{seed}{original seed}
 
-\item{replicate}{the current replicate number}
-
-\item{iterations}{total number of iterations}
-
-\item{iteration}{current iteration number}
+\item{progress}{simulation progress}
 }
 \value{
 the seed value to be used for the given replicate number and iteration

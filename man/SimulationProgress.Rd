@@ -4,7 +4,12 @@
 \alias{SimulationProgress}
 \title{Create a simulation progress object.}
 \usage{
-SimulationProgress(replicates = 1, scenarios = 1, progressor, hardware)
+SimulationProgress(
+  replicates = 1,
+  scenarios = 1,
+  progressor = NULL,
+  hardware = NULL
+)
 }
 \arguments{
 \item{replicates}{total number of replicates to simulate}

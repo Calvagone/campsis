@@ -21,8 +21,7 @@ simulate(
   seed = NULL,
   replicates = 1,
   dosing = FALSE,
-  settings = NULL,
-  ...
+  settings = NULL
 )
 
 \S4method{simulate}{campsis_model,dataset,character,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
@@ -37,8 +36,7 @@ simulate(
   seed = NULL,
   replicates = 1,
   dosing = FALSE,
-  settings = NULL,
-  ...
+  settings = NULL
 )
 
 \S4method{simulate}{campsis_model,tbl_df,character,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
@@ -53,8 +51,7 @@ simulate(
   seed = NULL,
   replicates = 1,
   dosing = FALSE,
-  settings = NULL,
-  ...
+  settings = NULL
 )
 
 \S4method{simulate}{campsis_model,data.frame,character,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
@@ -69,8 +66,7 @@ simulate(
   seed = NULL,
   replicates = 1,
   dosing = FALSE,
-  settings = NULL,
-  ...
+  settings = NULL
 )
 
 \S4method{simulate}{campsis_model,tbl_df,rxode_engine,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
@@ -85,8 +81,7 @@ simulate(
   seed = NULL,
   replicates = 1,
   dosing = FALSE,
-  settings = NULL,
-  ...
+  settings = NULL
 )
 
 \S4method{simulate}{campsis_model,tbl_df,mrgsolve_engine,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
@@ -101,8 +96,7 @@ simulate(
   seed = NULL,
   replicates = 1,
   dosing = FALSE,
-  settings = NULL,
-  ...
+  settings = NULL
 )
 }
 \arguments{
@@ -129,8 +123,6 @@ simulate(
 \item{dosing}{output dosing information, default is FALSE}
 
 \item{settings}{advanced simulation settings}
-
-\item{...}{optional arguments like 'declare' and 'nocbvars'}
 }
 \value{
 dataframe with all results

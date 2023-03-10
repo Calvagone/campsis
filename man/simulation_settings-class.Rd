@@ -15,5 +15,9 @@ Simulation settings class.
 \item{\code{solver}}{solver settings object}
 
 \item{\code{nocb}}{NOCB settings object}
+
+\item{\code{declare}}{declare settings (mrgsolve only)}
+
+\item{\code{internal}}{internal settings}
 }}
 

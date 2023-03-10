@@ -4,13 +4,17 @@ context("Test all getSeedFor methods")
 
 getAllSeedValues <- function(seed, replicates, iterations) {
   retValue <- NULL
+  progress <- SimulationProgress(replicates=replicates)
   retValue <- retValue %>% append(getSeedForParametersSampling(seed=seed))
   for (replicate in seq_len(replicates)) {
-    retValue <- retValue %>% append(getSeedForDatasetExport(seed=seed, replicate=replicate, iterations=iterations))
+    progress@replicate <- replicate
+    progress@iterations <- as.integer(iterations)
+    retValue <- retValue %>% append(getSeedForDatasetExport(seed=seed, progress=progress))
     #cat(retValue)
     #cat("\n")
     for (iteration in seq_len(iterations)) {
-      retValue <- retValue %>% append(getSeedForIteration(seed=seed, replicate=replicate, iterations=iterations, iteration=iteration))
+      progress@iteration <- iteration
+      retValue <- retValue %>% append(getSeedForIteration(seed=seed, progress=progress))
     }
     #cat(retValue)
     #cat("\n")

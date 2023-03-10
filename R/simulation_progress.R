@@ -49,7 +49,10 @@ setClass(
 #' @return a progress bar
 #' @importFrom progressr progressor
 #' @export
-SimulationProgress <- function(replicates=1, scenarios=1, progressor, hardware) {
+SimulationProgress <- function(replicates=1, scenarios=1, progressor=NULL, hardware=NULL) {
+  if (is.null(hardware)) {
+    hardware <- Hardware()
+  }
   return(new("simulation_progress",
              replicates=as.integer(replicates),
              scenarios=as.integer(scenarios),

@@ -15,10 +15,7 @@ simulateDelegateCore(
   seed,
   replicates,
   dosing,
-  settings,
-  replicate,
-  iterations,
-  ...
+  settings
 )
 }
 \arguments{
@@ -47,8 +44,6 @@ simulateDelegateCore(
 \item{replicate}{current replicate number}
 
 \item{iterations}{number of iterations}
-
-\item{...}{optional arguments like 'declare' and 'nocbvars'}
 }
 \value{
 a data frame with the results

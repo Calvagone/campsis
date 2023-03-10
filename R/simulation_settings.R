@@ -8,22 +8,26 @@
 #' @slot hardware hardware settings object
 #' @slot solver solver settings object
 #' @slot nocb NOCB settings object
+#' @slot declare declare settings (mrgsolve only)
+#' @slot internal internal settings
 #' @export
 setClass(
   "simulation_settings",
   representation(
     hardware="hardware_settings",
     solver="solver_settings",
-    nocb="nocb_settings"
+    nocb="nocb_settings",
+    declare="declare_settings",
+    internal="internal_settings"
   ),
-  prototype=prototype(hardware=Hardware(), solver=Solver(), nocb=NOCB())
+  prototype=prototype(hardware=Hardware(), solver=Solver(), nocb=NOCB(), declare=Declare())
 )
 
 #'
 #' Create advanced simulation settings.
 #'
-#' @param ... any required settings: hardware settings, solver settings, NOCB settings, etc.
-#'
+#' @param ... any required settings: hardware settings, solver settings, NOCB settings,
+#'  declare settings, etc.
 #' @return advanced simulation settings
 #' @importFrom purrr detect
 #' @export
@@ -48,5 +52,11 @@ Settings <- function(...) {
     nocb <- NOCB()
   }
   
-  return(new("simulation_settings", hardware=hardware, solver=solver, nocb=nocb))
+  # Check if declare settings are specified
+  declare <- args %>% purrr::detect(~(is(.x, "declare_settings")))
+  if (is.null(declare)) {
+    declare <- Declare()
+  }
+  
+  return(new("simulation_settings", hardware=hardware, solver=solver, nocb=nocb, declare=declare))
 }

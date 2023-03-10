@@ -16,10 +16,7 @@ simulateScenarios(
   seed,
   replicates,
   dosing,
-  settings,
-  replicate,
-  progress,
-  ...
+  settings
 )
 }
 \arguments{
@@ -46,8 +43,6 @@ simulateScenarios(
 \item{dosing}{output dosing information, default is FALSE}
 
 \item{settings}{advanced simulation settings}
-
-\item{...}{optional arguments like 'declare' and 'nocbvars'}
 }
 \value{
 a data frame with the results

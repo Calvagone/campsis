@@ -26,7 +26,7 @@ test_that(getTestName("Weight as a time-varying covariate, NOCB vs LOCF"), {
   
   # LOCF tests
   regFilename <- "wt_as_time_varying_cov_locf"
-  simulation <- expression(simulate(model=model, dataset=table, dest=destEngine, settings=Settings(NOCB(FALSE)), seed=seed, declare="BW"))
+  simulation <- expression(simulate(model=model, dataset=table, dest=destEngine, settings=Settings(NOCB(FALSE), Declare("BW")), seed=seed))
   # Note: argument declare is only needed for mrgsolve
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
@@ -36,7 +36,7 @@ test_that(getTestName("Weight as a time-varying covariate, NOCB vs LOCF"), {
   
   # NOCB tests
   regFilename <- "wt_as_time_varying_cov_nocb"
-  simulation <- expression(simulate(model=model, dataset=table, dest=destEngine, settings=Settings(NOCB(TRUE)), seed=seed, declare="BW"))
+  simulation <- expression(simulate(model=model, dataset=table, dest=destEngine, settings=Settings(NOCB(TRUE), Declare("BW")), seed=seed))
   # Note: argument declare is only needed for mrgsolve
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
