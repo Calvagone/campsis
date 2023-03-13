@@ -272,48 +272,48 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   settings@internal@progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(),
                                                    progressor=p, hardware=settings@hardware)
   
-  # Single replicate: don't use parameter uncertainty
-  if (replicates==1) {
-    # Update replicate counter
-    settings@internal@progress <- settings@internal@progress %>% updateReplicate(1)
-    
-    retValue <- simulateScenarios(scenarios=scenarios, model=model, dataset=dataset, dest=dest, events=events,
-                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                  dosing=dosing, settings=settings)
-    return(retValue)
-    # More than 1 replicate: parameter uncertainty enabled
+  # Get as many models as replicates
+  parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
+  setSeed(parameterSamplingSeed)
+  
+  if (replicates > 1) {
+    # Parameter uncertainty enabled when more than 1 replicate
+    models <- model %>% sample(replicates) %>% setNames(seq_len(replicates))
   } else {
-    # First make sure CAMPSIS model is valid
-    methods::validObject(model, complete=TRUE)
-    
-    # Get as many models as replicates
-    parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
-    setSeed(parameterSamplingSeed)
-    models <- model %>% sample(replicates)
-    
-    # Run all models
-    allRep <- furrr::future_imap_dfr(.x=models, .f=function(model_, replicate) {
-      retValue <- NULL
-      
-      # Update replicate counter
-      settings@internal@progress <- settings@internal@progress %>% updateReplicate(replicate)
-      tryCatch(
-        expr={
-          retValue <- simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
-                                        tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                        dosing=dosing, settings=settings)
-          retValue <- dplyr::bind_cols(replicate=replicate, retValue)
-        },
-        error=function(cond) {
-          message(paste0("Error with replicate number ", replicate, ":"))
-          print(cond)
-        }
-      )
-      return(retValue)
-    }, .options=furrr::furrr_options(seed=NULL, scheduling=getFurrrScheduling(settings@hardware@replicate_parallel)))
-    
-    return(allRep)
+    # Parameter uncertainty always disabled for 1 replicate 
+    models <- list(model)
   }
+  
+  # Run all models
+  allRep <- furrr::future_imap_dfr(.x=models, .f=function(model_, replicate) {
+    # Update replicate counter
+    settings@internal@progress <- settings@internal@progress %>% updateReplicate(replicate)
+    retValue <- tryCatch(
+      expr={
+        return(simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
+                                 tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                 dosing=dosing, settings=settings))
+      },
+      error=function(cond) {
+        if (replicates==1) {
+          stop(cond)
+        } else {
+          message(paste0("Error with replicate number ", replicate, ":"))
+        }
+        return(NULL)
+      }
+    )
+    return(retValue)
+  }, .id="replicate", .options=furrr::furrr_options(seed=NULL, scheduling=getFurrrScheduling(settings@hardware@replicate_parallel)))
+  
+  # Remove 'replicate' column if only 1 replicate
+  if (replicates==1) {
+    allRep <- allRep %>% dplyr::select(-dplyr::all_of("replicate"))
+  } else {
+    allRep <- allRep %>% dplyr::mutate(replicate=as.integer(.data$replicate))
+  }
+  
+  return(allRep)
 }
 
 #' @rdname simulate

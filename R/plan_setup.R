@@ -1,17 +1,36 @@
 
-#' Setup plan for the given hardware settings.
+#' Setup plan for the given simulation or hardware settings.
 #' 
-#' @param hardware hardware settings object
+#' @param object simulation or hardware settings
 #' @return nothing
-#' @importFrom future multisession plan sequential
+#' @importFrom future multisession plan sequential tweak
 #' @export
-setupPlanDefault <- function(hardware) {
+setupPlanDefault <- function(object) {
+  if (is(object, "hardware_settings")) {
+    hardware <- object
+  } else if (is(object, "simulation_settings")) {
+    hardware <- object@hardware
+  } else {
+    stop("object must be either simulation or hardware settings")
+  }
   # Reset plan
   future::plan(future::sequential)
   
   # Prepare multi-threading simulation    
   if (hardware@cpu > 1) {
-    future::plan(future::multisession, workers=hardware@cpu)
+    # Replicate is at the first level of parallelisation
+    if (hardware@replicate_parallel) {
+      future::plan(future::multisession, workers=hardware@cpu)
+    } else {
+      future::plan(
+        list(
+          # This is because 'replicate_parallel' is disabled
+          future::tweak(future::multisession, workers=1),
+          # Workers are reserved for the second level of parallelisation
+          future::tweak(future::multisession, workers=hardware@cpu)
+        )
+      )
+    }
   }
 }
 

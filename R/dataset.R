@@ -333,7 +333,7 @@ applyCompartmentCharacteristics <- function(table, properties) {
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, model=NULL, settings=NULL, event_related_column=FALSE) {
   destinationEngine <- getSimulationEngineType(dest)
   settings <- preprocessSettings(settings, dest) # In case of NULL settings
-  table <- object %>% export(destinationEngine, seed=seed, model=model, settings=settings)
+  table <- object %>% export(dest=destinationEngine, seed=seed, model=model, settings=settings)
   if (!event_related_column) {
     table <- table %>% dplyr::select(-dplyr::all_of("EVENT_RELATED"))
   }
@@ -744,7 +744,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     table <- table %>% processTSLDAndTDOSColumn(config=object@config)
     
     return(table %>% dplyr::ungroup())
-  }, .options=furrr::furrr_options(seed=furrrSeed))
+  }, .options=furrr::furrr_options(seed=furrrSeed, scheduling=getFurrrScheduling(settings@hardware@dataset_parallel)))
   
   # Left-join IIV matrix
   retValue <- leftJoinIIV(table=retValue, iiv=iiv)
@@ -796,7 +796,7 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
     table <- table %>% processTSLDAndTDOSColumn(config=object@config)
     
     return(table %>% dplyr::ungroup())
-  }, .options=furrr::furrr_options(seed=furrrSeed))
+  }, .options=furrr::furrr_options(seed=furrrSeed, scheduling=getFurrrScheduling(settings@hardware@dataset_parallel)))
   
   # Left-join IIV matrix
   retValue <- leftJoinIIV(table=retValue, iiv=iiv)

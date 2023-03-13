@@ -2,16 +2,16 @@
 % Please edit documentation in R/plan_setup.R
 \name{setupPlanDefault}
 \alias{setupPlanDefault}
-\title{Setup plan for the given hardware settings.}
+\title{Setup plan for the given simulation or hardware settings.}
 \usage{
-setupPlanDefault(hardware)
+setupPlanDefault(object)
 }
 \arguments{
-\item{hardware}{hardware settings object}
+\item{object}{simulation or hardware settings}
 }
 \value{
 nothing
 }
 \description{
-Setup plan for the given hardware settings.
+Setup plan for the given simulation or hardware settings.
 }

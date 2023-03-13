@@ -8,6 +8,8 @@
 #' @importFrom MASS mvrnorm
 #' @importFrom purrr accumulate map map_dbl pluck
 setMethod("sample", signature = c("campsis_model", "integer"), definition = function(object, n) {
+  # Validate original Campsis model before sampling parameter uncertainty
+  methods::validObject(model, complete=TRUE)
   
   varcov <- object@parameters@varcov
   retValue <- list()
