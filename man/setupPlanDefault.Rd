@@ -2,7 +2,11 @@
 % Please edit documentation in R/plan_setup.R
 \name{setupPlanDefault}
 \alias{setupPlanDefault}
-\title{Setup plan for the given simulation or hardware settings.}
+\title{Setup default plan for the given simulation or hardware settings.
+This plan will prioritise the ditribution of workers in the following order:
+1) Replicates (if 'replicate_parallel' is enabled)
+2) Scenarios (if 'scenario_parallel' is enabled)
+3) Dataset export / slices (if 'dataset_export' or 'slice_parallel' is enabled)}
 \usage{
 setupPlanDefault(object)
 }
@@ -13,5 +17,9 @@ setupPlanDefault(object)
 nothing
 }
 \description{
-Setup plan for the given simulation or hardware settings.
+Setup default plan for the given simulation or hardware settings.
+This plan will prioritise the ditribution of workers in the following order:
+1) Replicates (if 'replicate_parallel' is enabled)
+2) Scenarios (if 'scenario_parallel' is enabled)
+3) Dataset export / slices (if 'dataset_export' or 'slice_parallel' is enabled)
 }

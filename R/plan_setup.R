@@ -1,5 +1,9 @@
 
-#' Setup plan for the given simulation or hardware settings.
+#' Setup default plan for the given simulation or hardware settings.
+#' This plan will prioritise the ditribution of workers in the following order:
+#' 1) Replicates (if 'replicate_parallel' is enabled)
+#' 2) Scenarios (if 'scenario_parallel' is enabled)
+#' 3) Dataset export / slices (if 'dataset_export' or 'slice_parallel' is enabled)  
 #' 
 #' @param object simulation or hardware settings
 #' @return nothing
@@ -18,18 +22,29 @@ setupPlanDefault <- function(object) {
   
   # Prepare multi-threading simulation    
   if (hardware@cpu > 1) {
-    # Replicate is at the first level of parallelisation
     if (hardware@replicate_parallel) {
       future::plan(future::multisession, workers=hardware@cpu)
     } else {
-      future::plan(
-        list(
-          # This is because 'replicate_parallel' is disabled
-          future::tweak(future::multisession, workers=1),
-          # Workers are reserved for the second level of parallelisation
-          future::tweak(future::multisession, workers=hardware@cpu)
+      if (hardware@scenario_parallel) {
+        future::plan(
+          list(
+            future::tweak(future::multisession, workers=1),           # Replicates' level
+            future::tweak(future::multisession, workers=hardware@cpu) # Scenarios' level
+          )
         )
-      )
+      } else {
+        if (hardware@dataset_parallel || hardware@slice_parallel) {
+          future::plan(
+            list(
+              future::tweak(future::multisession, workers=1),           # Replicates' level
+              future::tweak(future::multisession, workers=1),           # Scenarios' level
+              future::tweak(future::multisession, workers=hardware@cpu) # Slices' level
+            )
+          )
+        } else {
+          # Do nothing
+        }
+      }
     }
   }
 }
