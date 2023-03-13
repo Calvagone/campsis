@@ -254,9 +254,9 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @inheritParams simulate
 #' @return a data frame with the results
 #' @keywords internal
-#' @importFrom methods validObject
 #' @importFrom furrr furrr_options future_imap_dfr
 #' @importFrom progressr progressor
+#' @importFrom dplyr all_of mutate
 #' 
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
 
