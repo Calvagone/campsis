@@ -53,7 +53,7 @@ test_that("Solver settings work as expected", {
   
   settings <- Settings(Solver(atol=1e-12, rtol=1e-12))
   
-  # Hardware settings, default values
+  # Hardware settings, overridden values
   expect_equal(settings@solver@atol, 1e-12)
   expect_equal(settings@solver@rtol, 1e-12) 
   

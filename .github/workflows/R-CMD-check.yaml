@@ -65,7 +65,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          remotes::install_cran("RxODE", type="source")
+          remotes::install_cran("rxode2", type="source")
           remotes::install_github("Calvagone/campsismod", ref="develop")
           remotes::install_deps(dependencies=TRUE)
           remotes::install_cran("rcmdcheck")
