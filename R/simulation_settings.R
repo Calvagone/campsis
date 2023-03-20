@@ -26,8 +26,7 @@ setClass(
 #'
 #' Create advanced simulation settings.
 #'
-#' @param ... any required settings: hardware settings, solver settings, NOCB settings,
-#'  declare settings, etc.
+#' @param ... any user-required settings: see ?Hardware, ?Solver, ?NOCB or ?Declare settings
 #' @return advanced simulation settings
 #' @importFrom purrr detect
 #' @export
@@ -57,6 +56,14 @@ Settings <- function(...) {
   if (is.null(declare)) {
     declare <- Declare()
   }
+  
+  # Check no other argument remains
+  other <- args %>%  purrr::detect(~(!is(.x, "hardware_settings") ||
+                                     !is(.x, "solver_settings") ||
+                                     !is(.x, "nocb_settings") ||
+                                     !is(.x, "declare_settings")))
+  assertthat::assert_that(is.null(other),
+                          msg="Unknown argument detected. Accepted settings: see ?Hardware, ?Solver, ?NOCB or ?Declare")
   
   return(new("simulation_settings", hardware=hardware, solver=solver, nocb=nocb, declare=declare))
 }

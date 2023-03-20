@@ -52,3 +52,8 @@ test_that("NOCB settings work as expected", {
   expect_equal(settings@nocb@enable, FALSE)
   expect_equal(settings@nocb@variables, "OCC")
 })
+
+test_that("Unknown settings shouldn't be accepted", {
+  expect_error(Settings(Hardware(cpu=4, replicate_parallel=TRUE), Dataset()), regexp="Unknown argument detected")
+  expect_error(Settings(Hardware(cpu=4, replicate_parallel=TRUE), A=c(1,2,3)), regexp="Unknown argument detected")
+})
