@@ -26,6 +26,9 @@ test_that("Default simulation settings work as expected", {
   # NOCB settings, default values
   expect_equal(settings@nocb@enable, NA)
   expect_equal(settings@nocb@variables, character(0))
+  
+  expect_true("Hardware: default" %in% capture.output(show(settings)))
+  expect_true("Solver: default" %in% capture.output(show(settings)))
 })
 
 test_that("Hardware settings work as expected", {
@@ -42,7 +45,21 @@ test_that("Hardware settings work as expected", {
   expect_equal(settings@hardware@dataset_parallel, TRUE)
   expect_equal(settings@hardware@dataset_slice_size, 250)
   expect_equal(settings@hardware@auto_setup_plan, TRUE)
+  
+  expect_true("Hardware: 10 CPU core(s), parallelisation enabled (dataset, slices)" %in% capture.output(show(settings)))
 })
+
+test_that("Solver settings work as expected", {
+  
+  settings <- Settings(Solver(atol=1e-12, rtol=1e-12))
+  
+  # Hardware settings, default values
+  expect_equal(settings@solver@atol, 1e-12)
+  expect_equal(settings@solver@rtol, 1e-12) 
+  
+  expect_true("Solver: atol=1.0e-12, rtol=1.0e-12, hmax=NA, maxsteps=70000, method=liblsoda" %in% capture.output(show(settings)))
+})
+
 
 test_that("NOCB settings work as expected", {
   
@@ -51,7 +68,20 @@ test_that("NOCB settings work as expected", {
   # NOCB settings, overridden values
   expect_equal(settings@nocb@enable, FALSE)
   expect_equal(settings@nocb@variables, "OCC")
+  
+  expect_true("NOCB: enable=FALSE, variables={OCC}" %in% capture.output(show(settings)))
 })
+
+test_that("Declare settings work as expected", {
+  
+  settings <- Settings(Declare("OCC"))
+  
+  # Declare settings, overridden values
+  expect_equal(settings@declare@variables, "OCC")
+  
+  expect_true("Declare: variables={OCC}" %in% capture.output(show(settings)))
+})
+
 
 test_that("Unknown settings shouldn't be accepted", {
   expect_error(Settings(Hardware(cpu=4, replicate_parallel=TRUE), Dataset()), regexp="Unknown argument detected")

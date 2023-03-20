@@ -58,12 +58,24 @@ Settings <- function(...) {
   }
   
   # Check no other argument remains
-  other <- args %>%  purrr::detect(~(!is(.x, "hardware_settings") ||
-                                     !is(.x, "solver_settings") ||
-                                     !is(.x, "nocb_settings") ||
-                                     !is(.x, "declare_settings")))
-  assertthat::assert_that(is.null(other),
+  others <- args %>%  purrr::discard(~(is(.x, "hardware_settings") ||
+                                      is(.x, "solver_settings") ||
+                                      is(.x, "nocb_settings") ||
+                                      is(.x, "declare_settings")))
+  assertthat::assert_that(length(others) == 0,
                           msg="Unknown argument detected. Accepted settings: see ?Hardware, ?Solver, ?NOCB or ?Declare")
   
   return(new("simulation_settings", hardware=hardware, solver=solver, nocb=nocb, declare=declare))
 }
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("simulation_settings"), definition=function(object) {
+  cat("Simulation settings:\n")
+  show(object@hardware)
+  show(object@solver)
+  show(object@nocb)
+  show(object@declare)
+})

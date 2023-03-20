@@ -31,3 +31,17 @@ NOCB <- function(enable=NULL, variables=character(0)) {
   }
   return(new("nocb_settings", enable=enable, variables=variables))
 }
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("nocb_settings"), definition=function(object) {
+  if (identical(object, NOCB())) {
+    cat("")  
+  } else {
+    cat(sprintf("NOCB: enable=%s, variables={%s}", as.character(object@enable),
+                paste0(object@variables, collapse=", ")))
+    cat("\n")
+  }
+})

@@ -5,7 +5,7 @@
 #' 
 #' Hardware settings class.
 #' 
-#' @slot cpu number of CPU's to use, default is 1
+#' @slot cpu number of CPU cores to use, default is 1
 #' @slot replicate_parallel enable parallel computing for replicates, default is FALSE
 #' @slot scenario_parallel enable parallel computing for scenarios, default is FALSE
 #' @slot slice_parallel enable parallel computing for slices, default is FALSE
@@ -34,7 +34,7 @@ setClass(
 #'
 #' Create hardware settings.
 #'
-#' @param cpu number of CPU's to use, default is 1
+#' @param cpu number of CPU cores to use, default is 1
 #' @param replicate_parallel enable parallel computing for replicates, default is FALSE
 #' @param scenario_parallel enable parallel computing for scenarios, default is FALSE
 #' @param slice_parallel enable parallel computing for slices, default is FALSE
@@ -60,3 +60,23 @@ Hardware <- function(cpu=1, replicate_parallel=FALSE, scenario_parallel=FALSE,
              dataset_parallel=dataset_parallel, dataset_slice_size=as.integer(dataset_slice_size),
              auto_setup_plan=auto_setup_plan))
 }
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("hardware_settings"), definition=function(object) {
+  if (identical(object, Hardware())) {
+    cat("Hardware: default")    
+  } else {
+    items <- c("replicates", "scenarios", "dataset", "slices")
+    items_ <- items[c(object@replicate_parallel, object@scenario_parallel, object@dataset_parallel, object@slice_parallel)]
+    if (length(items_) == 0) {
+      parallel <- "parallelisation disabled"
+    } else {
+      parallel <- paste0("parallelisation enabled (", paste0(items_, collapse=", "), ")")
+    }
+    cat(sprintf("Hardware: %i CPU core(s), %s", object@cpu, parallel))
+  }
+  cat("\n")
+})

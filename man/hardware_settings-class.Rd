@@ -10,7 +10,7 @@ Hardware settings class.
 \section{Slots}{
 
 \describe{
-\item{\code{cpu}}{number of CPU's to use, default is 1}
+\item{\code{cpu}}{number of CPU cores to use, default is 1}
 
 \item{\code{replicate_parallel}}{enable parallel computing for replicates, default is FALSE}
 

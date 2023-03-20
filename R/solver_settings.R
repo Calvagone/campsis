@@ -39,3 +39,18 @@ setClass(
 Solver <- function(atol=1e-08, rtol=1e-08, hmax=NA, maxsteps=70000L, method="liblsoda") {
   return(new("solver_settings", atol=atol, rtol=rtol, hmax=as.numeric(hmax), maxsteps=as.integer(maxsteps), method=method))
 }
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("solver_settings"), definition=function(object) {
+  if (identical(object, Solver())) {
+    cat("Solver: default")    
+  } else {
+    cat(sprintf("Solver: atol=%1.1e, rtol=%1.1e, hmax=%1.1e, maxsteps=%i, method=%s",
+                object@atol, object@rtol, object@hmax, object@maxsteps, object@method))
+  }
+  cat("\n")
+})
+

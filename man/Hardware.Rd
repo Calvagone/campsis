@@ -16,7 +16,7 @@ Hardware(
 )
 }
 \arguments{
-\item{cpu}{number of CPU's to use, default is 1}
+\item{cpu}{number of CPU cores to use, default is 1}
 
 \item{replicate_parallel}{enable parallel computing for replicates, default is FALSE}
 
