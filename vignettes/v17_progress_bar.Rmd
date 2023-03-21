@@ -1,0 +1,58 @@
+---
+title: "Progress bar"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Progress bar}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(campsis)
+```
+
+This vignette explains how you can track the simulation progress thanks to package `progressr`.
+
+### Track your simulation progress in an R script
+
+Load package `progressr` as follows:
+
+```{r, warning=FALSE}
+library(progressr)
+```
+
+The easiest way to track the progress is to add the following snippet once for all in your script. By doing so, any call to the simulate method of `campsis` will display the progress bar.
+
+```{r, echo=TRUE, eval=FALSE}
+handlers(global=TRUE)
+```
+
+By default, the progress bar will only give the progress as a percentage. Any user-custom handler may be provided. Please have a look at the official [documentation](https://cran.r-project.org/web/packages/progressr/vignettes/progressr-intro.html) (section 'Customizing how progress is reported').
+
+If you want to use the default handler from `campsis`, which gives you more details about what's being simulated and what's the remaining time (ETA), you can write:
+```{r, echo=TRUE, eval=FALSE}
+handlers(campsis_handler())
+```
+
+If you don't want your handler(s) to be global, you can also explicitly call the method `with_progress`. The snippet below is an example of simulation where this method is called.
+
+```{r, with_progress_example, fig.align='center', fig.height=4, fig.width=8}
+dataset <- Dataset(1000) %>%
+  add(Infusion(time=0, amount=1000, compartment=1, ii=24, addl=6)) %>%
+  add(Observations(seq(0, 7*24)))
+
+model <- model_suite$pk$`1cpt_zo_abs_lag`
+results <- with_progress(simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, replicates=3))
+shadedPlot(results, "CONC", "replicate")
+```
+
+Any handler may be provided as well:
+
+```{r}
+results <- with_progress(simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, replicates=3), handlers=campsis_handler())
+```
+
+### Track your simulation progress in a targets project
+
