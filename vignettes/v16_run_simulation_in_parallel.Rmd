@@ -1,0 +1,251 @@
+---
+title: "Run your simulation in parallel"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Run your simulation in parallel}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, results='hide', echo=F, message=F, warning=F}
+library(campsis)
+library(tictoc)
+library(ggplot2)
+library(dplyr)
+```
+
+This vignette explains how Campsis can benefit from several CPU cores for running your simulation efficiently.
+
+### Base model and dataset
+
+```{r, echo=FALSE, eval=F}
+# GitHub  : use Dataset(100)
+# Vignette: use Dataset(1000)
+```
+
+```{r}
+model <- model_suite$pk$`2cpt_fo_mm`
+
+dataset <- Dataset(100) %>%
+  add(Bolus(time=0, amount=100, ii=12, addl=10)) %>%
+  add(Observations(times=0:(11*12)))
+```
+
+### Run replicates in parallel
+
+```{r, echo=FALSE, eval=F}
+# GitHub  : use replicates=10
+# Vignette: use replicates=100
+```
+
+Sequential run:
+
+```{r, message=F}
+tic()
+results <- simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, outfun=~PI(.x, output="CONC"), replicates=10)
+toc()
+```
+
+Using 6 cores:
+
+```{r}
+settings <- Settings(Hardware(cpu=6, replicate_parallel=TRUE))
+```
+
+```{r, message=F}
+tic()
+results <- simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, outfun=~PI(.x, output="CONC"), replicates=10, settings=settings)
+toc()
+```
+
+```{r replicates_in_parallel, fig.align='center', fig.height=4, fig.width=8}
+vpcPlot(results)
+```
+
+Since there is no uncertainty on the parameters and since 1000 patients are simulated in each replicate, the confidence intervals on the percentiles are very low.
+
+### Run scenarios in parallel
+
+Instead of giving a fixed dose, let's make the dose dynamic using a `DOSE` covariate:
+
+```{r}
+dataset_ <- dataset %>%
+  add(Covariate("DOSE", 0)) %>%
+  add(DoseAdaptation("AMT*DOSE"))
+```
+
+Let's create one scenario per dose to be tested:
+
+```{r}
+scenarios <- Scenarios()
+for (dose in c(0.5,1,5,10,50,100,500,1000,5000,10000,50000,100000)) {
+  scenarios <- scenarios %>%
+    add(Scenario(name=paste0("DOSE=", dose), dataset=dataset_ %>% replace(Covariate("DOSE", dose))))
+}
+```
+
+Sequential run:
+
+```{r, message=F}
+tic()
+results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1, scenarios=scenarios)
+toc()
+```
+
+Using 6 cores (plan is auto-setup):
+
+```{r}
+settings <- Settings(Hardware(cpu=6, scenario_parallel=TRUE))
+```
+
+```{r, message=F}
+tic()
+results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1, scenarios=scenarios, settings=settings)
+toc()
+```
+
+Using 6 cores (plan already setup from last execution):
+
+```{r}
+settings <- Settings(Hardware(cpu=6, scenario_parallel=TRUE, auto_setup_plan=FALSE))
+```
+
+```{r, message=F}
+tic()
+results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1, scenarios=scenarios, settings=settings)
+toc()
+```
+
+Plot results:
+
+```{r scenarios_in_parallel, fig.align='center', fig.height=4, fig.width=8}
+# Re-arrange scenarios by natural order
+results <- results %>% mutate(SCENARIO=factor(SCENARIO, levels=unique(SCENARIO)))
+
+shadedPlot(results, "CONC", "SCENARIO") +
+  facet_wrap(~SCENARIO, ncol=4, scales="free_y") +
+  guides(colour="none", fill="none")
+```
+
+### Export dataset in parallel
+
+In some particular cases, when the number of subjects is important and/or the dataset is complex, it may be interesting to export the dataset in parallel.
+Let's illustrate this feature using a dataset that contains a lot of subjects and treatment IOV (which is costly).
+
+```{r, echo=FALSE, eval=F}
+# GitHub  : use setSubjects(4000)
+# Vignette: use setSubjects(24000)
+```
+
+```{r}
+dataset_ <- dataset %>%
+  setSubjects(4000) %>%
+  add(IOV("IOV_KA", distribution=NormalDistribution(mean=0, sd=0.1))) # This step is costly
+```
+
+```{r}
+model_ <- model %>%
+  replaceAll("ETA_KA", "ETA_KA + IOV_KA")
+
+```
+
+Sequential run:
+
+```{r, message=F}
+tic()
+settings <- Settings(Hardware(slice_size=4000))
+results <- simulate(model=model_, dataset=dataset_, dest="mrgsolve", seed=1, settings=settings)
+toc()
+```
+
+Using 6 cores (plan is auto-setup):
+
+```{r}
+settings <- Settings(Hardware(cpu=6, dataset_parallel=TRUE, dataset_slice_size=4000, slice_size=4000))
+```
+
+```{r, message=F}
+tic()
+results <- simulate(model=model_, dataset=dataset_, dest="mrgsolve", seed=1, settings=settings)
+toc()
+```
+
+Using 6 cores (plan already setup from last execution):
+
+```{r}
+settings <- Settings(Hardware(cpu=6, dataset_parallel=TRUE, dataset_slice_size=4000, slice_size=4000, auto_setup_plan=FALSE))
+```
+
+```{r, message=F}
+tic()
+results <- simulate(model=model_, dataset=dataset_, dest="mrgsolve", seed=1, settings=settings)
+toc()
+```
+
+Plot results:
+
+```{r dataset_in_parallel, fig.align='center', fig.height=4, fig.width=8}
+shadedPlot(results, "CONC")
+```
+
+### Run slices in parallel
+
+```{r, echo=FALSE, eval=F}
+# GitHub  : use Dataset(10)
+# Vignette: use Dataset(200)
+```
+
+It may be useful to simulate slices in parallel when the simulation time per individual is high (e.g. long simulation).
+To illustrate this topic, let's dose and observe a drug over a 6-month period.
+
+```{r}
+dataset_ <- Dataset(10) %>%
+  add(Bolus(time=0, amount=100, ii=12, addl=364)) %>%
+  add(Observations(times=0:(365*12)))
+```
+
+Sequential run (`rxode2`) :
+
+```{r, message=F}
+tic()
+results <- simulate(model=model, dataset=dataset_, dest="rxode2", seed=1)
+toc()
+```
+
+Sequential run (`mrgsolve`) :
+
+```{r, message=F}
+tic()
+results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1)
+toc()
+```
+
+Using 6 cores (`rxode2`, plan is auto-setup):
+
+```{r}
+settings <- Settings(Hardware(cpu=6, slice_parallel=TRUE))
+```
+
+```{r, message=F}
+tic()
+results <- simulate(model=model, dataset=dataset_, dest="rxode2", seed=1, settings=settings)
+toc()
+```
+
+Using 6 cores (`mrgsolve`, plan is auto-setup):
+
+```{r}
+settings <- Settings(Hardware(cpu=6, slice_parallel=TRUE))
+```
+
+```{r, message=F}
+tic()
+results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1, settings=settings)
+toc()
+```
+
+Please note that the default slice size for `mrgsolve` is 500, which means that only 1 core was used in the previous example.
+For `rxode2`, which works with a much smaller slice size of 6 subjects, paralleling slices may be interesting for long simulations, as demonstrated here.
+
