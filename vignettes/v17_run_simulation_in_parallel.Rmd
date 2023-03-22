@@ -318,7 +318,7 @@ list(
 This small project can be downloaded by clicking the link below.
 
 ```{r echo=FALSE}
-xfun::embed_dir('resources/Targets Squeletton Parallel/', text="Download targets squeletton")
+xfun::embed_dir('resources/Targets_Squeletton_Parallel/', text="Download targets squeletton")
 ```
 
 To run this project, nothing is easier. Open an R console within your targets folder and type:
