@@ -515,11 +515,16 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   if (nrow(sigma)==0) {
     sigma <- NULL
   }
+
   # Fake OMEGA to avoid RxODE warning if several subjects in dataset
-  omega <- matrix(1)
-  fakeEtaName <- "FAKE_ETA"
-  rownames(omega) <- fakeEtaName
-  colnames(omega) <- fakeEtaName
+  if (dest@rxode2) {
+    omega <- FALSE
+  } else {
+    omega <- matrix(1)
+    fakeEtaName <- "FAKE_ETA"
+    rownames(omega) <- fakeEtaName
+    colnames(omega) <- fakeEtaName
+  }
   
   # Prepare simulation
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]

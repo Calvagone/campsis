@@ -47,7 +47,7 @@ Suggests:
     pkgdown,
     rmarkdown,
     roxygen2,
-    rxode2,
+    rxode2 (>= 2.0.12),
     stringr,
     testthat,
     tictoc
