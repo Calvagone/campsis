@@ -9,7 +9,7 @@ source(paste0("", "testUtils.R"))
 test_that(getTestName("Test generated RUV is correct"), {
   model <- model_suite$nonmem$advan4_trans4
   
-  ds <- Dataset(100) %>%
+  ds <- Dataset(500) %>%
     add(Bolus(0, 1000)) %>%
     add(Observations(times=seq(0.1,24,by=0.1))) # No predose to avoid zero's
   
