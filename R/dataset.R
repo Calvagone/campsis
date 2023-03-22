@@ -432,9 +432,10 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
         
         # Merge all time varying covariate tables into a single table
         # The idea is to use 1 EVID=2 row per subject time
-        timeCov <- mergeTimeVaryingCovariates(timeVaryingCovariates, ids) %>%
+        timeCov <- mergeTimeVaryingCovariates(covariates=timeVaryingCovariates,
+                                              ids_within_arm=ids_within_arm, arm_offset=arm_offset) %>%
           sampleTimeVaryingCovariates(armID=armID, needsDV=needsDV)
-        
+
         # Bind with treatment and observations and sort
         table <- dplyr::bind_rows(table, timeCov)
         table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))

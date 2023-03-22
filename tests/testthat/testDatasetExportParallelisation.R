@@ -47,6 +47,68 @@ test_that("Fixed covariates (including bootstrap) are correctly dealth with when
   expect_equal(conf3[[4]], tibble(subjects=1, arm_index=1, offset_within_arm=9, arm_offset=0))
 })
 
+test_that("Time-varying covariates are correctly dealth with when parallelisation is enabled", {
+  
+  db <- dplyr::bind_rows(
+    data.frame(ID=1, TIME=c(0, 24), VALUE=c(70, 71)),
+    data.frame(ID=2, TIME=c(0, 24), VALUE=c(72, 73)),
+    data.frame(ID=3, TIME=c(0, 24), VALUE=c(74, 75)),
+    data.frame(ID=4, TIME=c(0, 24), VALUE=c(76, 77)),
+    data.frame(ID=5, TIME=c(0, 24), VALUE=c(78, 79)),
+    data.frame(ID=6, TIME=c(0, 24), VALUE=c(80, 81)),
+    data.frame(ID=7, TIME=c(0, 24), VALUE=c(82, 83)),
+    data.frame(ID=8, TIME=c(0, 24), VALUE=c(84, 85)),
+    data.frame(ID=9, TIME=c(0, 24), VALUE=c(86, 87)),
+    data.frame(ID=10, TIME=c(0, 24), VALUE=c(88, 89))
+  )
+  
+  dataset <- Dataset(10) %>%
+    add(Bolus(time=0, amount=10, compartment=1)) %>%
+    add(Observations(24)) %>%
+    add(TimeVaryingCovariate("BW", db))
+  
+  # Default setting (no parallelisation)
+  settings1 <- Settings()
+  
+  table1 <- dataset %>% export(dest="RxODE", settings=settings1)
+  
+  # Parallelisation with 2 CPU's and slice of 5 subjects
+  settings2 <- Settings(Hardware(cpu=2, dataset_parallel=T, dataset_slice_size=5))
+  
+  table2 <- dataset %>% export(dest="RxODE", settings=settings2)
+  
+  expect_equal(table1, table2)
+  expect_equal(table1$BW %>% unique(), db$VALUE %>% unique())
+  expect_equal(table2$BW %>% unique(), db$VALUE %>% unique())
+
+  # Parallelisation with 2 CPU's and slice of 3 subjects
+  settings3 <- Settings(Hardware(cpu=2, dataset_parallel=T, dataset_slice_size=3))
+  
+  table3 <- dataset %>% export(dest="mrgsolve", settings=settings3)
+  expect_equal(table1, table3)
+  
+  # Same kind of tests but with 2 arms
+  arm1 <- Arm(subjects=5) %>%
+    add(Bolus(time=0, amount=10, compartment=1)) %>%
+    add(Observations(24)) %>%
+    add(TimeVaryingCovariate("BW", db %>% dplyr::filter(ID %in% (1:5))))
+  
+  arm2 <- Arm(subjects=5) %>%
+    add(Bolus(time=0, amount=10, compartment=1)) %>%
+    add(Observations(24)) %>%
+    add(TimeVaryingCovariate("BW", db %>% dplyr::filter(ID %in% (6:10)) %>% dplyr::mutate(ID=ID - 5)))
+  
+  dataset_ <- Dataset() %>%
+    add(c(arm1, arm2))
+  
+  table3b <- dataset_ %>% export(dest="RxODE", settings=settings3)
+  
+  # Identical tables except ARM column
+  expect_equal(table3 %>% dplyr::select(-ARM), table3b %>% dplyr::select(-ARM))
+  expect_equal(table3$ARM, rep(0, 3*10))
+  expect_equal(table3b$ARM, c(rep(1, 3*5), rep(2, 3*5)))
+})
+
 
 test_that("Arms are correctly dealth with when parallelisation is enabled", {
 
