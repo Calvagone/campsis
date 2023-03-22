@@ -249,3 +249,81 @@ toc()
 Please note that the default slice size for `mrgsolve` is 500, which means that only 1 core was used in the previous example.
 For `rxode2`, which works with a much smaller slice size of 6 subjects, paralleling slices may be interesting for long simulations, as demonstrated here.
 
+### Setup plan with package future
+
+As you may have seen in the examples above, the argument `auto_setup_plan` is `TRUE` by default. This means, that Campsis, will setup your hardware plan every time you call the `simulate` method. This comes at a high cost since the setup phase can take some time.
+
+For repeated simulations, it may be useful to setup your plan manually once for all. To do so, you can call `setupPlanDefault` on your settings or hardware object:
+
+```{r}
+settings <- Settings(Hardware(cpu=2, replicate_parallel=TRUE, auto_setup_plan=FALSE))
+setupPlanDefault(settings)
+```
+
+If you do so, please don't forget to set the argument `auto_setup_plan` to FALSE, when you give these settings to the `simulate` method, otherwise your plan is setup again...
+
+For going back to the sequential execution (1 CPU core), you can call:
+
+```{r}
+setupPlanSequential()
+```
+
+### Run Campsis in parallel within the pipeline tool targets
+
+The [targets](https://books.ropensci.org/targets/) package is a Make-like pipeline tool for Statistics and data science in R. With targets, you can maintain a reproducible workflow without repeating yourself. It is the ideal pipeline tool to use for medium to large simulation projects with Campsis.
+
+This package supports parallelisation and therefore can complete your simulation workflow faster. The following script (`_targets.R`) gives you a brief overview of how you can run several simulation targets in parallel.
+
+```{r, echo=TRUE, eval=FALSE}
+library(targets)
+
+source("R/my_script.R")
+
+# Packages loaded by targets
+packages <- c("campsis", "progressr", "future")
+tar_option_set(packages=packages, storage="worker", retrieval="worker")
+
+# Prepare 3 workers
+future::plan(future::multisession, workers=3)
+
+list(
+  tar_target(
+    model,
+    model_suite$pk$`1cpt_zo_abs_lag`,
+    deployment="main"
+  ),
+  tar_target(
+    dataset,
+    makeDataset(subjects=1000, dose=1000),
+    deployment="main"
+  ),
+  tar_target(
+    results1,
+    runSimulation(model=model, dataset=dataset, replicates=10, seed=1),
+    deployment="worker"
+  ),
+  tar_target(
+    results2,
+    runSimulation(model=model, dataset=dataset, replicates=10, seed=2),
+    deployment="worker"
+  ),
+  tar_target(
+    results3,
+    runSimulation(model=model, dataset=dataset, replicates=10, seed=3),
+    deployment="worker"
+  )
+)
+```
+
+This small project can be downloaded by clicking the link below.
+
+```{r echo=FALSE}
+xfun::embed_dir('resources/Targets Squeletton Parallel/', text="Download targets squeletton")
+```
+
+To run this project, nothing is easier. Open an R console within your targets folder and type:
+
+```{r, echo=TRUE, eval=FALSE}
+library(targets)
+tar_make_future(workers=3)
+```

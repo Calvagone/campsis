@@ -29,7 +29,7 @@ The easiest way to track the progress is to add the following snippet once for a
 handlers(global=TRUE)
 ```
 
-By default, the progress bar will only give the progress as a percentage. Any user-custom handler may be provided. Please have a look at the official [documentation](https://cran.r-project.org/web/packages/progressr/vignettes/progressr-intro.html) (section 'Customizing how progress is reported').
+By default, the progress bar will only give the progress as a percentage. Any user-custom handler may be provided. Please have a look at the official [documentation](https://CRAN.R-project.org/web/packages/progressr/vignettes/progressr-intro.html) (section 'Customizing how progress is reported').
 
 If you want to use the default handler from `campsis`, which gives you more details about what's being simulated and what's the remaining time (ETA), you can write:
 ```{r, echo=TRUE, eval=FALSE}
@@ -112,3 +112,10 @@ This small project can be downloaded by clicking the link below.
 ```{r echo=FALSE}
 xfun::embed_dir('resources/Targets Squeletton/', text="Download targets squeletton")
 ```
+
+To run this project, simply open an R console within your targets folder and type:
+```{r, echo=TRUE, eval=FALSE}
+library(targets)
+tar_make()
+```
+
