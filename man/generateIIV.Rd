@@ -2,18 +2,20 @@
 % Please edit documentation in R/dataset.R
 \name{generateIIV}
 \alias{generateIIV}
-\title{Generate IIV.}
+\title{Generate IIV matrix for the given Campsis model.}
 \usage{
-generateIIV(omega, n)
+generateIIV(model, n, offset = 0)
 }
 \arguments{
-\item{omega}{omega matrix}
+\item{model}{Campsis model}
 
 \item{n}{number of subjects}
+
+\item{offset}{if specified, resulting ID will be ID + offset}
 }
 \value{
-IIV data frame
+IIV data frame with ID column
 }
 \description{
-Generate IIV.
+Generate IIV matrix for the given Campsis model.
 }

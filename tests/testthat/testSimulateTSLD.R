@@ -17,9 +17,10 @@ test_that(getTestName("Weibull model simulation works as expected"), {
     add(config)
   
   nocbvars <- "TDOS" # This is needed for mrgsolve because TDOS is considered as a time-varying covariate
+  settings <- Settings(NOCB(variables=nocbvars))
   
   # Export TDOS only
-  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, seed=seed, nocbvars=nocbvars))
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, seed=seed, settings=settings))
   test <- expression(
     outputRegressionTest(results, output="CONC", filename=regFilename)
   )
@@ -33,7 +34,7 @@ test_that(getTestName("Weibull model simulation works as expected"), {
   # Not really a simulation here...
   simulation <- expression(
     nocb <- if (destEngine %in% c("RxODE", "rxode2")) {FALSE} else {TRUE},
-    ds %>% export(dest=destEngine, config=config, nocb=nocb, nocbvars=nocbvars)
+    ds %>% export(dest=destEngine, settings=settings)
   )
   test <- expression(
     results_ <- results %>% dplyr::filter(ID==1),

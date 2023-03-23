@@ -217,13 +217,13 @@ setMethod("setSubjects", signature = c("dataset", "integer"), definition = funct
 #----                                export                                 ----
 #_______________________________________________________________________________
 
-#' Generate IIV.
+#' Generate IIV matrix for the given OMEGA matrix.
 #' 
 #' @param omega omega matrix
 #' @param n number of subjects
 #' @return IIV data frame
 #' @export
-generateIIV <- function(omega, n) {
+generateIIV_ <- function(omega, n) {
   if (nrow(omega)==0) {
     return(data.frame())
   }
@@ -235,16 +235,58 @@ generateIIV <- function(omega, n) {
   return(iiv)
 }
 
+#' Generate IIV matrix for the given Campsis model.
+#' 
+#' @param model Campsis model
+#' @param n number of subjects
+#' @param offset if specified, resulting ID will be ID + offset
+#' @return IIV data frame with ID column
+#' @export
+generateIIV <- function(model, n, offset=0) {
+  # Generate IIV only if model is provided
+  if (is.null(model)) {
+    iiv <- data.frame()
+  } else {
+    rxmod <- model %>% export(dest="RxODE")
+    iiv <- generateIIV_(omega=rxmod@omega, n=n)
+    if (nrow(iiv) > 0) {
+      iiv <- iiv %>% tibble::add_column(ID=seq_len(n) + offset, .before=1)
+    }
+  }
+  return(iiv)
+}
+
+#' Left-join IIV matrix.
+#' 
+#' @param table dataset, tabular form
+#' @param iiv IIV matrix
+#' @return updated table with IIV matrix
+leftJoinIIV <- function(table, iiv) {
+  if (nrow(iiv) > 0) {
+    table <- table %>% dplyr::left_join(iiv, by="ID")
+  }
+  return(table)
+}
+
 #' Sample covariates list.
 #' 
 #' @param covariates list of covariates to sample
-#' @param n number of desired samples
+#' @param ids_within_arm ids within the current arm being sampled
+#' @param subset take subset of original values because export is parallelised
 #' @return a dataframe of n rows, 1 column per covariate
 #' @keywords internal
 #' 
-sampleCovariatesList <- function(covariates, n) {
+sampleCovariatesList <- function(covariates, ids_within_arm, subset) {
+  n <- length(ids_within_arm)
   retValue <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
-    sampleDistributionAsTibble(covariate@distribution, n=n, colname=covariate@name)
+    distribution <- covariate@distribution
+    if (subset && is(distribution, "fixed_distribution")) {
+      distribution@values <- distribution@values[ids_within_arm]
+      # print(ids_within_arm)
+      assertthat::assert_that(!any(is.na(distribution@values)),
+                              msg=paste0("NA's detected in covariate '", covariate@name, "'"))
+    }
+    sampleDistributionAsTibble(distribution, n=n, colname=covariate@name)
   })
   return(retValue)
 }
@@ -288,9 +330,10 @@ applyCompartmentCharacteristics <- function(table, properties) {
 }
 
 #' @importFrom dplyr all_of
-setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, nocb=FALSE, event_related_column=FALSE, ...) {
+setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, model=NULL, settings=NULL, event_related_column=FALSE) {
   destinationEngine <- getSimulationEngineType(dest)
-  table <- object %>% export(destinationEngine, seed=seed, nocb=nocb, ...)
+  settings <- preprocessSettings(settings, dest) # In case of NULL settings
+  table <- object %>% export(dest=destinationEngine, seed=seed, model=model, settings=settings)
   if (!event_related_column) {
     table <- table %>% dplyr::select(-dplyr::all_of("EVENT_RELATED"))
   }
@@ -301,9 +344,12 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' 
 #' @param object current dataset
 #' @param dest destination engine
-#' @param seed seed value
-#' @param nocb nocb value, logical value
-#' @param ... extra arguments
+#' @param model Campsis model, if provided, ETA's will be added to the dataset
+#' @param arm_offset arm offset (on ID's) to apply when parallelisation is used.
+#' Default value is NULL, meaning parallelisation is disabled. Otherwise, it corresponds
+#' to the offset to apply for the current arm being exported (in parallel).
+#' @param offset_within_arm offset (on ID's) to apply within the current arm being
+#'  exported (only used when parallelisation is enabled), default is 0
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
 #' @importFrom dplyr across all_of arrange bind_rows group_by left_join
 #' @importFrom campsismod export
@@ -312,30 +358,13 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @importFrom rlang parse_expr
 #' @keywords internal
 #' 
-exportDelegate <- function(object, dest, seed, nocb, ...) {
-  args <- list(...)
-  model <- args$model
-  if (!is.null(model) && !is(model, "campsis_model")) {
-    stop("Please provide a valid CAMPSIS model.")
-  }
-  
-  # Set seed value
-  setSeed(getSeed(seed))
-  
-  # Generate IIV only if model is provided
-  if (is.null(model)) {
-    iiv <- data.frame()
-  } else {
-    rxmod <- model %>% export(dest="RxODE")
-    subjects <- object %>% length()
-    iiv <- generateIIV(omega=rxmod@omega, n=subjects)
-    if (nrow(iiv) > 0) {
-      iiv <- iiv %>% tibble::add_column(ID=seq_len(subjects), .before=1)
-    }
-  }
-  
+exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_arm=0) {
+
   # Retrieve dataset configuration
   config <- object@config
+
+  # Subset covariates if parallelisation is enabled (arm_offset != NULL)
+  subsetCovariates <- !is.null(arm_offset)
   
   # Use either arms or default_arm
   arms <- object@arms
@@ -366,7 +395,11 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     doseAdaptations <- treatment@dose_adaptations
     
     # Generating subject ID's
-    ids <- seq_len(subjects) + maxID - subjects
+    if (is.null(arm_offset)) {
+      arm_offset <- maxID - subjects
+    }
+    ids_within_arm <- seq_len(subjects) + offset_within_arm # ID's within arm
+    ids <- ids_within_arm + arm_offset                      # ID's within dataset
     
     # Create the base table with all treatment entries and observations
     needsDV <- observations@list %>% purrr::map_lgl(~.x@dv %>% length() > 0) %>% any()
@@ -375,7 +408,7 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
     table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))
 
     # Sampling covariates
-    cov <- sampleCovariatesList(covariates, n=length(ids))
+    cov <- sampleCovariatesList(covariates, ids_within_arm=ids_within_arm, subset=subsetCovariates)
     
     if (nrow(cov) > 0) {
       # Retrieve all covariate names (including time-varying ones)
@@ -399,9 +432,10 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
         
         # Merge all time varying covariate tables into a single table
         # The idea is to use 1 EVID=2 row per subject time
-        timeCov <- mergeTimeVaryingCovariates(timeVaryingCovariates, ids) %>%
+        timeCov <- mergeTimeVaryingCovariates(covariates=timeVaryingCovariates,
+                                              ids_within_arm=ids_within_arm, arm_offset=arm_offset) %>%
           sampleTimeVaryingCovariates(armID=armID, needsDV=needsDV)
-        
+
         # Bind with treatment and observations and sort
         table <- dplyr::bind_rows(table, timeCov)
         table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))
@@ -420,11 +454,6 @@ exportDelegate <- function(object, dest, seed, nocb, ...) {
       iov <- sampleDistributionAsTibble(treatmentIov@distribution, n=length(ids)*length(doseNumbers), colname=treatmentIov@colname)
       iov <- iov %>% dplyr::mutate(ID=rep(ids, each=length(doseNumbers)), DOSENO=rep(doseNumbers, length(ids)))
       table <- table %>% dplyr::left_join(iov, by=c("ID","DOSENO"))
-    }
-
-    # Joining IIV
-    if (nrow(iiv) > 0) {
-      table <- table %>% dplyr::left_join(iiv, by="ID")
     }
     
     # Joining occasions
@@ -550,7 +579,6 @@ getTimeVaryingVariables <- function(object) {
   return(retValue)
 }
 
-
 #' Preprocess TSLD and TDOS columns according to given dataset configuration.
 #' 
 #' @param table current table
@@ -603,62 +631,178 @@ processTSLDAndTDOSColumn <- function(table, config) {
   return(table)
 }
 
-setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, ...) {
-  
-  table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
-  nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
-  nocbvars <- campsismod::processExtraArg(list(...), "nocbvars", default=NULL)
-  nocbvars <- preprocessNocbvars(nocbvars)
 
-  # TSLD/TDOS preprocessing
-  table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
+#' Get splitting configuration for parallel export.
+#' 
+#' @param dataset Campsis dataset to export
+#' @param hardware hardware configuration
+#' @return splitting configuration list (if 'parallel_dataset' is enabled) or
+#'  NA (if 'parallel_dataset' disabled or if the length of the dataset is less than the dataset export slice size)
+#' @export
+#'
+getSplittingConfiguration <- function(dataset, hardware) {
   
-  # IOV / Occasion / Time-varying covariates post-processing
-  iovOccNames <- getTimeVaryingVariables(object)
-  iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
-  iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
+  sliceSize <- hardware@dataset_slice_size
   
-  if (nocb) {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNamesNocb, downDirectionFirst=TRUE)
-    table <- fillIOVOccColumns(table, columnNames=iovOccNamesLocf, downDirectionFirst=FALSE)
-    table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
-  } else {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+  # Return NA if parallel export not needed
+  if (!hardware@dataset_parallel) {
+    return(NA)
   }
   
-  # TSLD/TDOS processing
-  table <- table %>% processTSLDAndTDOSColumn(config=object@config)
+  # Splitting not needed if number of subject <= sliceSize 
+  if (length(dataset) <= sliceSize) {
+    return(NA)
+  }
   
-  return(table %>% dplyr::ungroup())
+  # Split each arm according to the given dataset slice (size)
+  retValue <- dataset@arms@list %>% purrr::imap(.f=function(arm, index) {
+    subjects <- arm@subjects
+    div <- subjects %/% sliceSize
+    modulo <- subjects %% sliceSize
+    subjects_ <- rep(sliceSize, div)
+    if (modulo > 0) {
+      subjects_ <- c(subjects_, modulo)
+    }
+    offset <- subjects_ %>%
+      purrr::accumulate(~(.x+.y))
+    offset <- c(0, offset[-length(offset)])
+    return(list(subjects=subjects_, arm_index=index, offset_within_arm=offset))
+  }) %>% purrr::map_dfr(.f=~tibble::tibble(subjects=as.integer(.x$subjects),
+                                           arm_index=.x$arm_index,
+                                           offset_within_arm=.x$offset_within_arm))
+  
+  # Left join arm offset
+  armOffset <-  dataset@arms@list %>%
+    purrr::map_int(~.x@subjects) %>%
+    purrr::accumulate(~(.x + .y))
+  armOffset <- c(0, armOffset[-length(armOffset)])
+  retValue <- retValue %>%
+    dplyr::left_join(tibble::tibble(arm_index=seq_along(dataset@arms@list), arm_offset=armOffset), by="arm_index")
+  
+  # Data frame to list conversion
+  retValue <- split(retValue, seq(nrow(retValue)))
+  
+  return(retValue)
+}
+
+
+#' Split dataset according to config.
+#' 
+#' @param dataset Campsis dataset to export
+#' @param config current iteration in future_map_dfr
+#' @return a subset of the given dataset
+#' @keywords internal
+#'
+splitDataset <- function(dataset, config) {
+  if (is.list(config)) {
+    arm <- dataset@arms@list[[config$arm_index]] %>% setSubjects(config$subjects)
+    dataset@arms@list <- list(arm) # Only put previous arm into dataset
+  }
+  return(dataset)
+}
+
+setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, model, settings) {
+  
+  # NOCB management
+  nocb <- settings@nocb@enable
+  nocbvars <- preprocessNocbvars(settings@nocb@variables)
+  
+  # Set seed value
+  setSeed(getSeed(seed))
+  
+  # Generate IIV
+  iiv <- generateIIV(model=model, n=length(object))
+  
+  # Retrieve splitting configuration
+  configList <- getSplittingConfiguration(dataset=object, hardware=settings@hardware)
+  furrrSeed <- if (is.list(configList)) {TRUE} else {NULL}
+  
+  retValue <- furrr::future_map_dfr(.x=configList, .f=function(config) {
+
+    # Export table
+    arm_offset <- if (is.list(config)) {config$arm_offset} else {NULL}
+    offset_within_arm <- if (is.list(config)) {config$offset_within_arm} else {0}
+    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model,
+                            arm_offset=arm_offset, offset_within_arm=offset_within_arm)
+
+    # TSLD/TDOS preprocessing
+    table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
+    
+    # IOV / Occasion / Time-varying covariates post-processing
+    iovOccNames <- getTimeVaryingVariables(object)
+    iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
+    iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
+    
+    if (nocb) {
+      table <- fillIOVOccColumns(table, columnNames=iovOccNamesNocb, downDirectionFirst=TRUE)
+      table <- fillIOVOccColumns(table, columnNames=iovOccNamesLocf, downDirectionFirst=FALSE)
+      table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
+    } else {
+      table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+    }
+    
+    # TSLD/TDOS processing
+    table <- table %>% processTSLDAndTDOSColumn(config=object@config)
+    
+    return(table %>% dplyr::ungroup())
+  }, .options=furrr::furrr_options(seed=furrrSeed, scheduling=getFurrrScheduling(settings@hardware@dataset_parallel)))
+  
+  # Left-join IIV matrix
+  retValue <- leftJoinIIV(table=retValue, iiv=iiv)
+  
+  return(retValue)
 })
 
-setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, ...) {
+setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, model, settings) {
   
-  table <- exportDelegate(object=object, dest=dest, seed=seed, ...)
-  nocb <- campsismod::processExtraArg(list(...), "nocb", default=FALSE)
-  nocbvars <- campsismod::processExtraArg(list(...), "nocbvars",  default=NULL)
-  nocbvars <- preprocessNocbvars(nocbvars)
+  # NOCB management
+  nocb <- settings@nocb@enable
+  nocbvars <- preprocessNocbvars(settings@nocb@variables)
+  
+  # Set seed value
+  setSeed(getSeed(seed))
+  
+  # Generate IIV
+  iiv <- generateIIV(model=model, n=length(object))
 
-  # TSLD/TDOS preprocessing
-  table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
+  # Retrieve splitting configuration
+  configList <- getSplittingConfiguration(dataset=object, hardware=settings@hardware)
+  furrrSeed <- if (is.list(configList)) {TRUE} else {NULL}
+
+  retValue <- furrr::future_map_dfr(.x=configList, .f=function(config) {
+    
+    # Export table
+    arm_offset <- if (is.list(config)) {config$arm_offset} else {NULL}
+    offset_within_arm <- if (is.list(config)) {config$offset_within_arm} else {0}
+    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model,
+                            arm_offset=arm_offset, offset_within_arm=offset_within_arm)
+    
+    # TSLD/TDOS preprocessing
+    table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
+    
+    # IOV / Occasion / Time-varying covariates post-processing
+    iovOccNames <- getTimeVaryingVariables(object)
+    iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
+    iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
+    
+    if (nocb) {
+      table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE) # TRUE/FALSE not important (like NONMEM)
+      table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
+    } else {
+      table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
+      table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
+    }
+    
+    # TSLD/TDOS processing
+    table <- table %>% processTSLDAndTDOSColumn(config=object@config)
+    
+    return(table %>% dplyr::ungroup())
+  }, .options=furrr::furrr_options(seed=furrrSeed, scheduling=getFurrrScheduling(settings@hardware@dataset_parallel)))
   
-  # IOV / Occasion / Time-varying covariates post-processing
-  iovOccNames <- getTimeVaryingVariables(object)
-  iovOccNamesNocb <- iovOccNames[iovOccNames %in% nocbvars]
-  iovOccNamesLocf <- iovOccNames[!(iovOccNames %in% nocbvars)]
-  
-  if (nocb) {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE) # TRUE/FALSE not important (like NONMEM)
-    table <- counterBalanceNocbMode(table, columnNames=iovOccNamesNocb)
-  } else {
-    table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
-    table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
-  }
-  
-  # TSLD/TDOS processing
-  table <- table %>% processTSLDAndTDOSColumn(config=object@config)
-  
-  return(table %>% dplyr::ungroup())
+  # Left-join IIV matrix
+  retValue <- leftJoinIIV(table=retValue, iiv=iiv)
+
+  return(retValue)
 })
 
 #_______________________________________________________________________________

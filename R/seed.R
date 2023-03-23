@@ -37,26 +37,23 @@ getSeedForParametersSampling <- function(seed) {
 #' Get seed for dataset export.
 #' 
 #' @param seed original seed
-#' @param replicate the current replicate number
-#' @param iterations total number of iterations
+#' @param progress simulation progress
 #' @return the seed value used to export the dataset
 #' @export
 #' 
-getSeedForDatasetExport <- function(seed, replicate, iterations) {
-  return(as.integer(seed + (replicate - 1)*(iterations + 1)))
+getSeedForDatasetExport <- function(seed, progress) {
+  return(as.integer(seed + (progress@replicate - 1)*(progress@iterations + 1)))
 }
 
 #' Get seed for iteration.
 #' 
 #' @param seed original seed
-#' @param replicate the current replicate number
-#' @param iterations total number of iterations
-#' @param iteration current iteration number
+#' @param progress simulation progress
 #' @return the seed value to be used for the given replicate number and iteration
 #' @export
 #' 
-getSeedForIteration <- function(seed, replicate, iterations, iteration) {
-  return(getSeedForDatasetExport(seed, replicate, iterations) + iteration)
+getSeedForIteration <- function(seed, progress) {
+  return(getSeedForDatasetExport(seed=seed, progress=progress) + progress@iteration)
 }
 
 #' Set the seed. The goal of this method is to centralize all calls to

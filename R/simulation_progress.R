@@ -9,6 +9,8 @@
 #' @param scenario current scenario number being simulated
 #' @param iteration current iteration number being simulated
 #' @param slice current slice number being simulated
+#' @param progressor progressr progressor
+#' @param hardware hardware settings
 #' @export
 setClass(
   "simulation_progress",
@@ -21,7 +23,8 @@ setClass(
     scenario="integer",
     iteration="integer",
     slice="integer",
-    pb="ANY"
+    progressor="ANY",
+    hardware="hardware_settings"
   ),
   validity=function(object) {
     return(c(expectOne(object, "replicates"),
@@ -41,15 +44,21 @@ setClass(
 #' 
 #' @param replicates total number of replicates to simulate
 #' @param scenarios total number of scenarios to simulate
+#' @param progressor progressr progressor
+#' @param hardware hardware settings
 #' @return a progress bar
+#' @importFrom progressr progressor
 #' @export
-SimulationProgress <- function(replicates=1, scenarios=1) {
+SimulationProgress <- function(replicates=1, scenarios=1, progressor=NULL, hardware=NULL) {
+  if (is.null(hardware)) {
+    hardware <- Hardware()
+  }
   return(new("simulation_progress",
              replicates=as.integer(replicates),
              scenarios=as.integer(scenarios),
              iterations=1L,
-             pb=progress::progress_bar$new(format=" :custom_field [:bar] :percent eta: :eta",
-                                           total=100, force=TRUE)))
+             progressor=progressor,
+             hardware=hardware))
 }
 
 #' Compute incremental progress.
@@ -73,7 +82,17 @@ tick <- function(object) {
   } else {
     customMessage <- paste0("Simulating slice ", object@slice, "/", object@slices)
   }
-  object@pb$tick(increment, tokens=list(custom_field=customMessage))
+  if (object@hardware@cpu > 1) {
+    cpus <- paste0("cpu=", object@hardware@cpu)
+    if (object@hardware@replicate_parallel) {
+      customMessage <- paste0("Simulating replicates in parallel (", cpus, ")")
+    } else if (object@hardware@scenario_parallel) {
+      customMessage <- paste0("Simulating scenarios in parallel (", cpus, ")")
+    } else {
+      customMessage <- paste0("Running simulation in parallel (", cpus, ")")
+    }
+  }
+  object@progressor(message=customMessage, amount=increment)
   return(object)
 }
 
@@ -103,3 +122,15 @@ updateSlice <- function(object, index) {
   return(object)
 }
 
+#' Suggested Campsis handler for showing the progress bar.
+#' 
+#' @return a progressr handler list
+#' @export
+campsis_handler <- function() {
+  return(list(
+    progressr::handler_progress(
+      format=" :message [:bar] :percent eta: :eta",
+      width=100
+    )
+  ))
+}

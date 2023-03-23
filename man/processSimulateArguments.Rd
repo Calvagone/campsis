@@ -4,7 +4,7 @@
 \alias{processSimulateArguments}
 \title{Preprocess arguments of the simulate method.}
 \usage{
-processSimulateArguments(model, dataset, dest, outvars, dosing, ...)
+processSimulateArguments(model, dataset, dest, outvars, dosing, settings)
 }
 \arguments{
 \item{model}{CAMPSIS model}
@@ -17,7 +17,7 @@ processSimulateArguments(model, dataset, dest, outvars, dosing, ...)
 
 \item{dosing}{add dosing information, logical value}
 
-\item{...}{all other arguments}
+\item{settings}{simulation settings}
 }
 \value{
 a simulation configuration

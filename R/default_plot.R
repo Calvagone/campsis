@@ -116,7 +116,7 @@ scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
   if (is.null(time)) {
     time <- min(x$TIME)
   }
-  x <- x %>% dplyr::filter(TIME %in% time)
+  x <- x %>% dplyr::filter(.data$TIME %in% time)
   
   if (output %>% length() == 1) {
     x$MY_OUTPUT_2 <- 0

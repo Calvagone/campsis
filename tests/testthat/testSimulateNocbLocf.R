@@ -26,7 +26,7 @@ test_that(getTestName("Weight as a time-varying covariate, NOCB vs LOCF"), {
   
   # LOCF tests
   regFilename <- "wt_as_time_varying_cov_locf"
-  simulation <- expression(simulate(model=model, dataset=table, dest=destEngine, nocb=FALSE, seed=seed, declare="BW"))
+  simulation <- expression(simulate(model=model, dataset=table, dest=destEngine, settings=Settings(NOCB(FALSE), Declare("BW")), seed=seed))
   # Note: argument declare is only needed for mrgsolve
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
@@ -36,7 +36,7 @@ test_that(getTestName("Weight as a time-varying covariate, NOCB vs LOCF"), {
   
   # NOCB tests
   regFilename <- "wt_as_time_varying_cov_nocb"
-  simulation <- expression(simulate(model=model, dataset=table, dest=destEngine, nocb=TRUE, seed=seed, declare="BW"))
+  simulation <- expression(simulate(model=model, dataset=table, dest=destEngine, settings=Settings(NOCB(TRUE), Declare("BW")), seed=seed))
   # Note: argument declare is only needed for mrgsolve
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
@@ -70,7 +70,7 @@ test_that(getTestName("NOCB/LOCF should not have any effect on treatment occasio
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
   
   # LOCF tests
-  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, nocb=FALSE, seed=seed, outvars="KA", nocbvars="OCC"))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, settings=Settings(NOCB(FALSE, "OCC")), seed=seed, outvars="KA"))
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
     spaghettiPlot(results, "CP")
@@ -78,7 +78,7 @@ test_that(getTestName("NOCB/LOCF should not have any effect on treatment occasio
   campsisTest(simulation, test, env=environment())
   
   # NOCB tests
-  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, nocb=TRUE, seed=seed, outvars="KA", nocbvars="OCC"))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, settings=Settings(NOCB(TRUE, "OCC")), seed=seed, outvars="KA"))
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
     spaghettiPlot(results, "CP")
@@ -106,7 +106,7 @@ test_that(getTestName("NOCB/LOCF should not have any effect on IOV, e.g. on clea
     # table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed)
     
     # LOCF tests
-    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, nocb=FALSE, seed=seed, nocbvars="IOV_CL"))
+    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, settings=Settings(NOCB(FALSE, "IOV_CL")), seed=seed))
     test <- expression(
       outputRegressionTest(results, output="CP", filename=regFilename, times=obsTimes),
       spaghettiPlot(results, "CP")
@@ -114,7 +114,7 @@ test_that(getTestName("NOCB/LOCF should not have any effect on IOV, e.g. on clea
     campsisTest(simulation, test, env=environment())
     
     # NOCB tests
-    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, nocb=TRUE, seed=seed, nocbvars="IOV_CL"))
+    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, settings=Settings(NOCB(TRUE, "IOV_CL")), seed=seed))
     test <- expression(
       outputRegressionTest(results, output="CP", filename=regFilename, times=obsTimes),
       spaghettiPlot(results, "CP")

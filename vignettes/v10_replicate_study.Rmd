@@ -33,11 +33,9 @@ We are interested to see the uncertainty on the simulated concentration percenti
 Let's mimic the protocol that was implemented in the study.
 
 ```{r}
-ds <- Dataset(50)
-for (day in 0:6) {
-  ds <- ds %>% add(Infusion(time=day*24, amount=1000, compartment=1))
-}
-ds <- ds %>% add(Observations(times=seq(0, 7*24)))
+ds <- Dataset(50) %>%
+  add(Infusion(time=(0:6)*24, amount=1000, compartment=1)) %>%
+  add(Observations(times=seq(0, 7*24)))
 ```
 
 Let's now simulate this model with parameter uncertainty.  

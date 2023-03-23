@@ -4,16 +4,7 @@
 \alias{exportTableDelegate}
 \title{Export table delegate.}
 \usage{
-exportTableDelegate(
-  model,
-  dataset,
-  dest,
-  events,
-  seed,
-  tablefun,
-  nocb,
-  nocbvars
-)
+exportTableDelegate(model, dataset, dest, events, seed, tablefun, settings)
 }
 \arguments{
 \item{model}{generic CAMPSIS model}
@@ -28,7 +19,7 @@ exportTableDelegate(
 
 \item{tablefun}{function or lambda formula to apply on exported 2-dimensional dataset}
 
-\item{nocb}{next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE}
+\item{settings}{advanced simulation settings}
 }
 \value{
 a data frame

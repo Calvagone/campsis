@@ -149,7 +149,8 @@ TimeVaryingCovariate <- function(name, table) {
 #' will be merged afterwards with all treatment and observation rows.
 #' 
 #' @param covariates covariates, only time-varying covariates will be extracted
-#' @param ids simulation ID's
+#' @param ids_within_arm ids within the current arm being sampled
+#' @param arm_offset arm offset (in term of ID's)
 #' @return a data.frame
 #' @importFrom campsismod select
 #' @importFrom dplyr bind_rows mutate
@@ -157,19 +158,21 @@ TimeVaryingCovariate <- function(name, table) {
 #' @importFrom tidyr pivot_wider
 #' @keywords internal
 #' 
-mergeTimeVaryingCovariates <- function(covariates, ids) {
-  startingID <- min(ids)
+mergeTimeVaryingCovariates <- function(covariates, ids_within_arm, arm_offset) {
   timeVaryingCovariates <- covariates %>% campsismod::select("time_varying_covariate")
   tables <- timeVaryingCovariates@list %>%
     purrr::map_df(.f=function(covariate) {
       table <- covariate@table %>% dplyr::mutate(VARIABLE=covariate@name)
       if (("ID" %in% colnames(table))) {
-        return(table %>% dplyr::mutate(ID=.data$ID + startingID - 1))
+        tmp <- table %>%
+          dplyr::filter(.data$ID %in% ids_within_arm) %>%
+          dplyr::mutate(ID=.data$ID + arm_offset)
+        return(tmp)
       } else {
-        retValue <- ids %>% purrr::map_df(.f=function(id) {
-          return(cbind(ID=id, table))
+        tmp <- ids_within_arm %>% purrr::map_df(.f=function(id) {
+          return(cbind(ID=id + arm_offset, table))
         })
-        return(retValue)
+        return(tmp)
       }
     })
   return(dplyr::bind_rows(tables) %>% tidyr::pivot_wider(id_cols=c("ID", "TIME"),
@@ -191,7 +194,7 @@ sampleTimeVaryingCovariates <- function(object, armID, needsDV) {
   
   retValue <- tibble::tibble(
     ID=object$ID, ARM=as.integer(armID), TIME=object$TIME,
-    EVID=as.integer(2), MDV=as.integer(0), AMT=as.numeric(NA), CMT=as.integer(NA), RATE=as.numeric(0), DOSENO=as.integer(NA),
+    EVID=as.integer(2), MDV=as.integer(1), AMT=as.numeric(NA), CMT=as.integer(NA), RATE=as.numeric(0), DOSENO=as.integer(NA),
     INFUSION_TYPE=as.integer(NA), EVENT_RELATED=as.integer(0)
   )
   if (needsDV) {

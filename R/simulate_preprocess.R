@@ -118,25 +118,45 @@ preprocessReplicates <- function(replicates) {
   return(as.integer(replicates))
 }
 
-#' Preprocess 'nocb' argument.
+#' Preprocess the simulation settings.
 #' 
-#' @param nocb nocb argument, logical value
+#' @param settings simulation settings
 #' @param dest destination engine
-#' @return user value, if not specified, return TRUE for mrgsolve and FALSE for RxODE
+#' @return updated simulation settings
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessNocb <- function(nocb, dest) {
-  if (is.null(nocb)) {
+preprocessSettings <- function(settings, dest) {
+  # Use default settings if not specified
+  if (is.null(settings)) {
+    settings <- Settings()
+  }
+  
+  # Check if NOCB is specified
+  enable <- settings@nocb@enable
+  if (is.na(enable)) {
     if (dest=="mrgsolve") {
-      nocb <- TRUE
+      enable <- TRUE
     } else {
-      nocb <- FALSE
+      enable <- FALSE
     }
   }
-  assertthat::assert_that(is.logical(nocb) && nocb %>% length()==1 && !is.na(nocb),
-                          msg="nocb not a logical value TRUE/FALSE")
-  return(nocb)
+  # Assign final value
+  settings@nocb@enable <- enable
+  
+  # Preprocess slice_size
+  if (is.na(settings@hardware@slice_size)) {
+     if (dest=="mrgsolve") {
+       settings@hardware@slice_size <- as.integer(500)
+     } else {
+       # There seems to be an issue in RxODE/rxode2 when dealing with large datasets
+       # From what I notice, a too large slice size (e.g. > 25) slows down RxODE/rxode2
+       # while mrgsolve can work with a large slice size without any problem...
+       settings@hardware@slice_size <- as.integer(6)
+     }
+  }
+  
+  return(settings)
 }
 
 #' Preprocess 'dosing' argument.

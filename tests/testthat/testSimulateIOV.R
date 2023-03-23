@@ -27,7 +27,7 @@ test_that(getTestName("Simulate 1000mg QD with IOV on KA (1)"), {
     #table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, nocb=TRUE)
     
     # NOCB=FALSE
-    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=FALSE, nocbvars="IOV_KA"))
+    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(FALSE, "IOV_KA"))))
     test <- expression(
       outputRegressionTest(results, output="CP", filename=regFilename, times=obsTimes),
       spaghettiPlot(results, "CP")
@@ -35,7 +35,7 @@ test_that(getTestName("Simulate 1000mg QD with IOV on KA (1)"), {
     campsisTest(simulation, test, env=environment())
 
     # NOCB=TRUE
-    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=TRUE, nocbvars="IOV_KA"))
+    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(TRUE, "IOV_KA"))))
     test <- expression(
       outputRegressionTest(results, output="CP", filename=regFilename, times=obsTimes),
       spaghettiPlot(results, "CP")
@@ -60,7 +60,7 @@ test_that(getTestName("Simulate 1000mg QD with IOV on KA (2)"), {
     add(IOV(colname="IOV_KA", distribution=EtaDistribution(model, omega="IOV_KA")))
 
   # NOCB=FALSE
-  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=FALSE, nocbvars="IOV_KA"))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(FALSE, "IOV_KA"))))
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
     spaghettiPlot(results, "CP")
@@ -68,7 +68,7 @@ test_that(getTestName("Simulate 1000mg QD with IOV on KA (2)"), {
   campsisTest(simulation, test, env=environment())
   
   # NOCB=TRUE
-  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=TRUE, nocbvars="IOV_KA"))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(TRUE, "IOV_KA"))))
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
     spaghettiPlot(results, "CP")
@@ -109,7 +109,7 @@ test_that(getTestName("Simulate IOV on F1"), {
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
   
   # NOCB=FALSE
-  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=FALSE))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(FALSE))))
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
     spaghettiPlot(results, "CP")
@@ -117,7 +117,7 @@ test_that(getTestName("Simulate IOV on F1"), {
   campsisTest(simulation, test, env=environment())
   
   # NOCB=TRUE
-  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=TRUE))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(TRUE))))
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
     spaghettiPlot(results, "CP")
@@ -169,7 +169,7 @@ test_that(getTestName("Simulate IOV on ALAG1"), {
     #table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, nocb=FALSE)
 
     # NOCB=FALSE
-    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=FALSE))
+    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(FALSE))))
     test <- expression(
       # Bug in RxODE/rxode2 (time 0 is there while it should not)
       results <- if (startTime != 0) {results %>% dplyr::filter(TIME != 0)} else {results},
@@ -179,7 +179,7 @@ test_that(getTestName("Simulate IOV on ALAG1"), {
     campsisTest(simulation, test, env=environment())
     
     # NOCB=TRUE
-    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=TRUE))
+    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(TRUE))))
     test <- expression(
       # Bug in RxODE/rxode2 (time 0 is there while it should not)
       results <- if (startTime != 0) {results %>% dplyr::filter(TIME != 0)} else {results},
@@ -222,7 +222,7 @@ test_that(getTestName("Simulate IOV on D1"), {
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilename)
 
   # NOCB=FALSE
-  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=FALSE))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(FALSE))))
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
     spaghettiPlot(results, "CP")
@@ -230,7 +230,7 @@ test_that(getTestName("Simulate IOV on D1"), {
   campsisTest(simulation, test, env=environment())
   
   # NOCB=TRUE
-  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=TRUE))
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(TRUE))))
   test <- expression(
     outputRegressionTest(results, output="CP", filename=regFilename),
     spaghettiPlot(results, "CP")
@@ -264,7 +264,7 @@ test_that(getTestName("Simulate IOV on F1"), {
     #table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed)
     
     # NOCB=FALSE
-    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=FALSE, outvars="F1"))
+    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(FALSE)), outvars="F1"))
     test <- expression(
       outputRegressionTest(results, output="CP", filename=regFilename, times=obsTimes),
       spaghettiPlot(results, "CP")
@@ -272,7 +272,7 @@ test_that(getTestName("Simulate IOV on F1"), {
     campsisTest(simulation, test, env=environment())
     
     # NOCB=TRUE
-    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, nocb=TRUE, outvars="F1"))
+    simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, settings=Settings(NOCB(TRUE)), outvars="F1"))
     test <- expression(
       outputRegressionTest(results, output="CP", filename=regFilename, times=obsTimes),
       spaghettiPlot(results, "CP")

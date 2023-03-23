@@ -5,12 +5,14 @@
 \title{Merge time-varying covariates into a single data frame. This last data frame
 will be merged afterwards with all treatment and observation rows.}
 \usage{
-mergeTimeVaryingCovariates(covariates, ids)
+mergeTimeVaryingCovariates(covariates, ids_within_arm, arm_offset)
 }
 \arguments{
 \item{covariates}{covariates, only time-varying covariates will be extracted}
 
-\item{ids}{simulation ID's}
+\item{ids_within_arm}{ids within the current arm being sampled}
+
+\item{arm_offset}{arm offset (in term of ID's)}
 }
 \value{
 a data.frame

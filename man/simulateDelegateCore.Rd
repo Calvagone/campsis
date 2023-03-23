@@ -14,11 +14,8 @@ simulateDelegateCore(
   outfun,
   seed,
   replicates,
-  nocb,
   dosing,
-  replicate,
-  iterations,
-  ...
+  settings
 )
 }
 \arguments{
@@ -40,15 +37,13 @@ simulateDelegateCore(
 
 \item{replicates}{number of replicates, default is 1}
 
-\item{nocb}{next-observation carried backward mode (NOCB), default value is TRUE for mrgsolve, FALSE for RxODE}
-
 \item{dosing}{output dosing information, default is FALSE}
+
+\item{settings}{advanced simulation settings}
 
 \item{replicate}{current replicate number}
 
 \item{iterations}{number of iterations}
-
-\item{...}{optional arguments like 'declare' and 'nocbvars'}
 }
 \value{
 a data frame with the results

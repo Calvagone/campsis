@@ -4,14 +4,12 @@
 \alias{getSeedForDatasetExport}
 \title{Get seed for dataset export.}
 \usage{
-getSeedForDatasetExport(seed, replicate, iterations)
+getSeedForDatasetExport(seed, progress)
 }
 \arguments{
 \item{seed}{original seed}
 
-\item{replicate}{the current replicate number}
-
-\item{iterations}{total number of iterations}
+\item{progress}{simulation progress}
 }
 \value{
 the seed value used to export the dataset
