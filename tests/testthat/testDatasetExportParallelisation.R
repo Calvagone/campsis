@@ -160,20 +160,22 @@ test_that("Arms are correctly dealth with when parallelisation is enabled", {
   expect_equal(conf3[[2]], tibble(subjects=15, arm_index=2, offset_within_arm=0, arm_offset=10))
 })
 
-test_that("Dataset export may vary if parallelisation is used when covariates are sampled from distribution", {
+test_that("Dataset export may vary if parallelisation is used when covariates/IOV are sampled from distribution", {
   seed <- 1
-  regFilenameDisabled <- "ds_export_parallel_disabled_wt_covariate"
-  regFilenameEnabled <- "ds_export_parallel_enabled_wt_covariate"
+  regFilenameDisabled <- "ds_export_parallel_disabled_wt_iov_covariate"
+  regFilenameEnabled <- "ds_export_parallel_enabled_wt_iov_covariate"
   
   model <- model_suite$pk$`1cpt_fo`
   
   arm1 <- Arm(subjects=10) %>%
     add(Bolus(time=0, amount=10, compartment=1)) %>%
-    add(Covariate("BW", NormalDistribution(mean=70, sd=10)))
+    add(Covariate("BW", NormalDistribution(mean=50, sd=10))) %>%
+    add(IOV("IOV", NormalDistribution(mean=0, sd=1)))
   
   arm2 <- Arm(subjects=15) %>%
     add(Bolus(time=0, amount=10, compartment=1)) %>%
-    add(Covariate("BW", NormalDistribution(mean=70, sd=10)))
+    add(Covariate("BW", NormalDistribution(mean=100, sd=10))) %>%
+    add(IOV("IOV", NormalDistribution(mean=0, sd=10)))
   
   dataset <- Dataset() %>% add(c(arm1, arm2))
 
@@ -183,17 +185,26 @@ test_that("Dataset export may vary if parallelisation is used when covariates ar
   table1 <- dataset %>% export(dest="RxODE", settings=settings1, seed=seed)
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilenameDisabled)
   
-  # Parallelisation with 2 CPU's and slice of 15 subjects
+  # Parallelisation with 2 CPU's and slice of 10 subjects
   settings2 <- Settings(Hardware(cpu=2, dataset_parallel=T, dataset_slice_size=10))
   setupPlanDefault(settings2@hardware)
+  table2 <- dataset %>% export(dest="RxODE", settings=settings2, seed=seed)
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilenameEnabled, settings=settings2, dest="RxODE")
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilenameEnabled, settings=settings2, dest="mrgsolve")
 
-  # Parallelisation with 3 CPU's and slice of 15 subjects
+  # Parallelisation with 3 CPU's and slice of 10 subjects
   settings3 <- Settings(Hardware(cpu=3, dataset_parallel=T, dataset_slice_size=10))
   setupPlanDefault(settings3@hardware)
+  table3 <- dataset %>% export(dest="RxODE", settings=settings3, seed=seed)
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilenameEnabled, settings=settings3, dest="RxODE")
   datasetRegressionTest(dataset, model, seed=seed, filename=regFilenameEnabled, settings=settings3, dest="mrgsolve")
+  
+  # Table 2 strictly identical to table 3 (since number of CPU's does not matter)
+  expect_equal(table2, table3)
+  
+  # Table 1 equals to table 2/3 if you remove the variables that are sampled from a distribution
+  expect_equal(table1 %>% dplyr::select(-dplyr::all_of(c("IOV", "BW"))),
+               table3 %>% dplyr::select(-dplyr::all_of(c("IOV", "BW"))))
   
   # Back to sequential
   setupPlanSequential()
