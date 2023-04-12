@@ -1,3 +1,16 @@
+# campsis 1.4.0
+
+* Run replicates in parallel #107
+* Run scenarios in parallel #111
+* Parallelise export of dataset #109
+* Rework simulation settings #110
+* Mrgsolve: don't recompile model for each replicate #93
+* Write new vignette about parallelisation #113
+* Replace progress package by progressr package #108
+* Write new vignette about progress bar #113
+* Remove RxODE from the suggested packages (removed from CRAN) #106
+* Remove messages output by rxode2 in console #114
+
 # campsis 1.3.1
 
 * Add scatter plot #103.
