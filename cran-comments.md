@@ -11,4 +11,7 @@
 
 0 errors | 0 warnings | 1 note
 
-* This is a new release.
+* This is a new submission. Package was archived on CRAN on 2023-04-01 as check problems were not corrected in time.
+* Package RxODE (removed from CRAN) has been removed from the suggested packages and replaced by rxode2.
+
+
