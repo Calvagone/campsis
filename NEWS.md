@@ -1,3 +1,7 @@
+# campsis 1.4.1
+
+* Packages in Suggests should be used conditionally #117
+
 # campsis 1.4.0
 
 * Run replicates in parallel #107

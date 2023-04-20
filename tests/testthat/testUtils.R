@@ -99,12 +99,27 @@ vpcOutputRegressionTest <- function(results, output, filename) {
   expect_equal(results1, results2)
 }
 
+noEngineInstalled <- function() {
+  cond1 <- engineInstalled("RxODE")
+  cond2 <- engineInstalled("rxode2")
+  cond3 <- engineInstalled("mrgsolve")
+  return(!(cond1 || cond2 || cond3))
+}
+
+engineInstalled <- function(name) {
+  return(find.package(name, quiet=TRUE) %>% length() > 0)
+}
+
 campsisTest <- function(simulation, test, env) {
   # Iteration over all test engines to be tested
   for (testEngine in testEngines) {
     env$destEngine <-  testEngine
-    env$results <- eval(simulation, envir=env)
-    eval(test, envir=env)
+    # Check if package exists (as test engines are suggested packages)
+    # This is needed for CRAN when package is tested with `_R_CHECK_DEPENDS_ONLY_`=TRUE
+    if (engineInstalled(testEngine)) {
+      env$results <- eval(simulation, envir=env)
+      eval(test, envir=env)
+    }
   }
 }
 

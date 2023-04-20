@@ -2,6 +2,8 @@ library(testthat)
 
 context("Test the simulate arguments")
 
+source(paste0("", "testUtils.R"))
+
 test_that("Argument dest works well", {
   model <- model_suite$nonmem$advan4_trans4
   
@@ -12,6 +14,8 @@ test_that("Argument dest works well", {
   # Unknown engine
   expect_error(model %>% simulate(dataset=dataset, dest="ENGINE3"),
                regexp="Argument 'dest' must be one of: 'rxode2', 'RxODE', 'mrgsolve' or NULL")
+  
+  if (noEngineInstalled()) return(TRUE)
   
   # Default engine (RxODE)
   results <- model %>% simulate(dataset=dataset)
@@ -25,6 +29,8 @@ test_that("Auto seed value vs fix seed + default engine", {
     add(Bolus(time=0, amount=1000, compartment=1)) %>%
     add(Observations(times=seq(0,24, by=0.5)))
   
+  if (noEngineInstalled()) return(TRUE)
+  
   # Fix seed
   results1 <- model %>% simulate(dataset=dataset, seed=10)
   results2 <- model %>% simulate(dataset=dataset, seed=10)
@@ -32,7 +38,9 @@ test_that("Auto seed value vs fix seed + default engine", {
   expect_equal(results1, results2)
   
   # Check RxODE was chosen as default engine
-  expect_true(all(c("KA", "CL", "V2") %in% colnames(results1)))
+  if (engineInstalled("RxODE") || engineInstalled("rxode2")) {
+    expect_true(all(c("KA", "CL", "V2") %in% colnames(results1)))
+  }
   
   # Auto seed vs fixed seed
   results1 <- model %>% simulate(dataset=dataset) # Auto
