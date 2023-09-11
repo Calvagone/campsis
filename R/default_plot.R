@@ -53,7 +53,7 @@ dosingOnly <- function(x) {
 #' @param output variable to show
 #' @param scenarios scenarios
 #' @return plot
-#' @importFrom ggplot2 aes_string ggplot geom_line
+#' @importFrom ggplot2 aes ggplot geom_line
 #' @export
 spaghettiPlot <- function(x, output, scenarios=NULL) {
   hasId <- "ID" %in% colnames(x)
@@ -66,10 +66,10 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
       colour <- NULL
       group <- "ID"
     }
-    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="TIME", y=output, group=group, colour=colour)) +
+    plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[output]], group=.data[[group]], colour=.data[[colour]])) +
       ggplot2::geom_line()
   } else {
-    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x="TIME", y=output)) +
+    plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[output]])) +
       ggplot2::geom_line()
   }
   return(plot)
@@ -83,7 +83,7 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
 #' @return a ggplot object
-#' @importFrom ggplot2 aes_string ggplot geom_line geom_ribbon ylab
+#' @importFrom ggplot2 aes ggplot geom_line geom_ribbon ylab
 #' @export
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
   x <- PI(x=x %>% obsOnly(), output=output, scenarios=scenarios, level=level, gather=FALSE)
@@ -92,9 +92,9 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
   } else {
     colour <- NULL
   }
-  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes_string(x="TIME", colour=colour)) +
-    ggplot2::geom_line(ggplot2::aes_string(y="med")) +
-    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low", ymax="up", colour=colour, fill=colour), colour=NA, alpha=alpha)
+  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=.data[[colour]])) +
+    ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=.data[[colour]], fill=.data[[colour]]), colour=NA, alpha=alpha)
   plot <- plot + ggplot2::ylab(output)
   return(plot)
 }
@@ -107,7 +107,7 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
 #' @param time the time to look at those 2 variables, if NULL, min time is used (usually 0)
 #' @return a ggplot object
 #' @importFrom dplyr filter
-#' @importFrom ggplot2 aes_string ggplot geom_point
+#' @importFrom ggplot2 aes ggplot geom_point
 #' @export
 scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
   hasId <- "ID" %in% colnames(x)
@@ -134,11 +134,11 @@ scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
       colour <- NULL
       group <- "ID"
     }
-    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x=output[1], y=output[2], group=group, colour=colour)) +
+    plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[output[1]]], y=.data[[output[2]]], group=.data[[group]], colour=.data[[colour]])) +
       ggplot2::geom_point()
   }
   else {
-    plot <- ggplot2::ggplot(x, ggplot2::aes_string(x=output[1], y=output[2])) +
+    plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[output[1]]], y=.data[[output[2]]])) +
       ggplot2::geom_point()
   }
   return(plot)
@@ -151,8 +151,7 @@ scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
 #' @return a ggplot object
-#' @importFrom dplyr all_of
-#' @importFrom ggplot2 aes_string facet_wrap ggplot ylab
+#' @importFrom ggplot2 aes ggplot ylab
 #' @export
 vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
   if (length(scenarios) > 1) {
@@ -160,10 +159,10 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
   }
   summary <- VPC(x=x, scenarios=scenarios, level=level)
 
-  plot <- ggplot2::ggplot(summary, ggplot2::aes_string(x="TIME", group=scenarios)) +
-    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="med_low", ymax="med_up"), alpha=alpha, color=NA, fill="red") +
-    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="low_low", ymax="low_up"), alpha=alpha, color=NA, fill="blue") +
-    ggplot2::geom_ribbon(ggplot2::aes_string(ymin="up_low", ymax="up_up"), alpha=alpha, color=NA, fill="blue") +
+  plot <- ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=.data[[scenarios]])) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$med_low, ymax=.data$med_up), alpha=alpha, color=NA, fill="red") +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low_low, ymax=.data$low_up), alpha=alpha, color=NA, fill="blue") +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$up_low, ymax=.data$up_up), alpha=alpha, color=NA, fill="blue") +
     ggplot2::ylab("")
   
   return(plot)

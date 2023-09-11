@@ -64,7 +64,7 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
   if (!is.null(times)) {
-    results2 <- results2 %>% dplyr::filter(TIME %in% dplyr::all_of(times))
+    results2 <- results2 %>% dplyr::filter(TIME %in% times)
   }
   expect_equal(results1, results2)
 }
