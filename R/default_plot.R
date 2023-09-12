@@ -47,6 +47,33 @@ dosingOnly <- function(x) {
   }
 }
 
+#' Unite the given column names.
+#' 
+#' @param x data frame, CAMPSIS output
+#' @param columns columns to unify
+#' @param colname destination column name
+#' @return a data frame
+#' @importFrom dplyr all_of
+#' @importFrom tidyr unite
+uniteColumns <- function(x, columns, colname) {
+  x <- x %>%
+    tidyr::unite(!!colname, dplyr::all_of(columns), remove=FALSE)
+  return(x)
+}
+
+#' Get data of given column unless if does not exist (return NULL in that case).
+#' 
+#' @param .data data frame
+#' @param colname column name
+#' @return a vector
+getColumn <- function(.data, colname) {
+  if (is.null(colname)) {
+    return(NULL)
+  } else {
+    return(.data[[colname]])
+  }
+}
+
 #' Spaghetti plot.
 #' 
 #' @param x data frame
@@ -56,22 +83,23 @@ dosingOnly <- function(x) {
 #' @importFrom ggplot2 aes ggplot geom_line
 #' @export
 spaghettiPlot <- function(x, output, scenarios=NULL) {
-  hasId <- "ID" %in% colnames(x)
   x <- factorScenarios(x %>% obsOnly(), scenarios=scenarios)
-  if (hasId) {
-    if (length(scenarios) > 0) {
-      colour <- paste0(scenarios, collapse = ":")
-      group <- paste0("interaction(", paste0(c("ID", scenarios), collapse=","), ")")
-    } else {
-      colour <- NULL
-      group <- "ID"
-    }
-    plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[output]], group=.data[[group]], colour=.data[[colour]])) +
-      ggplot2::geom_line()
+  group <- "GROUP_GGPLOT"
+  x <- uniteColumns(x=x, columns=c("ID", scenarios), colname=group)
+  
+  if (length(scenarios) > 0) {
+    colour <- "COLOUR_GGPLOT"
+    x <- uniteColumns(x=x, columns=scenarios, colname=colour)
   } else {
-    plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[output]])) +
-      ggplot2::geom_line()
+    colour <- NULL
   }
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[output]], group=.data[[group]], colour=getColumn(.data, colour))) +
+    ggplot2::geom_line()
+  
+  if (length(scenarios) > 0) {
+    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = ":"))
+  }
+    
   return(plot)
 }
 
@@ -88,14 +116,22 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
   x <- PI(x=x %>% obsOnly(), output=output, scenarios=scenarios, level=level, gather=FALSE)
   if (length(scenarios) > 0) {
-    colour <- paste0(scenarios, collapse = ":")
+    colour <- "COLOUR_GGPLOT"
+    x <- uniteColumns(x=x, columns=scenarios, colname=colour)
   } else {
     colour <- NULL
   }
-  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=.data[[colour]])) +
+
+  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colour))) +
     ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=.data[[colour]], fill=.data[[colour]]), colour=NA, alpha=alpha)
-  plot <- plot + ggplot2::ylab(output)
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=getColumn(.data, colour), fill=getColumn(.data, colour)), colour=NA, alpha=alpha) +
+    ggplot2::ylab(output)
+  
+  if (length(scenarios) > 0) {
+    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = ":"),
+                                 fill=paste0(scenarios, collapse = ":"))
+  }
+
   return(plot)
 }
 
@@ -110,8 +146,9 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
 #' @importFrom ggplot2 aes ggplot geom_point
 #' @export
 scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
-  hasId <- "ID" %in% colnames(x)
   x <- factorScenarios(x %>% obsOnly(), scenarios=scenarios)
+  group <- "GROUP_GGPLOT"
+  x <- uniteColumns(x=x, columns=c("ID", scenarios), colname=group)
   
   if (is.null(time)) {
     time <- min(x$TIME)
@@ -124,23 +161,21 @@ scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
   } else if (output %>% length() > 2) {
     stop("Please provide 2 outputs at most !")
   }
+
+  if (length(scenarios) > 0) {
+    colour <- "COLOUR_GGPLOT"
+    x <- uniteColumns(x=x, columns=scenarios, colname=colour)
+  } else {
+    colour <- NULL
+  }
   
-  if (hasId) {
-    if (length(scenarios) > 0) {
-      colour <- paste0(scenarios, collapse=":")
-      group <- paste0("interaction(", paste0(c("ID", scenarios), collapse=","), ")")
-    }
-    else {
-      colour <- NULL
-      group <- "ID"
-    }
-    plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[output[1]]], y=.data[[output[2]]], group=.data[[group]], colour=.data[[colour]])) +
-      ggplot2::geom_point()
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[output[1]]], y=.data[[output[2]]], group=.data[[group]], colour=getColumn(.data, colour))) +
+    ggplot2::geom_point()
+  
+  if (length(scenarios) > 0) {
+    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = ":"))
   }
-  else {
-    plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[output[1]]], y=.data[[output[2]]])) +
-      ggplot2::geom_point()
-  }
+  
   return(plot)
 }
 
@@ -158,8 +193,14 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
     stop("Currently max 1 scenario allowed")
   }
   summary <- VPC(x=x, scenarios=scenarios, level=level)
+  if (length(scenarios) > 0) {
+    group <- "GROUP_GGPLOT"
+    summary <- uniteColumns(x=x, columns=scenarios, colname=group)
+  } else {
+    group <- NULL
+  }
 
-  plot <- ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=.data[[scenarios]])) +
+  plot <- ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=getColumn(.data, group))) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$med_low, ymax=.data$med_up), alpha=alpha, color=NA, fill="red") +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low_low, ymax=.data$low_up), alpha=alpha, color=NA, fill="blue") +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$up_low, ymax=.data$up_up), alpha=alpha, color=NA, fill="blue") +

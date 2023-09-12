@@ -43,3 +43,5 @@ docs/
 
 # Other files or folders to ignore
 /README_files/
+/doc/
+/Meta/
