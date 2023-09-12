@@ -19,3 +19,4 @@ a data frame
 \description{
 Unite the given column names.
 }
+\keyword{internal}

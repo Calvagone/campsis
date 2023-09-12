@@ -55,6 +55,7 @@ dosingOnly <- function(x) {
 #' @return a data frame
 #' @importFrom dplyr all_of
 #' @importFrom tidyr unite
+#' @keywords internal
 uniteColumns <- function(x, columns, colname) {
   x <- x %>%
     tidyr::unite(!!colname, dplyr::all_of(columns), remove=FALSE)
@@ -66,6 +67,7 @@ uniteColumns <- function(x, columns, colname) {
 #' @param .data data frame
 #' @param colname column name
 #' @return a vector
+#' @keywords internal
 getColumn <- function(.data, colname) {
   if (is.null(colname)) {
     return(NULL)

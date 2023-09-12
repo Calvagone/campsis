@@ -261,6 +261,7 @@ generateIIV <- function(model, n, offset=0) {
 #' @param table dataset, tabular form
 #' @param iiv IIV matrix
 #' @return updated table with IIV matrix
+#' @keywords internal
 leftJoinIIV <- function(table, iiv) {
   if (nrow(iiv) > 0) {
     table <- table %>% dplyr::left_join(iiv, by="ID")

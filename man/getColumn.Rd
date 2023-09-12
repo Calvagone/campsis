@@ -17,3 +17,4 @@ a vector
 \description{
 Get data of given column unless if does not exist (return NULL in that case).
 }
+\keyword{internal}
