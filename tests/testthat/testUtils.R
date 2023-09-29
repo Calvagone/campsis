@@ -95,7 +95,8 @@ vpcOutputRegressionTest <- function(results, output, filename) {
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
   
   # Re-arrange data frame for backwards compatibility
-  results2 <- results2 %>% dplyr::arrange(replicate, TIME)
+  results2 <- results2 %>%
+    dplyr::arrange(replicate, TIME, metric)
   expect_equal(results1, results2)
 }
 

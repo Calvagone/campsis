@@ -109,28 +109,28 @@ test_that(getTestName("Replicates can be simulated in parallel"), {
   # progressr::handlers(global=TRUE)
   # progressr::handlers(campsis_handler())
   regFilename <- "replicates_in_parallel"
-  
+
   model <- model_suite$pk$`1cpt_fo` %>%
     add(Equation("EPSILON", "EPS_RUV_FIX"), pos=Position(ErrorRecord()))
-  
+
   dataset <- Dataset(25) %>%
     add(Bolus(time=0, amount=1000)) %>%
     add(Observations(times=c(12)))
-  
+
   # Running 25 replicates with 2 CPU's
   settings <- Settings(Hardware(cpu=2, replicate_parallel=TRUE))
-  
+
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, replicates=25, seed=seed, settings=settings))
   test <- expression(
     expect_equal(results$EPSILON %>% unique() %>% length(), 625), # Check RUV is unique
     outputRegressionTest(results, output="CONC", filename=regFilename)
   )
   campsisTest(simulation, test, env=environment())
-  
+
   # Running 25 replicates with only 1 CPU
   setupPlanSequential()
   settings <- Settings()
-  
+
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, replicates=25, seed=seed, settings=settings))
   test <- expression(
     expect_equal(results$EPSILON %>% unique() %>% length(), 625), # Check RUV is unique

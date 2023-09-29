@@ -4,7 +4,7 @@
 \alias{uniteColumns}
 \title{Unite the given column names.}
 \usage{
-uniteColumns(x, columns, colname)
+uniteColumns(x, columns, colname, factor = TRUE)
 }
 \arguments{
 \item{x}{data frame, CAMPSIS output}
@@ -12,6 +12,8 @@ uniteColumns(x, columns, colname)
 \item{columns}{columns to unify}
 
 \item{colname}{destination column name}
+
+\item{factor}{factor the destination column}
 }
 \value{
 a data frame

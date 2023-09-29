@@ -45,3 +45,51 @@ test_that(getTestName("Scatter plot works as expected"), {
   )
   campsisTest(simulation, test, env=environment())
 })
+
+test_that(getTestName("Shaded plot works as expected"), {
+  model <- model_suite$pk$`1cpt_fo`
+  
+  dataset <- Dataset(subjects=100) %>% 
+    add(Bolus(time=0, amount=100, compartment=1)) %>%
+    add(Observations(times=0:24))
+  
+  scenarios <- Scenarios() %>%
+    add(Scenario(name="E", model=~.x %>% replace(Theta(name="VC", value=100)))) %>%
+    add(Scenario(name="D", model=~.x %>% replace(Theta(name="VC", value=200)))) %>%
+    add(Scenario(name="C", model=~.x %>% replace(Theta(name="VC", value=300)))) %>%
+    add(Scenario(name="B", model=~.x %>% replace(Theta(name="VC", value=400)))) %>%
+    add(Scenario(name="A", model=~.x %>% replace(Theta(name="VC", value=500))))
+  
+  results <- simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, scenarios=scenarios)
+  shadedPlot(results, "CONC", scenarios="SCENARIO")
+  spaghettiPlot(results, "CONC", scenarios="SCENARIO")
+})
+
+test_that(getTestName("Grouping by ARM and stratifying by WT should work"), {
+  
+  model <- model_suite$pk$'1cpt_fo' %>%
+    replace(Equation("CL", "TVCL * exp(ETA_CL) * pow(WT/70,0.75)"))
+  
+  arm1 <- Arm(subjects=50, label="Arm 1") %>%
+    add(Bolus(time=0, amount=1000, compartment=1, ii=24, addl=0)) %>%
+    add(Covariate("WT", c(rep(50,25), rep(100,25)))) %>%
+    add(Observations(seq(0,24,by=1)))
+  
+  arm2 <- Arm(subjects=50, label="Arm 2") %>%
+    add(Bolus(time=0, amount=2000, compartment=1, ii=24, addl=0)) %>%
+    add(Covariate("WT", c(rep(50,25), rep(100,25)))) %>%
+    add(Observations(seq(0,24,by=1)))
+  
+  dataset <- Dataset() %>%
+    add(c(arm1, arm2)) %>%
+    add(DatasetConfig(exportTSLD=TRUE, exportTDOS=TRUE))
+
+  results <- simulate(model=model, dataset=dataset, seed=1, dest="mrgsolve", outvars="WT")
+  
+  spaghettiPlot(results, "CONC", c("ARM", "WT")) +
+    ggplot2::facet_wrap(~WT)
+  
+  shadedPlot(results, "CONC", c("ARM", "WT")) +
+    ggplot2::facet_wrap(~WT)
+  
+})

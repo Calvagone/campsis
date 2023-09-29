@@ -52,13 +52,18 @@ dosingOnly <- function(x) {
 #' @param x data frame, CAMPSIS output
 #' @param columns columns to unify
 #' @param colname destination column name
+#' @param factor factor the destination column
 #' @return a data frame
 #' @importFrom dplyr all_of
 #' @importFrom tidyr unite
 #' @keywords internal
-uniteColumns <- function(x, columns, colname) {
+uniteColumns <- function(x, columns, colname, factor=TRUE) {
   x <- x %>%
-    tidyr::unite(!!colname, dplyr::all_of(columns), remove=FALSE)
+    tidyr::unite(!!colname, dplyr::all_of(columns), remove=FALSE, sep=" / ")
+  if (factor) {
+    x <- x %>%
+      dplyr::mutate(!!colname := factor(.data[[colname]], levels=unique(.data[[colname]])))
+  }
   return(x)
 }
 
@@ -85,9 +90,8 @@ getColumn <- function(.data, colname) {
 #' @importFrom ggplot2 aes ggplot geom_line
 #' @export
 spaghettiPlot <- function(x, output, scenarios=NULL) {
-  x <- factorScenarios(x %>% obsOnly(), scenarios=scenarios)
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x, columns=c("ID", scenarios), colname=group)
+  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", scenarios), colname=group)
   
   if (length(scenarios) > 0) {
     colour <- "COLOUR_GGPLOT"
@@ -99,7 +103,7 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
     ggplot2::geom_line()
   
   if (length(scenarios) > 0) {
-    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = ":"))
+    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = " / "))
   }
     
   return(plot)
@@ -116,13 +120,13 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
 #' @importFrom ggplot2 aes ggplot geom_line geom_ribbon ylab
 #' @export
 shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
-  x <- PI(x=x %>% obsOnly(), output=output, scenarios=scenarios, level=level, gather=FALSE)
   if (length(scenarios) > 0) {
     colour <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x, columns=scenarios, colname=colour)
+    x <- uniteColumns(x=x %>% obsOnly(), columns=scenarios, colname=colour)
   } else {
     colour <- NULL
   }
+  x <- PI(x=x, output=output, scenarios=c(scenarios, colour), level=level, gather=FALSE)
 
   plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colour))) +
     ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
@@ -130,8 +134,8 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
     ggplot2::ylab(output)
   
   if (length(scenarios) > 0) {
-    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = ":"),
-                                 fill=paste0(scenarios, collapse = ":"))
+    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = " / "),
+                                 fill=paste0(scenarios, collapse = " / "))
   }
 
   return(plot)
@@ -148,9 +152,8 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
 #' @importFrom ggplot2 aes ggplot geom_point
 #' @export
 scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
-  x <- factorScenarios(x %>% obsOnly(), scenarios=scenarios)
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x, columns=c("ID", scenarios), colname=group)
+  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", scenarios), colname=group)
   
   if (is.null(time)) {
     time <- min(x$TIME)
@@ -175,7 +178,7 @@ scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
     ggplot2::geom_point()
   
   if (length(scenarios) > 0) {
-    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = ":"))
+    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = " / "))
   }
   
   return(plot)
