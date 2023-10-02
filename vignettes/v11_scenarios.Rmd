@@ -72,7 +72,7 @@ scenarios <- Scenarios() %>%
   add(Scenario("THETA_KA=6", model=~.x %>% replace(Theta(name="KA", value=6))))
 
 results <- model %>% simulate(dataset=ds, scenarios=scenarios, seed=1)
-shadedPlot(results, "CP", scenarios="SCENARIO")
+shadedPlot(results, "CP", "SCENARIO")
 ```
 
 ### Compare different distributions
@@ -95,5 +95,5 @@ scenarios <- Scenarios() %>%
   add(Scenario("BW ∼ Normal distribution", dataset=~.x %>% replace(Covariate("BW", NormalDistribution(mean=70, sd=10)))))
 
 results <- model %>% simulate(dataset=ds, scenarios=scenarios, seed=1)
-shadedPlot(results, "CP", scenarios="SCENARIO") + ggplot2::facet_wrap(~SCENARIO, ncol=1)
+shadedPlot(results, "CP", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO, ncol=1)
 ```
