@@ -78,12 +78,16 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 vpcOutputRegressionTest <- function(results, output, filename) {
   selectedColumns <- unique(c("replicate", "TIME", "metric", "value"))
   if ("output" %in% colnames(results)) {
-    results <- results %>% dplyr::rename(output2="output")
-    results <- results %>% dplyr::filter(output2 %in% output)
-    results <- results %>% dplyr::select(-output2)
+    results <- results %>%
+      dplyr::rename(output2="output") %>%
+      dplyr::filter(output2 %in% output) %>%
+      dplyr::select(-output2)
   }
   
-  results1 <- results %>% dplyr::mutate_if(is.numeric, round, digits=2)
+  results1 <- results %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate_if(is.numeric, round, digits=2) %>%
+    dplyr::arrange(replicate, TIME, metric)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
   file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
@@ -96,7 +100,9 @@ vpcOutputRegressionTest <- function(results, output, filename) {
   
   # Re-arrange data frame for backwards compatibility
   results2 <- results2 %>%
+    tibble::as_tibble() %>%
     dplyr::arrange(replicate, TIME, metric)
+  
   expect_equal(results1, results2)
 }
 
