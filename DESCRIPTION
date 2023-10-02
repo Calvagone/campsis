@@ -50,7 +50,8 @@ Suggests:
     rxode2,
     stringr,
     testthat,
-    tictoc
+    tictoc,
+    vdiffr
 VignetteBuilder: 
     knitr
 Encoding: UTF-8

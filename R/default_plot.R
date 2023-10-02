@@ -85,25 +85,25 @@ getColumn <- function(.data, colname) {
 #' 
 #' @param x data frame
 #' @param output variable to show
-#' @param scenarios scenarios
+#' @param colour variable(s) to colour
 #' @return plot
 #' @importFrom ggplot2 aes ggplot geom_line
 #' @export
-spaghettiPlot <- function(x, output, scenarios=NULL) {
+spaghettiPlot <- function(x, output, colour=NULL) {
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", scenarios), colname=group)
+  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", colour), colname=group)
   
-  if (length(scenarios) > 0) {
-    colour <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x, columns=scenarios, colname=colour)
+  if (length(colour) > 0) {
+    colourColumn <- "COLOUR_GGPLOT"
+    x <- uniteColumns(x=x, columns=colour, colname=colourColumn)
   } else {
-    colour <- NULL
+    colourColumn <- NULL
   }
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[output]], group=.data[[group]], colour=getColumn(.data, colour))) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[output]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_line()
   
-  if (length(scenarios) > 0) {
-    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = " / "))
+  if (length(colour) > 0) {
+    plot <- plot + ggplot2::labs(colour=paste0(colour, collapse = " / "))
   }
     
   return(plot)
@@ -113,29 +113,30 @@ spaghettiPlot <- function(x, output, scenarios=NULL) {
 #' 
 #' @param x data frame
 #' @param output variable to show
-#' @param scenarios scenarios
+#' @param colour variable(s) to colour
+#' @param strat_extra variable(s) to stratify, but not to colour (useful for use with facet_wrap)
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
 #' @return a ggplot object
 #' @importFrom ggplot2 aes ggplot geom_line geom_ribbon ylab
 #' @export
-shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
-  if (length(scenarios) > 0) {
-    colour <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x %>% obsOnly(), columns=scenarios, colname=colour)
+shadedPlot <- function(x, output, colour=NULL, strat_extra=NULL, level=0.90, alpha=0.25) {
+  if (length(colour) > 0) {
+    colourColumn <- "COLOUR_GGPLOT"
+    x <- uniteColumns(x=x %>% obsOnly(), columns=colour, colname=colourColumn)
   } else {
-    colour <- NULL
+    colourColumn <- NULL
   }
-  x <- PI(x=x, output=output, scenarios=c(scenarios, colour), level=level, gather=FALSE)
+  x <- PI(x=x, output=output, scenarios=c(colour, strat_extra, colourColumn), level=level, gather=FALSE)
 
-  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colour))) +
+  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=getColumn(.data, colour), fill=getColumn(.data, colour)), colour=NA, alpha=alpha) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=getColumn(.data, colourColumn), fill=getColumn(.data, colourColumn)), colour=NA, alpha=alpha) +
     ggplot2::ylab(output)
   
-  if (length(scenarios) > 0) {
-    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = " / "),
-                                 fill=paste0(scenarios, collapse = " / "))
+  if (length(colour) > 0) {
+    plot <- plot + ggplot2::labs(colour=paste0(colour, collapse = " / "),
+                                 fill=paste0(colour, collapse = " / "))
   }
 
   return(plot)
@@ -145,15 +146,15 @@ shadedPlot <- function(x, output, scenarios=NULL, level=0.90, alpha=0.25) {
 #' 
 #' @param x data frame
 #' @param output the 2 variables to show, character vector
-#' @param scenarios scenarios
+#' @param colour variable(s) to colour
 #' @param time the time to look at those 2 variables, if NULL, min time is used (usually 0)
 #' @return a ggplot object
 #' @importFrom dplyr filter
 #' @importFrom ggplot2 aes ggplot geom_point
 #' @export
-scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
+scatterPlot <- function (x, output, colour=NULL, time=NULL) {
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", scenarios), colname=group)
+  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", colour), colname=group)
   
   if (is.null(time)) {
     time <- min(x$TIME)
@@ -167,18 +168,18 @@ scatterPlot <- function (x, output, scenarios=NULL, time=NULL) {
     stop("Please provide 2 outputs at most !")
   }
 
-  if (length(scenarios) > 0) {
-    colour <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x, columns=scenarios, colname=colour)
+  if (length(colour) > 0) {
+    colourColumn <- "COLOUR_GGPLOT"
+    x <- uniteColumns(x=x, columns=colour, colname=colourColumn)
   } else {
-    colour <- NULL
+    colourColumn <- NULL
   }
   
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[output[1]]], y=.data[[output[2]]], group=.data[[group]], colour=getColumn(.data, colour))) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[output[1]]], y=.data[[output[2]]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_point()
   
-  if (length(scenarios) > 0) {
-    plot <- plot + ggplot2::labs(colour=paste0(scenarios, collapse = " / "))
+  if (length(colour) > 0) {
+    plot <- plot + ggplot2::labs(colour=paste0(colour, collapse = " / "))
   }
   
   return(plot)
