@@ -5,7 +5,7 @@ context("Test the simulate arguments")
 source(paste0("", "testUtils.R"))
 
 test_that("Argument dest works well", {
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000, compartment=1)) %>%
@@ -23,7 +23,7 @@ test_that("Argument dest works well", {
 })
 
 test_that("Auto seed value vs fix seed + default engine", {
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
     add(Bolus(time=0, amount=1000, compartment=1)) %>%

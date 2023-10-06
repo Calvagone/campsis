@@ -5,7 +5,7 @@ context("Test dose adaptation objects")
 test_that("Instantiate dose adaptations work well", {
   
   # Missing formula
-  expect_error(DoseAdaptation(), regexp="argument \"formula\" is missing")
+  expect_error(DoseAdaptation(), regexp="(argument \"formula\" is missing)|(argument \"formula\" est manquant)")
   
   # Only 1 formula is expected
   expect_error(DoseAdaptation(c("AMT*WT", "HELLO")), regexp="formula is length 2. Should be 1")

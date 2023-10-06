@@ -16,7 +16,7 @@ test_that("Example of scenario list works as expected", {
   expect_equal(scenarios %>% getByIndex(4) %>% .@name, "Scenario 4")
   
   
-  modelRef <- model_suite$nonmem$advan2_trans2
+  modelRef <- model_suite$testing$nonmem$advan2_trans2
   
   scenario1 <- scenarios %>% getByIndex(1)
   model <- modelRef %>% applyScenario(scenario1)

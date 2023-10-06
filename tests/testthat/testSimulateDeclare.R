@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that("Declare argument with mrgsolve", {
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
   model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + SOMETHING)"))
   regFilename <- "simple_bolus"
   

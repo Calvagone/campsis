@@ -7,7 +7,7 @@ source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate scenarios - make few changes on dataset"), {
 
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "scenarios_few_changes_on_dataset"
 
   dataset <- Dataset() %>%
@@ -45,7 +45,7 @@ test_that(getTestName("Simulate scenarios - make few changes on dataset"), {
 })
 
 test_that(getTestName("Simulate scenarios - make few changes on model"), {
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "scenarios_few_changes_on_model"
   
   dataset <- Dataset(3) %>%
