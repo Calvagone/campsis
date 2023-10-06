@@ -206,9 +206,13 @@ setMethod("replace", signature = c("dataset", "pmx_element"), definition = funct
 #' @importFrom methods validObject
 setMethod("setSubjects", signature = c("dataset", "integer"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm@subjects <- x
-  object <- object %>% replace(arm)
+  numberOfArms <- object@arms %>% length()
+  assertthat::assert_that(length(x)==numberOfArms, msg="x must be the same length as the number of arms in dataset")
+  for (armIndex in seq_len(numberOfArms)) {
+    arm <- object@arms@list[[armIndex]]
+    arm <- arm %>% setSubjects(x[armIndex])
+    object <- object %>% replace(arm)
+  }
   methods::validObject(object)
   return(object)
 })
