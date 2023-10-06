@@ -5,13 +5,19 @@
 
 [![R-CMD-check](https://github.com/Calvagone/campsis/workflows/R-CMD-check/badge.svg)](https://github.com/Calvagone/campsis/actions)
 [![codecov](https://codecov.io/gh/Calvagone/campsis/branch/main/graph/badge.svg?token=C629TACTSU)](https://app.codecov.io/gh/Calvagone/campsis)
+[![CRAN
+version](http://www.r-pkg.org/badges/version/campsis)](https://cran.r-project.org/package=campsis)
+[![CRAN total
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/campsis)](https://cran.r-project.org/package=campsis)
+[![CRAN total
+downloads](https://cranlogs.r-pkg.org/badges/campsis)](https://cran.r-project.org/package=campsis)
 <!-- badges: end -->
 
 ## Requirements
 
--   R package `campsismod` must be installed beforehand
--   Simulation engine must be installed too (`rxode2`, `RxODE` or
-    `mrgsolve`)
+- R package `campsismod` must be installed beforehand
+- Simulation engine must be installed too (`rxode2`, `RxODE` or
+  `mrgsolve`)
 
 ## Installation
 
