@@ -28,7 +28,7 @@ dataset <- Dataset(10) %>%
 
 events <- Events()
 event1 <- Event(name="Dose adaptation", times=seq(0, 144, by=24), fun=function(inits) {
-  inits$DOSE <- ifelse(inits$CP > 5, inits$DOSE*0.75, inits$DOSE)
+  inits$DOSE <- ifelse(inits$CONC > 5, inits$DOSE*0.75, inits$DOSE)
   inits$A_DEPOT <- inits$A_DEPOT + inits$DOSE
   return(inits)
 })
@@ -36,5 +36,5 @@ events <- events %>% add(event1)
 
 results <- model %>% simulate(dataset, events=events, seed=1, outvars="DOSE")
 
-gridExtra::grid.arrange(spaghettiPlot(results, "CP"), spaghettiPlot(results, "DOSE"), ncol=1)
+gridExtra::grid.arrange(spaghettiPlot(results, "CONC"), spaghettiPlot(results, "DOSE"), ncol=1)
 ```

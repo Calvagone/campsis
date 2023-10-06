@@ -67,7 +67,7 @@ ds1 <- Dataset(50) %>%
 ```{r lag_time_model , fig.align='center', fig.height=4, fig.width=8, message=F}
 results_alag <- model %>% simulate(dataset=ds1, seed=1)
 results_no_alag <- model_suite$nonmem$advan4_trans4 %>% simulate(dataset=ds1, seed=1)
-gridExtra::grid.arrange(shadedPlot(results_alag, "CP"), shadedPlot(results_no_alag, "CP"), nrow=1)
+gridExtra::grid.arrange(shadedPlot(results_alag, "CONC"), shadedPlot(results_no_alag, "CONC"), nrow=1)
 ```
 
 ### Lag time implemented in dataset
@@ -103,5 +103,5 @@ Let's now simulate this dataset using the original model.
 
 ```{r lag_time_dataset , fig.align='center', fig.height=4, fig.width=8, message=F}
 results_alag <- model_suite$nonmem$advan4_trans4 %>% simulate(dataset=ds2, seed=1)
-shadedPlot(results_alag, "CP")
+shadedPlot(results_alag, "CONC")
 ```

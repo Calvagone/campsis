@@ -35,7 +35,7 @@ arm3 <- Arm(subjects=10, label="2000 mg SD") %>%
   add(Observations(times=seq(0, 24, by=0.1)))
 
 results <- model %>% simulate(dataset=Dataset() %>% add(c(arm1, arm2, arm3)), seed=1)
-spaghettiPlot(results, "CP", "ARM") + ggplot2::facet_wrap(~ARM)
+spaghettiPlot(results, "CONC", "ARM") + ggplot2::facet_wrap(~ARM)
 ```
 
 Using scenarios:
@@ -52,7 +52,7 @@ scenarios <- Scenarios() %>%
   add(Scenario("2000 mg SD", dataset=~.x %>% setSubjects(10) %>% add(Bolus(time=0, 2000))))
 
 results <- model %>% simulate(dataset=dataset, scenarios=scenarios, seed=1)
-spaghettiPlot(results, "CP", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO)
+spaghettiPlot(results, "CONC", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO)
 ```
 
 ### Make a model parameter vary
@@ -72,7 +72,7 @@ scenarios <- Scenarios() %>%
   add(Scenario("THETA_KA=6", model=~.x %>% replace(Theta(name="KA", value=6))))
 
 results <- model %>% simulate(dataset=ds, scenarios=scenarios, seed=1)
-shadedPlot(results, "CP", "SCENARIO")
+shadedPlot(results, "CONC", "SCENARIO")
 ```
 
 ### Compare different distributions
@@ -95,5 +95,5 @@ scenarios <- Scenarios() %>%
   add(Scenario("BW ∼ Normal distribution", dataset=~.x %>% replace(Covariate("BW", NormalDistribution(mean=70, sd=10)))))
 
 results <- model %>% simulate(dataset=ds, scenarios=scenarios, seed=1)
-shadedPlot(results, "CP", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO, ncol=1)
+shadedPlot(results, "CONC", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO, ncol=1)
 ```

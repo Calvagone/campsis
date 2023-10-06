@@ -46,7 +46,7 @@ dataset <- Dataset(25) %>%
   add(Observations(times=0:168))
 results <- pkpd %>% simulate(dataset=dataset, seed=1)
 
-gridExtra::grid.arrange(shadedPlot(results, "CP"), shadedPlot(results, "EFFECT"), ncol=1)
+gridExtra::grid.arrange(shadedPlot(results, "CONC"), shadedPlot(results, "EFFECT"), ncol=1)
 ```
 
 
@@ -75,7 +75,7 @@ dataset <- Dataset(25) %>%
   add(Observations(times=0:36))
 results <- pkpd %>% simulate(dataset=dataset, seed=1)
 
-gridExtra::grid.arrange(shadedPlot(results, "CP"), shadedPlot(results, "A_EFFECT"), ncol=1)
+gridExtra::grid.arrange(shadedPlot(results, "CONC"), shadedPlot(results, "EFFECT"), ncol=1)
 ```
 
 ### Transit-compartment model
@@ -103,7 +103,7 @@ dataset <- Dataset(25) %>%
   add(Observations(times=0:1000))
 results <- pkpd %>% simulate(dataset=dataset, seed=1)
 
-gridExtra::grid.arrange(shadedPlot(results, "CP"), shadedPlot(results, "A_CIRC"), ncol=1)
+gridExtra::grid.arrange(shadedPlot(results, "CONC"), shadedPlot(results, "A_CIRC"), ncol=1)
 ```
 
 ### Indirect-response model
@@ -131,5 +131,5 @@ dataset <- Dataset(25) %>%
   add(Observations(times=0:1000))
 results <- pkpd %>% simulate(dataset=dataset, seed=1)
 
-gridExtra::grid.arrange(shadedPlot(results, "CP"), shadedPlot(results, "A_EFFECT"), ncol=1)
+gridExtra::grid.arrange(shadedPlot(results, "CONC"), shadedPlot(results, "A_EFFECT"), ncol=1)
 ```

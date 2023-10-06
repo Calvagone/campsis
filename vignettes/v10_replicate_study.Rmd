@@ -20,7 +20,7 @@ This vignette shows how a simulation can be replicated.
 Assume the following model is used. This model is a 2-compartment model without absorption compartment which has been fitted on some data.
 
 ```{r}
-model <- model_suite$other$my_model1
+model <- model_suite$testing$other$my_model1
 ```
 
 It contains a variance-covariance matrix with the uncertainty on all the estimated parameters.

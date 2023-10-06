@@ -42,7 +42,7 @@ Let's simulate this simple dataset. In order to check that the dose adaptation f
 
 ```{r dose_adaptation_bw , fig.align='center', fig.height=4, fig.width=8, message=F}
 results <- model %>% disable("IIV") %>% simulate(dataset=dataset, dosing=TRUE, seed=1)
-spaghettiPlot(results, "CP", "ID")
+spaghettiPlot(results, "CONC", "ID")
 ```
 
 Let's now have a look at the dosing information which is returned.
