@@ -41,3 +41,21 @@ test_that("Discrete distribution", {
   expect_equal(sum(values==2), 32)
   expect_equal(sum(values==3), 55)
 })
+
+test_that("Binomial distribution", {
+  set.seed(1)
+  dist <- BinomialDistribution(trials=2, prob=0.5)
+  dist <- dist %>% sample(n=as.integer(1000))
+  values <- dist@sampled_values
+  #hist(values)
+  expect_equal(sum(values==0), 244) # Close to 0.5*0.5*100=25% as expected
+  expect_equal(sum(values==1), 508) # Close to 0.5*100=50% as expected
+  expect_equal(sum(values==2), 248) # Close to 0.5*0.5*100=25% as expected
+  
+  dist <- BinomialDistribution(trials=1, prob=0.2)
+  dist <- dist %>% sample(n=as.integer(1000))
+  values <- dist@sampled_values
+  #hist(values)
+  expect_equal(sum(values==0), 790) # Close to 0.8*100=80% as expected
+  expect_equal(sum(values==1), 210) # Close to 0.2*100=20% as expected
+})

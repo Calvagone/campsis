@@ -89,6 +89,10 @@ expectSingleNumericValue <- function(value, name) {
   assertthat::assert_that(is.numeric(value) && length(value)==1, msg=paste0(name, " not a single numeric value"))
 }
 
+expectSingleIntegerValue <- function(value, name) {
+  assertthat::assert_that(is.numeric(value) && length(value)==1 && value%%1==0, msg=paste0(name, " not a single integer value"))
+}
+
 expectPositiveValues <- function(object, slot) {
   error <- character(0)
   x <- getObjectSlot(object, slot)
