@@ -43,7 +43,7 @@ dataset <- Dataset(1000) %>%
   add(Infusion(time=0, amount=1000, compartment=1, ii=24, addl=6)) %>%
   add(Observations(seq(0, 7*24)))
 
-model <- model_suite$pk$`1cpt_zo_abs_lag`
+model <- model_suite$pk$`1cpt_fo`
 results <- with_progress(simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, replicates=3))
 shadedPlot(results, "CONC", "replicate")
 ```
@@ -77,7 +77,7 @@ progressr::handlers(campsis::campsis_handler())
 list(
   tar_target(
     model,
-    model_suite$pk$`1cpt_zo_abs_lag`
+    model_suite$pk$`1cpt_fo`
   ),
   tar_target(
     dataset,
