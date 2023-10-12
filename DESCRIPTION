@@ -104,3 +104,5 @@ Collate:
     'simulate.R'
     'results_processing.R'
     'default_plot.R'
+Remotes: github::Calvagone/campsismod@v1.1.0
+
