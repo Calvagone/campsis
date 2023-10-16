@@ -66,7 +66,7 @@ ds1 <- Dataset(50) %>%
 
 ```{r infusion_model , fig.align='center', fig.height=4, fig.width=8, message=F}
 results_d1 <- model %>% simulate(dataset=ds1, seed=1)
-shadedPlot(results_d1, "CP")
+shadedPlot(results_d1, "CONC")
 ```
 
 ### Infusion duration or rate implemented in dataset
@@ -102,5 +102,5 @@ Let's now simulate this dataset using the original model.
 
 ```{r infusion_dataset , fig.align='center', fig.height=4, fig.width=8, message=F}
 results_d1 <- model_suite$nonmem$advan4_trans4 %>% simulate(dataset=ds2, seed=1)
-shadedPlot(results_d1, "CP")
+shadedPlot(results_d1, "CONC")
 ```

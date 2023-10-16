@@ -213,6 +213,19 @@ DiscreteDistribution <- function(x, prob, replace=TRUE) {
   return(new("function_distribution", fun="base::sample", args=list(size="n", x=as.numeric(x), prob=as.numeric(prob), replace=as.logical(replace))))
 }
 
+#'
+#' Binomial distribution.
+#'
+#' @param trials number of Bernoulli trials per observation (=subject), integer
+#' @param prob probability of success for each trial
+#' @return a binomial distribution
+#' @export
+BinomialDistribution <- function(trials, prob) {
+  expectSingleIntegerValue(trials, name="trials")
+  expectSingleNumericValue(prob, name="prob")
+  return(new("function_distribution", fun="rbinom", args=list(size=as.integer(trials), prob=as.numeric(prob))))
+}
+
 #' 
 #' Retrieve the parameter value (standardized) for the specified parameter name.
 #' 

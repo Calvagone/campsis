@@ -7,6 +7,7 @@
 overwriteNonRegressionFiles <- FALSE
 testFolder <- ""
 skipLongTest <- FALSE
+skipVdiffrTest <- FALSE
 testEngines <- c("rxode2", "mrgsolve")
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, dest) {
@@ -64,7 +65,7 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
   if (!is.null(times)) {
-    results2 <- results2 %>% dplyr::filter(TIME %in% dplyr::all_of(times))
+    results2 <- results2 %>% dplyr::filter(TIME %in% times)
   }
   expect_equal(results1, results2)
 }
@@ -78,12 +79,16 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 vpcOutputRegressionTest <- function(results, output, filename) {
   selectedColumns <- unique(c("replicate", "TIME", "metric", "value"))
   if ("output" %in% colnames(results)) {
-    results <- results %>% dplyr::rename(output2="output")
-    results <- results %>% dplyr::filter(output2 %in% output)
-    results <- results %>% dplyr::select(-output2)
+    results <- results %>%
+      dplyr::rename(output2="output") %>%
+      dplyr::filter(output2 %in% output) %>%
+      dplyr::select(-output2)
   }
   
-  results1 <- results %>% dplyr::mutate_if(is.numeric, round, digits=2)
+  results1 <- results %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate_if(is.numeric, round, digits=2) %>%
+    dplyr::arrange(replicate, TIME, metric)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
   file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
@@ -95,16 +100,34 @@ vpcOutputRegressionTest <- function(results, output, filename) {
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
   
   # Re-arrange data frame for backwards compatibility
-  results2 <- results2 %>% dplyr::arrange(replicate, TIME)
+  results2 <- results2 %>%
+    tibble::as_tibble() %>%
+    dplyr::arrange(replicate, TIME, metric)
+  
   expect_equal(results1, results2)
+}
+
+noEngineInstalled <- function() {
+  cond1 <- engineInstalled("RxODE")
+  cond2 <- engineInstalled("rxode2")
+  cond3 <- engineInstalled("mrgsolve")
+  return(!(cond1 || cond2 || cond3))
+}
+
+engineInstalled <- function(name) {
+  return(find.package(name, quiet=TRUE) %>% length() > 0)
 }
 
 campsisTest <- function(simulation, test, env) {
   # Iteration over all test engines to be tested
   for (testEngine in testEngines) {
     env$destEngine <-  testEngine
-    env$results <- eval(simulation, envir=env)
-    eval(test, envir=env)
+    # Check if package exists (as test engines are suggested packages)
+    # This is needed for CRAN when package is tested with `_R_CHECK_DEPENDS_ONLY_`=TRUE
+    if (engineInstalled(testEngine)) {
+      env$results <- eval(simulation, envir=env)
+      eval(test, envir=env)
+    }
   }
 }
 

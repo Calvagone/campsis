@@ -76,7 +76,7 @@ arm2 <- Arm(subjects=50, label="2000 mg QD") %>%
 dataset <- Dataset() %>% add(c(arm1, arm2))
 
 results <- model %>% simulate(dataset, seed=1)
-shadedPlot(results, "CONC", scenarios="ARM")
+shadedPlot(results, "CONC", colour="ARM")
 ```
 
 ### Going further

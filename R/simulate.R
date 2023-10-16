@@ -114,8 +114,6 @@ getDatasetMaxTime <- function(dataset) {
 #' Simulation delegate core (single replicate).
 #' 
 #' @inheritParams simulate
-#' @param replicate current replicate number
-#' @param iterations number of iterations
 #' @return a data frame with the results
 #' @keywords internal
 #' @importFrom dplyr across bind_rows group_by slice ungroup

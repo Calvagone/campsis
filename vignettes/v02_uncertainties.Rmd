@@ -34,7 +34,7 @@ All subjects are different due to IIV and RUV.
 
 ```{r uncertainties_all_enabled , fig.align='center', fig.height=4, fig.width=8, message=F}
 results <- refModel %>% simulate(dataset=ds, seed=1)
-spaghettiPlot(results, "Y")
+spaghettiPlot(results, "CONC_ERR")
 ```
 
 ### Simulate without RUV
@@ -46,15 +46,15 @@ model <- refModel %>% disable(c("RUV"))
 model@parameters
 ```
 
-In that case, Y (the observed concentration) is identical as CP (the model-simulated plasma concentration).
+In that case, CONC_ERR (the observed concentration) is identical as CONC (the model-simulated plasma concentration).
 
 ```{r uncertainties_no_ruv_y , fig.align='center', fig.height=4, fig.width=8, message=F}
 results <- model %>% simulate(dataset=ds, seed=1)
-spaghettiPlot(results, "Y")
+spaghettiPlot(results, "CONC_ERR")
 ```
 
 ```{r uncertainties_no_ruv_cp , fig.align='center', fig.height=4, fig.width=8, message=F}
-spaghettiPlot(results, "CP")
+spaghettiPlot(results, "CONC")
 ```
 
 ### Simulate without RUV and IIV
@@ -70,5 +70,5 @@ Now, the typical profile is shown for all subjects.
 
 ```{r uncertainties_no_ruv_no_iiv , fig.align='center', fig.height=4, fig.width=8, message=F}
 results <- model %>% simulate(dataset=ds, seed=1)
-spaghettiPlot(results, "Y")
+spaghettiPlot(results, "CONC_ERR")
 ```

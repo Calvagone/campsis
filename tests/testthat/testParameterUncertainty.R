@@ -4,7 +4,7 @@ context("Simulation with full uncertainty (variance-covariance matrix)")
 
 test_that("Sample method on a CAMPSIS model is working well", {
   set.seed(1)
-  model <- model_suite$other$my_model1
+  model <- model_suite$testing$other$my_model1
   models <- model %>% sample(as.integer(100))
 
   thetas <- models %>% purrr::map_dbl(.f=~(.x@parameters %>% getByName("THETA_CL"))@value)
@@ -18,7 +18,7 @@ test_that("Sample method on a CAMPSIS model is working well", {
 
 test_that("Replicate a model that has IOV works as expected", {
   set.seed(1)
-  model <- model_suite$nonmem$advan2_trans2
+  model <- model_suite$testing$nonmem$advan2_trans2
   
   # Add uncertainty on OMEGA_IOV_CL1
   varcov <- matrix(1e-4) # SD=0.01

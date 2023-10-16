@@ -38,7 +38,7 @@ The typical profile can be simulated in the following way:
 
 ```{r event_bw_as_time_varying_covariate, fig.align='center', fig.height=4, fig.width=8, message=F}
 results <- model %>% disable("IIV") %>% simulate(dataset, seed=1, outvars="BW")
-gridExtra::grid.arrange(spaghettiPlot(results, "CP"),
+gridExtra::grid.arrange(spaghettiPlot(results, "CONC"),
                         spaghettiPlot(results, "BW"), ncol=1)
 ```
 
@@ -50,7 +50,7 @@ scenarios <- Scenarios() %>%
   add(Scenario("Fixed BW", dataset=~.x %>% replace(Covariate("BW", 70))))
 
 results <- model %>% disable("IIV") %>% simulate(dataset, seed=1, outvars="BW", scenarios=scenarios)
-gridExtra::grid.arrange(spaghettiPlot(results, "CP", "SCENARIO"),
+gridExtra::grid.arrange(spaghettiPlot(results, "CONC", "SCENARIO"),
                         spaghettiPlot(results, "BW", "SCENARIO"), ncol=1)
 ```
 
@@ -64,6 +64,6 @@ dataset <- Dataset(2) %>%
                                             TIME=c(0,7,14,21, 0,7,14,21),
                                             VALUE=c(80,75,70,65, 65,70,75,80))))
 results <- model %>% disable("IIV") %>% simulate(dataset, seed=1, outvars="BW")
-gridExtra::grid.arrange(spaghettiPlot(results, "CP", "ID"),
+gridExtra::grid.arrange(spaghettiPlot(results, "CONC", "ID"),
                         spaghettiPlot(results, "BW", "ID"), ncol=1)
 ```

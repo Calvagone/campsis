@@ -129,7 +129,7 @@ setGeneric("assignDoseNumber", function(object) {
 
 setMethod("assignDoseNumber", signature = c("treatment"), definition = function(object) {
   object <- object %>% sort()
-  times <- object@list %>% purrr::map_chr(~.x@time)
+  times <- object@list %>% purrr::map_dbl(~.x@time)
   doseNumbers <- match(times, unique(times))
   object@list <- purrr::map2(object@list, doseNumbers, .f=function(.x, .y){
     .x@dose_number <- .y

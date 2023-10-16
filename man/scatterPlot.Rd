@@ -4,14 +4,14 @@
 \alias{scatterPlot}
 \title{Scatter plot (or X vs Y plot).}
 \usage{
-scatterPlot(x, output, scenarios = NULL, time = NULL)
+scatterPlot(x, output, colour = NULL, time = NULL)
 }
 \arguments{
 \item{x}{data frame}
 
 \item{output}{the 2 variables to show, character vector}
 
-\item{scenarios}{scenarios}
+\item{colour}{variable(s) to colour}
 
 \item{time}{the time to look at those 2 variables, if NULL, min time is used (usually 0)}
 }

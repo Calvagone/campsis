@@ -8,7 +8,7 @@ source(paste0("", "testUtils.R"))
 test_that(getTestName("Simulate 1000mg QD with IOV on KA (1)"), {
   if (skipLongTest) return(TRUE)
   regFilename <- "3_boluses_iov_ka_1"
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
   model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
   obsTimes1 <- c(15, 50, 55, 60, 65, 70) # by 0.5 in the non-regression file
   obsTimes2 <- seq(0, 72, by=0.5)
@@ -48,7 +48,7 @@ test_that(getTestName("Simulate 1000mg QD with IOV on KA (2)"), {
   # This test could sometimes fail with RxODE version > 1.0.5 & < 1.1.0
   if (skipLongTest) return(TRUE)
   regFilename <- "3_boluses_iov_ka_2"
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
   model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
   model <- model %>% add(Omega("IOV_KA", value=0.2^2))
 
@@ -82,7 +82,7 @@ test_that(getTestName("Simulate IOV on F1"), {
   regFilename <- "3_boluses_iiv_iov_f1"
 
   # Model with IIV and IOV on F1
-  model <- model_suite$nonmem$advan4_trans4 %>%
+  model <- model_suite$testing$nonmem$advan4_trans4 %>%
     add(Theta("F1", value=0.75)) %>%
     add(Omega("F1", value=0.2^2)) %>%
     add(Omega("IOV_F1", index=7, index2=7, value=0.2^2, same=FALSE)) %>% # 20% IOV
@@ -132,7 +132,7 @@ test_that(getTestName("Simulate IOV on ALAG1"), {
   regFilename <- "3_boluses_iiv_iov_alag1"
 
   # Model with IIV on ALAG1
-  model <- model_suite$nonmem$advan4_trans4 %>%
+  model <- model_suite$testing$nonmem$advan4_trans4 %>%
     add(Theta("ALAG1", value=5)) %>%
     add(Omega("ALAG1", value=0.2^2)) %>%
     add(Omega("IOV_ALAG1", value=0.2^2, same=FALSE)) %>% # 20% IOV in model  
@@ -195,7 +195,7 @@ test_that(getTestName("Simulate IOV on D1"), {
   regFilename <- "3_infusions_iiv_iov_d1"
 
   # Model with IIV on D1
-  model <- model_suite$nonmem$advan3_trans4 %>%
+  model <- model_suite$testing$nonmem$advan3_trans4 %>%
     add(Theta("D1", value=5)) %>%
     add(Omega("D1", value=0.2^2)) %>%
     add(Omega("IOV_D1", value=0.5^2, same=FALSE)) %>% # 50% IOV  
@@ -243,7 +243,7 @@ test_that(getTestName("Simulate IOV on F1"), {
   regFilename <- "3_bolus_iov_on_f1"
 
   # Model with IIV on D1
-  model <- model_suite$nonmem$advan4_trans4 %>%
+  model <- model_suite$testing$nonmem$advan4_trans4 %>%
     add(Theta("F1", value=0.75)) %>%
     add(Omega("F1", value=0.09)) %>% # 30% CV  
     add(Equation("F1", "THETA_F1*exp(ETA_F1 + IOV_F1)")) %>%

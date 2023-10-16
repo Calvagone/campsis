@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate a bolus using the tabular dataset"), {
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "simple_bolus"
   
   dataset <- Dataset() %>%

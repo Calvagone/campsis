@@ -7,7 +7,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Test generated RUV is correct"), {
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
   
   ds <- Dataset(500) %>%
     add(Bolus(0, 1000)) %>%

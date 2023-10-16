@@ -8,7 +8,7 @@ source(paste0("", "testUtils.R"))
 
 test_that(getTestName("VPC on CP, using predicate"), {
   if (skipLongTest) return(TRUE)
-  model <- model_suite$other$my_model1
+  model <- model_suite$testing$other$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
 
@@ -25,7 +25,7 @@ test_that(getTestName("VPC on CP, using predicate"), {
 
 test_that(getTestName("VPC on both CP and Y, using function"), {
   if (skipLongTest) return(TRUE)
-  model <- model_suite$other$my_model1
+  model <- model_suite$testing$other$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
 
@@ -49,7 +49,7 @@ test_that(getTestName("VPC on both CP and Y, using function"), {
 
 test_that(getTestName("Study replication also works with scenarios"), {
   if (skipLongTest) return(TRUE)
-  model <- model_suite$nonmem$advan2_trans1
+  model <- model_suite$testing$nonmem$advan2_trans1
   ds <- Dataset(10) %>%
     add(Bolus(time=0, amount=1000)) %>%
     add(Observations(times=c(0,1,2,4,8,12)))
@@ -70,7 +70,7 @@ test_that(getTestName("Study replication also works with scenarios"), {
 
 test_that(getTestName("Try/catch works as expected if one replicate fails"), {
   if (skipLongTest) return(TRUE)
-  model <- model_suite$nonmem$advan2_trans2
+  model <- model_suite$testing$nonmem$advan2_trans2
 
   # Add high uncertainty on THETA_KA (variance of 1)
   varcov <- matrix(1)
@@ -109,28 +109,28 @@ test_that(getTestName("Replicates can be simulated in parallel"), {
   # progressr::handlers(global=TRUE)
   # progressr::handlers(campsis_handler())
   regFilename <- "replicates_in_parallel"
-  
-  model <- model_suite$pk$`1cpt_fo` %>%
+
+  model <- model_suite$testing$pk$`1cpt_fo` %>%
     add(Equation("EPSILON", "EPS_RUV_FIX"), pos=Position(ErrorRecord()))
-  
+
   dataset <- Dataset(25) %>%
     add(Bolus(time=0, amount=1000)) %>%
     add(Observations(times=c(12)))
-  
+
   # Running 25 replicates with 2 CPU's
   settings <- Settings(Hardware(cpu=2, replicate_parallel=TRUE))
-  
+
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, replicates=25, seed=seed, settings=settings))
   test <- expression(
     expect_equal(results$EPSILON %>% unique() %>% length(), 625), # Check RUV is unique
     outputRegressionTest(results, output="CONC", filename=regFilename)
   )
   campsisTest(simulation, test, env=environment())
-  
+
   # Running 25 replicates with only 1 CPU
   setupPlanSequential()
   settings <- Settings()
-  
+
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, replicates=25, seed=seed, settings=settings))
   test <- expression(
     expect_equal(results$EPSILON %>% unique() %>% length(), 625), # Check RUV is unique

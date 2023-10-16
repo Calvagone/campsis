@@ -165,7 +165,7 @@ test_that("Dataset export may vary if parallelisation is used when covariates/IO
   regFilenameDisabled <- "ds_export_parallel_disabled_wt_iov_covariate"
   regFilenameEnabled <- "ds_export_parallel_enabled_wt_iov_covariate"
   
-  model <- model_suite$pk$`1cpt_fo`
+  model <- model_suite$testing$pk$`1cpt_fo`
   
   arm1 <- Arm(subjects=10) %>%
     add(Bolus(time=0, amount=10, compartment=1)) %>%

@@ -13,6 +13,15 @@ test_that("Set subjects works as expected", {
   dataset <- Dataset(2) %>% setSubjects(5)
   expect_equal(dataset %>% length(), 5)
   expect_equal(dataset@arms %>% length(), 1)
+  
+  expect_error(Dataset() %>% setSubjects(c(10,20)), regexp="x must be the same length as the number of arms in dataset")
+  dataset <- Dataset() %>%
+    add(c(Arm(subjects=5), Arm(subjects=5)))
+  dataset <- dataset %>%
+    setSubjects(c(10,20))
+  expect_equal(dataset@arms@list[[1]] %>% length(), 10)
+  expect_equal(dataset@arms@list[[2]] %>% length(), 20)
+  expect_equal(dataset %>% length(), 30)
 })
 
 test_that("Add entry, order, filter, getTimes (simple example)", {

@@ -7,7 +7,7 @@ source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate infusion using duration in dataset, then in model"), {
   if (skipLongTest) return(TRUE)
-  model <- model_suite$nonmem$advan3_trans4
+  model <- model_suite$testing$nonmem$advan3_trans4
   regFilename <- "infusion_duration"
   
   # 5 hours infusion duration implemented in dataset
@@ -41,7 +41,7 @@ test_that(getTestName("Simulate infusion using duration in dataset, then in mode
 })
 
 test_that(getTestName("Simulate infusion using rate in dataset"), {
-  model <- model_suite$nonmem$advan3_trans4
+  model <- model_suite$testing$nonmem$advan3_trans4
   regFilename <- "infusion_duration"
   
   # 5 hours infusion duration implemented in dataset
@@ -74,7 +74,7 @@ test_that(getTestName("Simulate infusion using rate in dataset"), {
 })
 
 test_that(getTestName("Simulate infusion using rate and lag time in dataset"), {
-  model <- model_suite$nonmem$advan3_trans4
+  model <- model_suite$testing$nonmem$advan3_trans4
   regFilename <- "infusion_rate_lag_time1_dataset"
   
   # 5 hours duration
@@ -97,7 +97,7 @@ test_that(getTestName("Simulate infusion using rate and lag time in dataset"), {
 })
 
 test_that(getTestName("Simulate infusion using rate and lag time (parameter distribution) in dataset"), {
-  model <- model_suite$nonmem$advan3_trans4
+  model <- model_suite$testing$nonmem$advan3_trans4
   regFilename <- "infusion_rate_lag_time2_dataset"
   model <- model %>% add(Theta(name="ALAG1", index=5, value=2)) # 2 hours lag time
   model <- model %>% add(Omega(name="ALAG1", index=5, index2=5, value=0.2^2)) #20% CV

@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Dose adaptations can be checked in CAMPSIS output if dosing is TRUE"), {
-  model <- model_suite$nonmem$advan4_trans4
+  model <- model_suite$testing$nonmem$advan4_trans4
 
   times <- seq(0,7*24, by=4)
   dataset <- Dataset(2) %>%

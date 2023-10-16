@@ -40,10 +40,6 @@ simulateDelegateCore(
 \item{dosing}{output dosing information, default is FALSE}
 
 \item{settings}{advanced simulation settings}
-
-\item{replicate}{current replicate number}
-
-\item{iterations}{number of iterations}
 }
 \value{
 a data frame with the results

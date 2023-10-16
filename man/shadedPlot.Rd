@@ -4,14 +4,23 @@
 \alias{shadedPlot}
 \title{Shaded plot (or prediction interval plot).}
 \usage{
-shadedPlot(x, output, scenarios = NULL, level = 0.9, alpha = 0.25)
+shadedPlot(
+  x,
+  output,
+  colour = NULL,
+  strat_extra = NULL,
+  level = 0.9,
+  alpha = 0.25
+)
 }
 \arguments{
 \item{x}{data frame}
 
 \item{output}{variable to show}
 
-\item{scenarios}{scenarios}
+\item{colour}{variable(s) to colour}
+
+\item{strat_extra}{variable(s) to stratify, but not to colour (useful for use with facet_wrap)}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
 

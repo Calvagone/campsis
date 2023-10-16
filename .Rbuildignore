@@ -9,3 +9,5 @@
 ^docs$
 ^CRAN-SUBMISSION$
 ^CRAN-RELEASE$
+^doc$
+^Meta$

@@ -79,7 +79,7 @@ setMethod("getName", signature = c("bootstrap"), definition = function(x) {
 #' @param export_id tell CAMPSIS if the identifier 'BS_ID' must be output or not, logical
 #' @return a bootstrap object
 #' @importFrom assertthat assert_that
-#' @importFrom dplyr rename
+#' @importFrom dplyr all_of rename
 #' @importFrom tibble as_tibble
 #' @export
 Bootstrap <- function(data, id="BS_ID", replacement=FALSE, random=FALSE, export_id=FALSE) {
@@ -87,7 +87,8 @@ Bootstrap <- function(data, id="BS_ID", replacement=FALSE, random=FALSE, export_
   assertthat::assert_that(id %in% colnames(data), msg=paste0("Unique identifier '", id, "' not part of data"))
   data <- data %>% tibble::as_tibble()
   if (id != "BS_ID") {
-    data <- data %>% dplyr::rename(BS_ID=id)
+    lookup <- c(BS_ID=id)
+    data <- data %>% dplyr::rename(dplyr::all_of(lookup))
   }
   return(new("bootstrap", data=data, replacement=replacement, random=random, export_id=export_id))
 }

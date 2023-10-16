@@ -73,7 +73,7 @@ Instead of giving a fixed dose, let's make the dose dynamic using a `DOSE` covar
 ```{r}
 dataset_ <- dataset %>%
   add(Covariate("DOSE", 0)) %>%
-  add(DoseAdaptation("AMT*DOSE"))
+  add(DoseAdaptation("DOSE"))
 ```
 
 Let's create one scenario per dose to be tested:
