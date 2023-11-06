@@ -64,15 +64,20 @@ SimulationProgress <- function(replicates=1, scenarios=1, progressor=NULL, hardw
 #' Compute incremental progress.
 #' 
 #' @param object simulation progress object
+#' @param no_slices don't take slices into account in the incremental progress
 #' @return incremental progress, in percentage
 #' @keywords internal
-computeIncrementalProgress <- function(object) {
-  incrementalWorkPercentage <- 1/(object@replicates*object@scenarios*object@iterations*object@slices)
+computeIncrementalProgress <- function(object, no_slices=TRUE) {
+  if (no_slices) {
+    incrementalWorkPercentage <- 1/(object@replicates*object@scenarios*object@iterations)
+  } else {
+    incrementalWorkPercentage <- 1/(object@replicates*object@scenarios*object@iterations*object@slices)
+  }
   return(incrementalWorkPercentage*100)
 }
 
-tick <- function(object) {
-  increment <- object %>% computeIncrementalProgress()
+tick <- function(object, no_slices) {
+  increment <- object %>% computeIncrementalProgress(no_slices=no_slices)
   if (object@replicates > 1) {
     customMessage <- paste0("Simulating replicate ", object@replicate, "/", object@replicates)
   } else if (object@scenarios > 1) {

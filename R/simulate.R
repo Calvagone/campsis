@@ -296,7 +296,8 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
         if (replicates==1) {
           stop(cond)
         } else {
-          message(paste0("Error with replicate number ", replicate, ":"))
+          message(paste0("Error with replicate number ", replicate))
+          if (replicate==1) message(cond) # Only print error message for the first replicate
         }
         return(NULL)
       }
@@ -545,9 +546,9 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
                                keep=keep, inits=inits, covs_interpolation=ifelse(nocb, "nocb", "constant"), addDosing=dosing, cores=1))
     }
     
-    # Tick progress
-    progress <- progress %>% updateSlice(index)
-    progress <- progress %>% tick()
+    # # Tick progress
+    # progress <- progress %>% updateSlice(index)
+    # progress <- progress %>% tick()
     
     # RxODE does not add the 'ID' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
@@ -563,6 +564,10 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
+  
+  # Tick progress
+  progress <- progress %>% updateSlice(config$subdatasets %>% length())
+  progress <- progress %>% tick(no_slices=TRUE)
   
   return(results %>% reorderColumns(dosing=dosing))
 })
@@ -585,12 +590,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   mrgmodHash <- digest::sha1(mrgmodCode)
   
   # Instantiate mrgsolve model
-  withCallingHandlers({
-    mod <- mrgsolve::mcode_cache(model=paste0("mod_", mrgmodHash), code=mrgmodCode, quiet=TRUE)
-  }, message = function(msg) {
-    if (msg$message %>% startsWith("(waiting)"))
-      invokeRestart("muffleMessage")
-  })
+  mod <- mrgsolve::mcode_cache(model=paste0("mod_", mrgmodHash), code=mrgmodCode, quiet=TRUE)
   
   # Retrieve THETA's
   thetas <- model@parameters %>% select("theta")
@@ -620,11 +620,16 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=nocb) %>% tibble::as_tibble()
 
-    # Tick progress
-    progress <- progress %>% updateSlice(index)
-    progress <- progress %>% tick()
+    # # Tick progress
+    # progress <- progress %>% updateSlice(index)
+    # progress <- progress %>% tick()
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
+  
+  # Tick progress
+  progress <- progress %>% updateSlice(config$subdatasets %>% length())
+  progress <- progress %>% tick(no_slices=TRUE)
+  
   return(results %>% reorderColumns(dosing=dosing))
 })

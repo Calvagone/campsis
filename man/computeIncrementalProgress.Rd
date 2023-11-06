@@ -4,10 +4,12 @@
 \alias{computeIncrementalProgress}
 \title{Compute incremental progress.}
 \usage{
-computeIncrementalProgress(object)
+computeIncrementalProgress(object, no_slices = TRUE)
 }
 \arguments{
 \item{object}{simulation progress object}
+
+\item{no_slices}{don't take slices into account in the incremental progress}
 }
 \value{
 incremental progress, in percentage
