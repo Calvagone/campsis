@@ -7,7 +7,7 @@
 Settings(...)
 }
 \arguments{
-\item{...}{any user-required settings: see ?Hardware, ?Solver, ?NOCB or ?Declare settings}
+\item{...}{any user-required settings: see ?Hardware, ?Solver, ?NOCB, ?Declare or ?Progress settings}
 }
 \value{
 advanced simulation settings

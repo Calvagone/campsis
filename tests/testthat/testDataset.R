@@ -512,3 +512,39 @@ test_that("Export works well even if objects are defined in a different order", 
                         filename=regFilename)
   
 })
+
+test_that("Any layer added to the multiple-arm dataset apply to each arm.", {
+  regFilename <- "layer_added_to_multiple_arm_dataset"
+  
+  arm1 <- Arm(label="10 mg") %>%
+    add(Bolus(time=0, amount=10))
+  
+  arm2 <- Arm(label="20 mg") %>%
+    add(Bolus(time=0, amount=20))
+  
+  dataset <- Dataset() %>%
+    add(c(arm1, arm2))
+  
+  dataset <- dataset %>%
+    setSubjects(c(4,8))
+  
+  expect_equal(length(dataset), 12)
+  
+  dataset <- dataset %>% 
+    add(IOV("IOVKA", distribution=NormalDistribution(0, 1))) %>%
+    add(Bootstrap(data=data.frame(ID=1:20, BW=70 + 1:20), id="ID", replacement=TRUE)) %>%
+    add(Observations(1:5))
+  
+  # Check IOV has been created in arm1
+  arm1 <- dataset %>% find(Arm(1))
+  expect_true(!is.null(arm1 %>% find(IOV("IOVKA", distribution=0))))
+  
+  # Check IOV has been created in arm2
+  arm2 <- dataset %>% find(Arm(2))
+  expect_true(!is.null(arm2 %>% find(IOV("IOVKA", distribution=0))))
+  
+  table <- dataset %>% export(dest="RxODE", seed=1)
+  
+  datasetRegressionTest(dataset=dataset, seed=1, doseOnly=FALSE,
+                        filename=regFilename)
+})

@@ -65,9 +65,9 @@ setMethod("add", signature = c("dataset", "arm"), definition = function(object, 
 
 setMethod("add", signature = c("dataset", "pmx_element"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
-  arm <- object@arms %>% default()
-  arm <- arm %>% add(x)
-  object@arms <- object@arms %>% replace(arm)
+  for (armIndex in seq_along(object@arms@list)) {
+    object@arms@list[[armIndex]] <- object@arms@list[[armIndex]] %>% add(x)
+  }
   return(object)
 })
 
@@ -106,6 +106,10 @@ setMethod("find", signature = c("dataset", "pmx_element"), definition = function
     elements <- elements[[1]] # Return first element in all cases
   }
   return(elements)
+})
+
+setMethod("find", signature = c("dataset", "arm"), definition = function(object, x) {
+  return(object@arms %>% find(x))
 })
 
 #_______________________________________________________________________________
