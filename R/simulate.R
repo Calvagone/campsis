@@ -297,7 +297,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
           stop(cond)
         } else {
           message(paste0("Error with replicate number ", replicate))
-          if (replicate==1) message(cond) # Only print error message for the first replicate
+          if (replicate==1) message(cond$message) # Only print error message for the first replicate
         }
         return(NULL)
       }
