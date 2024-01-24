@@ -529,6 +529,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   keep <- outvars[outvars %in% c(summary@covariate_names, summary@iov_names, colnames(rxmod@omega))]
   solver <- settings@solver # Solver settings
   nocb <- settings@nocb@enable
+  tick_slice <- settings@progress@tick_slice
 
   results <- furrr::future_imap_dfr(.x=config$subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
@@ -546,9 +547,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
                                keep=keep, inits=inits, covs_interpolation=ifelse(nocb, "nocb", "constant"), addDosing=dosing, cores=1))
     }
     
-    # # Tick progress
-    # progress <- progress %>% updateSlice(index)
-    # progress <- progress %>% tick()
+    # Tick progress
+    if (tick_slice) {
+      progress <- progress %>% updateSlice(index)
+      progress <- progress %>% tick(tick_slice=tick_slice)
+    }
     
     # RxODE does not add the 'ID' column if only 1 subject
     if (!("id" %in% colnames(tmp))) {
@@ -566,8 +569,10 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
   
   # Tick progress
-  progress <- progress %>% updateSlice(config$subdatasets %>% length())
-  progress <- progress %>% tick(no_slices=TRUE)
+  if (!tick_slice) {
+    progress <- progress %>% updateSlice(config$subdatasets %>% length())
+    progress <- progress %>% tick(tick_slice=tick_slice)
+  }
   
   return(results %>% reorderColumns(dosing=dosing))
 })
@@ -598,10 +603,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     purrr::set_names(thetas@list %>% purrr::map_chr(~.x %>% getNameInModel)) %>%
     purrr::map(~.x@value)
   
-  # Apply solver settings
+  # Apply simulation settings
   solver <- settings@solver
   mod <- mod %>% mrgsolve::update(atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps)
   nocb <- settings@nocb@enable
+  tick_slice <- settings@progress@tick_slice
 
   results <-  furrr::future_imap_dfr(.x=config$subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
@@ -620,16 +626,20 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=nocb) %>% tibble::as_tibble()
 
-    # # Tick progress
-    # progress <- progress %>% updateSlice(index)
-    # progress <- progress %>% tick()
-    
+    # Tick progress
+    if (tick_slice) {
+      progress <- progress %>% updateSlice(index)
+      progress <- progress %>% tick(tick_slice=tick_slice)
+    }
+
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
   }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
   
   # Tick progress
-  progress <- progress %>% updateSlice(config$subdatasets %>% length())
-  progress <- progress %>% tick(no_slices=TRUE)
+  if (!tick_slice) {
+    progress <- progress %>% updateSlice(config$subdatasets %>% length())
+    progress <- progress %>% tick(tick_slice=tick_slice)
+  }
   
   return(results %>% reorderColumns(dosing=dosing))
 })

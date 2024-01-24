@@ -9,6 +9,7 @@
 #' @slot solver solver settings object
 #' @slot nocb NOCB settings object
 #' @slot declare declare settings (mrgsolve only)
+#' @slot progress progress settings
 #' @slot internal internal settings
 #' @export
 setClass(
@@ -18,15 +19,16 @@ setClass(
     solver="solver_settings",
     nocb="nocb_settings",
     declare="declare_settings",
+    progress="progress_settings",
     internal="internal_settings"
   ),
-  prototype=prototype(hardware=Hardware(), solver=Solver(), nocb=NOCB(), declare=Declare())
+  prototype=prototype(hardware=Hardware(), solver=Solver(), nocb=NOCB(), declare=Declare(), progress=Progress())
 )
 
 #'
 #' Create advanced simulation settings.
 #'
-#' @param ... any user-required settings: see ?Hardware, ?Solver, ?NOCB or ?Declare settings
+#' @param ... any user-required settings: see ?Hardware, ?Solver, ?NOCB, ?Declare or ?Progress settings
 #' @return advanced simulation settings
 #' @importFrom purrr detect
 #' @export
@@ -57,15 +59,23 @@ Settings <- function(...) {
     declare <- Declare()
   }
   
+  # Check if progress settings are specified
+  progress <- args %>% purrr::detect(~(is(.x, "progress_settings")))
+  if (is.null(progress)) {
+    progress <- Progress()
+  }
+  
   # Check no other argument remains
   others <- args %>%  purrr::discard(~(is(.x, "hardware_settings") ||
-                                      is(.x, "solver_settings") ||
-                                      is(.x, "nocb_settings") ||
-                                      is(.x, "declare_settings")))
+                                       is(.x, "solver_settings") ||
+                                       is(.x, "nocb_settings") ||
+                                       is(.x, "declare_settings") ||
+                                       is(.x, "progress_settings")
+                                       ))
   assertthat::assert_that(length(others) == 0,
-                          msg="Unknown argument detected. Accepted settings: see ?Hardware, ?Solver, ?NOCB or ?Declare")
+                          msg="Unknown argument detected. Accepted settings: see ?Hardware, ?Solver, ?NOCB, ?Declare or ?Progress")
   
-  return(new("simulation_settings", hardware=hardware, solver=solver, nocb=nocb, declare=declare))
+  return(new("simulation_settings", hardware=hardware, solver=solver, nocb=nocb, declare=declare, progress=progress))
 }
 
 #_______________________________________________________________________________
@@ -78,4 +88,5 @@ setMethod("show", signature=c("simulation_settings"), definition=function(object
   show(object@solver)
   show(object@nocb)
   show(object@declare)
+  show(object@progress)
 })

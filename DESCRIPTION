@@ -97,6 +97,7 @@ Collate:
     'solver_settings.R'
     'nocb_settings.R'
     'declare_settings.R'
+    'progress_settings.R'
     'internal_settings.R'
     'simulation_settings.R'
     'plan_setup.R'

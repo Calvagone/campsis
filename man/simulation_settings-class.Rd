@@ -19,5 +19,7 @@ Simulation settings class.
 \item{\code{declare}}{declare settings (mrgsolve only)}
 
 \item{\code{internal}}{internal settings}
+
+\item{\code{progress}}{progress settings}
 }}
 
