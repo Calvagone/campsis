@@ -63,6 +63,7 @@ Collate:
     'utilities.R'
     'check.R'
     'generic.R'
+    'data.R'
     'seed.R'
     'distribution.R'
     'dataset_config.R'
