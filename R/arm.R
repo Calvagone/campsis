@@ -7,6 +7,10 @@ checkArm <- function(object) {
   return(expectOneForAll(object, c("id", "subjects", "label")))
 }
 
+getEmptyBootstrap <- function() {
+  return(Bootstrap(data=data.frame(BS_ID=integer())))
+}
+
 #' 
 #' Arm class.
 #' 
@@ -30,7 +34,7 @@ setClass(
   contains="pmx_element",
   prototype=prototype(id=as.integer(NA), subjects=as.integer(1), label=as.character(NA),
                       protocol=new("protocol"), covariates=new("covariates"),
-                      bootstrap=Bootstrap(data=data.frame(BS_ID=integer())))
+                      bootstrap=getEmptyBootstrap())
 )
 
 #'
@@ -318,6 +322,16 @@ setMethod("show", signature=c("arm"), definition=function(object) {
   }
   show(object@protocol)
   cat("\n")
-  show(object@covariates)
+  hasBootstrap <- !isTRUE(all.equal(object@bootstrap, getEmptyBootstrap()))
+  hasCovariates <- length(object@covariates@list) > 0
+  if (hasBootstrap) {
+    if (hasCovariates) {
+      # Only show covariates if not empty
+      show(object@covariates)
+    }
+    show(object@bootstrap)
+  } else {
+    show(object@covariates) # Display 'No covariates' if empty list
+  }
 })
 
