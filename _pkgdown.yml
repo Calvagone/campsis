@@ -91,6 +91,7 @@ reference:
   - Declare
   - Hardware
   - NOCB
+  - Progress
   - setupPlanDefault
   - setupPlanSequential
   - Settings
@@ -112,6 +113,7 @@ reference:
   - getTimeVaryingCovariates
   - length,arm-method
   - length,dataset-method
+  - nhanes
   - obsOnly
   - retrieveParameterValue
   - setLabel
@@ -153,6 +155,7 @@ reference:
   - observations_set-class
   - occasion-class
   - occasions-class
+  - progress_settings-class
   - rxode_engine-class
   - scenario-class
   - scenarios-class

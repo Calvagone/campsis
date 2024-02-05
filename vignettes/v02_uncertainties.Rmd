@@ -1,8 +1,8 @@
 ---
-title: "Uncertainty levels"
+title: "Variability levels"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Uncertainty levels}
+  %\VignetteIndexEntry{Variability levels}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -13,9 +13,9 @@ editor_options:
 library(campsis)
 ```
 
-### Simulate with all uncertainties
+### Simulate with all variabilities
 
-Let's use a simple 1-compartment model with absorption compartment to illustrate the different levels of uncertainties.
+Let's use a simple 1-compartment model with absorption compartment to illustrate the different levels of variabilities.
 
 ```{r}
 refModel <- model_suite$nonmem$advan2_trans2
