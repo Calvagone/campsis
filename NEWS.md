@@ -1,3 +1,12 @@
+# campsis 1.5.1
+
+* Progressr: call to tick() at the level of the slice may slow down the simulation (in specific circumstances) #130
+* Layers added to multiple-arm dataset should apply to all arms #133
+* Make NHANES data (DEMO + BMX) available in package campsis #134
+* Bootstrap layer not shown when show is called on dataset #135
+* Don't raise exception when 2 boluses/infusions are given at same time #136
+* Covariate name should be trimmed #137
+
 # campsis 1.5.0
 
 * Revise model library #126
