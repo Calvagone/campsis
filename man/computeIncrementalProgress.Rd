@@ -4,10 +4,12 @@
 \alias{computeIncrementalProgress}
 \title{Compute incremental progress.}
 \usage{
-computeIncrementalProgress(object)
+computeIncrementalProgress(object, tick_slice)
 }
 \arguments{
 \item{object}{simulation progress object}
+
+\item{tick_slice}{tick progress on slices}
 }
 \value{
 incremental progress, in percentage

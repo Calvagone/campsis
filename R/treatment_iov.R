@@ -40,7 +40,7 @@ IOV <- function(colname, distribution, doseNumbers=NULL) {
   if (is.null(doseNumbers)) {
     doseNumbers <- integer(0)
   }
-  return(new("treatment_iov", colname=colname, distribution=toExplicitDistribution(distribution),
+  return(new("treatment_iov", colname=trimws(colname), distribution=toExplicitDistribution(distribution),
              dose_numbers=as.integer(doseNumbers) %>% unique() %>% base::sort()))
 }
 

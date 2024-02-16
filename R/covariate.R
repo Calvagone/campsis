@@ -50,7 +50,7 @@ setClass(
 #' @return a fixed covariate  
 #' @export
 Covariate <- function(name, distribution) {
-  return(new("fixed_covariate", name=name, distribution=toExplicitDistribution(distribution)))
+  return(new("fixed_covariate", name=trimws(name), distribution=toExplicitDistribution(distribution)))
 }
 
 #_______________________________________________________________________________
@@ -77,7 +77,7 @@ setClass(
 #' @return a time-varying covariate  
 #' @export
 EventCovariate <- function(name, distribution) {
-  return(new("event_covariate", name=name, distribution=toExplicitDistribution(distribution)))
+  return(new("event_covariate", name=trimws(name), distribution=toExplicitDistribution(distribution)))
 }
 
 #_______________________________________________________________________________
@@ -141,7 +141,7 @@ TimeVaryingCovariate <- function(name, table) {
     }
   }
   
-  return(new("time_varying_covariate", name=name,
+  return(new("time_varying_covariate", name=trimws(name),
              distribution=toExplicitDistribution(tableT0$VALUE), table=tableAfterT0))
 }
 

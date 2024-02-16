@@ -82,6 +82,16 @@ test_that("Declare settings work as expected", {
   expect_true("Declare: variables={OCC}" %in% capture.output(show(settings)))
 })
 
+test_that("Progress settings work as expected", {
+  
+  settings <- Settings(Progress(tick_slice=FALSE))
+  
+  # Declare settings, overridden values
+  expect_equal(settings@progress@tick_slice, FALSE)
+  
+  expect_true("Progress: tick_slice=FALSE" %in% capture.output(show(settings)))
+})
+
 
 test_that("Unknown settings shouldn't be accepted", {
   expect_error(Settings(Hardware(cpu=4, replicate_parallel=TRUE), Dataset()), regexp="Unknown argument detected")

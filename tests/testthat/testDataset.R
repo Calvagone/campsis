@@ -512,3 +512,84 @@ test_that("Export works well even if objects are defined in a different order", 
                         filename=regFilename)
   
 })
+
+test_that("Any layer added to the multiple-arm dataset apply to each arm.", {
+  regFilename <- "layer_added_to_multiple_arm_dataset"
+  
+  arm1 <- Arm(label="10 mg") %>%
+    add(Bolus(time=0, amount=10))
+  
+  arm2 <- Arm(label="20 mg") %>%
+    add(Bolus(time=0, amount=20))
+  
+  dataset <- Dataset() %>%
+    add(c(arm1, arm2))
+  
+  dataset <- dataset %>%
+    setSubjects(c(4,8))
+  
+  expect_equal(length(dataset), 12)
+  
+  dataset <- dataset %>% 
+    add(IOV("IOVKA", distribution=NormalDistribution(0, 1))) %>%
+    add(Bootstrap(data=data.frame(ID=1:20, BW=70 + 1:20), id="ID", replacement=TRUE)) %>%
+    add(Observations(1:5))
+  
+  # Check IOV has been created in arm1
+  arm1 <- dataset %>% find(Arm(1))
+  expect_true(!is.null(arm1 %>% find(IOV("IOVKA", distribution=0))))
+  
+  # Check IOV has been created in arm2
+  arm2 <- dataset %>% find(Arm(2))
+  expect_true(!is.null(arm2 %>% find(IOV("IOVKA", distribution=0))))
+  
+  table <- dataset %>% export(dest="RxODE", seed=1)
+  
+  datasetRegressionTest(dataset=dataset, seed=1, doseOnly=FALSE,
+                        filename=regFilename)
+})
+
+test_that("Boluses/Infusions can now be given at same time and into the same compartment", {
+  
+  # Now this code is working
+  dataset <- Dataset() %>%
+    add(Bolus(time=0, amount=100, compartment=1)) %>%
+    add(Bolus(time=0, amount=100, compartment=1, ii=24, add=1))
+  
+  # Amounts have been added
+  bolusTime0 <- dataset %>%
+    find(Bolus(time=0, amount=0, compartment=1))
+  expect_equal(bolusTime0@amount, 100 + 100)
+  
+  # Check 200 is given at 0, 100 at time 24
+  expect_true("-> Adm. times (bolus into CMT=1): 0 (200),24 (100)" %in% capture.output(show(dataset)))
+  
+  # Same code with infusions
+  dataset <- Dataset() %>%
+    add(Infusion(time=0, amount=100, compartment=2)) %>%
+    add(Infusion(time=0, amount=100, compartment=2, ii=24, add=1))
+  
+  # Infusion amounts have been added
+  infusionTime0 <- dataset %>%
+    find(Infusion(time=0, amount=0, compartment=2))
+  expect_equal(infusionTime0@amount, 100 + 100)
+  
+  # Check 200 is given at 0, 100 at time 24
+  expect_true("-> Adm. times (infusion into CMT=2): 0 (200),24 (100)" %in% capture.output(show(dataset)))
+  
+  # Same code but rate is provided in second infusion
+  # Not accepted
+  expect_error(Dataset() %>%
+    add(Infusion(time=0, amount=100, compartment=2)) %>%
+    add(Infusion(time=0, amount=100, compartment=2, ii=24, add=1, duration=2)),
+    regexp="Element 'INFUSION \\[TIME=0, CMT=2\\]' already exists in dataset and has different properties\\. Amounts cannot be added\\.")
+  
+  # Similar test but with 2 arms
+  expect_error(Dataset() %>%
+    add(Arm(subjects=10)) %>%
+    add(Arm(subjects=10)) %>%
+    add(Infusion(time=0, amount=100, compartment=2)) %>%
+    add(Infusion(time=0, amount=100, compartment=2, ii=24, add=1, duration=2)),
+    regexp="Element 'INFUSION \\[TIME=0, CMT=2\\]' already exists in ARM 1 and has different properties\\. Amounts cannot be added\\.")
+  # Note that the same error would have been raised in ARM 2 if process was not interrupted.
+})

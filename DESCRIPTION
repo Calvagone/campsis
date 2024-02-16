@@ -1,7 +1,7 @@
 Type: Package
 Package: campsis
 Title: Generic PK/PD Simulation Platform CAMPSIS
-Version: 1.5.0
+Version: 1.5.1
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
 Description: A generic, easy-to-use and intuitive
@@ -63,6 +63,7 @@ Collate:
     'utilities.R'
     'check.R'
     'generic.R'
+    'data.R'
     'seed.R'
     'distribution.R'
     'dataset_config.R'
@@ -97,6 +98,7 @@ Collate:
     'solver_settings.R'
     'nocb_settings.R'
     'declare_settings.R'
+    'progress_settings.R'
     'internal_settings.R'
     'simulation_settings.R'
     'plan_setup.R'

@@ -150,3 +150,14 @@ setMethod("sample", signature = c("bootstrap", "integer"), definition = function
   return(object %>% getNames() %>%
            purrr::map(~Covariate(name=.x, distribution=FixedDistribution(data %>% dplyr::pull(.x)))))
 })
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("bootstrap"), definition=function(object) {
+  if (object %>% length() > 0) {
+    cat("Bootstrap:", paste0(colnames(object@data), collapse=","))
+    cat("\n")
+  }
+})

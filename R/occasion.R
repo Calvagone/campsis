@@ -43,7 +43,7 @@ setClass(
 #' @return occasion object
 #' @export
 Occasion <- function(colname, values, doseNumbers) {
-  return(new("occasion", colname=colname, values=as.integer(values), dose_numbers=as.integer(doseNumbers)))
+  return(new("occasion", colname=trimws(colname), values=as.integer(values), dose_numbers=as.integer(doseNumbers)))
 }
 
 #_______________________________________________________________________________
