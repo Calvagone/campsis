@@ -622,18 +622,40 @@ preprocessNocbvars <- function(nocbvars) {
   return(nocbvars)
 }
 
-#' Process TSLD and TDOS columns according to given dataset configuration.
+#' Process time-related columns according to given dataset configuration.
 #' 
 #' @param table current table
 #' @param config dataset config
 #' @return updated table
 #' @keywords internal
 #'
-processTSLDAndTDOSColumn <- function(table, config) {
+processAllTimeColumns <- function(table, config) {
+  unitFrom <- config@time_unit_dataset
+  unitTo <- config@time_unit_export
+  
+  # TIME conversion according to specified units
+  table <- table %>%
+    dplyr::mutate(TIME=convertTime(x=.data$TIME, from=unitFrom, to=unitTo))
+  
+  # TDOS conversion according to specified units
+  if (config@export_tdos || config@export_tsld) {
+    table <- table %>%
+      dplyr::mutate(TDOS=convertTime(x=.data$TDOS, from=unitFrom, to=unitTo))
+  }
+  
+  # TIME_TSLD conversion according to specified units
+  if (config@export_tsld) {
+    table <- table %>%
+      dplyr::mutate(TIME_TSLD=convertTime(x=.data$TIME_TSLD, from=unitFrom, to=unitTo))
+  }
+  
+  # Compute TSLD
   if (config@export_tsld) {
     table <- table %>% dplyr::mutate(TSLD=.data$TIME_TSLD - .data$TDOS)
     table <- table %>% dplyr::select(-dplyr::all_of("TIME_TSLD"))
   }
+  
+  # Discard TDOS is not needed
   if (!config@export_tdos && config@export_tsld) {
     table <- table %>% dplyr::select(-dplyr::all_of("TDOS"))
   }
@@ -734,7 +756,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model,
                             arm_offset=arm_offset, offset_within_arm=offset_within_arm)
 
-    # TSLD/TDOS preprocessing
+    # TSLD/TDOS pre-processing
     table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
     
     # IOV / Occasion / Time-varying covariates post-processing
@@ -750,8 +772,8 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
       table <- fillIOVOccColumns(table, columnNames=iovOccNames, downDirectionFirst=FALSE)
     }
     
-    # TSLD/TDOS processing
-    table <- table %>% processTSLDAndTDOSColumn(config=object@config)
+    # Time-related columns processing
+    table <- table %>% processAllTimeColumns(config=object@config)
     
     return(table %>% dplyr::ungroup())
   }, .options=furrr::furrr_options(seed=furrrSeed, scheduling=getFurrrScheduling(settings@hardware@dataset_parallel)))
@@ -786,7 +808,7 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
     table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model,
                             arm_offset=arm_offset, offset_within_arm=offset_within_arm)
     
-    # TSLD/TDOS preprocessing
+    # TSLD/TDOS pre-processing
     table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
     
     # IOV / Occasion / Time-varying covariates post-processing
@@ -802,8 +824,8 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
       table <- counterBalanceLocfMode(table, columnNames=iovOccNamesLocf)
     }
     
-    # TSLD/TDOS processing
-    table <- table %>% processTSLDAndTDOSColumn(config=object@config)
+    # Time-related columns processing
+    table <- table %>% processAllTimeColumns(config=object@config)
     
     return(table %>% dplyr::ungroup())
   }, .options=furrr::furrr_options(seed=furrrSeed, scheduling=getFurrrScheduling(settings@hardware@dataset_parallel)))
