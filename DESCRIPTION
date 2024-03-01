@@ -61,6 +61,7 @@ RoxygenNote: 7.2.3
 Collate:
     'global.R'
     'utilities.R'
+    'time_utilities.R'
     'check.R'
     'generic.R'
     'data.R'

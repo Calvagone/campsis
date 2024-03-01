@@ -9,7 +9,9 @@ DatasetConfig(
   defDepotCmt = 1,
   defObsCmt = 1,
   exportTSLD = FALSE,
-  exportTDOS = FALSE
+  exportTDOS = FALSE,
+  timeUnitDataset = "hour",
+  timeUnitExport = "hour"
 )
 }
 \arguments{
@@ -20,6 +22,10 @@ DatasetConfig(
 \item{exportTSLD}{export column TSLD (time since last dose), logical}
 
 \item{exportTDOS}{export column TDOS (time of last dose), logical}
+
+\item{timeUnitDataset}{unit of time in dataset, character ('hour' by default)}
+
+\item{timeUnitExport}{unit of time in export, character ('hour' by default)}
 }
 \value{
 a dataset configuration
