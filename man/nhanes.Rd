@@ -7,7 +7,7 @@
 \format{
 data frame
 \describe{
-   \item{ID}{Original identifier}
+   \item{BS_ID}{Original identifier}
    \item{SEX}{Sex: 1 for males, 2 for females}
    \item{AGE}{Age in years}
    \item{BW}{Body weight in kg}

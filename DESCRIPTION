@@ -1,7 +1,7 @@
 Type: Package
 Package: campsis
 Title: Generic PK/PD Simulation Platform CAMPSIS
-Version: 1.5.1
+Version: 1.5.2
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
 Description: A generic, easy-to-use and intuitive
@@ -61,6 +61,7 @@ RoxygenNote: 7.2.3
 Collate:
     'global.R'
     'utilities.R'
+    'time_utilities.R'
     'check.R'
     'generic.R'
     'data.R'

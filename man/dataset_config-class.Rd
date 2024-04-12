@@ -17,5 +17,9 @@ Dataset configuration class.
 \item{\code{export_tsld}}{export column TSLD, logical}
 
 \item{\code{export_tdos}}{export column TDOS, logical}
+
+\item{\code{time_unit_dataset}}{unit of time in dataset, character ('hour' by default)}
+
+\item{\code{time_unit_export}}{unit of time in export, character ('hour' by default)}
 }}
 

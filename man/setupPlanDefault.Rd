@@ -3,7 +3,7 @@
 \name{setupPlanDefault}
 \alias{setupPlanDefault}
 \title{Setup default plan for the given simulation or hardware settings.
-This plan will prioritise the ditribution of workers in the following order:
+This plan will prioritise the distribution of workers in the following order:
 1) Replicates (if 'replicate_parallel' is enabled)
 2) Scenarios (if 'scenario_parallel' is enabled)
 3) Dataset export / slices (if 'dataset_export' or 'slice_parallel' is enabled)}
@@ -18,7 +18,7 @@ nothing
 }
 \description{
 Setup default plan for the given simulation or hardware settings.
-This plan will prioritise the ditribution of workers in the following order:
+This plan will prioritise the distribution of workers in the following order:
 1) Replicates (if 'replicate_parallel' is enabled)
 2) Scenarios (if 'scenario_parallel' is enabled)
 3) Dataset export / slices (if 'dataset_export' or 'slice_parallel' is enabled)
