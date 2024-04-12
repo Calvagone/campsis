@@ -1,3 +1,8 @@
+# campsis 1.5.2
+
+* Time unit support (dataset inputs / dataset export) #140
+* Change ID column name in nhanes dataset #143
+
 # campsis 1.5.1
 
 * Progressr: call to tick() at the level of the slice may slow down the simulation (in specific circumstances) #130

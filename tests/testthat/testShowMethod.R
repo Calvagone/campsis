@@ -87,7 +87,7 @@ test_that("Applying method show on a few datasets works as expected", {
     add(Bolus(time=0, amount=1000, compartment=1, ii=24, addl=0)) %>%
     add(Observations(seq(0,24,by=1))) %>%
     add(Covariate("HELLO", 0)) %>%
-    add(Bootstrap(data=campsis::nhanes, id="ID", replacement=TRUE, random=TRUE))
+    add(Bootstrap(data=campsis::nhanes, replacement=TRUE, random=TRUE))
   
   expect_true("Covariates: HELLO" %in% capture.output(show(ds)))
   expect_true("Bootstrap: BS_ID,SEX,AGE,BW,BMI,HT" %in% capture.output(show(ds)))
@@ -96,7 +96,7 @@ test_that("Applying method show on a few datasets works as expected", {
   ds <- Dataset(subjects=10) %>%
     add(Bolus(time=0, amount=1000, compartment=1, ii=24, addl=0)) %>%
     add(Observations(seq(0,24,by=1))) %>%
-    add(Bootstrap(data=campsis::nhanes, id="ID", replacement=TRUE, random=TRUE))
+    add(Bootstrap(data=campsis::nhanes, replacement=TRUE, random=TRUE))
   
   expect_true(!("No covariates" %in% capture.output(show(ds))))
   expect_true("Bootstrap: BS_ID,SEX,AGE,BW,BMI,HT" %in% capture.output(show(ds)))
