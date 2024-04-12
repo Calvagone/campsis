@@ -13,12 +13,12 @@ download.file(url, tf, mode="wb", quiet=TRUE)
 bmx <- read.xport(tf)
 
 nhanes.demo <- demo %>%
-  select(ID=SEQN, SEX=RIAGENDR, AGE=RIDAGEYR) %>% 
+  select(BS_ID=SEQN, SEX=RIAGENDR, AGE=RIDAGEYR) %>% 
   mutate(SEXC=case_when(SEX=='1' ~ 'male',
                         SEX=='2' ~ 'female',
                         SEX=='.' ~'missing'))
 nhanes.body <- bmx %>%
-  select(ID=SEQN, BW=BMXWT, BMI=BMXBMI, HT=BMXHT)
+  select(BS_ID=SEQN, BW=BMXWT, BMI=BMXBMI, HT=BMXHT)
 
 # Join both tables and keep only complete cases
 nhanes <- left_join(nhanes.demo, nhanes.body) %>%
