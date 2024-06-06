@@ -7,7 +7,6 @@
 #' 
 #' @slot fun function or purrr-style lambda formula, first argument 'x' must be the results
 #' @slot args extra arguments, named list
-#' @slot function arguments
 #' @slot level either 'scenario' or 'replicate'. Default is 'scenario'.
 #' @export
 setClass(

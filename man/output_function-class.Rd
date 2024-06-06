@@ -14,8 +14,6 @@ Output function class.
 
 \item{\code{args}}{extra arguments, named list}
 
-\item{\code{function}}{arguments}
-
 \item{\code{level}}{either 'scenario' or 'replicate'. Default is 'scenario'.}
 }}
 
