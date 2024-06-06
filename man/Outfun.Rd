@@ -8,11 +8,14 @@ Outfun(
   fun = function(x, ...) {
      x
  },
+  args = list(),
   level = "scenario"
 )
 }
 \arguments{
-\item{fun}{function or purrr-style lambda formula}
+\item{fun}{function or purrr-style lambda formula, first argument 'x' must be the results}
+
+\item{args}{extra arguments, named list}
 
 \item{level}{either 'scenario' or 'replicate'. Default is 'scenario'.}
 }

@@ -10,7 +10,11 @@ Output function class.
 \section{Slots}{
 
 \describe{
-\item{\code{fun}}{function or purrr-style lambda formula}
+\item{\code{fun}}{function or purrr-style lambda formula, first argument 'x' must be the results}
+
+\item{\code{args}}{extra arguments, named list}
+
+\item{\code{function}}{arguments}
 
 \item{\code{level}}{either 'scenario' or 'replicate'. Default is 'scenario'.}
 }}

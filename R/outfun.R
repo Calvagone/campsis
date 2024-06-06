@@ -5,13 +5,16 @@
 #' 
 #' Output function class.
 #' 
-#' @slot fun function or purrr-style lambda formula
+#' @slot fun function or purrr-style lambda formula, first argument 'x' must be the results
+#' @slot args extra arguments, named list
+#' @slot function arguments
 #' @slot level either 'scenario' or 'replicate'. Default is 'scenario'.
 #' @export
 setClass(
   "output_function",
   representation(
     fun="function",
+    args="list",
     level="character"
   ),
   prototype=prototype(fun=function(x, ...){x}, level="scenario")
@@ -20,12 +23,13 @@ setClass(
 #'
 #' Create a new output function
 #'
-#' @param fun function or purrr-style lambda formula
+#' @param fun function or purrr-style lambda formula, first argument 'x' must be the results
+#' @param args extra arguments, named list
 #' @param level either 'scenario' or 'replicate'. Default is 'scenario'.
 #' @importFrom rlang as_function is_formula
 #' @return an output function
 #' @export
-Outfun <- function(fun=function(x, ...){x}, level="scenario") {
+Outfun <- function(fun=function(x, ...){x}, args=list(), level="scenario") {
   if (is.function(fun)) {
     # Do nothing
   } else if (rlang::is_formula(fun)) {
@@ -36,14 +40,28 @@ Outfun <- function(fun=function(x, ...){x}, level="scenario") {
   }
   assertthat::assert_that(level %in% c("scenario", "replicate"), msg="Level must be 'scenario' or 'replicate'")
     
-  return(new("output_function", fun=fun, level=level))
+  return(new("output_function", fun=fun, args=args, level=level))
 }
 
 applyOutfun <- function(x, outfun, level, ...) {
   assertthat::assert_that(is(outfun, "output_function"), msg="x is not an output function")
   
   if (level==outfun@level) {
-    x <- outfun@fun(x)
+    # Retrieve all formal arguments of the user-given function
+    formalArgs_ <- formalArgs(outfun@fun)
+    
+    # Prepare list of arguments
+    args <- list(x) %>% # First argument is the Campsis results
+      append(outfun@args) # user-given arguments list
+    
+    # Some more arguments (like 'replicate' or 'scenario') are transmitted by Campsis automatically
+    # This requires the three dot ellipsis to be there
+    # Note that if lambda was passed in 'Outfun' constructor, three dot ellipsis is always there
+    if ("..." %in% formalArgs_) {
+      args <- args %>%
+        append(list(...))
+    }
+    x <- do.call(outfun@fun, args=args)
   }
   return(x)
 }
