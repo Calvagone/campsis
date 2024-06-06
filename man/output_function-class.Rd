@@ -14,6 +14,8 @@ Output function class.
 
 \item{\code{args}}{extra arguments, named list}
 
+\item{\code{packages}}{packages that must be loaded to execute the given function, character vector}
+
 \item{\code{level}}{either 'scenario' or 'replicate'. Default is 'scenario'.}
 }}
 

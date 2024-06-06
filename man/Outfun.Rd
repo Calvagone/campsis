@@ -9,6 +9,7 @@ Outfun(
      x
  },
   args = list(),
+  packages = NULL,
   level = "scenario"
 )
 }
@@ -16,6 +17,8 @@ Outfun(
 \item{fun}{function or purrr-style lambda formula, first argument 'x' must be the results}
 
 \item{args}{extra arguments, named list}
+
+\item{packages}{packages that must be loaded to execute the given function, character vector}
 
 \item{level}{either 'scenario' or 'replicate'. Default is 'scenario'.}
 }

@@ -7,6 +7,7 @@
 #' 
 #' @slot fun function or purrr-style lambda formula, first argument 'x' must be the results
 #' @slot args extra arguments, named list
+#' @slot packages packages that must be loaded to execute the given function, character vector
 #' @slot level either 'scenario' or 'replicate'. Default is 'scenario'.
 #' @export
 setClass(
@@ -14,6 +15,7 @@ setClass(
   representation(
     fun="function",
     args="list",
+    packages="character",
     level="character"
   ),
   prototype=prototype(fun=function(x, ...){x}, level="scenario")
@@ -24,11 +26,12 @@ setClass(
 #'
 #' @param fun function or purrr-style lambda formula, first argument 'x' must be the results
 #' @param args extra arguments, named list
+#' @param packages packages that must be loaded to execute the given function, character vector
 #' @param level either 'scenario' or 'replicate'. Default is 'scenario'.
 #' @importFrom rlang as_function is_formula
 #' @return an output function
 #' @export
-Outfun <- function(fun=function(x, ...){x}, args=list(), level="scenario") {
+Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="scenario") {
   if (is.function(fun)) {
     # Do nothing
   } else if (rlang::is_formula(fun)) {
@@ -38,8 +41,11 @@ Outfun <- function(fun=function(x, ...){x}, args=list(), level="scenario") {
     stop("fun must be a function or a purrr-style lambda formula") 
   }
   assertthat::assert_that(level %in% c("scenario", "replicate"), msg="Level must be 'scenario' or 'replicate'")
-    
-  return(new("output_function", fun=fun, args=args, level=level))
+  if (is.null(packages)) {
+    packages <- character(0)
+  } 
+   
+  return(new("output_function", fun=fun, args=args, packages=packages, level=level))
 }
 
 applyOutfun <- function(x, outfun, level, ...) {
@@ -60,6 +66,11 @@ applyOutfun <- function(x, outfun, level, ...) {
       args <- args %>%
         append(list(...))
     }
+    
+    # Load packages
+    lapply(outfun@packages, require, character.only=TRUE)
+    
+    # Call output function with args
     x <- do.call(outfun@fun, args=args)
   }
   return(x)
