@@ -25,9 +25,9 @@ test_that("Scenario that overrides the default dataset", {
 
 test_that("Incorrect scenario arguments are not accepted", {
   expect_error(Scenario(dataset=Dataset(1), model="ANYTHING"),
-               regexp="model must be a CAMPSIS model, a function or a lambda formula")
+               regexp="model must be a CAMPSIS model, a function or a purrr-style lambda formula")
   expect_error(Scenario(dataset="ANYTHING", model=model_suite$testing$nonmem$advan1_trans1),
-               regexp="dataset must be a CAMPSIS dataset, a function or a lambda formula")
+               regexp="dataset must be a CAMPSIS dataset, a function or a purrr-style lambda formula")
 })
 
 test_that("Incorrect scenario slots must be detected", {
@@ -37,5 +37,5 @@ test_that("Incorrect scenario slots must be detected", {
   
   scenario <- Scenario()
   scenario@model <- "ANYTHING"
-  expect_error(validObject(scenario), regexp="model must be a CAMPSIS model, a function or a lambda formula")
+  expect_error(validObject(scenario), regexp="model must be a CAMPSIS model, a function or a purrr-style lambda formula")
 })

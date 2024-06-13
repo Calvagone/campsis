@@ -2,11 +2,11 @@
 % Please edit documentation in R/simulate.R
 \name{simulate}
 \alias{simulate}
-\alias{simulate,campsis_model,dataset,character,events,scenarios,function,character,function,integer,integer,logical,simulation_settings-method}
-\alias{simulate,campsis_model,tbl_df,character,events,scenarios,function,character,function,integer,integer,logical,simulation_settings-method}
-\alias{simulate,campsis_model,data.frame,character,events,scenarios,function,character,function,integer,integer,logical,simulation_settings-method}
-\alias{simulate,campsis_model,tbl_df,rxode_engine,events,scenarios,function,character,function,integer,integer,logical,simulation_settings-method}
-\alias{simulate,campsis_model,tbl_df,mrgsolve_engine,events,scenarios,function,character,function,integer,integer,logical,simulation_settings-method}
+\alias{simulate,campsis_model,dataset,character,events,scenarios,function,character,output_function,integer,integer,logical,simulation_settings-method}
+\alias{simulate,campsis_model,tbl_df,character,events,scenarios,function,character,output_function,integer,integer,logical,simulation_settings-method}
+\alias{simulate,campsis_model,data.frame,character,events,scenarios,function,character,output_function,integer,integer,logical,simulation_settings-method}
+\alias{simulate,campsis_model,tbl_df,rxode_engine,events,scenarios,function,character,output_function,integer,integer,logical,simulation_settings-method}
+\alias{simulate,campsis_model,tbl_df,mrgsolve_engine,events,scenarios,function,character,output_function,integer,integer,logical,simulation_settings-method}
 \title{Simulate function.}
 \usage{
 simulate(
@@ -24,7 +24,7 @@ simulate(
   settings = NULL
 )
 
-\S4method{simulate}{campsis_model,dataset,character,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
+\S4method{simulate}{campsis_model,dataset,character,events,scenarios,`function`,character,output_function,integer,integer,logical,simulation_settings}(
   model,
   dataset,
   dest = NULL,
@@ -39,7 +39,7 @@ simulate(
   settings = NULL
 )
 
-\S4method{simulate}{campsis_model,tbl_df,character,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
+\S4method{simulate}{campsis_model,tbl_df,character,events,scenarios,`function`,character,output_function,integer,integer,logical,simulation_settings}(
   model,
   dataset,
   dest = NULL,
@@ -54,7 +54,7 @@ simulate(
   settings = NULL
 )
 
-\S4method{simulate}{campsis_model,data.frame,character,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
+\S4method{simulate}{campsis_model,data.frame,character,events,scenarios,`function`,character,output_function,integer,integer,logical,simulation_settings}(
   model,
   dataset,
   dest = NULL,
@@ -69,7 +69,7 @@ simulate(
   settings = NULL
 )
 
-\S4method{simulate}{campsis_model,tbl_df,rxode_engine,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
+\S4method{simulate}{campsis_model,tbl_df,rxode_engine,events,scenarios,`function`,character,output_function,integer,integer,logical,simulation_settings}(
   model,
   dataset,
   dest = NULL,
@@ -84,7 +84,7 @@ simulate(
   settings = NULL
 )
 
-\S4method{simulate}{campsis_model,tbl_df,mrgsolve_engine,events,scenarios,`function`,character,`function`,integer,integer,logical,simulation_settings}(
+\S4method{simulate}{campsis_model,tbl_df,mrgsolve_engine,events,scenarios,`function`,character,output_function,integer,integer,logical,simulation_settings}(
   model,
   dataset,
   dest = NULL,
@@ -114,7 +114,7 @@ simulate(
 
 \item{outvars}{variables to output in resulting dataframe}
 
-\item{outfun}{function or lambda formula to apply on resulting dataframe after each replicate}
+\item{outfun}{an output function to apply on the simulation results. Type ?Outfun for more info.}
 
 \item{seed}{seed value}
 

@@ -49,6 +49,8 @@ test_that(getTestName("VPC on both CP and Y, using function"), {
 
 test_that(getTestName("Study replication also works with scenarios"), {
   if (skipLongTest) return(TRUE)
+  if (skipVdiffrTest) return(TRUE)
+  
   model <- model_suite$testing$nonmem$advan2_trans1
   ds <- Dataset(10) %>%
     add(Bolus(time=0, amount=1000)) %>%
@@ -57,13 +59,38 @@ test_that(getTestName("Study replication also works with scenarios"), {
   scenarios <- Scenarios() %>%
     add(Scenario(name="Base model")) %>%
     add(Scenario(name="Increased KA", model=~.x %>% replace(Theta(name="KA", value=3)))) # 3 instead of 1
-
+  
+  # Outfun executed at the level of the scenario (backwards compatibility)
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
                                     outfun=~PI(.x, output="CP"), seed=seed, scenarios=scenarios))
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
     expect_true(all(results$SCENARIO %>% unique()==c("Base model", "Increased KA"))),
-    vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO)
+    vdiffr::expect_doppelganger("VPC / specified outfun", vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO))
+  )
+  campsisTest(simulation, test, env=environment())
+  
+  # Outfun executed at the level of the replicate (possible since Campsis v1.5.3)
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
+                                    outfun=Outfun(~PI(.x, output="CP", scenarios="SCENARIO"), level="replicate"),
+                                    seed=seed, scenarios=scenarios))
+  test <- expression(
+    expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
+    expect_true(all(results$SCENARIO %>% unique()==c("Base model", "Increased KA"))),
+    vdiffr::expect_doppelganger("VPC / specified outfun", vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO))
+  )
+  campsisTest(simulation, test, env=environment())
+  
+  # Alternatively, function and arguments may also be passed (possible since Campsis v1.5.3)
+  # This is particularly useful when parallelisation on replicates is enabled since
+  # the function written in a lambda will not be detected as part of the environment by the 'future' package
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
+                                    outfun=Outfun(PI, args=list(output="CP", scenarios="SCENARIO"), level="replicate"),
+                                    seed=seed, scenarios=scenarios))
+  test <- expression(
+    expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
+    expect_true(all(results$SCENARIO %>% unique()==c("Base model", "Increased KA"))),
+    vdiffr::expect_doppelganger("VPC / specified outfun", vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO))
   )
   campsisTest(simulation, test, env=environment())
 })

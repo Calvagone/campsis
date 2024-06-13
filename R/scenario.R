@@ -56,18 +56,18 @@ Scenario <- function(name=NULL, model=NULL, dataset=NULL) {
 }
 
 expectAppropriateModelArg <- function(model) {
-  if (is(model, "campsis_model") || is.function(model) || plyr::is.formula(model)) {
+  if (is(model, "campsis_model") || is.function(model) || rlang::is_formula(model)) {
     return(character(0))
   } else {
-    return("model must be a CAMPSIS model, a function or a lambda formula")
+    return("model must be a CAMPSIS model, a function or a purrr-style lambda formula")
   }
 }
 
 expectAppropriateDatasetArg <- function(dataset) {
-  if (is(dataset, "dataset") || is.function(dataset) || plyr::is.formula(dataset)) {
+  if (is(dataset, "dataset") || is.function(dataset) || rlang::is_formula(dataset)) {
     return(character(0))
   } else {
-    return("dataset must be a CAMPSIS dataset, a function or a lambda formula")
+    return("dataset must be a CAMPSIS dataset, a function or a purrr-style lambda formula")
   }
 }
 
@@ -90,8 +90,7 @@ setMethod("getName", signature = c("scenario"), definition = function(x) {
 #' @param scenario the scenario to be applied
 #' @return an updated model or dataset
 #' @importFrom assertthat assert_that
-#' @importFrom plyr is.formula
-#' @importFrom rlang as_function
+#' @importFrom rlang as_function is_formula
 #' @export
 #' @keywords internal
 applyScenario <- function(x, scenario) {
@@ -107,7 +106,7 @@ applyScenario <- function(x, scenario) {
   
   if (is.function(x_)) {
     return(x_(x))
-  } else if (plyr::is.formula(x_)) {
+  } else if (rlang::is_formula(x_)) {
     x_ <- rlang::as_function(x_)
     return(x_(x))
   } else {

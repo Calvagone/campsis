@@ -34,7 +34,7 @@ simulateDelegate(
 
 \item{outvars}{variables to output in resulting dataframe}
 
-\item{outfun}{function or lambda formula to apply on resulting dataframe after each replicate}
+\item{outfun}{an output function to apply on the simulation results. Type ?Outfun for more info.}
 
 \item{seed}{seed value}
 

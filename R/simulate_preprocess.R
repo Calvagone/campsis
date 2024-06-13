@@ -56,31 +56,45 @@ preprocessScenarios <- function(scenarios) {
   }
 }
 
-#' Pre-process function argument.
+#' Pre-process tablefun argument.
 #'
 #' @param fun function or lambda formula
-#' @param name function name
 #' @return a function in any case
 #' @importFrom assertthat assert_that
-#' @importFrom plyr is.formula
-#' @importFrom rlang as_function
+#' @importFrom rlang as_function is_formula
 #' @keywords internal
 #' 
-preprocessFunction <- function(fun, name) {
+preprocessTablefun <- function(fun) {
   if (is.null(fun)) {
     fun <- function(x){x}
     return(fun)
   } else {
-    assertthat::assert_that(is.function(fun) || plyr::is.formula(fun),
-                            msg=paste0(name, " must be a function or a lambda formula"))
-    if (plyr::is.formula(fun)) {
+    assertthat::assert_that(is.function(fun) || rlang::is_formula(fun),
+                            msg=paste0("tablefun must be a function or a purrr-style lambda formula"))
+    if (rlang::is_formula(fun)) {
       fun <- rlang::as_function(fun)
-      # Class of fun is c("rlang_lambda_function","function")
-      # However, not accepted as argument if method signature is "function"... Bug?
-      # Workaround is to set a unique class
-      class(fun) <- "function"
+      class(fun) <- "function" # Cast needed to work with S4 class system
     }
     return(fun)
+  }
+}
+
+#' Pre-process outfun argument.
+#'
+#' @param fun function or lambda formula
+#' @return an output function
+#' @importFrom assertthat assert_that
+#' @keywords internal
+#' 
+preprocessOutfun <- function(outfun) {
+  if (is.null(outfun)) {
+    return(Outfun())
+  } else if (is.function(outfun) || rlang::is_formula(outfun)) {
+    # Backwards compatibility
+    return(Outfun(fun=outfun, level="scenario"))
+  } else {
+    assertthat::assert_that(is(outfun, "output_function"), msg="outfun is not an output function. Type ?Outfun for more info.")
+    return(outfun)
   }
 }
 

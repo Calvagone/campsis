@@ -11,7 +11,7 @@
 #' @param scenarios list of scenarios to be simulated
 #' @param tablefun function or lambda formula to apply on exported 2-dimensional dataset
 #' @param outvars variables to output in resulting dataframe
-#' @param outfun function or lambda formula to apply on resulting dataframe after each replicate
+#' @param outfun an output function to apply on the simulation results. Type ?Outfun for more info.
 #' @param seed seed value
 #' @param replicates number of replicates, default is 1
 #' @param dosing output dosing information, default is FALSE
@@ -27,9 +27,9 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
   dest <- preprocessDest(dest)
   events <- preprocessEvents(events)
   scenarios <- preprocessScenarios(scenarios)
-  tablefun <- preprocessFunction(tablefun, "tablefun")
+  tablefun <- preprocessTablefun(tablefun)
   outvars <- preprocessOutvars(outvars)
-  outfun <- preprocessFunction(outfun, "outfun")
+  outfun <- preprocessOutfun(outfun)
   seed <- getSeed(seed)
   replicates <- preprocessReplicates(replicates)
   settings <- preprocessSettings(settings, dest)
@@ -174,7 +174,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   if (iterations %>% length() > 0) {
     results <- results %>% dplyr::arrange(dplyr::across("ID"))
   }
-  return(outfun(results))
+  return(results)
 }
 
 #' Process arm labels. Arm identifiers in ARM column are replaced by arm labels
@@ -238,12 +238,22 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     inner <- simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
                                     tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
                                     dosing=dosing, settings=settings)
+    
+    # Apply potential output function
+    inner <- inner %>% applyOutfun(outfun=outfun, level="scenario", scenario=scenario@name)
+    
     if (scenarios %>% length() > 1) {
       inner <- inner %>% dplyr::mutate(SCENARIO=scenario@name)
     }
+
     return(inner)
   }, .options=furrr::furrr_options(seed=NULL, scheduling=getFurrrScheduling(settings@hardware@scenario_parallel)))
   
+  # Label arms (ARM column)
+  if (is(dataset, "dataset")) {
+    outer <- processArmLabels(outer, dataset@arms)
+  }
+
   return(outer)
 }
 
@@ -288,9 +298,11 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     settings@internal@progress <- settings@internal@progress %>% updateReplicate(replicate)
     retValue <- tryCatch(
       expr={
-        return(simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
-                                 tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                 dosing=dosing, settings=settings))
+        inner <- simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
+                                     tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                     dosing=dosing, settings=settings)
+        # Apply potential output function
+        inner <- inner %>% applyOutfun(outfun=outfun, level="replicate", replicate=replicate) 
       },
       error=function(cond) {
         if (replicates==1) {
@@ -316,22 +328,21 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
 }
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
-  campsis <- simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
-                               outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings)
-  return(processArmLabels(campsis, dataset@arms))
+  return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
+                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "tbl_df", "character", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "tbl_df", "character", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   return(simulateDelegate(model=model, dataset=tibble::as_tibble(dataset), dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
                                     outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
@@ -486,7 +497,7 @@ reorderColumns <- function(results, dosing) {
 
 #' @importFrom furrr future_imap_dfr furrr_options
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   
   # Add ARM equation in model
@@ -580,7 +591,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
 #' @importFrom furrr future_imap_dfr furrr_options
 #' @importFrom digest sha1
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "function", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   
   # Retrieve simulation config

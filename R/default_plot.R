@@ -201,7 +201,7 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
   summary <- VPC(x=x, scenarios=scenarios, level=level)
   if (length(scenarios) > 0) {
     group <- "GROUP_GGPLOT"
-    summary <- uniteColumns(x=x, columns=scenarios, colname=group)
+    summary <- uniteColumns(x=summary, columns=scenarios, colname=group)
   } else {
     group <- NULL
   }
