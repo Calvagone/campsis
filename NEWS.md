@@ -1,3 +1,8 @@
+# campsis 1.5.3
+
+* Argument outfun should be more flexible #146
+* Function 'vpcPlot' not working with scenarios #147
+
 # campsis 1.5.2
 
 * Time unit support (dataset inputs / dataset export) #140
