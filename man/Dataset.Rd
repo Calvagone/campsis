@@ -4,10 +4,12 @@
 \alias{Dataset}
 \title{Create a dataset.}
 \usage{
-Dataset(subjects = NULL)
+Dataset(subjects = NULL, label = as.character(NA))
 }
 \arguments{
 \item{subjects}{number of subjects in the default arm}
+
+\item{label}{label of the default arm, NA by default}
 }
 \value{
 a dataset

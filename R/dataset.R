@@ -13,9 +13,9 @@
 setClass(
   "dataset",
   representation(
-    arms = "arms",
-    config = "dataset_config",
-    iiv = "data.frame"
+    arms="arms",
+    config="dataset_config",
+    iiv="data.frame"
   ),
   prototype=prototype(arms=new("arms"), config=DatasetConfig(), iiv=data.frame())
 )
@@ -24,13 +24,15 @@ setClass(
 #' Create a dataset.
 #'
 #' @param subjects number of subjects in the default arm
+#' @param label label of the default arm, NA by default
 #' @return a dataset
 #' @export
-Dataset <- function(subjects=NULL) {
+Dataset <- function(subjects=NULL, label=as.character(NA)) {
   arms=new("arms")
   if (!is.null(subjects)) {
     arm <- arms %>% default()
     arm@subjects <- as.integer(subjects)
+    arm@label <- as.character(label)
     arms <- arms %>% add(arm)
   }
   return(new("dataset", arms=arms))
