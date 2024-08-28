@@ -50,7 +50,7 @@ preprocessEvents <- function(events) {
 #' 
 preprocessScenarios <- function(scenarios) {
   if (is.null(scenarios)) {
-    return(Scenarios() %>% add(Scenario()))
+    return(Scenarios())
   } else {
     return(scenarios)
   }

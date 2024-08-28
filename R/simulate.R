@@ -208,6 +208,11 @@ processArmLabels <- function(campsis, arms) {
 simulateScenarios <- function(scenarios, model, dataset, dest, events,
                               tablefun, outvars, outfun, seed, replicates,
                               dosing, settings) {
+  emptyScenarios <- scenarios %>% length() == 0
+  if (emptyScenarios) {
+    scenarios <- scenarios %>%
+      add(Scenario())
+  }
   
   outer <-  furrr::future_imap_dfr(.x=scenarios@list, .f=function(scenario, scenarioIndex) {
     model <- model %>% applyScenario(scenario)
@@ -242,7 +247,8 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     # Apply potential output function
     inner <- inner %>% applyOutfun(outfun=outfun, level="scenario", scenario=scenario@name)
     
-    if (scenarios %>% length() > 1) {
+    # Add column SCENARIO if scenarios were provided (at least 1)
+    if (!emptyScenarios) {
       inner <- inner %>% dplyr::mutate(SCENARIO=scenario@name)
     }
 
@@ -277,7 +283,8 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   p <- progressr::progressor(steps=100)
   
   # Record progress
-  settings@internal@progress <- SimulationProgress(replicates=replicates, scenarios=scenarios %>% length(),
+  scenariosLength <- scenarios %>% length()
+  settings@internal@progress <- SimulationProgress(replicates=replicates, scenarios=ifelse(scenariosLength > 0, scenariosLength, 1),
                                                    progressor=p, hardware=settings@hardware)
   
   # Get as many models as replicates
