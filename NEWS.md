@@ -1,3 +1,8 @@
+# campsis 1.5.4
+
+* Add 'label' argument to 'Dataset' constructor #151
+* Export of 'SCENARIO' column should be slightly revised #152
+
 # campsis 1.5.3
 
 * Argument outfun should be more flexible #146

@@ -1,5 +1,5 @@
 
-#' @importFrom methods callNextMethod is new show validObject
+#' @importFrom methods callNextMethod formalArgs is new show validObject
 #' @keywords internal
 methodsGlobal <- function() {
   

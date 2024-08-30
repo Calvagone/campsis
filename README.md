@@ -16,8 +16,7 @@ downloads](https://cranlogs.r-pkg.org/badges/campsis)](https://cran.r-project.or
 ## Requirements
 
 - R package `campsismod` must be installed beforehand
-- Simulation engine must be installed too (`rxode2`, `RxODE` or
-  `mrgsolve`)
+- Simulation engine must be installed too (`rxode2` or `mrgsolve`)
 
 ## Installation
 
@@ -49,8 +48,8 @@ Load your own model or use a built-in model from the library:
 model <- model_suite$pk$`2cpt_fo`
 ```
 
-Simulate your results with your preferred simulation engine (`rxode2`,
-`RxODE` or `mrgsolve` at your choice!):
+Simulate your results with your preferred simulation engine (`rxode2` or
+`mrgsolve`):
 
 ``` r
 results <- model %>% simulate(dataset=ds, dest="rxode2", seed=1)

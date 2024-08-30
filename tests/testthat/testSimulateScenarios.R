@@ -81,3 +81,44 @@ test_that(getTestName("Simulate scenarios - make few changes on model"), {
   # Back to sequential
   setupPlanSequential()
 })
+
+test_that(getTestName("Export 'SCENARIO' column as soon as 1 scenario is specified."), {
+  
+  model <- model_suite$testing$nonmem$advan4_trans4
+
+  dataset <- Dataset(3) %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(times=c(0,1,2,3,4,5,6,12,24))) 
+  
+  # Scenarios are NULL
+  scenarios <- NULL
+  
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, scenarios=scenarios, seed=seed))
+  test <- expression(
+    expect_equal(nrow(results), 3*9),
+    expect_false("SCENARIO" %in% colnames(results))
+  )
+  campsisTest(simulation, test, env=environment())
+
+  # Scenarios are empty
+  scenarios <- Scenarios()
+  
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, scenarios=scenarios, seed=seed))
+  test <- expression(
+    expect_equal(nrow(results), 3*9),
+    expect_false("SCENARIO" %in% colnames(results))
+  )
+  campsisTest(simulation, test, env=environment())
+  
+  # 1 scenario is provided
+  scenarios <- Scenarios() %>%
+    add(Scenario(name="My scenario"))
+  
+  simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, scenarios=scenarios, seed=seed))
+  test <- expression(
+    expect_equal(nrow(results), 3*9),
+    expect_true("SCENARIO" %in% colnames(results)),
+    expect_true(results$SCENARIO %>% unique() == "My scenario")
+  )
+  campsisTest(simulation, test, env=environment())
+})

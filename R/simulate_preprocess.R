@@ -50,7 +50,7 @@ preprocessEvents <- function(events) {
 #' 
 preprocessScenarios <- function(scenarios) {
   if (is.null(scenarios)) {
-    return(Scenarios() %>% add(Scenario()))
+    return(Scenarios())
   } else {
     return(scenarios)
   }
@@ -81,7 +81,7 @@ preprocessTablefun <- function(fun) {
 
 #' Pre-process outfun argument.
 #'
-#' @param fun function or lambda formula
+#' @param outfun function, lambda formula or output function object
 #' @return an output function
 #' @importFrom assertthat assert_that
 #' @keywords internal
