@@ -191,7 +191,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
 processArmLabels <- function(campsis, arms) {
   armIds <- arms@list %>% purrr::map_int(~.x@id)
   armLabels <- arms@list %>% purrr::map_chr(~.x@label)
-  if (any(!is.na(armLabels))) {
+  if (("ARM" %in% colnames(campsis)) && any(!is.na(armLabels))) {
     armLabels <- ifelse(is.na(armLabels), paste("ARM", armIds), armLabels)
     campsis <- campsis %>% dplyr::mutate(ARM=plyr::mapvalues(.data$ARM, from=armIds, to=armLabels))
   }
