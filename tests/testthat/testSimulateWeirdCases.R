@@ -97,16 +97,16 @@ test_that(getTestName("Covariates must be trimmed by campsis to avoid issues"), 
 })
 
 test_that(getTestName("Arm label mapping must first verify the ARM column exists"), {
-  
+
   arm1 <- Arm(subjects=1, label="Arm 1") %>%
     add(Bolus(time=0, amount=1, compartment=1)) %>%
     add(Observations(c(0,1,2,3,4,5)))
-  
+
   dataset <- Dataset() %>%
     add(arm1)
-  
+
   model <- model_suite$testing$nonmem$advan4_trans4
-  
+
   # Explicitely remove ARM column
   outfun <- Outfun(level="scenario", fun=~.x %>% dplyr::select(-dplyr::all_of("ARM")))
 
@@ -114,6 +114,23 @@ test_that(getTestName("Arm label mapping must first verify the ARM column exists
   test <- expression(
     expect_true(nrow(results)==6),
     expect_false("ARM" %in% results)
+  )
+  campsisTest(simulation, test, env=environment())
+})
+
+test_that(getTestName("Model advan1_trans1 must compile properly with mrgsolve v1.5.2 on Windows"), {
+  model <- model_suite$nonmem$advan1_trans1
+  regFilename <- "advan1_trans1"
+  # See issue #160
+  
+  dataset <- Dataset(3) %>%
+    add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=2)) %>%
+    add(Observations(times=c(0,12,24) %>% purrr::map(~.x + (1:11)) %>% purrr::list_c(), compartment=1))
+
+  simulation <- expression(model %>% simulate(dataset, dest=destEngine, seed=seed))
+
+  test <- expression(
+    outputRegressionTest(results, output="CONC", filename=regFilename)
   )
   campsisTest(simulation, test, env=environment())
 })
