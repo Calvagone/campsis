@@ -12,3 +12,4 @@
 ^CRAN-RELEASE$
 ^doc$
 ^Meta$
+^codecov\.yml$
