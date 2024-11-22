@@ -7,7 +7,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("VPC on CP, using predicate"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$other$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
@@ -24,7 +24,7 @@ test_that(getTestName("VPC on CP, using predicate"), {
 })
 
 test_that(getTestName("VPC on both CP and Y, using function"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$other$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
@@ -48,8 +48,8 @@ test_that(getTestName("VPC on both CP and Y, using function"), {
 })
 
 test_that(getTestName("Study replication also works with scenarios"), {
-  if (skipLongTest) return(TRUE)
-  if (skipVdiffrTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
+  if (skipVdiffrTests()) return(TRUE)
   
   model <- model_suite$testing$nonmem$advan2_trans1
   ds <- Dataset(10) %>%
@@ -96,7 +96,7 @@ test_that(getTestName("Study replication also works with scenarios"), {
 })
 
 test_that(getTestName("Try/catch works as expected if one replicate fails"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan2_trans2
 
   # Add high uncertainty on THETA_KA (variance of 1)
@@ -132,7 +132,7 @@ test_that(getTestName("Try/catch works as expected if one replicate fails"), {
 })
 
 test_that(getTestName("Replicates can be simulated in parallel"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   # progressr::handlers(global=TRUE)
   # progressr::handlers(campsis_handler())
   regFilename <- "replicates_in_parallel"

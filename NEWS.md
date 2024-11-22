@@ -1,3 +1,9 @@
+# campsis 1.5.5
+
+* Arm label mapping must first verify the ARM column exists #155
+* Code coverage does not appear on codecov.io anymore #161
+* Optionally skip tests using R options #162
+
 # campsis 1.5.4
 
 * Add 'label' argument to 'Dataset' constructor #151

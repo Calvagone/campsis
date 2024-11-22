@@ -6,8 +6,6 @@
 
 overwriteNonRegressionFiles <- FALSE
 testFolder <- ""
-skipLongTest <- FALSE
-skipVdiffrTest <- FALSE
 testEngines <- c("rxode2", "mrgsolve")
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, dest) {
@@ -18,6 +16,15 @@ datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, 
     table <- table %>% dplyr::filter(EVID==1)
   }
   return(table)
+}
+
+envVarIsTrue <- function(x) {
+  return(isTRUE(as.logical(Sys.getenv(x, "false"))))
+}
+
+onCran <- function() {
+  # Copied from testthat:::on_cran() 
+  return(!interactive() && !envVarIsTrue("NOT_CRAN"))
 }
 
 #' Test there is no regression in the exported dataset.
@@ -134,3 +141,31 @@ campsisTest <- function(simulation, test, env) {
 getTestName <- function(name) {
   return(paste0(name, " (", paste0(testEngines, collapse="/"), ")"))
 }
+
+skipTests <- function(name, default) {
+  option <- getCampsisOption()
+  if (is.null(option)) {
+    return(default)
+  } else {
+    value <- option[[name]]
+    if (is.null(value)) {
+      return(default)
+    } else {
+      return(value)
+    }
+  }
+}
+
+skipLongTests <- function() {
+  # On CRAN, default value is TRUE
+  # FALSE otherwise
+  return(skipTests(name="SKIP_LONG_TESTS", default=onCran()))
+}
+
+skipVdiffrTests <- function() {
+  return(skipTests(name="SKIP_VDIFFR_TESTS", default=FALSE))
+}
+
+getCampsisOption <- function() {
+  return(getOption("campsis.options"))
+} 

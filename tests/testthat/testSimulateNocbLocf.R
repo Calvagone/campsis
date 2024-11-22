@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Weight as a time-varying covariate, NOCB vs LOCF"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -47,7 +47,7 @@ test_that(getTestName("Weight as a time-varying covariate, NOCB vs LOCF"), {
 
 
 test_that(getTestName("NOCB/LOCF should not have any effect on treatment occasion"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4 %>%
     delete(Equation("KA")) %>%
     add(Equation("KA", "0")) %>%
@@ -87,7 +87,7 @@ test_that(getTestName("NOCB/LOCF should not have any effect on treatment occasio
 })
 
 test_that(getTestName("NOCB/LOCF should not have any effect on IOV, e.g. on clearance"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iov_cl"
   model <- model_suite$testing$nonmem$advan4_trans4
   model <- model %>% replace(Equation("CL", rhs="THETA_CL*exp(ETA_CL + IOV_CL)"))

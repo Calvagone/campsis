@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Clear central compartment events"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "clear_central_event"
   
@@ -30,7 +30,7 @@ test_that(getTestName("Clear central compartment events"), {
 })
 
 test_that(getTestName("Give daily dose in absortion"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "event_daily_dose"
   
@@ -53,7 +53,7 @@ test_that(getTestName("Give daily dose in absortion"), {
 })
 
 test_that(getTestName("Daily dose in dataset + daily dose through events"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "event_daily_dose"
   
@@ -77,7 +77,7 @@ test_that(getTestName("Daily dose in dataset + daily dose through events"), {
 })
 
 test_that(getTestName("Body weight as an event covariate"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan2_trans2
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -110,7 +110,7 @@ test_that(getTestName("Body weight as an event covariate"), {
 })
 
 test_that(getTestName("Dose adaptation based on Ctrough"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan2_trans2
   regFilename <- "dose_adaptation_ctrough"
   
