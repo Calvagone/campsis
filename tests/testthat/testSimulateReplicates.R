@@ -49,7 +49,6 @@ test_that(getTestName("VPC on both CP and Y, using function"), {
 
 test_that(getTestName("Study replication also works with scenarios"), {
   if (skipLongTests()) return(TRUE)
-  if (skipVdiffrTests()) return(TRUE)
   
   model <- model_suite$testing$nonmem$advan2_trans1
   ds <- Dataset(10) %>%
@@ -66,6 +65,7 @@ test_that(getTestName("Study replication also works with scenarios"), {
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
     expect_true(all(results$SCENARIO %>% unique()==c("Base model", "Increased KA"))),
+    if (skipVdiffrTests()) return(TRUE),
     vdiffr::expect_doppelganger("VPC / specified outfun", vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO))
   )
   campsisTest(simulation, test, env=environment())

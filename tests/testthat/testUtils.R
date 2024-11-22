@@ -18,15 +18,6 @@ datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, 
   return(table)
 }
 
-envVarIsTrue <- function(x) {
-  return(isTRUE(as.logical(Sys.getenv(x, "false"))))
-}
-
-onCran <- function() {
-  # Copied from testthat:::on_cran() 
-  return(!interactive() && !envVarIsTrue("NOT_CRAN"))
-}
-
 #' Test there is no regression in the exported dataset.
 #' 
 #' @param dataset newly generated CAMPSIS dataset
