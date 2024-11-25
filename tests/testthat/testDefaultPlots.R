@@ -42,10 +42,10 @@ test_that(getTestName("Scatter plot works as expected"), {
     # The higher N, the closer the correlation will be to its true value
     expect_equal(round(corA, digits=1), 0.50),
     expect_equal(round(corB, digits=1), 0.90),
-    
-    if (skipVdiffrTests()) return(TRUE),
-    vdiffr::expect_doppelganger("scatterPlot / no colour", plot1),
-    vdiffr::expect_doppelganger("scatterPlot / colour: SCENARIO", plot2)
+    if (!skipVdiffrTests()) {
+      vdiffr::expect_doppelganger("scatterPlot / no colour", plot1)
+      vdiffr::expect_doppelganger("scatterPlot / colour: SCENARIO", plot2)
+    }
   )
   campsisTest(simulation, test, env=environment())
 })
@@ -69,9 +69,10 @@ test_that(getTestName("Shaded and spaghetti plots work as expected"), {
   test <- expression(
     plot1 <- expect_no_error(shadedPlot(results, "CONC", "SCENARIO")),
     plot2 <- expect_no_error(spaghettiPlot(results, "CONC", "SCENARIO")),
-    if (skipVdiffrTests()) return(TRUE),
-    vdiffr::expect_doppelganger("shadedPlot / colour: SCENARIO", plot1),
-    vdiffr::expect_doppelganger("spaghettiPlot / colour: SCENARIO", plot2)
+    if (!skipVdiffrTests()) {
+      vdiffr::expect_doppelganger("shadedPlot / colour: SCENARIO", plot1)
+      vdiffr::expect_doppelganger("spaghettiPlot / colour: SCENARIO", plot2)
+    }
   )
   campsisTest(simulation, test, env=environment())
 })
@@ -110,10 +111,11 @@ test_that(getTestName("Grouping by ARM and stratifying by WT should work"), {
     plot3 <- expect_no_error(shadedPlot(results, "CONC", c("ARM","WT")) +
       ggplot2::facet_wrap(~WT)),
 
-    if (skipVdiffrTests()) return(TRUE),
-    vdiffr::expect_doppelganger("spaghettiPlot / colour: ARM / strat: WT", plot1),
-    vdiffr::expect_doppelganger("shadedPlot / colour: ARM / strat: WT", plot2),
-    vdiffr::expect_doppelganger("shadedPlot / colour: ARM,WT / strat: WT", plot3)
+    if (!skipVdiffrTests()) {
+      vdiffr::expect_doppelganger("spaghettiPlot / colour: ARM / strat: WT", plot1)
+      vdiffr::expect_doppelganger("shadedPlot / colour: ARM / strat: WT", plot2)
+      vdiffr::expect_doppelganger("shadedPlot / colour: ARM,WT / strat: WT", plot3)
+    }
   )
   campsisTest(simulation, test, env=environment())
 })
