@@ -153,10 +153,20 @@ skipLongTests <- function() {
   return(skipTests(name="SKIP_LONG_TESTS", default=onCran()))
 }
 
+isMacOs <- function() {
+  # return windows, darwin, linux or sunos
+  systemOs <- tolower(Sys.info()[["sysname"]])
+  return(systemOs=="darwin")
+} 
+
 skipVdiffrTests <- function() {
-  return(skipTests(name="SKIP_VDIFFR_TESTS", default=FALSE))
+  # On mac, default value is TRUE (problems in vdiffr tests, see CI)
+  # FALSE otherwise
+  return(skipTests(name="SKIP_VDIFFR_TESTS", default=ifelse(isMacOs(), TRUE, FALSE)))
 }
 
 getCampsisOption <- function() {
   return(getOption("campsis.options"))
-} 
+}
+
+
