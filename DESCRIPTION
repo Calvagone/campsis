@@ -18,7 +18,7 @@ Description: A generic, easy-to-use and intuitive
     given model, dataset and desired simulation settings.
 License: GPL (>= 3)
 URL: https://github.com/Calvagone/campsis, https://calvagone.github.io/,
-    https://calvagone.github.io/campsis.doc
+    https://calvagone.github.io/campsis.doc/
 BugReports: https://github.com/Calvagone/campsis/issues
 Depends: 
     campsismod (>= 1.1.0),
