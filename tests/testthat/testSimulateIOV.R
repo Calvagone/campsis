@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate 1000mg QD with IOV on KA (1)"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iov_ka_1"
   model <- model_suite$testing$nonmem$advan4_trans4
   model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
@@ -46,7 +46,7 @@ test_that(getTestName("Simulate 1000mg QD with IOV on KA (1)"), {
 
 test_that(getTestName("Simulate 1000mg QD with IOV on KA (2)"), {
   # This test could sometimes fail with RxODE version > 1.0.5 & < 1.1.0
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iov_ka_2"
   model <- model_suite$testing$nonmem$advan4_trans4
   model <- model %>% replace(Equation("KA", "THETA_KA*exp(ETA_KA + IOV_KA)"))
@@ -78,7 +78,7 @@ test_that(getTestName("Simulate 1000mg QD with IOV on KA (2)"), {
 
 test_that(getTestName("Simulate IOV on F1"), {
   # This test always failed with RxODE version > 1.0.5 & < 1.1.0
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iiv_iov_f1"
 
   # Model with IIV and IOV on F1
@@ -128,7 +128,7 @@ test_that(getTestName("Simulate IOV on F1"), {
 
 test_that(getTestName("Simulate IOV on ALAG1"), {
   # This test always failed with RxODE version > 1.0.5 & < 1.1.0
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iiv_iov_alag1"
 
   # Model with IIV on ALAG1
@@ -191,7 +191,7 @@ test_that(getTestName("Simulate IOV on ALAG1"), {
 })
 
 test_that(getTestName("Simulate IOV on D1"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   regFilename <- "3_infusions_iiv_iov_d1"
 
   # Model with IIV on D1
@@ -239,7 +239,7 @@ test_that(getTestName("Simulate IOV on D1"), {
 })
 
 test_that(getTestName("Simulate IOV on F1"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   regFilename <- "3_bolus_iov_on_f1"
 
   # Model with IIV on D1

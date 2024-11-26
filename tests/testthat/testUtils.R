@@ -6,8 +6,6 @@
 
 overwriteNonRegressionFiles <- FALSE
 testFolder <- ""
-skipLongTest <- FALSE
-skipVdiffrTest <- TRUE
 testEngines <- c("rxode2", "mrgsolve")
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, dest) {
@@ -134,3 +132,41 @@ campsisTest <- function(simulation, test, env) {
 getTestName <- function(name) {
   return(paste0(name, " (", paste0(testEngines, collapse="/"), ")"))
 }
+
+skipTests <- function(name, default) {
+  option <- getCampsisOption()
+  if (is.null(option)) {
+    return(default)
+  } else {
+    value <- option[[name]]
+    if (is.null(value)) {
+      return(default)
+    } else {
+      return(value)
+    }
+  }
+}
+
+skipLongTests <- function() {
+  # On CRAN, default value is TRUE
+  # FALSE otherwise
+  return(skipTests(name="SKIP_LONG_TESTS", default=onCran()))
+}
+
+isMacOs <- function() {
+  # return windows, darwin, linux or sunos
+  systemOs <- tolower(Sys.info()[["sysname"]])
+  return(systemOs=="darwin")
+} 
+
+skipVdiffrTests <- function() {
+  # On mac, default value is TRUE (problems in vdiffr tests, see CI)
+  # FALSE otherwise
+  return(skipTests(name="SKIP_VDIFFR_TESTS", default=ifelse(isMacOs(), TRUE, FALSE)))
+}
+
+getCampsisOption <- function() {
+  return(getOption("campsis.options"))
+}
+
+

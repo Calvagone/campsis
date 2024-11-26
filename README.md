@@ -4,7 +4,8 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/Calvagone/campsis/workflows/R-CMD-check/badge.svg)](https://github.com/Calvagone/campsis/actions)
-[![codecov](https://codecov.io/gh/Calvagone/campsis/branch/main/graph/badge.svg?token=C629TACTSU)](https://app.codecov.io/gh/Calvagone/campsis)
+[![Codecov test
+coverage](https://codecov.io/gh/Calvagone/campsis/graph/badge.svg)](https://app.codecov.io/gh/Calvagone/campsis)
 [![CRAN
 version](http://www.r-pkg.org/badges/version/campsis)](https://cran.r-project.org/package=campsis)
 [![CRAN total

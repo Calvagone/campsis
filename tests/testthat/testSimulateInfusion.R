@@ -6,7 +6,7 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate infusion using duration in dataset, then in model"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan3_trans4
   regFilename <- "infusion_duration"
   

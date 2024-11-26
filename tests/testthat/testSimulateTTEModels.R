@@ -5,7 +5,7 @@ context("Test the simulate method with time-to-event models (TTE)")
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Simulate simple TTE model"), {
-  if (skipLongTest) return(TRUE)
+  if (skipLongTests()) return(TRUE)
   regFilename <- "simple_tte_model"
   model <- read.campsis(paste0(testFolder, "models/simple_tte_model/"))
   

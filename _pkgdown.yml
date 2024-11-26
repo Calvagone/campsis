@@ -91,12 +91,26 @@ reference:
   - Declare
   - Hardware
   - NOCB
+  - Outfun
   - Progress
   - setupPlanDefault
   - setupPlanSequential
   - Settings
   - Solver
   - SimulationProgress
+  
+- title: "Time conversion utilities"
+  contents:
+  - convertTime
+  - days
+  - getAvailableTimeUnits
+  - hours
+  - minutes
+  - months
+  - seconds
+  - standardiseTime
+  - weeks
+  - years
 
 - title: "For advanced use"
   contents:
@@ -155,6 +169,7 @@ reference:
   - observations_set-class
   - occasion-class
   - occasions-class
+  - output_function-class
   - progress_settings-class
   - rxode_engine-class
   - scenario-class

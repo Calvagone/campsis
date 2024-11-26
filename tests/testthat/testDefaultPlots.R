@@ -6,7 +6,6 @@ seed <- 1
 source(paste0("", "testUtils.R"))
 
 test_that(getTestName("Scatter plot works as expected"), {
-  if (skipVdiffrTest) return(TRUE)
   model <- model_suite$testing$pk$`1cpt_fo`
   thetaVc <- model %>% find(Theta("VC"))
   thetaCl <- model %>% find(Theta("CL"))
@@ -28,13 +27,10 @@ test_that(getTestName("Scatter plot works as expected"), {
   test <- expression(
     shadedPlot(results, "CONC", "SCENARIO"),
     scatterPlot(results, c("VC")), # 1D scatter plot (of little interest)
-    plot1 <- scatterPlot(results, c("VC", "CL")), # No color
-    plot2 <- scatterPlot(results, c("VC", "CL"), "SCENARIO"), # Stratify by SCENARIO value
+    plot1 <- expect_no_error(scatterPlot(results, c("VC", "CL"))), # No color
+    plot2 <- expect_no_error(scatterPlot(results, c("VC", "CL"), "SCENARIO")), # Stratify by SCENARIO value
     scatterPlot(results, c("VC", "CL"), "SCENARIO", time=24), # Same plot, parameters do not change over time
-    
-    vdiffr::expect_doppelganger("scatterPlot / no colour", plot1),
-    vdiffr::expect_doppelganger("scatterPlot / colour: SCENARIO", plot2),
-    
+
     scenarioA <- results %>% dplyr::filter(SCENARIO=="Correlation=0.5" & TIME==0),
     scenarioB <- results %>% dplyr::filter(SCENARIO=="Correlation=0.9" & TIME==0),
     
@@ -45,13 +41,16 @@ test_that(getTestName("Scatter plot works as expected"), {
     # Check these correlations (round to 1 decimal digit)
     # The higher N, the closer the correlation will be to its true value
     expect_equal(round(corA, digits=1), 0.50),
-    expect_equal(round(corB, digits=1), 0.90)
+    expect_equal(round(corB, digits=1), 0.90),
+    if (!skipVdiffrTests()) {
+      vdiffr::expect_doppelganger("scatterPlot / no colour", plot1)
+      vdiffr::expect_doppelganger("scatterPlot / colour: SCENARIO", plot2)
+    }
   )
   campsisTest(simulation, test, env=environment())
 })
 
 test_that(getTestName("Shaded and spaghetti plots work as expected"), {
-  if (skipVdiffrTest) return(TRUE)
   model <- model_suite$testing$pk$`1cpt_fo`
   
   dataset <- Dataset(subjects=20) %>% 
@@ -68,18 +67,17 @@ test_that(getTestName("Shaded and spaghetti plots work as expected"), {
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, scenarios=scenarios))
   
   test <- expression(
-    plot1 <- shadedPlot(results, "CONC", "SCENARIO"),
-    vdiffr::expect_doppelganger("shadedPlot / colour: SCENARIO", plot1),
-    
-    plot2 <- spaghettiPlot(results, "CONC", "SCENARIO"),
-    vdiffr::expect_doppelganger("spaghettiPlot / colour: SCENARIO", plot2)
+    plot1 <- expect_no_error(shadedPlot(results, "CONC", "SCENARIO")),
+    plot2 <- expect_no_error(spaghettiPlot(results, "CONC", "SCENARIO")),
+    if (!skipVdiffrTests()) {
+      vdiffr::expect_doppelganger("shadedPlot / colour: SCENARIO", plot1)
+      vdiffr::expect_doppelganger("spaghettiPlot / colour: SCENARIO", plot2)
+    }
   )
   campsisTest(simulation, test, env=environment())
 })
 
 test_that(getTestName("Grouping by ARM and stratifying by WT should work"), {
-  if (skipVdiffrTest) return(TRUE)
-  
   model <- model_suite$testing$pk$'1cpt_fo' %>%
     replace(Equation("CL", "TVCL * exp(ETA_CL) * pow(WT/70,0.75)")) %>%
     replace(Equation("VC", "TVVC * exp(ETA_VC) * WT/70"))
@@ -102,20 +100,22 @@ test_that(getTestName("Grouping by ARM and stratifying by WT should work"), {
   
   test <- expression(
     # Colour by ARM and stratify by WT
-    plot1 <- spaghettiPlot(results, "CONC", c("ARM")) +
-      ggplot2::facet_wrap(~WT),
-    vdiffr::expect_doppelganger("spaghettiPlot / colour: ARM / strat: WT", plot1),
-    
+    plot1 <- expect_no_error(spaghettiPlot(results, "CONC", c("ARM")) +
+      ggplot2::facet_wrap(~WT)),
+
     # Colour by ARM and stratify by WT
-    plot2 <- shadedPlot(results, "CONC", c("ARM"), "WT") +
-      ggplot2::facet_wrap(~WT),
-    vdiffr::expect_doppelganger("shadedPlot / colour: ARM / strat: WT", plot2),
-    
+    plot2 <- expect_no_error(shadedPlot(results, "CONC", c("ARM"), "WT") +
+      ggplot2::facet_wrap(~WT)),
+
     # Colour by both ARM and WT columns
-    plot3 <- shadedPlot(results, "CONC", c("ARM","WT")) +
-      ggplot2::facet_wrap(~WT),
-    vdiffr::expect_doppelganger("shadedPlot / colour: ARM,WT / strat: WT", plot3)
+    plot3 <- expect_no_error(shadedPlot(results, "CONC", c("ARM","WT")) +
+      ggplot2::facet_wrap(~WT)),
+
+    if (!skipVdiffrTests()) {
+      vdiffr::expect_doppelganger("spaghettiPlot / colour: ARM / strat: WT", plot1)
+      vdiffr::expect_doppelganger("shadedPlot / colour: ARM / strat: WT", plot2)
+      vdiffr::expect_doppelganger("shadedPlot / colour: ARM,WT / strat: WT", plot3)
+    }
   )
   campsisTest(simulation, test, env=environment())
-  
 })

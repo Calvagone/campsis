@@ -37,3 +37,30 @@ toExplicitDistribution <- function(distribution) {
     stop("Not a distribution nor a numeric value")
   }
 }
+
+envVarIsTrue <- function(x) {
+  return(isTRUE(as.logical(Sys.getenv(x, "false"))))
+}
+
+#'
+#' Check if the current session is on CRAN. The objective is to potentially suppress 
+#' long tasks to be run on CRAN (long tests or vignettes).
+#'
+#' @return logical value TRUE/FALSE
+#' @export
+#' @keywords internal
+onCran <- function() {
+  # Copied from testthat:::on_cran() 
+  return(!interactive() && !envVarIsTrue("NOT_CRAN"))
+}
+
+#'
+#' Check if the current session is on CI (e.g. GitHub actions).
+#'
+#' @return logical value TRUE/FALSE
+#' @export
+#' @keywords internal
+onCI <- function() {
+  # Copied from testthat:::on_ci() 
+  return(envVarIsTrue("CI"))
+}
