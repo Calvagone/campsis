@@ -549,11 +549,8 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   nocb <- settings@nocb@enable
   tick_slice <- settings@progress@tick_slice
   
-  # Preparing simulation environment
-  # Make sure to remove the list of sub-datasets from the environment (see #166)
-  # It seems unnecessary to pass all the needed variables with furrr
+  # Make sure to remove the list of sub-datasets from 'config' (see #166)
   subdatasets <- config$subdatasets
-  envir <- list2env(x=list(config=config[-which(names(config)=="subdatasets")]), envir=NULL)
   config$subdatasets <- NULL
 
   results <- furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
@@ -591,7 +588,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     }
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  }, .env_globals=envir, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
+  }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
   
   # Tick progress
   if (!tick_slice) {
@@ -634,11 +631,8 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   nocb <- settings@nocb@enable
   tick_slice <- settings@progress@tick_slice
 
-  # Preparing simulation environment
-  # Make sure to remove the list of sub-datasets from the environment (see #166)
-  # It seems unnecessary to pass all the needed variables with furrr
+  # Make sure to remove the list of sub-datasets from 'config' (see #166)
   subdatasets <- config$subdatasets
-  envir <- list2env(x=list(config=config[-which(names(config)=="subdatasets")]), envir=NULL)
   config$subdatasets <- NULL
 
   results <-  furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
@@ -665,7 +659,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     }
 
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  }, .env_globals=envir, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
+  }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
   
   # Tick progress
   if (!tick_slice) {
