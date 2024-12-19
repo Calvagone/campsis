@@ -548,8 +548,16 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   solver <- settings@solver # Solver settings
   nocb <- settings@nocb@enable
   tick_slice <- settings@progress@tick_slice
+  
+  # Preparing simulation environment
+  # Make sure to remove the list of sub-datasets from the environment (see #166)
+  subdatasets <- config$subdatasets
+  envir <- list2env(x=list(mod=mod, params=params, omega=omega, sigma=sigma, solver=solver, dosing=dosing, nocb=nocb, tick_slice=tick_slice,
+                           progress=progress, outvars=outvars, config=config[-which(names(config)=="subdatasets")]),
+                    envir=NULL)
+  config$subdatasets <- NULL
 
-  results <- furrr::future_imap_dfr(.x=config$subdatasets, .f=function(subdataset, index) {
+  results <- furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Launch simulation with RxODE
@@ -584,11 +592,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     }
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
+  }, .env_globals=envir, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
   
   # Tick progress
   if (!tick_slice) {
-    progress <- progress %>% updateSlice(config$subdatasets %>% length())
+    progress <- progress %>% updateSlice(subdatasets %>% length())
     progress <- progress %>% tick(tick_slice=tick_slice)
   }
   
@@ -626,10 +634,10 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   mod <- mod %>% mrgsolve::update(atol=solver@atol, rtol=solver@rtol, hmax=solver@hmax, maxsteps=solver@maxsteps)
   nocb <- settings@nocb@enable
   tick_slice <- settings@progress@tick_slice
-  subdatasets <- config$subdatasets
 
   # Preparing simulation environment
   # Make sure to remove the list of sub-datasets from the environment (see #166)
+  subdatasets <- config$subdatasets
   envir <- list2env(x=list(mod=mod, thetaParams=thetaParams, dosing=dosing, nocb=nocb, tick_slice=tick_slice,
                          progress=progress, outvars=outvars, config=config[-which(names(config)=="subdatasets")]),
                     envir=NULL)
