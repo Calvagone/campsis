@@ -551,10 +551,9 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   
   # Preparing simulation environment
   # Make sure to remove the list of sub-datasets from the environment (see #166)
+  # It seems unnecessary to pass all the needed variables with furrr
   subdatasets <- config$subdatasets
-  envir <- list2env(x=list(mod=mod, params=params, omega=omega, sigma=sigma, solver=solver, dosing=dosing, nocb=nocb, tick_slice=tick_slice,
-                           progress=progress, outvars=outvars, config=config[-which(names(config)=="subdatasets")]),
-                    envir=NULL)
+  envir <- list2env(x=list(config=config[-which(names(config)=="subdatasets")]), envir=NULL)
   config$subdatasets <- NULL
 
   results <- furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
@@ -637,12 +636,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
 
   # Preparing simulation environment
   # Make sure to remove the list of sub-datasets from the environment (see #166)
+  # It seems unnecessary to pass all the needed variables with furrr
   subdatasets <- config$subdatasets
-  envir <- list2env(x=list(mod=mod, thetaParams=thetaParams, dosing=dosing, nocb=nocb, tick_slice=tick_slice,
-                         progress=progress, outvars=outvars, config=config[-which(names(config)=="subdatasets")]),
-                    envir=NULL)
+  envir <- list2env(x=list(config=config[-which(names(config)=="subdatasets")]), envir=NULL)
   config$subdatasets <- NULL
-  
+
   results <-  furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
