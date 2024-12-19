@@ -519,7 +519,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   # Instantiate RxODE model
   rxmod <- config$engineModel
   if (dest@rxode2) {
-    mod <- rxode2::rxode2(paste0(rxmod@code, collapse="\n"))
+    mod <- rxode2::rxode2(model=paste0(rxmod@code, collapse="\n"), envir=NULL)
   } else {
     # For backwards compatibility since RxODE isn't on CRAN anymore
     fun <- getExportedValue("RxODE", "RxODE")
@@ -629,7 +629,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   subdatasets <- config$subdatasets
 
   # Preparing simulation environment
-  # Make sure to remove the list of sub-datasets from the environment (see #)
+  # Make sure to remove the list of sub-datasets from the environment (see #166)
   envir <- list2env(x=list(mod=mod, thetaParams=thetaParams, dosing=dosing, nocb=nocb, tick_slice=tick_slice,
                          progress=progress, outvars=outvars, config=config[-which(names(config)=="subdatasets")]),
                     envir=NULL)
