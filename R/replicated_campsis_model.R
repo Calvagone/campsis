@@ -110,8 +110,9 @@ setMethod("sample", signature = c("campsis_model", "integer"), definition = func
         model@parameters <- model@parameters %>% replace(returned_omega_)
       }
 
-      # Store model in list
+      # Store model in list (don't keep variance-covariance matrix anymore)
       retValue[[repIndex]] <- model
+      retValue[[repIndex]]@parameters@varcov <- matrix(numeric(0), nrow=0, ncol=0)
     }
   }
 

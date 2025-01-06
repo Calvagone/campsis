@@ -27,6 +27,7 @@ test_that(getTestName("VPC on CP, using predicate"), {
   set.seed(getSeedForParametersSampling(seed=seed)) # Seed is manually set here
   repModel <- ReplicatedCampsisModel(model=model, replicates=5)
   expect_equal(length(repModel), 5)
+  expect_equal(repModel@list[[1]]@parameters@varcov, matrix(numeric(0), nrow=0, ncol=0)) # Variance-covariance not preserved
   
   simulation <- expression(simulate(model=repModel, dataset=ds, dest=destEngine, outfun=~PI(.x, output="CP"), seed=seed))
   test <- expression(
