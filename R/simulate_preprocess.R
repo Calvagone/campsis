@@ -122,14 +122,26 @@ preprocessOutvars <- function(outvars) {
 #' Preprocess 'replicates' argument.
 #' 
 #' @param replicates number of replicates
-#' @return same number, but as integer
+#' @param model Campsis model (class 'campsis_model' or 'replicated_campsis_model')
+#' @return number of replicates to simulate
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessReplicates <- function(replicates) {
+preprocessReplicates <- function(replicates, model) {
   assertthat::assert_that(is.numeric(replicates) && replicates%%1==0 && replicates > 0,
                           msg="replicates not a positive integer")
-  return(as.integer(replicates))
+  replicates <- as.integer(replicates)
+  if (is(model, "replicated_campsis_model")) {
+    if (replicates==1) {
+      replicates <- length(model) # This way, the user does not have to specify 'replicates'.
+    } else {
+      # If he did, we check the consistency
+      if (replicates != length(model)) {
+        stop("Number of replicates must be equal to the number of models in the replicated model")
+      }
+    }
+  }
+  return(replicates)
 }
 
 #' Preprocess the simulation settings.

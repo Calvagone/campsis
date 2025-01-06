@@ -1,3 +1,41 @@
+#_______________________________________________________________________________
+#----                      replicated_campsis_model class                   ----
+#_______________________________________________________________________________
+
+#' 
+#' Replicated Campsis model class.
+#' 
+#' @export
+setClass(
+  "replicated_campsis_model",
+  representation(
+  ),
+  contains="pmx_list",
+  prototype = prototype(type="campsis_model") 
+)
+
+#'
+#' Replicate a Campsis model for a study trial.
+#' The replicated Campsis model must be seen as a list of Campsis models,
+#' each one representing a trial, with its set of parameters sampled from the
+#' original variance-covariance matrix.
+#' 
+#' @param model original Campsis model to replicate
+#' @param replicates number of replicates, integer
+#' @return a replicated Campsis model
+#' @export
+ReplicatedCampsisModel <- function(model, replicates) {
+  if (!is(model, "campsis_model")) {
+    stop("model must be a Campsis model")
+  }
+  replicates <- as.integer(replicates)
+  if (replicates > 1) {
+    list <- model %>% sample(replicates)
+  } else {
+    list <- list(model) # replicates=1, original model is used
+  }
+  return(new("replicated_campsis_model", list=list))
+}
 
 #_______________________________________________________________________________
 #----                              sample                                   ----

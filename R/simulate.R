@@ -31,7 +31,7 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
   outvars <- preprocessOutvars(outvars)
   outfun <- preprocessOutfun(outfun)
   seed <- getSeed(seed)
-  replicates <- preprocessReplicates(replicates)
+  replicates <- preprocessReplicates(replicates, model)
   settings <- preprocessSettings(settings, dest)
   dosing <- preprocessDosing(dosing)
   
@@ -287,20 +287,18 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   settings@internal@progress <- SimulationProgress(replicates=replicates, scenarios=ifelse(scenariosLength > 0, scenariosLength, 1),
                                                    progressor=p, hardware=settings@hardware)
   
-  # Get as many models as replicates
-  parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
-  setSeed(parameterSamplingSeed)
-  
-  if (replicates > 1) {
-    # Parameter uncertainty enabled when more than 1 replicate
-    models <- model %>% sample(replicates) %>% setNames(seq_len(replicates))
+  # Check model type
+  if (is(model, "replicated_campsis_model")) {
+    models <- model
+  } else if (is(model, "campsis_model")) {
+    setSeed(getSeedForParametersSampling(seed=seed))
+    models <- ReplicatedCampsisModel(model=model, replicates=replicates)
   } else {
-    # Parameter uncertainty always disabled for 1 replicate 
-    models <- list(model)
+    stop("Model must be of type 'campsis_model' or 'replicated_campsis_model'")
   }
-  
+
   # Run all models
-  allRep <- furrr::future_imap_dfr(.x=models, .f=function(model_, replicate) {
+  allRep <- furrr::future_imap_dfr(.x=models@list %>% setNames(seq_len(replicates)), .f=function(model_, replicate) {
     # Update replicate counter
     settings@internal@progress <- settings@internal@progress %>% updateReplicate(replicate)
     retValue <- tryCatch(
@@ -333,6 +331,13 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   
   return(allRep)
 }
+
+#' @rdname simulate
+setMethod("simulate", signature=c("replicated_campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
+          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
+  return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
+                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
+})
 
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
