@@ -93,7 +93,7 @@ Collate:
     'scenarios.R'
     'simulation_engine.R'
     'dataset.R'
-    'parameter_uncertainty.R'
+    'replicated_campsis_model.R'
     'event_logic.R'
     'dataset_summary.R'
     'outfun.R'
