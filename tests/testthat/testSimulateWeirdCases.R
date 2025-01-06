@@ -4,6 +4,7 @@ context("Test that simulations with weird cases work as expected")
 
 seed <- 1
 source(paste0("", "testUtils.R"))
+# options(campsis.options=list(SKIP_VERY_LONG_TESTS=FALSE))
 
 test_that(getTestName("Simulate a bolus without observation"), {
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -122,7 +123,7 @@ test_that(getTestName("Model advan1_trans1 must compile properly with mrgsolve v
   model <- model_suite$nonmem$advan1_trans1
   regFilename <- "advan1_trans1"
   # See issue #160
-  
+
   dataset <- Dataset(3) %>%
     add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=2)) %>%
     add(Observations(times=c(0,12,24) %>% purrr::map(~.x + (1:11)) %>% purrr::list_c(), compartment=1))
@@ -131,6 +132,42 @@ test_that(getTestName("Model advan1_trans1 must compile properly with mrgsolve v
 
   test <- expression(
     outputRegressionTest(results, output="CONC", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
+})
+
+test_that(getTestName("No need to adapt 'future.globals.maxSize' option anymore when dataset is large."), {
+  # See original issue #166
+  
+  # Load Campsis model
+  model <- model_suite$pk$`1cpt_fo` %>%
+    replace(Theta(name="CL", value=0.01)) %>%
+    replace(Theta(name="KA", value=0.01))
+  
+  # Trial design (large dataset)
+  dataset <- Dataset(1000) %>%
+    add(Observations(times=0:months(8))) %>%
+    add(Bootstrap(data=nhanes, replacement=TRUE, random=TRUE, export_id=TRUE))
+  
+  expect_true(length(dataset)==1000)
+  
+  # This test will be skipped most of the time
+  # Simulation takes 15 seconds approximately with mrgsolve (OK)
+  # Simulation is 60x slower with rxode2... (NOK)
+  if (skipVeryLongTests()) return(TRUE)
+  
+  scenarios <- Scenarios() %>%  
+    add(Scenario(name="Long simulation", dataset=~.x %>% add(Bolus(time=months(0:7), amount=10000, compartment=1))))
+  
+  simulation <- expression(results <- NULL,
+                           tmp <- NULL,
+                           tictoc::tic(),
+                           tmp <- simulate(model=model, dataset=dataset, seed=seed, dest=destEngine, scenarios=scenarios),
+                           tictoc::toc(),
+                           tmp)
+  
+  test <- expression(
+    expect_true(nrow(results)==length(0:months(8))*1000)
   )
   campsisTest(simulation, test, env=environment())
 })

@@ -153,6 +153,10 @@ skipLongTests <- function() {
   return(skipTests(name="SKIP_LONG_TESTS", default=onCran()))
 }
 
+skipVeryLongTests <- function() {
+  return(skipTests(name="SKIP_VERY_LONG_TESTS", default=TRUE))
+}
+
 isMacOs <- function() {
   # return windows, darwin, linux or sunos
   systemOs <- tolower(Sys.info()[["sysname"]])
