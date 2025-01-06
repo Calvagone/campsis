@@ -21,6 +21,18 @@ test_that(getTestName("VPC on CP, using predicate"), {
     vpcOutputRegressionTest(results, output="CP", filename=regFilename)
   )
   campsisTest(simulation, test, env=environment())
+  
+  # Same but using the replicated Campsis model object
+  # Please note that 'replicates' is omitted from the simulate function
+  set.seed(getSeedForParametersSampling(seed=seed)) # Seed is manually set here
+  repModel <- ReplicatedCampsisModel(model=model, replicates=5)
+  expect_equal(length(repModel), 5)
+  
+  simulation <- expression(simulate(model=repModel, dataset=ds, dest=destEngine, outfun=~PI(.x, output="CP"), seed=seed))
+  test <- expression(
+    vpcOutputRegressionTest(results, output="CP", filename=regFilename)
+  )
+  campsisTest(simulation, test, env=environment())
 })
 
 test_that(getTestName("VPC on both CP and Y, using function"), {
