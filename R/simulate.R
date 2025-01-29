@@ -289,16 +289,28 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   
   # Check model type
   if (is(model, "replicated_campsis_model")) {
-    models <- model
+    replicatedModel <- model
   } else if (is(model, "campsis_model")) {
     setSeed(getSeedForParametersSampling(seed=seed))
-    models <- ReplicatedCampsisModel(model=model, replicates=replicates)
+    if (replicates > 1) {
+      replicatedModel <- model %>% replicate(n=replicates)
+    } else {
+      replicatedModel <- new("replicated_campsis_model", original_model=model)
+    }
   } else {
     stop("Model must be of type 'campsis_model' or 'replicated_campsis_model'")
   }
 
   # Run all models
-  allRep <- furrr::future_imap_dfr(.x=models@list %>% setNames(seq_len(replicates)), .f=function(model_, replicate) {
+  seqReplicates <- seq_len(replicates)
+  seqReplicates <- as.list(seqReplicates) %>%
+    setNames(seqReplicates) # Names are added for furrr (added automatically to the output with .id="replicate")
+  
+  allRep <- seqReplicates %>% furrr::future_map_dfr(.f=function(replicate) {
+    # Export model for each replicate
+    model_ <- replicatedModel %>%
+      campsismod::export(dest=CampsisModel(), index=replicate)
+    
     # Update replicate counter
     settings@internal@progress <- settings@internal@progress %>% updateReplicate(replicate)
     retValue <- tryCatch(

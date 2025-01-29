@@ -131,13 +131,15 @@ preprocessReplicates <- function(replicates, model) {
   assertthat::assert_that(is.numeric(replicates) && replicates%%1==0 && replicates > 0,
                           msg="replicates not a positive integer")
   replicates <- as.integer(replicates)
+  
   if (is(model, "replicated_campsis_model")) {
+    rows <- nrow(model@replicated_parameters)
     if (replicates==1) {
-      replicates <- length(model) # This way, the user does not have to specify 'replicates'.
+      replicates <- rows # This way, the user does not have to specify 'replicates'.
     } else {
       # If he did, we check the consistency
-      if (replicates != length(model)) {
-        stop("Number of replicates must be equal to the number of models in the replicated model")
+      if (replicates != rows) {
+        stop("Number of replicates must be equal to the number of sampled parameter rows in the replicated model")
       }
     }
   }
