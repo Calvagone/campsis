@@ -376,7 +376,6 @@ setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "e
 #' 
 #' @param model CAMPSIS model
 #' @return same model without initial conditions
-#' @importFrom purrr keep
 #' @keywords internal
 #' 
 removeInitialConditions <- function(model) {
@@ -436,12 +435,10 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
   # Export to mrgsolve
   } else if (is(dest, "mrgsolve_engine")) {
     
-    # Export structural model (all THETA's to 0, all OMEGA's to 0)
+    # Export structural model (all THETAs to 0, all OMEGAs to 0, all SIGMAs to 0)
     structuralModel <- model
     structuralModel@parameters@list <- structuralModel@parameters@list %>% purrr::map(.f=function(parameter) {
-      if (is(parameter, "theta") || is(parameter, "omega")) {
-        parameter@value <- 0
-      }
+      parameter@value <- 0
       return(parameter)
     })
     
@@ -651,6 +648,17 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   # Make sure to remove the list of sub-datasets from 'config' (see #166)
   subdatasets <- config$subdatasets
   config$subdatasets <- NULL
+  
+  # Inject THETA's into model
+  if (length(thetaParams) > 0) {
+    mod <- mod %>% mrgsolve::update(param=thetaParams)
+  }
+  
+  # Inject SIGMA's into model (RUV managed by mrgsolve)
+  sigma <- campsismod::rxodeMatrix(model=model, type="sigma")
+  if (nrow(sigma) > 0) {
+    mod <- mod %>% mrgsolve::update(sigma=sigma)
+  }
 
   results <-  furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
@@ -658,11 +666,6 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {
       mod <- mod %>% mrgsolve::update(init=inits)
-    }
-    
-    # Inject THETA's into model
-    if (length(thetaParams) > 0) {
-      mod <- mod %>% mrgsolve::update(param=thetaParams)
     }
     
     # Launch simulation with mrgsolve

@@ -1,4 +1,5 @@
 library(testthat)
+library(dplyr)
 library(ggplot2)
 
 context("Study can be replicated using argument 'replicates'")
@@ -182,5 +183,42 @@ test_that(getTestName("Replicates can be simulated in parallel"), {
     expect_equal(results$EPSILON %>% unique() %>% length(), 625), # Check RUV is unique
     outputRegressionTest(results, output="CONC", filename=regFilename)
   )
+  campsisTest(simulation, test, env=environment())
+})
+
+test_that(getTestName("SIGMAs are correctly updated from replicate to replicate"), {
+  if (skipLongTests()) return(TRUE)
+  
+  # Add another SIGMA in the model, to test the SIGMA matrix
+  model <- model_suite$pk$`1cpt_fo` %>%
+    add(Sigma(name="PROP_RUV2", value=0.4, type="sd")) %>%
+    add(Equation("CONC_ERR2", "CONC*(1 + EPS_PROP_RUV2)"), pos=Position(ErrorRecord()))
+  
+  # Fix the SIGMA values to uses in all three replicates
+  repData <- data.frame(REPLICATE=c(1,2,3),
+                        SIGMA_PROP_RUV=c(0.1^2,0.2^2,0.3^2),
+                        SIGMA_PROP_RUV2=c(0.4^2,0.5^2,0.6^2))
+  
+  # Replicate the model thanks to Campsismod
+  repModel <- model %>% replicate(n=3, settings=ManualReplicationSettings(data=repData))
+  
+  dataset <- Dataset(50) %>%
+    add(Bolus(time=0, amount=1000, compartment=1, ii=24, addl=6)) %>%
+    add(Observations(times=seq(0, 7*24, by=0.1)))
+  
+  simulation <- expression(simulate(model=repModel, dataset=dataset, dest=destEngine, seed=seed))
+  
+  test <- expression(
+    # Derive EPS_PROP_RUV and EPS_PROP_RUV2 from results
+    results <- results %>%
+      dplyr::mutate(EPS_PROP_RUV=CONC_ERR/CONC - 1) %>%
+      dplyr::mutate(EPS_PROP_RUV2=CONC_ERR2/CONC - 1),
+    summary <- results %>%
+      group_by(replicate) %>%
+      summarise(SD1=sqrt(var(EPS_PROP_RUV)), SD2=sqrt(var(EPS_PROP_RUV2))),
+    expect_equal(summary$SD1, c(0.1,0.2,0.3), tolerance=0.005),
+    expect_equal(summary$SD2, c(0.4,0.5,0.6), tolerance=0.005)
+  )
+  
   campsisTest(simulation, test, env=environment())
 })
