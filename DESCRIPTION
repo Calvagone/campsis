@@ -32,7 +32,6 @@ Imports:
     ggplot2,
     MASS,
     methods,
-    plyr,
     progressr,
     purrr,
     rlang,

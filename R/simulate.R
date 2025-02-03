@@ -183,9 +183,8 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
 #' @param campsis CAMPSIS output
 #' @param arms all treatment arms
 #' @return updated CAMPSIS output with arm labels instead of arm identifiers
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate recode
 #' @importFrom purrr map_chr map_int
-#' @importFrom plyr mapvalues
 #' @keywords internal
 #' 
 processArmLabels <- function(campsis, arms) {
@@ -193,7 +192,7 @@ processArmLabels <- function(campsis, arms) {
   armLabels <- arms@list %>% purrr::map_chr(~.x@label)
   if (("ARM" %in% colnames(campsis)) && any(!is.na(armLabels))) {
     armLabels <- ifelse(is.na(armLabels), paste("ARM", armIds), armLabels)
-    campsis <- campsis %>% dplyr::mutate(ARM=plyr::mapvalues(.data$ARM, from=armIds, to=armLabels))
+    campsis <- campsis %>% dplyr::mutate(ARM=dplyr::recode(.data$ARM, !!!setNames(armLabels, armIds)))
   }
   return(campsis)
 }
