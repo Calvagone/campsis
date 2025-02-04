@@ -292,7 +292,8 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   } else if (is(model, "campsis_model")) {
     setSeed(getSeedForParametersSampling(seed=seed))
     if (replicates > 1) {
-      replicatedModel <- model %>% replicate(n=replicates)
+      replicatedModel <- model %>%
+        replicate(n=replicates, settings=settings@replication)
     } else {
       replicatedModel <- new("replicated_campsis_model", original_model=model)
     }

@@ -206,13 +206,13 @@ test_that(getTestName("SIGMAs are correctly updated from replicate to replicate"
     add(Bolus(time=0, amount=1000, compartment=1, ii=24, addl=6)) %>%
     add(Observations(times=seq(0, 7*24, by=0.1)))
   
-  simulation <- expression(simulate(model=repModel, dataset=dataset, dest=destEngine, seed=seed))
+  simulation1 <- expression(simulate(model=repModel, dataset=dataset, dest=destEngine, seed=seed))
   
   test <- expression(
     # Derive EPS_PROP_RUV and EPS_PROP_RUV2 from results
     results <- results %>%
-      dplyr::mutate(EPS_PROP_RUV=CONC_ERR/CONC - 1) %>%
-      dplyr::mutate(EPS_PROP_RUV2=CONC_ERR2/CONC - 1),
+      mutate(EPS_PROP_RUV=CONC_ERR/CONC - 1) %>%
+      mutate(EPS_PROP_RUV2=CONC_ERR2/CONC - 1),
     summary <- results %>%
       group_by(replicate) %>%
       summarise(SD1=sqrt(var(EPS_PROP_RUV)), SD2=sqrt(var(EPS_PROP_RUV2))),
@@ -220,5 +220,11 @@ test_that(getTestName("SIGMAs are correctly updated from replicate to replicate"
     expect_equal(summary$SD2, c(0.4,0.5,0.6), tolerance=0.005)
   )
   
-  campsisTest(simulation, test, env=environment())
+  campsisTest(simulation1, test, env=environment())
+  
+  # Or equivalently
+  settings <- Settings(ManualReplicationSettings(data=repData))
+  simulation2 <- expression(simulate(model=model, dataset=dataset, dest=destEngine, replicates=3, seed=seed, settings=settings))
+  
+  campsisTest(simulation2, test, env=environment())
 })

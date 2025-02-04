@@ -92,6 +92,15 @@ test_that("Progress settings work as expected", {
   expect_true("Progress: tick_slice=FALSE" %in% capture.output(show(settings)))
 })
 
+test_that("Replication/parallelisation settings work as expected", {
+  
+  # Example of settings with replication and parallelisation
+  settings <- Settings(Hardware(cpu=6, replicate_parallel=T), AutoReplicationSettings(wishart=TRUE, odf=50, sdf=1000))
+
+  expect_true("Hardware: 6 CPU core(s), parallelisation enabled (replicates)" %in% capture.output(show(settings)))
+  expect_true("Replication settings: wishart=TRUE, odf=50, sdf=1000" %in% capture.output(show(settings)))
+})
+
 
 test_that("Unknown settings shouldn't be accepted", {
   expect_error(Settings(Hardware(cpu=4, replicate_parallel=TRUE), Dataset()), regexp="Unknown argument detected")
