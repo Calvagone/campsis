@@ -98,7 +98,7 @@ test_that("Replication/parallelisation settings work as expected", {
   settings <- Settings(Hardware(cpu=6, replicate_parallel=T), AutoReplicationSettings(wishart=TRUE, odf=50, sdf=1000))
 
   expect_true("Hardware: 6 CPU core(s), parallelisation enabled (replicates)" %in% capture.output(show(settings)))
-  expect_true("Replication settings: wishart=TRUE, odf=50, sdf=1000" %in% capture.output(show(settings)))
+  expect_true(any(grepl(pattern="Replication settings: .*", x=capture.output(show(settings))))) # Stay generic because show method is implemented in campsismod
 })
 
 

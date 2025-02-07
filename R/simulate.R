@@ -270,6 +270,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @importFrom furrr furrr_options future_imap_dfr
 #' @importFrom progressr progressor
 #' @importFrom dplyr all_of mutate
+#' @importFrom stats setNames
 #' 
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
 
@@ -304,7 +305,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   # Run all models
   seqReplicates <- seq_len(replicates)
   seqReplicates <- as.list(seqReplicates) %>%
-    setNames(seqReplicates) # Names are added for furrr (added automatically to the output with .id="replicate")
+    stats::setNames(seqReplicates) # Names are added for furrr (added automatically to the output with .id="replicate")
   
   allRep <- seqReplicates %>% furrr::future_map_dfr(.f=function(replicate) {
     # Export model for each replicate
