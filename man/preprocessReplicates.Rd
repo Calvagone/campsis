@@ -4,13 +4,15 @@
 \alias{preprocessReplicates}
 \title{Preprocess 'replicates' argument.}
 \usage{
-preprocessReplicates(replicates)
+preprocessReplicates(replicates, model)
 }
 \arguments{
 \item{replicates}{number of replicates}
+
+\item{model}{Campsis model (class 'campsis_model' or 'replicated_campsis_model')}
 }
 \value{
-same number, but as integer
+number of replicates to simulate
 }
 \description{
 Preprocess 'replicates' argument.

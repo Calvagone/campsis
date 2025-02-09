@@ -31,7 +31,7 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
   outvars <- preprocessOutvars(outvars)
   outfun <- preprocessOutfun(outfun)
   seed <- getSeed(seed)
-  replicates <- preprocessReplicates(replicates)
+  replicates <- preprocessReplicates(replicates, model)
   settings <- preprocessSettings(settings, dest)
   dosing <- preprocessDosing(dosing)
   
@@ -183,9 +183,8 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
 #' @param campsis CAMPSIS output
 #' @param arms all treatment arms
 #' @return updated CAMPSIS output with arm labels instead of arm identifiers
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate recode
 #' @importFrom purrr map_chr map_int
-#' @importFrom plyr mapvalues
 #' @keywords internal
 #' 
 processArmLabels <- function(campsis, arms) {
@@ -193,7 +192,7 @@ processArmLabels <- function(campsis, arms) {
   armLabels <- arms@list %>% purrr::map_chr(~.x@label)
   if (("ARM" %in% colnames(campsis)) && any(!is.na(armLabels))) {
     armLabels <- ifelse(is.na(armLabels), paste("ARM", armIds), armLabels)
-    campsis <- campsis %>% dplyr::mutate(ARM=plyr::mapvalues(.data$ARM, from=armIds, to=armLabels))
+    campsis <- campsis %>% dplyr::mutate(ARM=dplyr::recode(.data$ARM, !!!setNames(armLabels, armIds)))
   }
   return(campsis)
 }
@@ -271,6 +270,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @importFrom furrr furrr_options future_imap_dfr
 #' @importFrom progressr progressor
 #' @importFrom dplyr all_of mutate
+#' @importFrom stats setNames
 #' 
 simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
 
@@ -287,20 +287,31 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   settings@internal@progress <- SimulationProgress(replicates=replicates, scenarios=ifelse(scenariosLength > 0, scenariosLength, 1),
                                                    progressor=p, hardware=settings@hardware)
   
-  # Get as many models as replicates
-  parameterSamplingSeed <- getSeedForParametersSampling(seed=seed)
-  setSeed(parameterSamplingSeed)
-  
-  if (replicates > 1) {
-    # Parameter uncertainty enabled when more than 1 replicate
-    models <- model %>% sample(replicates) %>% setNames(seq_len(replicates))
+  # Check model type
+  if (is(model, "replicated_campsis_model")) {
+    replicatedModel <- model
+  } else if (is(model, "campsis_model")) {
+    setSeed(getSeedForParametersSampling(seed=seed))
+    if (replicates > 1) {
+      replicatedModel <- model %>%
+        replicate(n=replicates, settings=settings@replication)
+    } else {
+      replicatedModel <- new("replicated_campsis_model", original_model=model)
+    }
   } else {
-    # Parameter uncertainty always disabled for 1 replicate 
-    models <- list(model)
+    stop("Model must be of type 'campsis_model' or 'replicated_campsis_model'")
   }
-  
+
   # Run all models
-  allRep <- furrr::future_imap_dfr(.x=models, .f=function(model_, replicate) {
+  seqReplicates <- seq_len(replicates)
+  seqReplicates <- as.list(seqReplicates) %>%
+    stats::setNames(seqReplicates) # Names are added for furrr (added automatically to the output with .id="replicate")
+  
+  allRep <- seqReplicates %>% furrr::future_map_dfr(.f=function(replicate) {
+    # Export model for each replicate
+    model_ <- replicatedModel %>%
+      campsismod::export(dest=CampsisModel(), index=replicate)
+    
     # Update replicate counter
     settings@internal@progress <- settings@internal@progress %>% updateReplicate(replicate)
     retValue <- tryCatch(
@@ -335,6 +346,13 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
 }
 
 #' @rdname simulate
+setMethod("simulate", signature=c("replicated_campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
+          definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
+  return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
+                          outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
+})
+
+#' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
@@ -359,7 +377,6 @@ setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "e
 #' 
 #' @param model CAMPSIS model
 #' @return same model without initial conditions
-#' @importFrom purrr keep
 #' @keywords internal
 #' 
 removeInitialConditions <- function(model) {
@@ -419,12 +436,10 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
   # Export to mrgsolve
   } else if (is(dest, "mrgsolve_engine")) {
     
-    # Export structural model (all THETA's to 0, all OMEGA's to 0)
+    # Export structural model (all THETAs to 0, all OMEGAs to 0, all SIGMAs to 0)
     structuralModel <- model
     structuralModel@parameters@list <- structuralModel@parameters@list %>% purrr::map(.f=function(parameter) {
-      if (is(parameter, "theta") || is(parameter, "omega")) {
-        parameter@value <- 0
-      }
+      parameter@value <- 0
       return(parameter)
     })
     
@@ -519,7 +534,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   # Instantiate RxODE model
   rxmod <- config$engineModel
   if (dest@rxode2) {
-    mod <- rxode2::rxode2(paste0(rxmod@code, collapse="\n"))
+    mod <- rxode2::rxode2(model=paste0(rxmod@code, collapse="\n"), envir=NULL)
   } else {
     # For backwards compatibility since RxODE isn't on CRAN anymore
     fun <- getExportedValue("RxODE", "RxODE")
@@ -548,8 +563,12 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   solver <- settings@solver # Solver settings
   nocb <- settings@nocb@enable
   tick_slice <- settings@progress@tick_slice
+  
+  # Make sure to remove the list of sub-datasets from 'config' (see #166)
+  subdatasets <- config$subdatasets
+  config$subdatasets <- NULL
 
-  results <- furrr::future_imap_dfr(.x=config$subdatasets, .f=function(subdataset, index) {
+  results <- furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Launch simulation with RxODE
@@ -588,7 +607,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   
   # Tick progress
   if (!tick_slice) {
-    progress <- progress %>% updateSlice(config$subdatasets %>% length())
+    progress <- progress %>% updateSlice(subdatasets %>% length())
     progress <- progress %>% tick(tick_slice=tick_slice)
   }
   
@@ -627,17 +646,27 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   nocb <- settings@nocb@enable
   tick_slice <- settings@progress@tick_slice
 
-  results <-  furrr::future_imap_dfr(.x=config$subdatasets, .f=function(subdataset, index) {
+  # Make sure to remove the list of sub-datasets from 'config' (see #166)
+  subdatasets <- config$subdatasets
+  config$subdatasets <- NULL
+  
+  # Inject THETA's into model
+  if (length(thetaParams) > 0) {
+    mod <- mod %>% mrgsolve::update(param=thetaParams)
+  }
+  
+  # Inject SIGMA's into model (RUV managed by mrgsolve)
+  sigma <- campsismod::rxodeMatrix(model=model, type="sigma")
+  if (nrow(sigma) > 0) {
+    mod <- mod %>% mrgsolve::update(sigma=sigma)
+  }
+
+  results <-  furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
 
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {
       mod <- mod %>% mrgsolve::update(init=inits)
-    }
-    
-    # Inject THETA's into model
-    if (length(thetaParams) > 0) {
-      mod <- mod %>% mrgsolve::update(param=thetaParams)
     }
     
     # Launch simulation with mrgsolve
@@ -655,7 +684,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   
   # Tick progress
   if (!tick_slice) {
-    progress <- progress %>% updateSlice(config$subdatasets %>% length())
+    progress <- progress %>% updateSlice(subdatasets %>% length())
     progress <- progress %>% tick(tick_slice=tick_slice)
   }
   

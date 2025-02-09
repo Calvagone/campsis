@@ -1,7 +1,7 @@
 Type: Package
 Package: campsis
 Title: Generic PK/PD Simulation Platform CAMPSIS
-Version: 1.5.5
+Version: 1.6.0
 Authors@R: 
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
 Description: A generic, easy-to-use and intuitive
@@ -21,7 +21,7 @@ URL: https://github.com/Calvagone/campsis, https://calvagone.github.io/,
     https://calvagone.github.io/campsis.doc/
 BugReports: https://github.com/Calvagone/campsis/issues
 Depends: 
-    campsismod (>= 1.1.0),
+    campsismod (>= 1.2.0),
     R (>= 4.0.0)
 Imports: 
     assertthat,
@@ -32,7 +32,6 @@ Imports:
     ggplot2,
     MASS,
     methods,
-    plyr,
     progressr,
     purrr,
     rlang,
@@ -93,7 +92,6 @@ Collate:
     'scenarios.R'
     'simulation_engine.R'
     'dataset.R'
-    'parameter_uncertainty.R'
     'event_logic.R'
     'dataset_summary.R'
     'outfun.R'

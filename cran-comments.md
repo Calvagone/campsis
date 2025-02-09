@@ -1,5 +1,5 @@
 ## Test environments
-* local R installation, R 4.4.1
+* local R installation, R 4.4.2
 * ubuntu-latest (GitHub Actions), R 4.4.2
 * windows-latest (GitHub Actions), R 4.4.2
 * macos-latest (GitHub Actions), R 4.4.2

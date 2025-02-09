@@ -1,3 +1,16 @@
+# campsis 1.6.0
+
+* Add option to sample uncertainty from SIR or bootstrap output #87
+* Include omegas and sigmas when simulating with uncertainty #150
+* Warning raised: 'package:stats' may not be available when loading #157
+* Future globals max size exceeded #166
+* Method rxode2 should be called with envir set to NULL #167
+* Allow Campsis model to be replicated beforehand when simulating with uncertainty #168
+* Parameter uncertainty generation now managed by Campsismod #169
+* Do not recompile mrgsolve model when SIGMAs change #170
+* Get rid of plyr package #171
+* Integration of the replication settings #172
+
 # campsis 1.5.5
 
 * Arm label mapping must first verify the ARM column exists #155

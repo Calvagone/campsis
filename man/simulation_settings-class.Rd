@@ -20,6 +20,8 @@ Simulation settings class.
 
 \item{\code{progress}}{progress settings}
 
+\item{\code{replication}}{replication settings}
+
 \item{\code{internal}}{internal settings}
 }}
 
