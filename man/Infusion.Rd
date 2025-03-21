@@ -21,7 +21,7 @@ Infusion(
 
 \item{amount}{total amount to infuse, numeric}
 
-\item{compartment}{compartment index, integer}
+\item{compartment}{compartment index or name to give the infusion(s). A vector of integers or names can be used for a complex model administration.}
 
 \item{f}{fraction of infusion amount, distribution}
 

@@ -10,7 +10,7 @@ Observations(times, compartment = NA)
 \arguments{
 \item{times}{observation times, numeric vector}
 
-\item{compartment}{compartment index, integer}
+\item{compartment}{compartment index (integer) or name (character)}
 }
 \value{
 an observations list

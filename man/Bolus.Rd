@@ -19,7 +19,7 @@ Bolus(
 
 \item{amount}{amount to give as bolus, single numeric value}
 
-\item{compartment}{compartment index, single integer value}
+\item{compartment}{compartment index or name to give the bolus(es). A vector of integers or names can be used for a complex model administration.}
 
 \item{f}{fraction of dose amount, distribution}
 

@@ -15,6 +15,12 @@ datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, 
   if (doseOnly) {
     table <- table %>% dplyr::filter(EVID==1)
   }
+  
+  # Convert CMT column
+  if (is.null(model)) {
+    table <- table %>% dplyr::mutate(CMT=as.integer(CMT))
+  }
+  
   return(table)
 }
 

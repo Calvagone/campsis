@@ -351,6 +351,33 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
   return(table)
 })
 
+#' Get a mapping table with all possibilities of compartment names and their indexes
+#' knowing that compartment names can be provided as character or as integer.
+#' 
+#' @param compartments list of compartments
+#' @return a tibble with two columns: INDEX and NAME
+#' @keywords internal
+#' @importFrom tibble tibble
+#' @importFrom purrr map_dfr
+#' @importFrom assertthat assert_that
+#' 
+getCompartmentMapping <- function(compartments) {
+  if (length(compartments)==0) {
+    return(tibble::tibble(INDEX=as.integer(0), NAME=as.character(0)))
+  }
+  compartmentMapping <- compartments@list %>%
+    purrr::map_dfr(.f=function(cmt) {
+      if (is.na(cmt@name)) {
+        return(tibble::tibble(INDEX=cmt@index, NAME=as.character(cmt@index)))
+      } else {
+        assertthat::assert_that(!(nchar(cmt@name)==1 && cmt@name != as.character(cmt@index)),
+                                msg=paste0("Compartment name '%s' not corresponding to its index", cmt@name))
+        return(tibble::tibble(INDEX=c(cmt@index, cmt@index), NAME=c(cmt@name, as.character(cmt@index))))
+      }
+    })
+  return(compartmentMapping)
+}
+
 #' Export delegate method. This method is common to RxODE and mrgsolve.
 #' 
 #' @param object current dataset
@@ -362,7 +389,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param offset_within_arm offset (on ID's) to apply within the current arm being
 #'  exported (only used when parallelisation is enabled), default is 0
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
-#' @importFrom dplyr across all_of arrange bind_rows group_by left_join
+#' @importFrom dplyr across all_of arrange bind_rows group_by left_join recode
 #' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
@@ -385,6 +412,12 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
   
   # Compute max ID per arm
   maxIDPerArm <- arms@list %>% purrr::map_int(~.x@subjects) %>% purrr::accumulate(~(.x+.y))
+ 
+  # Get compartment mapping
+  compartmentMapping <- NULL
+  if (!is.null(model)) {
+    compartmentMapping <- getCompartmentMapping(model@compartments)
+  }
   
   retValue <- purrr::map2_df(arms@list, maxIDPerArm, .f=function(arm, maxID) {
     armID <- arm@id
@@ -472,6 +505,24 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
       occ <- tibble::tibble(DOSENO=occasion@dose_numbers, !!occasion@colname:=occasion@values)
       table <- table %>% dplyr::left_join(occ, by="DOSENO")
     }
+    
+    # Recode compartments names according to their indexes
+    if (!is.null(compartmentMapping)) {
+      # Check if all non NA values can be found
+      cmtValues <- unique(table$CMT) %>% na.omit() # Character, but can be compartment indexes or names (or mixed)
+      assert_that(all(cmtValues %in% compartmentMapping$NAME),
+                  msg=sprintf("Compartment name(s) %s are not found in the model",
+                  paste0(compartmentMapping$NAME[!compartmentMapping$NAME %in% cmtValues], collapse="/")))
+      
+      # Argument .missing means that missing values in .x (NAs) are replaced by the provided value (NA)
+      # Argument .default not set meaning we get a message if a compartment name is not found in the model
+      table <- table %>%
+        mutate(CMT=dplyr::recode(.data$CMT, !!!setNames(compartmentMapping$INDEX, compartmentMapping$NAME)))
+    }
+    
+    # Compartment column as integer in any case
+    table <- table %>%
+      mutate(CMT=as.integer(.data$CMT))
     
     # Apply formula if dose adaptations are present
     for (doseAdaptation in doseAdaptations@list) {

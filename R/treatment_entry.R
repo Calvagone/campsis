@@ -4,20 +4,21 @@
 #_______________________________________________________________________________
 
 checkTreatmentEntry <- function(object) {
-  return(expectOneForAll(object, c("amount", "compartment", "dose_number", "f", "lag")))
+  return(c(expectOneForAll(object, c("amount", "dose_number", "f", "lag")),
+           expectOneOrMore(object, "compartment")))
 }
 
 setClass(
   "treatment_entry",
   representation(
     amount = "numeric",
-    compartment = "integer",
+    compartment = "character",
     f = "distribution",
     lag = "distribution",
     dose_number = "integer" # Transient
   ),
   contains = "time_entry",
-  prototype=prototype(compartment=as.integer(NA), dose_number=as.integer(NA)),
+  prototype=prototype(compartment=as.character(NA), dose_number=as.integer(NA)),
   validity=checkTreatmentEntry
 )
 
@@ -73,7 +74,7 @@ checkIIandADDL <- function(time, ii, addl) {
 #'
 #' @param time treatment time(s), numeric value or vector. First treatment time if used together with ii and addl.
 #' @param amount amount to give as bolus, single numeric value
-#' @param compartment compartment index, single integer value
+#' @param compartment compartment index or name to give the bolus(es). A vector of integers or names can be used for a complex model administration.
 #' @param f fraction of dose amount, distribution
 #' @param lag dose lag time, distribution
 #' @param ii interdose interval, requires argument 'time' to be a single numeric value
@@ -85,15 +86,15 @@ Bolus <- function(time, amount, compartment=NA, f=NULL, lag=NULL, ii=NULL, addl=
   checkIIandADDL(time=time, ii=ii, addl=addl)
   if (time %>% length() > 1) {
     return(time %>% purrr::map(
-       .f=~new("bolus", time=.x, amount=amount, compartment=as.integer(compartment),
+       .f=~new("bolus", time=.x, amount=amount, compartment=as.character(compartment),
                f=toExplicitDistribution(f), lag=toExplicitDistribution(lag))))
   } else {
     if (is.null(addl)) {
-      return(new("bolus", time=time, amount=amount, compartment=as.integer(compartment),
+      return(new("bolus", time=time, amount=amount, compartment=as.character(compartment),
                  f=toExplicitDistribution(f), lag=toExplicitDistribution(lag)))
     } else {
       return((seq_len(addl + 1) - 1) %>% purrr::map(
-        .f=~new("bolus", time=time + ii*.x, amount=amount, compartment=as.integer(compartment),
+        .f=~new("bolus", time=time + ii*.x, amount=amount, compartment=as.character(compartment),
                 f=toExplicitDistribution(f), lag=toExplicitDistribution(lag))))
     }
   }
@@ -132,7 +133,7 @@ setClass(
 #'
 #' @param time treatment time(s), numeric value or vector. First treatment time if used together with ii and addl.
 #' @param amount total amount to infuse, numeric
-#' @param compartment compartment index, integer
+#' @param compartment compartment index or name to give the infusion(s). A vector of integers or names can be used for a complex model administration.
 #' @param f fraction of infusion amount, distribution
 #' @param lag infusion lag time, distribution
 #' @param duration infusion duration, distribution
@@ -146,17 +147,17 @@ Infusion <- function(time, amount, compartment=NA, f=NULL, lag=NULL, duration=NU
   checkIIandADDL(time=time, ii=ii, addl=addl)
   if (time %>% length() > 1) {
     return(time %>% purrr::map(
-      .f=~new("infusion", time=.x, amount=amount, compartment=as.integer(compartment),
+      .f=~new("infusion", time=.x, amount=amount, compartment=as.character(compartment),
               f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
               duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate))))
   } else {
     if (is.null(addl)) {
-      return(new("infusion", time=time, amount=amount, compartment=as.integer(compartment),
+      return(new("infusion", time=time, amount=amount, compartment=as.character(compartment),
                  f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
                  duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate)))
     } else {
       return((seq_len(addl + 1) - 1) %>% purrr::map(
-        .f=~new("infusion", time=time + ii*.x, amount=amount, compartment=as.integer(compartment),
+        .f=~new("infusion", time=time + ii*.x, amount=amount, compartment=as.character(compartment),
                 f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
                 duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate))))
     }
@@ -190,13 +191,13 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   lag <- sampleTrtDistribution(object@lag, n, default=0)
   
   if (is.na(object@compartment)) {
-    depotCmt <- config@def_depot_cmt
+    depotCmt <- as.character(config@def_depot_cmt)
   } else {
     depotCmt <- object@compartment
   }
   
   retValue <- tibble::tibble(
-    ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, 
+    ID=rep(as.integer(ids), each=length(depotCmt)), ARM=as.integer(armID), TIME=object@time+lag, 
     EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number,
     INFUSION_TYPE=as.integer(0), EVENT_RELATED=as.integer(FALSE)
   )
@@ -218,12 +219,12 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   
   
   if (is.na(object@compartment)) {
-    depotCmt <- config@def_depot_cmt
+    depotCmt <- as.character(config@def_depot_cmt)
   } else {
     depotCmt <- object@compartment
   }
   retValue <- tibble::tibble(
-    ID=as.integer(ids), ARM=as.integer(armID), TIME=object@time+lag, 
+    ID=rep(as.integer(ids), each=length(depotCmt)), ARM=as.integer(armID), TIME=object@time+lag, 
     EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number,
     INFUSION_TYPE=as.integer(-2), EVENT_RELATED=as.integer(FALSE)
   )
