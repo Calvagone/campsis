@@ -517,13 +517,9 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
       # Argument .missing means that missing values in .x (NAs) are replaced by the provided value (NA)
       # Argument .default not set meaning we get a message if a compartment name is not found in the model
       table <- table %>%
-        mutate(CMT=dplyr::recode(.data$CMT, !!!setNames(compartmentMapping$INDEX, compartmentMapping$NAME)))
+        mutate(CMT=as.integer(dplyr::recode(.data$CMT, !!!setNames(compartmentMapping$INDEX, compartmentMapping$NAME))))
     }
-    
-    # Compartment column as integer in any case
-    table <- table %>%
-      mutate(CMT=as.integer(.data$CMT))
-    
+
     # Apply formula if dose adaptations are present
     for (doseAdaptation in doseAdaptations@list) {
       compartments <- doseAdaptation@compartments

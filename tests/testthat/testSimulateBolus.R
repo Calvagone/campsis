@@ -28,7 +28,7 @@ test_that(getTestName("Simulate a bolus, single-labelled arm"), {
   regFilename <- "simple_bolus"
   
   dataset <- Dataset(1, label="My Arm") %>%
-    add(Bolus(time=0, amount=1000, compartment=1)) %>%
+    add(Bolus(time=0, amount=1000, compartment="DEPOT")) %>%
     add(Observations(times=seq(0,24, by=0.5)))
 
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
@@ -45,11 +45,11 @@ test_that(getTestName("Simulate a bolus, 2 arms"), {
   regFilename <- "bolus_2arms"
 
   arm1 <- Arm(1, subjects=10) %>%
-    add(Bolus(time=0, amount=1000, compartment=1)) %>%
+    add(Bolus(time=0, amount=1000, compartment="DEPOT")) %>%
     add(Observations(times=seq(0,24, by=0.5)))
   
   arm2 <- Arm(2, subjects=10) %>%
-    add(Bolus(time=0, amount=2000, compartment=1)) %>%
+    add(Bolus(time=0, amount=2000, compartment="DEPOT")) %>%
     add(Observations(times=seq(0,24, by=0.5)))
 
   dataset <- Dataset() %>%

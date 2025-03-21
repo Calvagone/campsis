@@ -7,7 +7,7 @@
 Infusion(
   time,
   amount,
-  compartment = NA,
+  compartment = NULL,
   f = NULL,
   lag = NULL,
   duration = NULL,

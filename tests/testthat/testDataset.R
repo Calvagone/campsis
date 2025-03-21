@@ -593,3 +593,34 @@ test_that("Boluses/Infusions can now be given at same time and into the same com
     regexp="Element 'INFUSION \\[TIME=0, CMT=2\\]' already exists in ARM 1 and has different properties\\. Amounts cannot be added\\.")
   # Note that the same error would have been raised in ARM 2 if process was not interrupted.
 })
+
+test_that("Compartment argument both accepts a character vector with compartment names", {
+  
+  # Bolus
+  dataset <- Dataset() %>%
+    add(Bolus(time=c(0, 24), amount=100, compartment=c("DEPOT1", "DEPOT2", "DEPOT3")))
+  expect_true(any("-> Adm. times (bolus into CMT=DEPOT1,DEPOT2,DEPOT3): 0 (100),24" %in%
+                    capture.output(show(dataset))))
+
+  table <- dataset %>% 
+    export(dest="rxode2")
+  expect_equal(table %>% dplyr::select(c("TIME", "AMT", "CMT")),
+               tibble::tibble(TIME=c(0,0,0,24,24,24),
+                              AMT=c(100,100,100,100,100,100),
+                              CMT=c("DEPOT1", "DEPOT2", "DEPOT3", "DEPOT1", "DEPOT2", "DEPOT3")))
+  
+  # Infusion
+  dataset <- Dataset() %>%
+    add(Infusion(time=c(0, 24), amount=100, compartment=c("SC1", "SC2"), duration=1))
+  expect_true(any("-> Adm. times (infusion into CMT=SC1,SC2): 0 (100),24" %in%
+                    capture.output(show(dataset))))
+  
+  table <- dataset %>% 
+    export(dest="rxode2")
+  expect_equal(table %>% dplyr::select(c("TIME", "AMT", "CMT", "RATE")),
+               tibble::tibble(TIME=c(0,0,24,24),
+                              AMT=c(100,100,100,100),
+                              CMT=c("SC1", "SC2", "SC1", "SC2"),
+                              RATE=c(100,100,100,100)))
+  
+})

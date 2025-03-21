@@ -7,7 +7,7 @@
 Bolus(
   time,
   amount,
-  compartment = NA,
+  compartment = NULL,
   f = NULL,
   lag = NULL,
   ii = NULL,

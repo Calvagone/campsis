@@ -142,19 +142,23 @@ setMethod("assignDoseNumber", signature = c("treatment"), definition = function(
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
+concatenateCompartments <- function(x) {
+  return(paste0(x, collapse=","))
+}
+
 getAdminString <- function(object, type) {
   clz <- type$type
-  cmt <- type$cmt
-  
+  cmt <- type$cmt # Concatenated version of compartment (see show method below)
+  cmtSize <- type$cmtSize
+
   admins <- object@list %>% purrr::keep(.p=function(x){
     comp1 <- clz == (class(x) %>% as.character())
-    comp2 <- (cmt == x@compartment) || (is.na(cmt) && is.na(x@compartment))
-    comp2[is.na(comp2)] <- FALSE
+    comp2 <- cmt == concatenateCompartments(x@compartment)
     return(comp1 && comp2)
   })
 
   str <- paste0("-> Adm. times (", clz, " into ")
-  if (is.na(cmt)) {
+  if (cmtSize==0) {
     str <- paste0(str, "DEFAULT", "): ")
   } else {
     str <- paste0(str, "CMT=", cmt, "): ")
@@ -177,7 +181,9 @@ setMethod("show", signature=c("treatment"), definition=function(object) {
   object <- object %>% sort()
   
   adminTypes <- object@list %>% purrr::map_df(.f=function(x){
-    return(tibble::tibble(type=class(x) %>% as.character(), cmt=x@compartment))
+    return(tibble::tibble(type=class(x) %>% as.character(),
+                          cmt=concatenateCompartments(x@compartment),
+                          cmtSize=length(x@compartment)))
   }) %>% dplyr::distinct()
   
   for(index in seq_len(nrow(adminTypes))) {

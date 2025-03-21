@@ -5,7 +5,7 @@
 
 checkTreatmentEntry <- function(object) {
   return(c(expectOneForAll(object, c("amount", "dose_number", "f", "lag")),
-           expectOneOrMore(object, "compartment")))
+           expectZeroOrMore(object, "compartment")))
 }
 
 setClass(
@@ -82,7 +82,7 @@ checkIIandADDL <- function(time, ii, addl) {
 #' @return a single bolus or a list of boluses
 #' @importFrom purrr map
 #' @export
-Bolus <- function(time, amount, compartment=NA, f=NULL, lag=NULL, ii=NULL, addl=NULL) {
+Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, addl=NULL) {
   checkIIandADDL(time=time, ii=ii, addl=addl)
   if (time %>% length() > 1) {
     return(time %>% purrr::map(
@@ -101,7 +101,7 @@ Bolus <- function(time, amount, compartment=NA, f=NULL, lag=NULL, ii=NULL, addl=
 }
 
 setMethod("getName", signature = c("bolus"), definition = function(x) {
-  return(paste0("BOLUS [", "TIME=", x@time, ", ", "CMT=", x@compartment, "]"))
+  return(paste0("BOLUS [", "TIME=", x@time, ", ", "CMT=", paste0(x@compartment, collapse="/"), "]"))
 })
 
 #_______________________________________________________________________________
@@ -143,7 +143,7 @@ setClass(
 #' @return a single infusion or a list of infusions.
 #' @importFrom purrr map
 #' @export
-Infusion <- function(time, amount, compartment=NA, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL) {
+Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL) {
   checkIIandADDL(time=time, ii=ii, addl=addl)
   if (time %>% length() > 1) {
     return(time %>% purrr::map(
@@ -165,7 +165,7 @@ Infusion <- function(time, amount, compartment=NA, f=NULL, lag=NULL, duration=NU
 }
 
 setMethod("getName", signature = c("infusion"), definition = function(x) {
-  return(paste0("INFUSION [", "TIME=", x@time, ", ", "CMT=", x@compartment, "]"))
+  return(paste0("INFUSION [", "TIME=", x@time, ", ", "CMT=", paste0(x@compartment, collapse="/"), "]"))
 })
 
 #_______________________________________________________________________________
@@ -190,7 +190,7 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   f <- sampleTrtDistribution(object@f, n, default=1)
   lag <- sampleTrtDistribution(object@lag, n, default=0)
   
-  if (is.na(object@compartment)) {
+  if (length(object@compartment)==0) {
     depotCmt <- as.character(config@def_depot_cmt)
   } else {
     depotCmt <- object@compartment
@@ -218,7 +218,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   lag <- sampleTrtDistribution(object@lag, n, default=0)
   
   
-  if (is.na(object@compartment)) {
+  if (length(object@compartment)==0) {
     depotCmt <- as.character(config@def_depot_cmt)
   } else {
     depotCmt <- object@compartment
