@@ -69,7 +69,7 @@ setClass(
 #' @return observations
 #' @keywords internal
 EventRelatedObservations <- function(times, compartment=NA) {
-  return(new("event_related_observations", times=base::sort(unique(times)), compartment=as.integer(compartment)))
+  return(new("event_related_observations", times=base::sort(unique(times)), compartment=as.character(compartment)))
 }
 
 #_______________________________________________________________________________
