@@ -507,22 +507,12 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
     }
     
     # Recode compartments names according to their indexes
-    if (!is.null(compartmentMapping)) {
-      # Check if all non NA values can be found
-      cmtValues <- unique(table$CMT) %>% na.omit() # Character, but can be compartment indexes or names (or mixed)
-      assert_that(all(cmtValues %in% compartmentMapping$NAME),
-                  msg=sprintf("Compartment name(s) %s are not found in the model",
-                  paste0(compartmentMapping$NAME[!compartmentMapping$NAME %in% cmtValues], collapse="/")))
-      
-      # Argument .missing means that missing values in .x (NAs) are replaced by the provided value (NA)
-      # Argument .default not set meaning we get a message if a compartment name is not found in the model
-      table <- table %>%
-        mutate(CMT=as.integer(dplyr::recode(.data$CMT, !!!setNames(compartmentMapping$INDEX, compartmentMapping$NAME))))
-    }
+    table <- table %>%
+      mutate(CMT=recodeCompartments(.data$CMT, compartmentMapping))
 
     # Apply formula if dose adaptations are present
     for (doseAdaptation in doseAdaptations@list) {
-      compartments <- doseAdaptation@compartments
+      compartments <- recodeCompartments(doseAdaptation@compartments, compartmentMapping)
       expr <- rlang::parse_expr(doseAdaptation@formula)
       # If a duration was specified, same duration applies on new AMT (i.e. RATE is recomputed)
       # If a rate was specified, same rate applies on new AMT (nothing to do)
@@ -562,6 +552,19 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
   }
   
   return(retValue)
+}
+
+recodeCompartments <- function(x, compartmentMapping) {
+  if (is.null(compartmentMapping)) {
+    return(x)
+  }
+  cmtValues <- unique(x) %>% na.omit() # Character, but can be compartment indexes or names (or mixed)
+  assert_that(all(cmtValues %in% compartmentMapping$NAME),
+              msg=sprintf("Compartment name(s) %s are not found in the model",
+                          paste0(compartmentMapping$NAME[!compartmentMapping$NAME %in% cmtValues], collapse="/")))
+  # Argument .missing means that missing values in .x (NAs) are replaced by the provided value (NA)
+  # Argument .default not set meaning we get a message if a compartment name is not found in the model
+  return(as.integer(dplyr::recode(x, !!!setNames(compartmentMapping$INDEX, compartmentMapping$NAME))))
 }
 
 #' Fill IOV/Occasion columns.

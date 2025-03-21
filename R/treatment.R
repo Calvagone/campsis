@@ -142,10 +142,6 @@ setMethod("assignDoseNumber", signature = c("treatment"), definition = function(
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-concatenateCompartments <- function(x) {
-  return(paste0(x, collapse=","))
-}
-
 getAdminString <- function(object, type) {
   clz <- type$type
   cmt <- type$cmt # Concatenated version of compartment (see show method below)
@@ -153,7 +149,7 @@ getAdminString <- function(object, type) {
 
   admins <- object@list %>% purrr::keep(.p=function(x){
     comp1 <- clz == (class(x) %>% as.character())
-    comp2 <- cmt == concatenateCompartments(x@compartment)
+    comp2 <- cmt == getTreatmentEntryCmtString(x)
     return(comp1 && comp2)
   })
 
@@ -182,7 +178,7 @@ setMethod("show", signature=c("treatment"), definition=function(object) {
   
   adminTypes <- object@list %>% purrr::map_df(.f=function(x){
     return(tibble::tibble(type=class(x) %>% as.character(),
-                          cmt=concatenateCompartments(x@compartment),
+                          cmt=getTreatmentEntryCmtString(x),
                           cmtSize=length(x@compartment)))
   }) %>% dplyr::distinct()
   

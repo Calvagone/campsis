@@ -69,6 +69,16 @@ checkIIandADDL <- function(time, ii, addl) {
   }
 }
 
+getTreatmentEntryCmtString <- function(object, vector=FALSE) {
+  if (object@compartment %>% length() == 0) {
+    str <- "DEFAULT"
+  } else {
+    str <- sprintf("%s", paste0(object@compartment, collapse=","))
+    if (vector) str <- sprintf("c(%s)", str)
+  }
+  return(str)
+}
+
 #'
 #' Create one or several bolus(es).
 #'
@@ -101,7 +111,7 @@ Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, add
 }
 
 setMethod("getName", signature = c("bolus"), definition = function(x) {
-  return(paste0("BOLUS [", "TIME=", x@time, ", ", "CMT=", paste0(x@compartment, collapse="/"), "]"))
+  return(sprintf("BOLUS [TIME=%s, CMT=%s]", as.character(x@time), getTreatmentEntryCmtString(x)))
 })
 
 #_______________________________________________________________________________
@@ -165,7 +175,7 @@ Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=
 }
 
 setMethod("getName", signature = c("infusion"), definition = function(x) {
-  return(paste0("INFUSION [", "TIME=", x@time, ", ", "CMT=", paste0(x@compartment, collapse="/"), "]"))
+  return(sprintf("INFUSION [TIME=%s, CMT=%s]", as.character(x@time), getTreatmentEntryCmtString(x)))
 })
 
 #_______________________________________________________________________________
