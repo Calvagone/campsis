@@ -185,3 +185,21 @@ setGeneric("setSubjects", function(object, x) {
   }
   standardGeneric("setSubjects")
 })
+
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' Unwrap treatment.
+#' 
+#' @param object any object
+#' @return updated object
+#' @export
+#' @rdname unwrapTreatment
+unwrapTreatment <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("unwrapTreatment", function(object) {
+  standardGeneric("unwrapTreatment")
+})

@@ -899,3 +899,13 @@ setMethod("show", signature=c("dataset"), definition=function(object) {
   }
   show(object@arms)
 })
+
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature=c("dataset"), definition = function(object) {
+  object@arms <- object@arms %>% unwrapTreatment()
+  return(object)
+})

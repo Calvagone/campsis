@@ -353,3 +353,12 @@ setMethod("show", signature=c("arm"), definition=function(object) {
   }
 })
 
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("arm"), definition = function(object) {
+  object@protocol@treatment <- object@protocol@treatment %>% unwrapTreatment()
+  return(object)
+})

@@ -119,3 +119,13 @@ setMethod("show", signature=c("arms"), definition=function(object) {
   }
 })
 
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("arms"), definition = function(object) {
+  object@list <- object@list %>% purrr::map(~.x %>% unwrapTreatment())
+  return(object)
+})
+

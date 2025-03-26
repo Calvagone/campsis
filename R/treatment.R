@@ -99,10 +99,11 @@ setMethod("replace", signature = c("treatment", "dose_adaptation"), definition =
 
 setMethod("sort", signature=c("treatment"), definition=function(x, decreasing=FALSE, ...) {
   types <- x@list %>% purrr::map_chr(~as.character(class(.x)))
-  times <- x@list %>% purrr::map_dbl(~.x@time)
+  times <- x@list %>% purrr::map_dbl(~.x@time[1]) # First element
   
   # Reorder
-  types <- factor(types, levels=c("bolus", "infusion"), labels=c("bolus", "infusion"))
+  classes <- c("bolus_wrapper", "infusion_wrapper", "bolus", "infusion")
+  types <- factor(types, levels=classes, labels=classes)
   order <- order(times, types)
   
   # Apply result to original list
@@ -111,7 +112,7 @@ setMethod("sort", signature=c("treatment"), definition=function(x, decreasing=FA
 })
 
 #_______________________________________________________________________________
-#----                       Assign dose number                              ----
+#----                         assignDoseNumber                              ----
 #_______________________________________________________________________________
 
 #' Assign dose number to each treatment entry.
@@ -174,7 +175,11 @@ getAdminString <- function(object, type) {
 }
 
 setMethod("show", signature=c("treatment"), definition=function(object) {
-  object <- object %>% sort()
+  
+  # Unwrap treatment and sort
+  object <- object %>%
+    unwrapTreatment() %>%
+    sort()
   
   adminTypes <- object@list %>% purrr::map_df(.f=function(x){
     return(tibble::tibble(type=class(x) %>% as.character(),
@@ -189,4 +194,16 @@ setMethod("show", signature=c("treatment"), definition=function(object) {
   show(object@iovs)
   show(object@occasions)
   show(object@dose_adaptations)
+})
+
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("treatment"), definition = function(object) {
+  object@list <- object@list %>%
+    purrr::map(~unwrapTreatment(.x)) %>%
+    unlist()
+  return(object)
 })

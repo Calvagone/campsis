@@ -89,7 +89,7 @@ Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, add
   if (wrap) {
     return(wrapper)
   } else {
-    return(splitTreatmentWrapper(wrapper))  
+    return(unwrapTreatment(wrapper))  
   }
 }
 
@@ -175,7 +175,7 @@ Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=
   if (wrap) {
     return(wrapper)
   } else {
-    return(splitTreatmentWrapper(wrapper))  
+    return(unwrapTreatment(wrapper))  
   }
 }
 
@@ -190,52 +190,6 @@ setMethod("getName", signature = c("infusion_wrapper"), definition = function(x)
 #_______________________________________________________________________________
 #----                             utilities                                 ----
 #_______________________________________________________________________________
-
-splitTreatmentWrapper <- function(object) {
-  time <- object@time
-  amount <- object@amount
-  compartment <- object@compartment
-  f <- object@f
-  lag <- object@lag
-  ii <- object@ii
-  addl <- object@addl
-  type <- as.character(class(object))
-  if (type=="bolus_wrapper") {
-    type_ <- "bolus"
-  } else if (type=="infusion_wrapper") {
-    type_ <- "infusion"
-  } else {
-    stop("Unknown treatment wrapper type")
-  }
-  
-  if (time %>% length() > 1) {
-    retValue <- time %>% 
-      purrr::map(~new(type_, time=.x, amount=amount, compartment=compartment, f=f, lag=lag))
-  } else {
-    if (is.na(addl)) {
-      retValue <- new(type_, time=time, amount=amount, compartment=compartment, f=f, lag=lag)
-    } else {
-      retValue <- (seq_len(addl + 1) - 1) %>%
-        purrr::map(~new(type_, time=time + ii*.x, amount=amount, compartment=compartment, f=f, lag=lag))
-    }
-  }
-  if (type_=="infusion") {
-    if (isS4(retValue)) {
-      # Infusion object
-      retValue@duration <- object@duration
-      retValue@rate <- object@rate
-    } else {
-      # List of infusion objects
-      retValue <- retValue %>%
-        purrr::map(.f=function(x) {
-          x@duration <- object@duration
-          x@rate <- object@rate
-          return(x)
-        })
-    }
-  }
-  return(retValue)
-}
 
 #'
 #' Check ii and addl arguments in addition to time.
@@ -351,3 +305,64 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   return(retValue)
 })
 
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+unwrapTreatmentDelegate <- function(object, type) {
+  time <- object@time
+  amount <- object@amount
+  compartment <- object@compartment
+  f <- object@f
+  lag <- object@lag
+  ii <- object@ii
+  addl <- object@addl
+
+  if (time %>% length() > 1) {
+    retValue <- time %>% 
+      purrr::map(~new(type, time=.x, amount=amount, compartment=compartment, f=f, lag=lag))
+  } else {
+    if (is.na(addl)) {
+      retValue <- new(type, time=time, amount=amount, compartment=compartment, f=f, lag=lag)
+    } else {
+      retValue <- (seq_len(addl + 1) - 1) %>%
+        purrr::map(~new(type, time=time + ii*.x, amount=amount, compartment=compartment, f=f, lag=lag))
+    }
+  }
+  if (type=="infusion") {
+    if (isS4(retValue)) {
+      # Infusion object
+      retValue@duration <- object@duration
+      retValue@rate <- object@rate
+    } else {
+      # List of infusion objects
+      retValue <- retValue %>%
+        purrr::map(.f=function(x) {
+          x@duration <- object@duration
+          x@rate <- object@rate
+          return(x)
+        })
+    }
+  }
+  return(retValue)
+}
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("bolus"), definition = function(object) {
+  return(object)
+})
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("infusion"), definition = function(object) {
+  return(object)
+})
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("bolus_wrapper"), definition = function(object) {
+  return(unwrapTreatmentDelegate(object, type="bolus"))
+})
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("infusion_wrapper"), definition = function(object) {
+  return(unwrapTreatmentDelegate(object, type="infusion"))
+})
