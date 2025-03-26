@@ -424,7 +424,12 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
     subjects <- arm@subjects
     protocol <- arm@protocol
     bootstrap <- arm@bootstrap
-    treatment <- protocol@treatment %>% assignDoseNumber()
+    
+    # Unwrap treatment and assign dose number
+    treatment <- protocol@treatment %>%
+      unwrapTreatment() %>%
+      assignDoseNumber()
+    
     if (treatment %>% length() > 0) {
       maxDoseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
     } else { 

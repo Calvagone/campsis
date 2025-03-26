@@ -12,7 +12,7 @@ Bolus(
   lag = NULL,
   ii = NULL,
   addl = NULL,
-  wrap = FALSE,
+  wrap = TRUE,
   ref = NULL
 )
 }
@@ -32,7 +32,7 @@ Bolus(
 \item{addl}{number of additional doses, requires argument 'time' to be a single integer value}
 
 \item{wrap}{if TRUE, the bolus wrapper will be stored as is in the dataset, otherwise,
-it will be split into a list of infusions distinct in time. Default is FALSE.}
+it will be split into a list of infusions distinct in time. Default is TRUE.}
 
 \item{ref}{wrapper reference, used to identify the wrapper in the dataset, single character value}
 }

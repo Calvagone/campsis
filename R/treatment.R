@@ -160,18 +160,18 @@ getAdminString <- function(object, type) {
   } else {
     str <- paste0(str, "CMT=", cmt, "): ")
   }
-  
-  amt <- -1
-  allTimes <- c()
-  for (admin in admins) {
-    if (admin@amount==amt) {
-      allTimes <- allTimes %>% append(admin@time)
-    } else {
-      allTimes <- allTimes %>% append(paste0(admin@time, " (", admin@amount, ")"))
-      amt <- admin@amount
-    }
-  }
-  return(paste0(str, paste0(allTimes, collapse=",")))
+  table <- admins %>%
+    purrr::map_dfr(~{
+      tibble::tibble(
+        TIME = .x@time,
+        AMT = .x@amount
+      )
+    }) %>%
+    dplyr::group_by(dplyr::across("TIME")) %>%
+    dplyr::summarise(AMT=sum(.data$AMT)) %>%
+    dplyr::mutate(AMT_STRING=ifelse(duplicated(.data$AMT), sprintf("%s", .data$TIME), sprintf("%s (%s)", .data$TIME, .data$AMT)))
+
+  return(paste0(str, paste0(table$AMT_STRING, collapse=",")))
 }
 
 setMethod("show", signature=c("treatment"), definition=function(object) {
@@ -202,8 +202,12 @@ setMethod("show", signature=c("treatment"), definition=function(object) {
 
 #' @rdname unwrapTreatment
 setMethod("unwrapTreatment", signature = c("treatment"), definition = function(object) {
-  object@list <- object@list %>%
-    purrr::map(~unwrapTreatment(.x)) %>%
-    unlist()
+  if (length(object@list)==0) {
+    # Do nothing
+  } else {
+    object@list <- object@list %>%
+      purrr::map(~unwrapTreatment(.x)) %>%
+      unlist() # Return NULL if input is empty list
+  }
   return(object)
 })

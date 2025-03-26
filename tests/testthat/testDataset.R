@@ -556,11 +556,6 @@ test_that("Boluses/Infusions can now be given at same time and into the same com
     add(Bolus(time=0, amount=100, compartment=1)) %>%
     add(Bolus(time=0, amount=100, compartment=1, ii=24, add=1))
   
-  # Amounts have been added
-  bolusTime0 <- dataset %>%
-    find(Bolus(time=0, amount=0, compartment=1))
-  expect_equal(bolusTime0@amount, 100 + 100)
-  
   # Check 200 is given at 0, 100 at time 24
   expect_true("-> Adm. times (bolus into CMT=1): 0 (200),24 (100)" %in% capture.output(show(dataset)))
   
@@ -569,29 +564,8 @@ test_that("Boluses/Infusions can now be given at same time and into the same com
     add(Infusion(time=0, amount=100, compartment=2)) %>%
     add(Infusion(time=0, amount=100, compartment=2, ii=24, add=1))
   
-  # Infusion amounts have been added
-  infusionTime0 <- dataset %>%
-    find(Infusion(time=0, amount=0, compartment=2))
-  expect_equal(infusionTime0@amount, 100 + 100)
-  
   # Check 200 is given at 0, 100 at time 24
   expect_true("-> Adm. times (infusion into CMT=2): 0 (200),24 (100)" %in% capture.output(show(dataset)))
-  
-  # Same code but rate is provided in second infusion
-  # Not accepted
-  expect_error(Dataset() %>%
-    add(Infusion(time=0, amount=100, compartment=2)) %>%
-    add(Infusion(time=0, amount=100, compartment=2, ii=24, add=1, duration=2)),
-    regexp="Element 'INFUSION \\[TIME=0, CMT=2\\]' already exists in dataset and has different properties\\. Amounts cannot be added\\.")
-  
-  # Similar test but with 2 arms
-  expect_error(Dataset() %>%
-    add(Arm(subjects=10)) %>%
-    add(Arm(subjects=10)) %>%
-    add(Infusion(time=0, amount=100, compartment=2)) %>%
-    add(Infusion(time=0, amount=100, compartment=2, ii=24, add=1, duration=2)),
-    regexp="Element 'INFUSION \\[TIME=0, CMT=2\\]' already exists in ARM 1 and has different properties\\. Amounts cannot be added\\.")
-  # Note that the same error would have been raised in ARM 2 if process was not interrupted.
 })
 
 test_that("Compartment argument both accepts a character vector with compartment names", {

@@ -76,11 +76,11 @@ setClass(
 #' @param ii interdose interval, requires argument 'time' to be a single numeric value
 #' @param addl number of additional doses, requires argument 'time' to be a single integer value
 #' @param wrap if TRUE, the bolus wrapper will be stored as is in the dataset, otherwise,
-#'  it will be split into a list of infusions distinct in time. Default is FALSE.
+#'  it will be split into a list of infusions distinct in time. Default is TRUE.
 #' @param ref wrapper reference, used to identify the wrapper in the dataset, single character value
 #' @return a single bolus or a list of boluses
 #' @export
-Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, addl=NULL, wrap=FALSE, ref=NULL) {
+Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL) {
   iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
   ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
   wrapper <- new("bolus_wrapper", time=time, amount=amount, compartment=as.character(compartment),
@@ -161,11 +161,11 @@ setClass(
 #' @param ii interdose interval, requires argument 'time' to be a single numeric value
 #' @param addl number of additional doses, requires argument 'time' to be a single integer value
 #' @param wrap if TRUE, the infusion wrapper will be stored as is in the dataset, otherwise,
-#'  it will be split into a list of infusions distinct in time. Default is FALSE.
+#'  it will be split into a list of infusions distinct in time. Default is TRUE.
 #' @param ref wrapper reference, used to identify the wrapper in the dataset, single character value
 #' @return a single infusion or a list of infusions.
 #' @export
-Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL, wrap=FALSE, ref=NULL) {
+Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL) {
   iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
   ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
   wrapper <- new("infusion_wrapper", time=time, amount=amount, compartment=as.character(compartment),
