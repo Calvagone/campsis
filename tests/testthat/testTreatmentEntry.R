@@ -92,4 +92,24 @@ test_that("assertions on 'ii' and 'addl' work well", {
   expect_error(Bolus(time=0, amount=100, ii=c(24,48), addl=2), regexp="ii must be a single numeric value")
 })
 
+test_that("Bolus or infusion wrapper", {
+  wrapper <- Infusion(time=0, amount=100, compartment="CENTRAL", ii=24, addl=2, wrap=T, ref="Admin1")
+  expect_equal(as.character(class(wrapper)), "infusion_wrapper")
+  expect_equal(wrapper %>% getName(), "INFUSION WRAPPER [REF=Admin1]")
+  expect_equal(wrapper@ii, 24)
+  expect_equal(wrapper@addl, 2)
+  
+  wrapper <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=2, wrap=T, ref="Admin1")
+  expect_equal(as.character(class(wrapper)), "bolus_wrapper")
+  expect_equal(wrapper %>% getName(), "BOLUS WRAPPER [REF=Admin1]")
+  expect_equal(wrapper@ii, 24)
+  expect_equal(wrapper@addl, 2)
+})
+
+
+
+
+
+
+
 

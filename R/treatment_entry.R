@@ -27,7 +27,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkBolus <- function(object) {
-  return(TRUE)
+  return(expectOneOrMore(object, "time"))
 }
 
 #' 
@@ -42,42 +42,28 @@ setClass(
   validity=checkBolus
 )
 
-#'
-#' Check ii and addl arguments in addition to time.
-#'
-#' @param time treatment time(s)
-#' @param ii interdose interval
-#' @param addl number of additional doses
-#' @return no return value
-#' @importFrom assertthat assert_that
-#' @keywords internal
-#'
-checkIIandADDL <- function(time, ii, addl) {
-  if (is.null(ii) && is.null(addl)) {
-    # Don't need to check anything
-  } else {
-    assertthat::assert_that(!is.null(ii), msg="ii can't be NULL if addl is specified")
-    assertthat::assert_that(!is.null(addl), msg="addl can't be NULL if ii is specified")
-    
-    assertthat::assert_that(is.numeric(ii) && length(ii)==1 && !is.na(ii), msg="ii must be a single numeric value")
-    assertthat::assert_that(ii > 0 , msg="ii must be higher than 0")
-    
-    assertthat::assert_that(is.numeric(addl) && length(addl)==1 && addl%%1==0 && !is.na(addl), msg="addl must be a single integer value")
-    assertthat::assert_that(addl >= 0 , msg="addl must be positive")
-    
-    assertthat::assert_that(length(time)==1, msg="time must be a single numeric value if used with ii and addl")
-  }
+#_______________________________________________________________________________
+#----                       bolus_wrapper class                             ----
+#_______________________________________________________________________________
+
+checkBolusWrapper <- function(object) {
+  return(c(expectOneForAll(object, c("ii", "addl", "ref"))))
 }
 
-getTreatmentEntryCmtString <- function(object, vector=FALSE) {
-  if (object@compartment %>% length() == 0) {
-    str <- "DEFAULT"
-  } else {
-    str <- sprintf("%s", paste0(object@compartment, collapse=","))
-    if (vector) str <- sprintf("c(%s)", str)
-  }
-  return(str)
-}
+#' 
+#' Bolus wrapper class.
+#' 
+#' @export
+setClass(
+  "bolus_wrapper",
+  representation(
+    ii = "numeric",
+    addl = "integer",
+    ref = "character"
+  ),
+  contains="bolus",
+  validity=checkBolusWrapper
+)
 
 #'
 #' Create one or several bolus(es).
@@ -89,24 +75,21 @@ getTreatmentEntryCmtString <- function(object, vector=FALSE) {
 #' @param lag dose lag time, distribution
 #' @param ii interdose interval, requires argument 'time' to be a single numeric value
 #' @param addl number of additional doses, requires argument 'time' to be a single integer value
+#' @param wrap if TRUE, the bolus wrapper will be stored as is in the dataset, otherwise,
+#'  it will be split into a list of infusions distinct in time. Default is FALSE.
+#' @param ref wrapper reference, used to identify the wrapper in the dataset, single character value
 #' @return a single bolus or a list of boluses
-#' @importFrom purrr map
 #' @export
-Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, addl=NULL) {
-  checkIIandADDL(time=time, ii=ii, addl=addl)
-  if (time %>% length() > 1) {
-    return(time %>% purrr::map(
-       .f=~new("bolus", time=.x, amount=amount, compartment=as.character(compartment),
-               f=toExplicitDistribution(f), lag=toExplicitDistribution(lag))))
+Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, addl=NULL, wrap=FALSE, ref=NULL) {
+  iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
+  ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
+  wrapper <- new("bolus_wrapper", time=time, amount=amount, compartment=as.character(compartment),
+                 f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
+                 ii=iiAddl$ii, addl=iiAddl$addl, ref=ref)
+  if (wrap) {
+    return(wrapper)
   } else {
-    if (is.null(addl)) {
-      return(new("bolus", time=time, amount=amount, compartment=as.character(compartment),
-                 f=toExplicitDistribution(f), lag=toExplicitDistribution(lag)))
-    } else {
-      return((seq_len(addl + 1) - 1) %>% purrr::map(
-        .f=~new("bolus", time=time + ii*.x, amount=amount, compartment=as.character(compartment),
-                f=toExplicitDistribution(f), lag=toExplicitDistribution(lag))))
-    }
+    return(splitTreatmentWrapper(wrapper))  
   }
 }
 
@@ -114,12 +97,16 @@ setMethod("getName", signature = c("bolus"), definition = function(x) {
   return(sprintf("BOLUS [TIME=%s, CMT=%s]", as.character(x@time), getTreatmentEntryCmtString(x)))
 })
 
+setMethod("getName", signature = c("bolus_wrapper"), definition = function(x) {
+  return(sprintf("BOLUS WRAPPER [REF=%s]", as.character(x@ref)))
+})
+
 #_______________________________________________________________________________
 #----                        infusion class                                 ----
 #_______________________________________________________________________________
 
 validateInfusion <- function(object) {
-  return(expectOneForAll(object, c("duration", "rate")))
+  return(c(expectOneOrMore(object, "time"), expectOneForAll(object, c("duration", "rate"))))
 }
 
 #' 
@@ -138,6 +125,29 @@ setClass(
   validity=validateInfusion
 )
 
+#_______________________________________________________________________________
+#----                       infusion_wrapper class                          ----
+#_______________________________________________________________________________
+
+checkInfusionWrapper <- function(object) {
+  return(c(expectOneForAll(object, c("ii", "addl", "ref"))))
+}
+
+#' 
+#' Infusion wrapper class.
+#' 
+#' @export
+setClass(
+  "infusion_wrapper",
+  representation(
+    ii = "numeric",
+    addl = "integer",
+    ref = "character"
+  ),
+  contains="infusion",
+  validity=checkInfusionWrapper
+)
+
 #'
 #' Create one or several infusion(s).
 #'
@@ -150,33 +160,121 @@ setClass(
 #' @param rate infusion rate, distribution
 #' @param ii interdose interval, requires argument 'time' to be a single numeric value
 #' @param addl number of additional doses, requires argument 'time' to be a single integer value
+#' @param wrap if TRUE, the infusion wrapper will be stored as is in the dataset, otherwise,
+#'  it will be split into a list of infusions distinct in time. Default is FALSE.
+#' @param ref wrapper reference, used to identify the wrapper in the dataset, single character value
 #' @return a single infusion or a list of infusions.
-#' @importFrom purrr map
 #' @export
-Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL) {
-  checkIIandADDL(time=time, ii=ii, addl=addl)
-  if (time %>% length() > 1) {
-    return(time %>% purrr::map(
-      .f=~new("infusion", time=.x, amount=amount, compartment=as.character(compartment),
-              f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
-              duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate))))
-  } else {
-    if (is.null(addl)) {
-      return(new("infusion", time=time, amount=amount, compartment=as.character(compartment),
+Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL, wrap=FALSE, ref=NULL) {
+  iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
+  ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
+  wrapper <- new("infusion_wrapper", time=time, amount=amount, compartment=as.character(compartment),
                  f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
-                 duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate)))
-    } else {
-      return((seq_len(addl + 1) - 1) %>% purrr::map(
-        .f=~new("infusion", time=time + ii*.x, amount=amount, compartment=as.character(compartment),
-                f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
-                duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate))))
-    }
+                 duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate),
+                 ii=iiAddl$ii, addl=iiAddl$addl, ref=ref)
+  if (wrap) {
+    return(wrapper)
+  } else {
+    return(splitTreatmentWrapper(wrapper))  
   }
 }
 
 setMethod("getName", signature = c("infusion"), definition = function(x) {
   return(sprintf("INFUSION [TIME=%s, CMT=%s]", as.character(x@time), getTreatmentEntryCmtString(x)))
 })
+
+setMethod("getName", signature = c("infusion_wrapper"), definition = function(x) {
+  return(sprintf("INFUSION WRAPPER [REF=%s]", as.character(x@ref)))
+})
+
+#_______________________________________________________________________________
+#----                             utilities                                 ----
+#_______________________________________________________________________________
+
+splitTreatmentWrapper <- function(object) {
+  time <- object@time
+  amount <- object@amount
+  compartment <- object@compartment
+  f <- object@f
+  lag <- object@lag
+  ii <- object@ii
+  addl <- object@addl
+  type <- as.character(class(object))
+  if (type=="bolus_wrapper") {
+    type_ <- "bolus"
+  } else if (type=="infusion_wrapper") {
+    type_ <- "infusion"
+  } else {
+    stop("Unknown treatment wrapper type")
+  }
+  
+  if (time %>% length() > 1) {
+    retValue <- time %>% 
+      purrr::map(~new(type_, time=.x, amount=amount, compartment=compartment, f=f, lag=lag))
+  } else {
+    if (is.na(addl)) {
+      retValue <- new(type_, time=time, amount=amount, compartment=compartment, f=f, lag=lag)
+    } else {
+      retValue <- (seq_len(addl + 1) - 1) %>%
+        purrr::map(~new(type_, time=time + ii*.x, amount=amount, compartment=compartment, f=f, lag=lag))
+    }
+  }
+  if (type_=="infusion") {
+    if (isS4(retValue)) {
+      # Infusion object
+      retValue@duration <- object@duration
+      retValue@rate <- object@rate
+    } else {
+      # List of infusion objects
+      retValue <- retValue %>%
+        purrr::map(.f=function(x) {
+          x@duration <- object@duration
+          x@rate <- object@rate
+          return(x)
+        })
+    }
+  }
+  return(retValue)
+}
+
+#'
+#' Check ii and addl arguments in addition to time.
+#'
+#' @param time treatment time(s)
+#' @param ii interdose interval
+#' @param addl number of additional doses
+#' @return no return value
+#' @importFrom assertthat assert_that
+#' @keywords internal
+#'
+checkIIandADDL <- function(time, ii, addl) {
+  if (is.null(ii) && is.null(addl)) {
+    # Don't need to check anything
+    return(list(ii=as.numeric(NA), addl=as.integer(NA)))
+  } else {
+    assertthat::assert_that(!is.null(ii), msg="ii can't be NULL if addl is specified")
+    assertthat::assert_that(!is.null(addl), msg="addl can't be NULL if ii is specified")
+    
+    assertthat::assert_that(is.numeric(ii) && length(ii)==1 && !is.na(ii), msg="ii must be a single numeric value")
+    assertthat::assert_that(ii > 0 , msg="ii must be higher than 0")
+    
+    assertthat::assert_that(is.numeric(addl) && length(addl)==1 && addl%%1==0 && !is.na(addl), msg="addl must be a single integer value")
+    assertthat::assert_that(addl >= 0 , msg="addl must be positive")
+    
+    assertthat::assert_that(length(time)==1, msg="time must be a single numeric value if used with ii and addl")
+    return(list(ii=as.numeric(ii), addl=as.integer(addl)))
+  }
+}
+
+getTreatmentEntryCmtString <- function(object, vector=FALSE) {
+  if (object@compartment %>% length() == 0) {
+    str <- "DEFAULT"
+  } else {
+    str <- sprintf("%s", paste0(object@compartment, collapse=","))
+    if (vector) str <- sprintf("c(%s)", str)
+  }
+  return(str)
+}
 
 #_______________________________________________________________________________
 #----                             sample                                    ----

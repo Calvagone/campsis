@@ -11,7 +11,9 @@ Bolus(
   f = NULL,
   lag = NULL,
   ii = NULL,
-  addl = NULL
+  addl = NULL,
+  wrap = FALSE,
+  ref = NULL
 )
 }
 \arguments{
@@ -28,6 +30,11 @@ Bolus(
 \item{ii}{interdose interval, requires argument 'time' to be a single numeric value}
 
 \item{addl}{number of additional doses, requires argument 'time' to be a single integer value}
+
+\item{wrap}{if TRUE, the bolus wrapper will be stored as is in the dataset, otherwise,
+it will be split into a list of infusions distinct in time. Default is FALSE.}
+
+\item{ref}{wrapper reference, used to identify the wrapper in the dataset, single character value}
 }
 \value{
 a single bolus or a list of boluses
