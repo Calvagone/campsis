@@ -109,7 +109,7 @@ setMethod("getName", signature = c("bolus_wrapper"), definition = function(x) {
 
 validateInfusion <- function(object) {
   return(c(expectOneOrMore(object, "time"),
-           expectZeroOrMore(object, c("duration", "rate"))))
+           expectOneOrMore(object, c("duration", "rate"))))
 }
 
 #' 
@@ -346,37 +346,26 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
 
 unwrapTreatmentDelegate <- function(object, type) {
   time <- object@time
-  amount <- object@amount
-  compartment <- object@compartment
-  f <- object@f
-  lag <- object@lag
   ii <- object@ii
   addl <- object@addl
-
+  
+  args <- list(amount=object@amount, compartment=object@compartment,
+               f=object@f, lag=object@lag)
+  if (type=="infusion") {
+    args$duration <- object@duration
+    args$rate <- object@rate
+  }
+  
   if (time %>% length() > 1) {
     retValue <- time %>% 
-      purrr::map(~new(type, time=.x, amount=amount, compartment=compartment, f=f, lag=lag))
+      purrr::map(~do.call("new", c(type, list(time=.x), args)))
   } else {
     if (is.na(addl)) {
-      retValue <- new(type, time=time, amount=amount, compartment=compartment, f=f, lag=lag)
+      retValue <- do.call("new", c(type, list(time=time), args))
     } else {
+      
       retValue <- (seq_len(addl + 1) - 1) %>%
-        purrr::map(~new(type, time=time + ii*.x, amount=amount, compartment=compartment, f=f, lag=lag))
-    }
-  }
-  if (type=="infusion") {
-    if (isS4(retValue)) {
-      # Infusion object
-      retValue@duration <- object@duration
-      retValue@rate <- object@rate
-    } else {
-      # List of infusion objects
-      retValue <- retValue %>%
-        purrr::map(.f=function(x) {
-          x@duration <- object@duration
-          x@rate <- object@rate
-          return(x)
-        })
+        purrr::map(~do.call("new", c(type, list(time=time + ii*.x), args)))
     }
   }
   return(retValue)

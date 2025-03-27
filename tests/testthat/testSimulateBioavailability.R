@@ -69,7 +69,7 @@ test_that(getTestName("Simulate several fixed F's at once"), {
 
   # Bioavailability implemented in dataset
   dataset <- Dataset(4) %>%
-    add(Bolus(time=0, amount=1000, compartment=1, f=c(0.3, 0.6, 0.9, 1))) %>%
+    add(Bolus(time=0, amount=1000, compartment=1, f=list(c(0.3, 0.6, 0.9, 1)))) %>%
     add(Observations(times=seq(0,24, by=0.5)))
   
   simulation <- expression(model %>% disable("IIV") %>% simulate(dataset, dest=destEngine, seed=seed))
