@@ -203,3 +203,26 @@ unwrapTreatment <- function(object) {
 setGeneric("unwrapTreatment", function(object) {
   standardGeneric("unwrapTreatment")
 })
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+#' Update amount.
+#' 
+#' @param object generic object
+#' @param amount new amount
+#' @param ref reference treatment name
+#' @return updated object
+#' @export
+#' @rdname updateAmount
+updateAmount <- function(object, amount, ref) {
+  stop("No default function is provided")
+}
+
+setGeneric("updateAmount", function(object, amount, ref) {
+  if (is.null(ref)) {
+    ref <- as.character(NA)
+  }
+  standardGeneric("updateAmount")
+})

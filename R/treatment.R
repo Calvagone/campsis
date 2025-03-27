@@ -211,3 +211,13 @@ setMethod("unwrapTreatment", signature = c("treatment"), definition = function(o
   }
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("treatment", "numeric", "character"), definition = function(object, amount, ref) {
+  object@list <- object@list %>% purrr::map(~updateAmount(.x, amount, ref))
+  return(object)
+})

@@ -23,9 +23,9 @@ Bolus(
 
 \item{compartment}{compartment index or name to give the bolus(es). A vector of integers or names can be used for a complex model administration.}
 
-\item{f}{fraction of dose amount, distribution}
+\item{f}{fraction of dose amount, list of distributions (one per compartment)}
 
-\item{lag}{dose lag time, distribution}
+\item{lag}{dose lag time, list of distributions (one per compartment)}
 
 \item{ii}{interdose interval, requires argument 'time' to be a single numeric value}
 
@@ -34,7 +34,7 @@ Bolus(
 \item{wrap}{if TRUE, the bolus wrapper will be stored as is in the dataset, otherwise,
 it will be split into a list of infusions distinct in time. Default is TRUE.}
 
-\item{ref}{wrapper reference, used to identify the wrapper in the dataset, single character value}
+\item{ref}{any reference name used to identify this bolus, single character value}
 }
 \value{
 a single bolus or a list of boluses

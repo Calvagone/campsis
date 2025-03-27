@@ -914,3 +914,13 @@ setMethod("unwrapTreatment", signature=c("dataset"), definition = function(objec
   object@arms <- object@arms %>% unwrapTreatment()
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("dataset", "numeric", "character"), definition = function(object, amount, ref) {
+  object@arms <- object@arms %>% updateAmount(amount, ref)
+  return(object)
+})

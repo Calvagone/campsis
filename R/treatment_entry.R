@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkTreatmentEntry <- function(object) {
-  return(c(expectOneForAll(object, c("amount", "dose_number")),
+  return(c(expectOneForAll(object, c("amount", "dose_number", "ref")),
            expectOneOrMore(object, c("f", "lag")),
            expectZeroOrMore(object, "compartment")))
 }
@@ -14,9 +14,10 @@ setClass(
   representation(
     amount = "numeric",
     compartment = "character",
-    f = "list",   # Distribution list
-    lag = "list", # Distribution list
-    dose_number = "integer" # Transient
+    f = "list",               # Distribution list
+    lag = "list",             # Distribution list
+    dose_number = "integer",  # Transient
+    ref = "character"         # Reference name
   ),
   contains = "time_entry",
   prototype=prototype(compartment=as.character(NA), dose_number=as.integer(NA)),
@@ -48,7 +49,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkBolusWrapper <- function(object) {
-  return(c(expectOneForAll(object, c("ii", "addl", "ref"))))
+  return(c(expectOneForAll(object, c("ii", "addl"))))
 }
 
 #' 
@@ -59,8 +60,7 @@ setClass(
   "bolus_wrapper",
   representation(
     ii = "numeric",
-    addl = "integer",
-    ref = "character"
+    addl = "integer"
   ),
   contains="bolus",
   validity=checkBolusWrapper
@@ -72,13 +72,13 @@ setClass(
 #' @param time treatment time(s), numeric value or vector. First treatment time if used together with ii and addl.
 #' @param amount amount to give as bolus, single numeric value
 #' @param compartment compartment index or name to give the bolus(es). A vector of integers or names can be used for a complex model administration.
-#' @param f fraction of dose amount, distribution
-#' @param lag dose lag time, distribution
+#' @param f fraction of dose amount, list of distributions (one per compartment)
+#' @param lag dose lag time, list of distributions (one per compartment)
 #' @param ii interdose interval, requires argument 'time' to be a single numeric value
 #' @param addl number of additional doses, requires argument 'time' to be a single integer value
 #' @param wrap if TRUE, the bolus wrapper will be stored as is in the dataset, otherwise,
 #'  it will be split into a list of infusions distinct in time. Default is TRUE.
-#' @param ref wrapper reference, used to identify the wrapper in the dataset, single character value
+#' @param ref any reference name used to identify this bolus, single character value
 #' @return a single bolus or a list of boluses
 #' @export
 Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL) {
@@ -133,7 +133,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkInfusionWrapper <- function(object) {
-  return(c(expectOneForAll(object, c("ii", "addl", "ref"))))
+  return(c(expectOneForAll(object, c("ii", "addl"))))
 }
 
 #' 
@@ -144,8 +144,7 @@ setClass(
   "infusion_wrapper",
   representation(
     ii = "numeric",
-    addl = "integer",
-    ref = "character"
+    addl = "integer"
   ),
   contains="infusion",
   validity=checkInfusionWrapper
@@ -155,17 +154,17 @@ setClass(
 #' Create one or several infusion(s).
 #'
 #' @param time treatment time(s), numeric value or vector. First treatment time if used together with ii and addl.
-#' @param amount total amount to infuse, numeric
+#' @param amount amount to infuse, single numeric value
 #' @param compartment compartment index or name to give the infusion(s). A vector of integers or names can be used for a complex model administration.
-#' @param f fraction of infusion amount, distribution
-#' @param lag infusion lag time, distribution
-#' @param duration infusion duration, distribution
-#' @param rate infusion rate, distribution
+#' @param f fraction of infusion amount, list of distributions (one per compartment)
+#' @param lag infusion lag time, , list of distributions (one per compartment)
+#' @param duration infusion duration, list of distributions (one per compartment)
+#' @param rate infusion rate, list of distributions (one per compartment)
 #' @param ii interdose interval, requires argument 'time' to be a single numeric value
 #' @param addl number of additional doses, requires argument 'time' to be a single integer value
 #' @param wrap if TRUE, the infusion wrapper will be stored as is in the dataset, otherwise,
 #'  it will be split into a list of infusions distinct in time. Default is TRUE.
-#' @param ref wrapper reference, used to identify the wrapper in the dataset, single character value
+#' @param ref any reference name used to identify this infusion, single character value
 #' @return a single infusion or a list of infusions.
 #' @export
 Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL) {
@@ -284,8 +283,8 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
 
   retValue <- tibble::tibble(
     ID=rep(as.integer(ids), each=length(depotCmt)), ARM=as.integer(armID), TIME=object@time+lag, 
-    EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=rep(depotCmt, length(ids)), RATE=as.numeric(0), DOSENO=object@dose_number,
-    INFUSION_TYPE=as.integer(0), EVENT_RELATED=as.integer(FALSE)
+    EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=rep(depotCmt, length(ids)), RATE=as.numeric(0),
+    DOSENO=object@dose_number, INFUSION_TYPE=as.integer(0), EVENT_RELATED=as.integer(FALSE)
   )
   if (needsDV) {
     retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="INFUSION_TYPE")
@@ -350,7 +349,7 @@ unwrapTreatmentDelegate <- function(object, type) {
   addl <- object@addl
   
   args <- list(amount=object@amount, compartment=object@compartment,
-               f=object@f, lag=object@lag)
+               f=object@f, lag=object@lag, ref=object@ref)
   if (type=="infusion") {
     args$duration <- object@duration
     args$rate <- object@rate
@@ -389,4 +388,35 @@ setMethod("unwrapTreatment", signature = c("bolus_wrapper"), definition = functi
 #' @rdname unwrapTreatment
 setMethod("unwrapTreatment", signature = c("infusion_wrapper"), definition = function(object) {
   return(unwrapTreatmentDelegate(object, type="infusion"))
+})
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+updateAmountDelegate <- function(object, amount, ref) {
+  if (is.na(ref) || ref==object@ref) {
+    object@amount <- amount
+  }
+  return(object)
+}
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("bolus", "numeric", "character"), definition = function(object, amount, ref) {
+  return(updateAmountDelegate(object, amount, ref))
+})
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("infusion", "numeric", "character"), definition = function(object, amount, ref) {
+  return(updateAmountDelegate(object, amount, ref))
+})
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("bolus_wrapper", "numeric", "character"), definition = function(object, amount, ref) {
+  return(updateAmountDelegate(object, amount, ref))
+})
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("infusion_wrapper", "numeric", "character"), definition = function(object, amount, ref) {
+  return(updateAmountDelegate(object, amount, ref))
 })

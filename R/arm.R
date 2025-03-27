@@ -345,3 +345,14 @@ setMethod("unwrapTreatment", signature = c("arm"), definition = function(object)
   object@protocol@treatment <- object@protocol@treatment %>% unwrapTreatment()
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("arm", "numeric", "character"), definition = function(object, amount, ref) {
+  object@protocol@treatment <- object@protocol@treatment %>% updateAmount(amount, ref)
+  return(object)
+})
+

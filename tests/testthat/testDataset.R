@@ -624,6 +624,27 @@ test_that("Compartment properties can be vectorised", {
   # Also check the seed does not matter since the distributions are pre-sampled
   datasetRegressionTest(dataset=dataset, seed=2, doseOnly=TRUE,
                         filename=regFilename)
+})
+
+test_that("Method 'updateAmount' works as expected", {
   
+  infusion <- Infusion(time=0, amount=100, compartment=c("CENTRAL1", "CENTRAL2"), ii=24, addl=2, duration=1, ref="Admin1")
+  bolus <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=2, f=c(0.7, 0.3), ref="Admin1")
   
+  dataset <- Dataset(5) %>%
+    add(bolus) %>%
+    add(infusion)
+  
+  # Check method update amount is not doing anything if the reference is wrong
+  datasetA <- dataset %>%
+    updateAmount(amount=200, ref="Wrong ref")
+  
+  expect_equal(datasetA, dataset)
+  
+  # Check method update amount works
+  datasetB <- dataset %>%
+    updateAmount(amount=200, ref="Admin1")
+  
+  expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[1]]@amount, 200)
+  expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[2]]@amount, 200)
 })
