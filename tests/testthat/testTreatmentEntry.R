@@ -27,7 +27,7 @@ test_that("Infusion time is negative", {
 
 
 test_that("Is treatment entry test", {
-  expect_true(is(new("bolus", time=0, amount=100), "treatment_entry"))
+  expect_true(is(Bolus(time=0, amount=100), "treatment_entry"))
 })
 
 test_that("sample method for bolus is working well", {

@@ -242,7 +242,11 @@ sampleTrtDistribution <- function(distribution, n, default) {
   if (is(distribution, "undefined_distribution")) {
     return(rep(default, n)) # Single value returned
   } else {
-    return((distribution %>% sample(n))@sampled_values)
+    if (length(distribution@sampled_values)==0) {
+      return((distribution %>% sample(n))@sampled_values)
+    } else{
+      return(distribution@sampled_values)
+    }
   }
 }
 
@@ -310,8 +314,13 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   rate <- sampleTrtDistributions(distributions=object@rate, n=n, default=as.numeric(NA), compartmentNo=compartmentNo)
   duration <- sampleTrtDistributions(distributions=object@duration, n=n, default=as.numeric(NA), compartmentNo=compartmentNo)
   
+  # Default infusion type:
+  # -1: rate via dataset
+  # -2: duration via dataset
+  #  0: rate/duration specified by -1 or -2 in RATE (see method applyCompartmentCharacteristics)
   infusionType <- ifelse(!is.na(duration), -2, NA)
   infusionType <- ifelse(!is.na(rate), -1, infusionType)
+  infusionType <- ifelse(is.na(infusionType), 0, infusionType)
 
   retValue <- tibble::tibble(
     ID=rep(as.integer(ids), each=length(depotCmt)), ARM=as.integer(armID), TIME=object@time+lag, 
@@ -322,7 +331,6 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   # Duration or rate
   retValue <- retValue %>%
     dplyr::mutate(RATE=ifelse(.data$INFUSION_TYPE==-2, .data$AMT/.data$DURATION, .data$RATE)) %>%
-    dplyr::mutate(INFUSION_TYPE=ifelse(is.na(.data$INFUSION_TYPE), -2, .data$INFUSION_TYPE)) %>% # When unspecified, type is -2 by default
     dplyr::select(-"DURATION")
 
   if (needsDV) {

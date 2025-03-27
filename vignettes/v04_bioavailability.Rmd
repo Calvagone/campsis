@@ -88,15 +88,15 @@ set.seed(1)
 ```
 
 ```{r}
-distribution <- ParameterDistribution(model=model, theta="F1", omega="F1")
-f1Values <- (distribution %>% sample(as.integer(50)))@sampled_values
+distribution <- ParameterDistribution(model=model, theta="F1", omega="F1") %>%
+  sample(50L)
 ```
 
-Then, we can inject these values into the dataset.
+We can then pass the pre-sampled distribution.
 
 ```{r}
 ds2 <- Dataset(50) %>%
-  add(Bolus(time=0, amount=1000, f=f1Values)) %>%
+  add(Bolus(time=0, amount=1000, f=distribution)) %>%
   add(Observations(times=seq(0,24,by=0.5)))
 ```
 
