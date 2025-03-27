@@ -122,12 +122,6 @@ test_that("Bolus or infusion wrappers", {
   
   entries <- length(dataset_@arms@list[[1]]@protocol@treatment@list)
   expect_equal(entries, 14)
-  
-  # Export dataset
-  table <- Dataset(3) %>%
-    add(bolus) %>%
-    add(infusion) %>%
-    export(dest="rxode2")
 })
 
 

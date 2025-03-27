@@ -315,12 +315,13 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   duration <- sampleTrtDistributions(distributions=object@duration, n=n, default=as.numeric(NA), compartmentNo=compartmentNo)
   
   # Default infusion type:
-  # -1: rate via dataset
-  # -2: duration via dataset
-  #  0: rate/duration specified by -1 or -2 in RATE (see method applyCompartmentCharacteristics)
+  #   0: bolus (see above)
+  #  -1: rate via dataset
+  #  -2: duration via dataset
+  # -99: rate/duration specified by -1 or -2 in RATE (see method applyCompartmentCharacteristics)
   infusionType <- ifelse(!is.na(duration), -2, NA)
   infusionType <- ifelse(!is.na(rate), -1, infusionType)
-  infusionType <- ifelse(is.na(infusionType), 0, infusionType)
+  infusionType <- ifelse(is.na(infusionType), -99, infusionType)
 
   retValue <- tibble::tibble(
     ID=rep(as.integer(ids), each=length(depotCmt)), ARM=as.integer(armID), TIME=object@time+lag, 

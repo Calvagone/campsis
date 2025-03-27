@@ -333,7 +333,7 @@ applyCompartmentCharacteristics <- function(table, properties) {
       }
       rateValue <- ifelse(isRate, -1, -2)
       table <- table %>% dplyr::mutate(
-        RATE=ifelse(.data$EVID==1 & .data$CMT==compartment & .data$INFUSION_TYPE==0,
+        RATE=ifelse(.data$EVID==1 & .data$CMT==compartment & .data$INFUSION_TYPE==-99,
                     rateValue, .data$RATE))
     }
   }
