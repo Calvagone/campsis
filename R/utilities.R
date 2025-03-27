@@ -38,6 +38,30 @@ toExplicitDistribution <- function(distribution) {
   }
 }
 
+toExplicitDistributionList <- function(distribution, cmtNo) {
+  if (is.null(distribution)) {
+    retValue <- list(new("undefined_distribution"))
+  }
+  if (is.numeric(distribution)) {
+    # E.g. f=c(0.5, 1)
+    retValue <- distribution %>% purrr::map(toExplicitDistribution)
+    
+  } else if (is.list(distribution)) {
+    # E.g. f=list(0.5, 1)
+    retValue <- distribution %>% purrr::map(toExplicitDistribution)
+  } else {
+    retValue <- list(toExplicitDistribution(distribution))
+  }
+  size <- length(retValue)
+  if (size==cmtNo) {
+    return(retValue)
+  } else if (size==1 && cmtNo > 1) {
+    return(rep(retValue, cmtNo))
+  } else {
+    stop("Invalid distribution")
+  }
+}
+
 envVarIsTrue <- function(x) {
   return(isTRUE(as.logical(Sys.getenv(x, "false"))))
 }

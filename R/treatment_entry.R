@@ -4,7 +4,8 @@
 #_______________________________________________________________________________
 
 checkTreatmentEntry <- function(object) {
-  return(c(expectOneForAll(object, c("amount", "dose_number", "f", "lag")),
+  return(c(expectOneForAll(object, c("amount", "dose_number")),
+           expectOneOrMore(object, c("f", "lag")),
            expectZeroOrMore(object, "compartment")))
 }
 
@@ -13,8 +14,8 @@ setClass(
   representation(
     amount = "numeric",
     compartment = "character",
-    f = "distribution",
-    lag = "distribution",
+    f = "list",   # Distribution list
+    lag = "list", # Distribution list
     dose_number = "integer" # Transient
   ),
   contains = "time_entry",
@@ -82,9 +83,10 @@ setClass(
 #' @export
 Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL) {
   iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
+  cmtNo <- ifelse(length(compartment)==0, 1, length(compartment))
   ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
   wrapper <- new("bolus_wrapper", time=time, amount=amount, compartment=as.character(compartment),
-                 f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
+                 f=toExplicitDistributionList(f, cmtNo=cmtNo), lag=toExplicitDistributionList(lag, cmtNo=cmtNo),
                  ii=iiAddl$ii, addl=iiAddl$addl, ref=ref)
   if (wrap) {
     return(wrapper)
@@ -106,20 +108,21 @@ setMethod("getName", signature = c("bolus_wrapper"), definition = function(x) {
 #_______________________________________________________________________________
 
 validateInfusion <- function(object) {
-  return(c(expectOneOrMore(object, "time"), expectOneForAll(object, c("duration", "rate"))))
+  return(c(expectOneOrMore(object, "time"),
+           expectZeroOrMore(object, c("duration", "rate"))))
 }
 
 #' 
 #' Infusion class.
 #' 
-#' @slot duration infusion duration, distribution
-#' @slot rate infusion rate, distribution
+#' @slot duration infusion duration, distribution list
+#' @slot rate infusion rate, distribution list
 #' @export
 setClass(
   "infusion",
   representation(
-    duration = "distribution",
-    rate = "distribution"
+    duration = "list", # Distribution list
+    rate = "list" # Distribution list
   ),
   contains = "treatment_entry",
   validity=validateInfusion
@@ -167,10 +170,11 @@ setClass(
 #' @export
 Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL) {
   iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
+  cmtNo <- ifelse(length(compartment)==0, 1, length(compartment))
   ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
   wrapper <- new("infusion_wrapper", time=time, amount=amount, compartment=as.character(compartment),
-                 f=toExplicitDistribution(f), lag=toExplicitDistribution(lag),
-                 duration=toExplicitDistribution(duration), rate=toExplicitDistribution(rate),
+                 f=toExplicitDistributionList(f, cmtNo=cmtNo), lag=toExplicitDistributionList(lag, cmtNo=cmtNo),
+                 duration=toExplicitDistributionList(duration, cmtNo=cmtNo), rate=toExplicitDistributionList(rate, cmtNo=cmtNo),
                  ii=iiAddl$ii, addl=iiAddl$addl, ref=ref)
   if (wrap) {
     return(wrapper)
@@ -236,10 +240,24 @@ getTreatmentEntryCmtString <- function(object, vector=FALSE) {
 
 sampleTrtDistribution <- function(distribution, n, default) {
   if (is(distribution, "undefined_distribution")) {
-    return(default) # Single value returned
+    return(rep(default, n)) # Single value returned
   } else {
     return((distribution %>% sample(n))@sampled_values)
   }
+}
+
+sampleTrtDistributions <- function(distributions, n, default, compartmentNo) {
+  if (length(distributions)==1) {
+    tmp <- seq_len(compartmentNo) %>%
+      purrr::map(~sampleTrtDistribution(distribution=distributions[[1]], n=n, default=default))
+  } else if (length(distributions)==compartmentNo) {
+    tmp <- distributions %>%
+      purrr::map(~sampleTrtDistribution(distribution=.x, n=n, default=default))
+  } else {
+    stop("Number of distributions must be 1 or equal to the number of compartments")
+  }
+  # This will interlace the list of vectors and return a unique numeric vector
+  return(c(do.call(rbind, tmp)))
 }
 
 #' @rdname sample
@@ -249,18 +267,20 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
   armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
   needsDV <- processExtraArg(args, name="needsDV", mandatory=TRUE, default=FALSE)
-  f <- sampleTrtDistribution(object@f, n, default=1)
-  lag <- sampleTrtDistribution(object@lag, n, default=0)
   
   if (length(object@compartment)==0) {
     depotCmt <- as.character(config@def_depot_cmt)
   } else {
     depotCmt <- object@compartment
   }
+  compartmentNo <- length(depotCmt)
   
+  f <- sampleTrtDistributions(distributions=object@f, n=n, default=1, compartmentNo=compartmentNo)
+  lag <- sampleTrtDistributions(distributions=object@lag, n=n, default=0, compartmentNo=compartmentNo)
+
   retValue <- tibble::tibble(
     ID=rep(as.integer(ids), each=length(depotCmt)), ARM=as.integer(armID), TIME=object@time+lag, 
-    EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(0), DOSENO=object@dose_number,
+    EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=rep(depotCmt, length(ids)), RATE=as.numeric(0), DOSENO=object@dose_number,
     INFUSION_TYPE=as.integer(0), EVENT_RELATED=as.integer(FALSE)
   )
   if (needsDV) {
@@ -276,29 +296,35 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
   armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
   needsDV <- processExtraArg(args, name="needsDV", mandatory=TRUE, default=FALSE)
-  f <- sampleTrtDistribution(object@f, n, default=1)
-  lag <- sampleTrtDistribution(object@lag, n, default=0)
-  
-  
+
   if (length(object@compartment)==0) {
     depotCmt <- as.character(config@def_depot_cmt)
   } else {
     depotCmt <- object@compartment
   }
+  
+  compartmentNo <- length(depotCmt)
+  
+  f <- sampleTrtDistributions(distributions=object@f, n=n, default=1, compartmentNo=compartmentNo)
+  lag <- sampleTrtDistributions(distributions=object@lag, n=n, default=0, compartmentNo=compartmentNo)
+  rate <- sampleTrtDistributions(distributions=object@rate, n=n, default=as.numeric(NA), compartmentNo=compartmentNo)
+  duration <- sampleTrtDistributions(distributions=object@duration, n=n, default=as.numeric(NA), compartmentNo=compartmentNo)
+  
+  infusionType <- ifelse(!is.na(duration), -2, NA)
+  infusionType <- ifelse(!is.na(rate), -1, infusionType)
+
   retValue <- tibble::tibble(
     ID=rep(as.integer(ids), each=length(depotCmt)), ARM=as.integer(armID), TIME=object@time+lag, 
-    EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=depotCmt, RATE=as.numeric(NA), DOSENO=object@dose_number,
-    INFUSION_TYPE=as.integer(-2), EVENT_RELATED=as.integer(FALSE)
+    EVID=as.integer(1), MDV=as.integer(1), AMT=object@amount*f, CMT=rep(depotCmt, length(ids)), RATE=rate, DURATION=duration,
+    DOSENO=object@dose_number, INFUSION_TYPE=as.integer(infusionType), EVENT_RELATED=as.integer(FALSE)
   )
   
   # Duration or rate
-  if (!is(object@duration, "undefined_distribution")) {
-    duration <- sampleTrtDistribution(object@duration, n, default=0)
-    retValue <- retValue %>% dplyr::mutate(RATE=.data$AMT/duration, INFUSION_TYPE=as.integer(-2))
-  } else if (!is(object@rate, "undefined_distribution")) {
-    rate <- sampleTrtDistribution(object@rate, n, default=0)
-    retValue <- retValue %>% dplyr::mutate(RATE=rate, INFUSION_TYPE=as.integer(-1))
-  }
+  retValue <- retValue %>%
+    dplyr::mutate(RATE=ifelse(.data$INFUSION_TYPE==-2, .data$AMT/.data$DURATION, .data$RATE)) %>%
+    dplyr::mutate(INFUSION_TYPE=ifelse(is.na(.data$INFUSION_TYPE), -2, .data$INFUSION_TYPE)) %>% # When unspecified, type is -2 by default
+    dplyr::select(-"DURATION")
+
   if (needsDV) {
     retValue <- retValue %>% tibble::add_column(DV=as.numeric(0), .before="INFUSION_TYPE")
   }

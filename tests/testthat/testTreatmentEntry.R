@@ -92,20 +92,22 @@ test_that("assertions on 'ii' and 'addl' work well", {
   expect_error(Bolus(time=0, amount=100, ii=c(24,48), addl=2), regexp="ii must be a single numeric value")
 })
 
-test_that("Bolus or infusion wrapper", {
-  infusion <- Infusion(time=0, amount=100, compartment="CENTRAL", ii=24, addl=6, ref="Admin1")
+test_that("Bolus or infusion wrappers", {
+  infusion <- Infusion(time=0, amount=100, compartment="CENTRAL", ii=24, addl=6, duration=2, ref="Admin1")
   expect_equal(as.character(class(infusion)), "infusion_wrapper")
   expect_equal(infusion %>% getName(), "INFUSION WRAPPER [REF=Admin1]")
   expect_equal(infusion@ii, 24)
   expect_equal(infusion@addl, 6)
+  expect_equal(length(infusion@duration), 1)
   
-  bolus <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=6, ref="Admin1")
+  bolus <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=6, f=c(0.7, 0.3), ref="Admin1")
   expect_equal(as.character(class(bolus)), "bolus_wrapper")
   expect_equal(bolus %>% getName(), "BOLUS WRAPPER [REF=Admin1]")
   expect_equal(bolus@ii, 24)
   expect_equal(bolus@addl, 6)
+  expect_equal(length(bolus@f), 2)
   
-  dataset <- Dataset() %>%
+  dataset <- Dataset(3) %>%
     add(bolus) %>%
     add(infusion)
   
@@ -113,11 +115,19 @@ test_that("Bolus or infusion wrapper", {
   expect_equal(entries, 2)
   
   # After unwrap
-  dataset <- dataset %>%
+  dataset_ <- dataset %>%
     unwrapTreatment()
   
-  entries <- length(dataset@arms@list[[1]]@protocol@treatment@list)
+  # updateAmount, updateDosingInterval, updateAddl
+  
+  entries <- length(dataset_@arms@list[[1]]@protocol@treatment@list)
   expect_equal(entries, 14)
+  
+  # Export dataset
+  table <- Dataset(3) %>%
+    add(bolus) %>%
+    add(infusion) %>%
+    export(dest="rxode2")
 })
 
 
