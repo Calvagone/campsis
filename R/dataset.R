@@ -924,3 +924,13 @@ setMethod("updateAmount", signature = c("dataset", "numeric", "character"), defi
   object@arms <- object@arms %>% updateAmount(amount, ref)
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                         updateDoseInterval                            ----
+#_______________________________________________________________________________
+
+#' @rdname updateDoseInterval
+setMethod("updateDoseInterval", signature = c("dataset", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
+  object@arms <- object@arms %>% updateDoseInterval(ii, addl, ref)
+  return(object)
+})

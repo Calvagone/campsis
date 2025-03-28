@@ -226,3 +226,34 @@ setGeneric("updateAmount", function(object, amount, ref) {
   }
   standardGeneric("updateAmount")
 })
+
+#_______________________________________________________________________________
+#----                         updateDoseInterval                            ----
+#_______________________________________________________________________________
+
+#' Update dose interval.
+#' 
+#' @param object generic object
+#' @param ii new inter-dose interval
+#' @param addl new number of additional doses
+#' @param ref reference treatment name
+#' @return updated object
+#' @export
+#' @rdname updateDoseInterval
+updateDoseInterval <- function(object, ii, addl, ref) {
+  stop("No default function is provided")
+}
+
+setGeneric("updateDoseInterval", function(object, ii=NULL, addl=NULL, ref=NULL) {
+  if (is.null(ref)) {
+    ref <- as.character(NA)
+  }
+  if (is.null(ii)) {
+    ii <- as.numeric(NA)
+  }
+  if (is.null(addl)) {
+    addl <- as.integer(NA)
+  }
+  addl <- as.integer(addl)
+  standardGeneric("updateDoseInterval")
+})

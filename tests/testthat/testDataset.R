@@ -648,3 +648,33 @@ test_that("Method 'updateAmount' works as expected", {
   expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[1]]@amount, 200)
   expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[2]]@amount, 200)
 })
+
+test_that("Method 'updateDoseInterval' works as expected", {
+  
+  infusion <- Infusion(time=0, amount=100, compartment=c("CENTRAL1", "CENTRAL2"), ii=24, addl=2, duration=1, ref="Admin1")
+  bolus <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=2, f=c(0.7, 0.3), ref="Admin1")
+  
+  dataset <- Dataset(5) %>%
+    add(bolus) %>%
+    add(infusion) %>%
+    add(Bolus(time=0, amount=100, compartment="DEPOT1", wrap=FALSE, ref="Admin1"))
+  
+  # Check method is not doing anything if the reference is wrong
+  datasetA <- dataset %>%
+    updateDoseInterval(ii=12, ref="Wrong ref")
+  
+  expect_equal(datasetA, dataset)
+  
+  # Check method update amount works
+  datasetB <- dataset %>%
+    updateDoseInterval(ii=12, addl=5, ref="Admin1")
+  
+  expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[1]]@ii, 12)
+  expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[2]]@ii, 12)
+  expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[1]]@addl, 5)
+  expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[2]]@addl, 5)
+  expect_true(is(datasetB@arms@list[[1]]@protocol@treatment@list[[1]], "bolus_wrapper"))
+  expect_true(is(datasetB@arms@list[[1]]@protocol@treatment@list[[2]], "infusion_wrapper"))
+  expect_false(is(datasetB@arms@list[[1]]@protocol@treatment@list[[3]], "bolus_wrapper"))
+})
+

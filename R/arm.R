@@ -356,3 +356,13 @@ setMethod("updateAmount", signature = c("arm", "numeric", "character"), definiti
   return(object)
 })
 
+#_______________________________________________________________________________
+#----                         updateDoseInterval                            ----
+#_______________________________________________________________________________
+
+#' @rdname updateDoseInterval
+setMethod("updateDoseInterval", signature = c("arm", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
+  object@protocol@treatment <- object@protocol@treatment %>% updateDoseInterval(ii, addl, ref)
+  return(object)
+})
+

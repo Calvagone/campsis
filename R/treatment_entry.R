@@ -420,3 +420,40 @@ setMethod("updateAmount", signature = c("bolus_wrapper", "numeric", "character")
 setMethod("updateAmount", signature = c("infusion_wrapper", "numeric", "character"), definition = function(object, amount, ref) {
   return(updateAmountDelegate(object, amount, ref))
 })
+
+#_______________________________________________________________________________
+#----                         updateDoseInterval                            ----
+#_______________________________________________________________________________
+
+updateDoseIntervalDelegate <- function(object, ii, addl, ref) {
+  if (is.na(ref) || ref==object@ref) {
+    if (!is.na(object@ii)) {
+      object@ii <- ii
+    }
+    if (!is.na(object@addl)) {
+      object@addl <- addl
+    }
+  }
+  return(object)
+}
+
+#' @rdname updateDoseInterval
+setMethod("updateDoseInterval", signature = c("bolus_wrapper", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
+  return(updateDoseIntervalDelegate(object, ii, addl, ref))
+})
+
+#' @rdname updateDoseInterval
+setMethod("updateDoseInterval", signature = c("infusion_wrapper", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
+  return(updateDoseIntervalDelegate(object, ii, addl, ref))
+})
+
+#' @rdname updateDoseInterval
+setMethod("updateDoseInterval", signature = c("bolus", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
+  return(object) # Do nothing
+})
+
+#' @rdname updateDoseInterval
+setMethod("updateDoseInterval", signature = c("infusion", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
+  return(object) # Do nothing
+})
+
