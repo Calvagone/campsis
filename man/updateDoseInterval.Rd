@@ -5,6 +5,8 @@
 \alias{updateDoseInterval}
 \alias{updateDoseInterval,bolus_wrapper,numeric,integer,character-method}
 \alias{updateDoseInterval,infusion_wrapper,numeric,integer,character-method}
+\alias{updateDoseInterval,bolus,numeric,integer,character-method}
+\alias{updateDoseInterval,infusion,numeric,integer,character-method}
 \alias{updateDoseInterval,treatment,numeric,integer,character-method}
 \alias{updateDoseInterval,arm,numeric,integer,character-method}
 \alias{updateDoseInterval,arms,numeric,integer,character-method}
@@ -16,6 +18,10 @@ updateDoseInterval(object, ii = NULL, addl = NULL, ref = NULL)
 \S4method{updateDoseInterval}{bolus_wrapper,numeric,integer,character}(object, ii = NULL, addl = NULL, ref = NULL)
 
 \S4method{updateDoseInterval}{infusion_wrapper,numeric,integer,character}(object, ii = NULL, addl = NULL, ref = NULL)
+
+\S4method{updateDoseInterval}{bolus,numeric,integer,character}(object, ii = NULL, addl = NULL, ref = NULL)
+
+\S4method{updateDoseInterval}{infusion,numeric,integer,character}(object, ii = NULL, addl = NULL, ref = NULL)
 
 \S4method{updateDoseInterval}{treatment,numeric,integer,character}(object, ii = NULL, addl = NULL, ref = NULL)
 

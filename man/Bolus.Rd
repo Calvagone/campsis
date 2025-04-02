@@ -13,7 +13,8 @@ Bolus(
   ii = NULL,
   addl = NULL,
   wrap = TRUE,
-  ref = NULL
+  ref = NULL,
+  repeat_option = NULL
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ Bolus(
 it will be split into a list of infusions distinct in time. Default is TRUE.}
 
 \item{ref}{any reference name used to identify this bolus, single character value}
+
+\item{repeat_option}{repeat the base dosing schedule several times, a 'repeated schedule' object is expected. Default is NULL (no repetition).}
 }
 \value{
 a single bolus or a list of boluses

@@ -70,6 +70,7 @@ Collate:
     'distribution.R'
     'dataset_config.R'
     'time_entry.R'
+    'repeated_schedule.R'
     'occasion.R'
     'occasions.R'
     'treatment_iov.R'

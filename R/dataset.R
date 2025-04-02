@@ -563,7 +563,7 @@ recodeCompartments <- function(x, compartmentMapping) {
   if (is.null(compartmentMapping)) {
     return(x)
   }
-  cmtValues <- unique(x) %>% na.omit() # Character, but can be compartment indexes or names (or mixed)
+  cmtValues <- unique(x) %>% stats::na.omit() # Character, but can be compartment indexes or names (or mixed)
   assert_that(all(cmtValues %in% compartmentMapping$NAME),
               msg=sprintf("Compartment name(s) %s are not found in the model",
                           paste0(compartmentMapping$NAME[!compartmentMapping$NAME %in% cmtValues], collapse="/")))

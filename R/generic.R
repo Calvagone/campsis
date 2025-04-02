@@ -126,6 +126,25 @@ setGeneric("getTimes", function(object) {
 })
 
 #_______________________________________________________________________________
+#----                           repeatSchedule                              ----
+#_______________________________________________________________________________
+
+#' Repeat schedule.
+#' 
+#' @param x object to repeat the schedule
+#' @param schedule initial times vector
+#' @return resulting times vector
+#' @export
+#' @rdname repeatSchedule
+repeatSchedule <- function(x, schedule) {
+  stop("No default function is provided")
+}
+
+setGeneric("repeatSchedule", function(x, schedule) {
+  standardGeneric("repeatSchedule")
+})
+
+#_______________________________________________________________________________
 #----                             setLabel                                  ----
 #_______________________________________________________________________________
 
