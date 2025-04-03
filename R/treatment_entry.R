@@ -49,7 +49,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkBolusWrapper <- function(object) {
-  return(c(expectOneForAll(object, c("ii", "addl"))))
+  return(c(expectOneForAll(object, c("ii", "addl", "rep"))))
 }
 
 #' 
@@ -442,38 +442,66 @@ setMethod("updateAmount", signature = c("infusion_wrapper", "numeric", "characte
 })
 
 #_______________________________________________________________________________
-#----                         updateDoseInterval                            ----
+#----                              updateII                                 ----
 #_______________________________________________________________________________
 
-updateDoseIntervalDelegate <- function(object, ii, addl, ref) {
+updateIIDelegate <- function(object, ii, ref) {
   if (is.na(ref) || ref==object@ref) {
-    if (!is.na(object@ii)) {
-      object@ii <- ii
-    }
-    if (!is.na(object@addl)) {
-      object@addl <- addl
-    }
+    object@ii <- ii
   }
   return(object)
 }
 
-#' @rdname updateDoseInterval
-setMethod("updateDoseInterval", signature = c("bolus_wrapper", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
-  return(updateDoseIntervalDelegate(object, ii, addl, ref))
+#' @rdname updateII
+setMethod("updateII", signature = c("bolus_wrapper", "numeric", "character"), definition = function(object, ii, ref) {
+  return(updateIIDelegate(object, ii, ref))
 })
 
-#' @rdname updateDoseInterval
-setMethod("updateDoseInterval", signature = c("infusion_wrapper", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
-  return(updateDoseIntervalDelegate(object, ii, addl, ref))
+#' @rdname updateII
+setMethod("updateII", signature = c("infusion_wrapper", "numeric", "character"), definition = function(object, ii, ref) {
+  return(updateIIDelegate(object, ii, ref))
 })
 
-#' @rdname updateDoseInterval
-setMethod("updateDoseInterval", signature = c("bolus", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
+#' @rdname updateII
+setMethod("updateII", signature = c("bolus", "numeric", "character"), definition = function(object, ii, ref) {
   return(object) # Do nothing
 })
 
-#' @rdname updateDoseInterval
-setMethod("updateDoseInterval", signature = c("infusion", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
+#' @rdname updateII
+setMethod("updateII", signature = c("infusion", "numeric", "character"), definition = function(object, ii, ref) {
   return(object) # Do nothing
 })
+
+#_______________________________________________________________________________
+#----                             updateADDL                                ----
+#_______________________________________________________________________________
+
+updateADDLDelegate <- function(object, addl, ref) {
+  if (is.na(ref) || ref==object@ref) {
+    object@addl <- addl
+  }
+  return(object)
+}
+
+#' @rdname updateADDL
+setMethod("updateADDL", signature = c("bolus_wrapper", "integer", "character"), definition = function(object, addl, ref) {
+  return(updateADDLDelegate(object, addl, ref))
+})
+
+#' @rdname updateADDL
+setMethod("updateADDL", signature = c("infusion_wrapper", "integer", "character"), definition = function(object, addl, ref) {
+  return(updateADDLDelegate(object, addl, ref))
+})
+
+#' @rdname updateADDL
+setMethod("updateADDL", signature = c("bolus", "integer", "character"), definition = function(object, addl, ref) {
+  return(object) # Do nothing
+})
+
+#' @rdname updateADDL
+setMethod("updateADDL", signature = c("infusion", "integer", "character"), definition = function(object, addl, ref) {
+  return(object) # Do nothing
+})
+
+
 

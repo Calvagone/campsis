@@ -247,32 +247,48 @@ setGeneric("updateAmount", function(object, amount, ref) {
 })
 
 #_______________________________________________________________________________
-#----                         updateDoseInterval                            ----
+#----                              updateII                                 ----
 #_______________________________________________________________________________
 
-#' Update dose interval.
+#' Update the inter-dose interval (II).
 #' 
 #' @param object generic object
 #' @param ii new inter-dose interval
-#' @param addl new number of additional doses
 #' @param ref reference treatment name
 #' @return updated object
 #' @export
-#' @rdname updateDoseInterval
-updateDoseInterval <- function(object, ii, addl, ref) {
+#' @rdname updateII
+updateII <- function(object, ii, ref) {
   stop("No default function is provided")
 }
 
-setGeneric("updateDoseInterval", function(object, ii=NULL, addl=NULL, ref=NULL) {
+setGeneric("updateII", function(object, ii, ref=NULL) {
   if (is.null(ref)) {
     ref <- as.character(NA)
   }
-  if (is.null(ii)) {
-    ii <- as.numeric(NA)
-  }
-  if (is.null(addl)) {
-    addl <- as.integer(NA)
+  standardGeneric("updateII")
+})
+
+#_______________________________________________________________________________
+#----                             updateADDL                                ----
+#_______________________________________________________________________________
+
+#' Update the number of additional doses (ADDL).
+#' 
+#' @param object generic object
+#' @param add new number of additional doses
+#' @param ref reference treatment name
+#' @return updated object
+#' @export
+#' @rdname updateADDL
+updateADDL <- function(object, addl, ref) {
+  stop("No default function is provided")
+}
+
+setGeneric("updateADDL", function(object, addl, ref=NULL) {
+  if (is.null(ref)) {
+    ref <- as.character(NA)
   }
   addl <- as.integer(addl)
-  standardGeneric("updateDoseInterval")
+  standardGeneric("updateADDL")
 })

@@ -223,11 +223,22 @@ setMethod("updateAmount", signature = c("treatment", "numeric", "character"), de
 })
 
 #_______________________________________________________________________________
-#----                         updateDoseInterval                            ----
+#----                              updateII                                 ----
 #_______________________________________________________________________________
 
-#' @rdname updateDoseInterval
-setMethod("updateDoseInterval", signature = c("treatment", "numeric", "integer", "character"), definition = function(object, ii, addl, ref) {
-  object@list <- object@list %>% purrr::map(~updateDoseInterval(.x, ii, addl, ref))
+#' @rdname updateII
+setMethod("updateII", signature = c("treatment", "numeric", "character"), definition = function(object, ii, ref) {
+  object@list <- object@list %>% purrr::map(~updateII(.x, ii, ref))
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                             updateADDL                                ----
+#_______________________________________________________________________________
+
+#' @rdname updateADDL
+setMethod("updateADDL", signature = c("treatment", "integer", "character"), definition = function(object, addl, ref) {
+  object@list <- object@list %>% purrr::map(~updateADDL(.x, addl, ref))
+  return(object)
+})
+
