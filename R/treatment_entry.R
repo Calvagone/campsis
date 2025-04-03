@@ -49,7 +49,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkBolusWrapper <- function(object) {
-  return(c(expectOneForAll(object, c("ii", "addl", "rep"))))
+  return(c(expectOneForAll(object, c("ii", "addl"))))
 }
 
 #' 
