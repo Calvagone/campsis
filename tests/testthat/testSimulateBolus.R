@@ -102,10 +102,10 @@ test_that(getTestName("Simulate multiple doses, with and without the repeat opti
   expectedTimes <- c(c(0,24,48,72), c(0,24,48,72) + weeks(1), c(0,24,48,72) + weeks(2))
   
   arm1 <- Arm(1, subjects=1, label="TRT 1") %>%
-    add(Bolus(time=0, amount=1000, compartment="DEPOT", ii=24, addl=3, repeat_option=schedule1))
+    add(Bolus(time=0, amount=1000, compartment="DEPOT", ii=24, addl=3, rep=schedule1))
   
   arm2 <- Arm(2, subjects=1, label="TRT 2") %>%
-    add(Bolus(time=0, amount=1000, compartment="DEPOT", ii=24, addl=3, repeat_option=schedule2))
+    add(Bolus(time=0, amount=1000, compartment="DEPOT", ii=24, addl=3, rep=schedule2))
   
   arm3 <- Arm(3, subjects=1, label="TRT 3") %>%
     add(Bolus(time=expectedTimes, amount=1000, compartment="DEPOT"))

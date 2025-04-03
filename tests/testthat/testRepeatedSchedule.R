@@ -9,7 +9,7 @@ test_that("Cyclic schedule can be used to repeat the original base schedule", {
   expected <- c(0,24,48,168,192,216,336,360,384)
   expect_equal(c(0,24,48) %>% repeatSchedule(schedule), expected)
   
-  times <- Bolus(time=0, amount=100, ii=24, addl=2, repeat_option=schedule) %>%
+  times <- Bolus(time=0, amount=100, ii=24, addl=2, rep=schedule) %>%
     unwrapTreatment() %>%
     purrr::map_dbl(~.x@time)
   expect_equal(times, expected)
@@ -21,7 +21,7 @@ test_that("'Repeat-at' schedule can be used to repeat the original base schedule
   expected <- c(0,24,48,168,192,216,336,360,384)
   expect_equal(c(0,24,48) %>% repeatSchedule(schedule), expected)
   
-  times <- Infusion(time=0, amount=100, ii=24, addl=2, repeat_option=schedule) %>%
+  times <- Infusion(time=0, amount=100, ii=24, addl=2, rep=schedule) %>%
     unwrapTreatment() %>%
     purrr::map_dbl(~.x@time)
   expect_equal(times, expected)
