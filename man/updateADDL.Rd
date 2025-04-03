@@ -34,9 +34,9 @@ updateADDL(object, addl, ref = NULL)
 \arguments{
 \item{object}{generic object}
 
-\item{ref}{reference treatment name}
+\item{addl}{new number of additional doses}
 
-\item{add}{new number of additional doses}
+\item{ref}{reference treatment name}
 }
 \value{
 updated object

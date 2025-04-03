@@ -276,7 +276,7 @@ setGeneric("updateII", function(object, ii, ref=NULL) {
 #' Update the number of additional doses (ADDL).
 #' 
 #' @param object generic object
-#' @param add new number of additional doses
+#' @param addl new number of additional doses
 #' @param ref reference treatment name
 #' @return updated object
 #' @export
