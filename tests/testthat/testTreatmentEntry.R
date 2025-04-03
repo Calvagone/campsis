@@ -62,7 +62,7 @@ test_that("'time' vector or 'ii' and 'addl' are equivalent (boluses)", {
   bolus1 <- Bolus(time=24, amount=100, wrap=F)
   bolus2 <- Bolus(time=24, amount=100, ii=24, addl=0, wrap=F)
   
-  expect_equal(list(bolus1), bolus2)
+  expect_equal(bolus1, bolus2)
 })
 
 test_that("'time' vector or 'ii' and 'addl' are equivalent (infusions)", {
@@ -77,7 +77,7 @@ test_that("'time' vector or 'ii' and 'addl' are equivalent (infusions)", {
   infusion1 <- Infusion(time=24, amount=100, wrap=F)
   infusion2 <- Infusion(time=24, amount=100, ii=24, addl=0, wrap=F)
   
-  expect_equal(list(infusion1), infusion2)
+  expect_equal(infusion1, infusion2)
 })
 
 test_that("assertions on 'ii' and 'addl' work well", {

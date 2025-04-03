@@ -94,7 +94,7 @@ Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, add
   if (wrap) {
     return(wrapper)
   } else {
-    return(unwrapTreatment(wrapper))  
+    return(unwrapTreatmentBase(object=wrapper, type="bolus", wrap=wrap)) 
   }
 }
 
@@ -184,7 +184,7 @@ Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=
   if (wrap) {
     return(wrapper)
   } else {
-    return(unwrapTreatment(wrapper))  
+    return(unwrapTreatmentBase(object=wrapper, type="infusion", wrap=wrap))  
   }
 }
 
@@ -365,12 +365,27 @@ unwrapTreatmentDelegate <- function(object, type) {
     retValue <- time %>% 
       purrr::map(~do.call("new", c(type, list(time=.x), args)))
   } else {
+    # When addl is NA, ii is also NA (see checkIIandADDL method)
     if (is.na(addl)) {
-      retValue <- do.call("new", c(type, list(time=time), args))
-    } else {
-      retValue <- (seq_len(addl + 1) - 1) %>%
-        purrr::map(~do.call("new", c(type, list(time=time + ii*.x), args)))
+      addl <- 0
+      ii <- 0
     }
+    retValue <- (seq_len(addl + 1) - 1) %>%
+      purrr::map(~do.call("new", c(type, list(time=time + ii*.x), args)))
+  }
+  return(retValue)
+}
+
+unwrapTreatmentBase <- function(object, type, wrap) {
+  times <- object@time %>%
+    repeatSchedule(object@repeat_option)
+  retValue <- times %>%
+    purrr::map(.f=function(time) {
+      object@time <- time
+      return(unwrapTreatmentDelegate(object, type=type))
+    }) %>% unlist()
+  if (!wrap && length(retValue)==1) {
+    return(retValue[[1]])
   }
   return(retValue)
 }
@@ -387,26 +402,12 @@ setMethod("unwrapTreatment", signature = c("infusion"), definition = function(ob
 
 #' @rdname unwrapTreatment
 setMethod("unwrapTreatment", signature = c("bolus_wrapper"), definition = function(object) {
-  times <- object@time %>%
-    repeatSchedule(object@repeat_option)
-  retValue <- times %>%
-    purrr::map(.f=function(time) {
-      object@time <- time
-      return(unwrapTreatmentDelegate(object, type="bolus"))
-    }) %>% unlist()
-  return(retValue)
+  return(unwrapTreatmentBase(object=object, type="bolus", wrap=TRUE))
 })
 
 #' @rdname unwrapTreatment
 setMethod("unwrapTreatment", signature = c("infusion_wrapper"), definition = function(object) {
-  times <- object@time %>%
-    repeatSchedule(object@repeat_option)
-  retValue <- times %>%
-    purrr::map(.f=function(time) {
-      object@time <- time
-      return(unwrapTreatmentDelegate(object, type="infusion"))
-    }) %>% unlist()
-  return(retValue)
+  return(unwrapTreatmentBase(object=object, type="infusion", wrap=TRUE))
 })
 
 #_______________________________________________________________________________
