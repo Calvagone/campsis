@@ -34,7 +34,7 @@ Infusion(
 
 \item{rate}{infusion rate, list of distributions (one per compartment)}
 
-\item{ii}{interdose interval, requires argument 'time' to be a single numeric value}
+\item{ii}{inter-dose interval, requires argument 'time' to be a single numeric value}
 
 \item{addl}{number of additional doses, requires argument 'time' to be a single integer value}
 

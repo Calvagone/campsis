@@ -2,6 +2,15 @@ library(testthat)
 
 context("Test the available repeated schedules")
 
+test_that("Argument 'rep' can just be an integer", {
+  bolus1 <- Bolus(time=0, amount=100, ii=24, addl=6, rep=2)
+  expect_equal(bolus1@rep, CyclicSchedule(duration=24*7, repetitions=2))
+  
+  # In fact, strictly equal to the following (when unwrapped):
+  bolus2 <- Bolus(time=0, amount=100, ii=24, addl=20)
+  expect_equal(bolus1 %>% unwrapTreatment(), bolus2 %>% unwrapTreatment())
+})
+
 test_that("Cyclic schedule can be used to repeat the original base schedule", {
   schedule <- CyclicSchedule(duration=24*7, repetitions=2)
   expect_equal(schedule@duration, 24*7)

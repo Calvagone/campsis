@@ -28,12 +28,12 @@ Bolus(
 
 \item{lag}{dose lag time, list of distributions (one per compartment)}
 
-\item{ii}{interdose interval, requires argument 'time' to be a single numeric value}
+\item{ii}{inter-dose interval, requires argument 'time' to be a single numeric value}
 
 \item{addl}{number of additional doses, requires argument 'time' to be a single integer value}
 
 \item{wrap}{if TRUE, the bolus wrapper will be stored as is in the dataset, otherwise,
-it will be split into a list of infusions distinct in time. Default is TRUE.}
+it will be split into a list of boluses distinct in time. Default is TRUE.}
 
 \item{ref}{any reference name used to identify this bolus, single character value}
 

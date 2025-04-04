@@ -75,10 +75,10 @@ setClass(
 #' @param compartment compartment index or name to give the bolus(es). A vector of integers or names can be used for a complex model administration.
 #' @param f fraction of dose amount, list of distributions (one per compartment)
 #' @param lag dose lag time, list of distributions (one per compartment)
-#' @param ii interdose interval, requires argument 'time' to be a single numeric value
+#' @param ii inter-dose interval, requires argument 'time' to be a single numeric value
 #' @param addl number of additional doses, requires argument 'time' to be a single integer value
 #' @param wrap if TRUE, the bolus wrapper will be stored as is in the dataset, otherwise,
-#'  it will be split into a list of infusions distinct in time. Default is TRUE.
+#'  it will be split into a list of boluses distinct in time. Default is TRUE.
 #' @param ref any reference name used to identify this bolus, single character value
 #' @param rep repeat the base dosing schedule several times, a 'repeated schedule' object is expected. Default is NULL (no repetition).
 #' @return a single bolus or a list of boluses
@@ -86,11 +86,10 @@ setClass(
 Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL, rep=NULL) {
   iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
   cmtNo <- ifelse(length(compartment)==0, 1, length(compartment))
-  ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
-  if (is.null(rep)) rep <- new("undefined_schedule")
+
   wrapper <- new("bolus_wrapper", time=time, amount=amount, compartment=as.character(compartment),
                  f=toExplicitDistributionList(f, cmtNo=cmtNo), lag=toExplicitDistributionList(lag, cmtNo=cmtNo),
-                 ii=iiAddl$ii, addl=iiAddl$addl, ref=ref, rep=rep)
+                 ii=iiAddl$ii, addl=iiAddl$addl, ref=processRefArg(ref), rep=processRepeatArg(rep, iiAddl))
   if (wrap) {
     return(wrapper)
   } else {
@@ -164,7 +163,7 @@ setClass(
 #' @param lag infusion lag time, , list of distributions (one per compartment)
 #' @param duration infusion duration, list of distributions (one per compartment)
 #' @param rate infusion rate, list of distributions (one per compartment)
-#' @param ii interdose interval, requires argument 'time' to be a single numeric value
+#' @param ii inter-dose interval, requires argument 'time' to be a single numeric value
 #' @param addl number of additional doses, requires argument 'time' to be a single integer value
 #' @param wrap if TRUE, the infusion wrapper will be stored as is in the dataset, otherwise,
 #'  it will be split into a list of infusions distinct in time. Default is TRUE.
@@ -175,12 +174,11 @@ setClass(
 Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL, rep=NULL) {
   iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
   cmtNo <- ifelse(length(compartment)==0, 1, length(compartment))
-  ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
-  if (is.null(rep)) rep <- new("undefined_schedule")
+
   wrapper <- new("infusion_wrapper", time=time, amount=amount, compartment=as.character(compartment),
                  f=toExplicitDistributionList(f, cmtNo=cmtNo), lag=toExplicitDistributionList(lag, cmtNo=cmtNo),
                  duration=toExplicitDistributionList(duration, cmtNo=cmtNo), rate=toExplicitDistributionList(rate, cmtNo=cmtNo),
-                 ii=iiAddl$ii, addl=iiAddl$addl, ref=ref, rep=rep)
+                 ii=iiAddl$ii, addl=iiAddl$addl, ref=processRefArg(ref), rep=processRepeatArg(rep, iiAddl))
   if (wrap) {
     return(wrapper)
   } else {
@@ -237,6 +235,19 @@ getTreatmentEntryCmtString <- function(object, vector=FALSE) {
     if (vector) str <- sprintf("c(%s)", str)
   }
   return(str)
+}
+
+processRepeatArg <- function(rep, iiAddl) {
+  if (is.null(rep)) rep <- new("undefined_schedule")
+  if (is.numeric(rep) && !is.na(iiAddl$ii)) {
+    rep <- CyclicSchedule(duration=iiAddl$ii*(iiAddl$addl + 1), repetitions=rep)
+  }
+  return(rep)
+}
+
+processRefArg <- function(ref) {
+  ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
+  return(ref)
 }
 
 #_______________________________________________________________________________
