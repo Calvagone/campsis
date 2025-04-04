@@ -7,11 +7,14 @@
 Bolus(
   time,
   amount,
-  compartment = NA,
+  compartment = NULL,
   f = NULL,
   lag = NULL,
   ii = NULL,
-  addl = NULL
+  addl = NULL,
+  wrap = TRUE,
+  ref = NULL,
+  rep = NULL
 )
 }
 \arguments{
@@ -19,15 +22,22 @@ Bolus(
 
 \item{amount}{amount to give as bolus, single numeric value}
 
-\item{compartment}{compartment index, single integer value}
+\item{compartment}{compartment index or name to give the bolus(es). A vector of integers or names can be used for a complex model administration.}
 
-\item{f}{fraction of dose amount, distribution}
+\item{f}{fraction of dose amount, list of distributions (one per compartment)}
 
-\item{lag}{dose lag time, distribution}
+\item{lag}{dose lag time, list of distributions (one per compartment)}
 
-\item{ii}{interdose interval, requires argument 'time' to be a single numeric value}
+\item{ii}{inter-dose interval, requires argument 'time' to be a single numeric value}
 
 \item{addl}{number of additional doses, requires argument 'time' to be a single integer value}
+
+\item{wrap}{if TRUE, the bolus wrapper will be stored as is in the dataset, otherwise,
+it will be split into a list of boluses distinct in time. Default is TRUE.}
+
+\item{ref}{any reference name used to identify this bolus, single character value}
+
+\item{rep}{repeat the base dosing schedule several times, a 'repeated schedule' object is expected. Default is NULL (no repetition).}
 }
 \value{
 a single bolus or a list of boluses

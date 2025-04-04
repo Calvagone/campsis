@@ -88,15 +88,15 @@ set.seed(1)
 ```
 
 ```{r}
-distribution <- ParameterDistribution(model=model, theta="ALAG1", omega="ALAG1")
-alagValues <- (distribution %>% sample(as.integer(50)))@sampled_values
+distribution <- ParameterDistribution(model=model, theta="ALAG1", omega="ALAG1") %>%
+  sample(50L)
 ```
 
-Then, we can inject them into the dataset.
+We can then pass the pre-sampled distribution.
 
 ```{r}
 ds2 <- Dataset(50) %>%
-  add(Bolus(time=0, amount=1000, lag=alagValues)) %>%
+  add(Bolus(time=0, amount=1000, lag=distribution)) %>%
   add(Observations(times=seq(0,24,by=0.5)))
 ```
 

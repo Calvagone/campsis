@@ -13,11 +13,17 @@ test_that("Instantiate dose adaptations work well", {
   # Compartments may be empty, not NA
   expect_error(DoseAdaptation("AMT*WT", compartments=NA), regexp="Some values in slot 'compartments' are NA")
   
-  # OK
+  # Compartments undefined
   obj <- DoseAdaptation("AMT*WT")
+  expect_equal(obj %>% getName(), "DOSE ADAPTATION [CMT=ALL]")
+  expect_equal(capture.output(show(obj)), "-> Dose adaptation (CMT=ALL): AMT*WT")
   
-  # OK
+  # Compartments as integer
   obj <- DoseAdaptation("AMT*WT", compartments=c(1,2,3))
+  expect_equal(obj %>% getName(), "DOSE ADAPTATION [CMT=c(1,2,3)]")
+  expect_equal(capture.output(show(obj)), "-> Dose adaptation (CMT=1,2,3): AMT*WT")
   
-  expect_equal(obj %>% getName(), "DOSE ADAPTATION [CMTS=c(1,2,3)]")
+  # Compartments as character
+  obj <- DoseAdaptation("AMT*WT", compartments=c("DEPOT1", "DEPOT2", "DEPOT3"))
+  expect_equal(obj %>% getName(), "DOSE ADAPTATION [CMT=c(DEPOT1,DEPOT2,DEPOT3)]")
 })

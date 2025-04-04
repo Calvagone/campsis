@@ -20,38 +20,43 @@ setClass(
   "dose_adaptation",
   representation(
     formula = "character",
-    compartments = "integer"
+    compartments = "character"
   ),
   contains="pmx_element",
   validity=checkDoseAdaptation
 )
 
 setMethod("getName", signature = c("dose_adaptation"), definition = function(x) {
-  return(paste0("DOSE ADAPTATION [", "CMTS=c(", paste0(x@compartments, collapse=","), ")]"))
+  return(sprintf("DOSE ADAPTATION [CMT=%s]", getDoseAdaptationCmtString(x, vector=TRUE)))
 })
 
 #'
 #' Create a dose adaptation.
 #'
 #' @param formula formula to apply, single character string, e.g. "AMT*WT"
-#' @param compartments compartment numbers where the formula needs to be applied,
-#'  integer vector. Default is integer(0) (formula applied on all compartments)
+#' @param compartments compartment indexes or names where the formula needs to be applied,
+#'  integer or character vector. Default is NULL (formula applied on all compartments)
 #' @return a fixed covariate
 #' @export
-DoseAdaptation <- function(formula, compartments=integer(0)) {
-  return(new("dose_adaptation", formula=formula, compartments=as.integer(compartments)))
+DoseAdaptation <- function(formula, compartments=NULL) {
+  return(new("dose_adaptation", formula=formula, compartments=as.character(compartments)))
 }
 
 #_______________________________________________________________________________
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("dose_adaptation"), definition=function(object) {
-  str <- "-> Dose adaptation (CMT="
+getDoseAdaptationCmtString <- function(object, vector=FALSE) {
   if (object@compartments %>% length() == 0) {
-    str <- paste0(str, "ALL): ")
+    str <- "ALL"
   } else {
-    str <- paste0(str, paste0(object@compartments, collapse=","), "): ")
+    str <- sprintf("%s", paste0(object@compartments, collapse=","))
+    if (vector) str <- sprintf("c(%s)", str)
   }
-  cat(paste0(str, object@formula))
+  return(str)
+}
+
+setMethod("show", signature=c("dose_adaptation"), definition=function(object) {
+  str <- sprintf("-> Dose adaptation (CMT=%s): %s", getDoseAdaptationCmtString(object), object@formula)
+  cat(str)
 })

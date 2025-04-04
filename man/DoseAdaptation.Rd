@@ -4,13 +4,13 @@
 \alias{DoseAdaptation}
 \title{Create a dose adaptation.}
 \usage{
-DoseAdaptation(formula, compartments = integer(0))
+DoseAdaptation(formula, compartments = NULL)
 }
 \arguments{
 \item{formula}{formula to apply, single character string, e.g. "AMT*WT"}
 
-\item{compartments}{compartment numbers where the formula needs to be applied,
-integer vector. Default is integer(0) (formula applied on all compartments)}
+\item{compartments}{compartment indexes or names where the formula needs to be applied,
+integer or character vector. Default is NULL (formula applied on all compartments)}
 }
 \value{
 a fixed covariate

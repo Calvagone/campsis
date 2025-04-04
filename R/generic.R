@@ -126,6 +126,25 @@ setGeneric("getTimes", function(object) {
 })
 
 #_______________________________________________________________________________
+#----                           repeatSchedule                              ----
+#_______________________________________________________________________________
+
+#' Repeat schedule.
+#' 
+#' @param x object to repeat the schedule
+#' @param schedule initial times vector
+#' @return resulting times vector
+#' @export
+#' @rdname repeatSchedule
+repeatSchedule <- function(x, schedule) {
+  stop("No default function is provided")
+}
+
+setGeneric("repeatSchedule", function(x, schedule) {
+  standardGeneric("repeatSchedule")
+})
+
+#_______________________________________________________________________________
 #----                             setLabel                                  ----
 #_______________________________________________________________________________
 
@@ -185,3 +204,115 @@ setGeneric("setSubjects", function(object, x) {
   }
   standardGeneric("setSubjects")
 })
+
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' Unwrap treatment.
+#' 
+#' @param object any object
+#' @return updated object
+#' @export
+#' @rdname unwrapTreatment
+unwrapTreatment <- function(object) {
+  stop("No default function is provided")
+}
+
+setGeneric("unwrapTreatment", function(object) {
+  standardGeneric("unwrapTreatment")
+})
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+#' Update amount.
+#' 
+#' @param object generic object
+#' @param amount new amount
+#' @param ref reference treatment name
+#' @return updated object
+#' @export
+#' @rdname updateAmount
+updateAmount <- function(object, amount, ref) {
+  stop("No default function is provided")
+}
+
+setGeneric("updateAmount", function(object, amount, ref) {
+  if (is.null(ref)) {
+    ref <- as.character(NA)
+  }
+  standardGeneric("updateAmount")
+})
+
+#_______________________________________________________________________________
+#----                              updateII                                 ----
+#_______________________________________________________________________________
+
+#' Update the inter-dose interval (II).
+#' 
+#' @param object generic object
+#' @param ii new inter-dose interval
+#' @param ref reference treatment name
+#' @return updated object
+#' @export
+#' @rdname updateII
+updateII <- function(object, ii, ref) {
+  stop("No default function is provided")
+}
+
+setGeneric("updateII", function(object, ii, ref=NULL) {
+  if (is.null(ref)) {
+    ref <- as.character(NA)
+  }
+  standardGeneric("updateII")
+})
+
+#_______________________________________________________________________________
+#----                             updateADDL                                ----
+#_______________________________________________________________________________
+
+#' Update the number of additional doses (ADDL).
+#' 
+#' @param object generic object
+#' @param addl new number of additional doses
+#' @param ref reference treatment name
+#' @return updated object
+#' @export
+#' @rdname updateADDL
+updateADDL <- function(object, addl, ref) {
+  stop("No default function is provided")
+}
+
+setGeneric("updateADDL", function(object, addl, ref=NULL) {
+  if (is.null(ref)) {
+    ref <- as.character(NA)
+  }
+  addl <- as.integer(addl)
+  standardGeneric("updateADDL")
+})
+
+#_______________________________________________________________________________
+#----                            updateRepeat                               ----
+#_______________________________________________________________________________
+
+#' Update the repeat field (argument 'rep' in Bolus and Infusion constructors).
+#' 
+#' @param object generic object
+#' @param rep repeated dosing schedule (definition) object
+#' @param ref reference treatment name
+#' @return updated object
+#' @export
+#' @rdname updateRepeat
+updateRepeat <- function(object, rep, ref) {
+  stop("No default function is provided")
+}
+
+setGeneric("updateRepeat", function(object, rep, ref=NULL) {
+  if (is.null(ref)) {
+    ref <- as.character(NA)
+  }
+  standardGeneric("updateRepeat")
+})
+

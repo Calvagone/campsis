@@ -333,7 +333,7 @@ applyCompartmentCharacteristics <- function(table, properties) {
       }
       rateValue <- ifelse(isRate, -1, -2)
       table <- table %>% dplyr::mutate(
-        RATE=ifelse(.data$EVID==1 & .data$CMT==compartment & .data$INFUSION_TYPE %in% c(-1,-2),
+        RATE=ifelse(.data$EVID==1 & .data$CMT==compartment & .data$INFUSION_TYPE==-99,
                     rateValue, .data$RATE))
     }
   }
@@ -351,6 +351,35 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
   return(table)
 })
 
+#' Get a mapping table with all possibilities of compartment names and their indexes
+#' knowing that compartment names can be provided as character or as integer.
+#' 
+#' @param compartments list of compartments
+#' @return a tibble with two columns: INDEX and NAME
+#' @keywords internal
+#' @importFrom tibble tibble
+#' @importFrom purrr map_dfr
+#' @importFrom assertthat assert_that
+#' 
+getCompartmentMapping <- function(compartments) {
+  if (length(compartments)==0) {
+    return(tibble::tibble(INDEX=as.integer(0), NAME=as.character(0)))
+  }
+  compartmentMapping <- compartments@list %>%
+    purrr::map_dfr(.f=function(cmt) {
+      if (is.na(cmt@name)) {
+        return(tibble::tibble(INDEX=cmt@index, NAME=as.character(cmt@index)))
+      } else {
+        assertthat::assert_that(!(nchar(cmt@name)==1 &&
+                                    !is.na(suppressWarnings(as.numeric(cmt@name))) &&
+                                    cmt@name != as.character(cmt@index)),
+                                msg=sprintf("Compartment name '%s' not corresponding to its index", cmt@name))
+        return(tibble::tibble(INDEX=c(cmt@index, cmt@index), NAME=c(cmt@name, as.character(cmt@index))))
+      }
+    })
+  return(compartmentMapping)
+}
+
 #' Export delegate method. This method is common to RxODE and mrgsolve.
 #' 
 #' @param object current dataset
@@ -362,7 +391,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @param offset_within_arm offset (on ID's) to apply within the current arm being
 #'  exported (only used when parallelisation is enabled), default is 0
 #' @return 2-dimensional dataset, same for RxODE and mrgsolve
-#' @importFrom dplyr across all_of arrange bind_rows group_by left_join
+#' @importFrom dplyr across all_of arrange bind_rows group_by left_join recode
 #' @importFrom campsismod export
 #' @importFrom tibble add_column tibble
 #' @importFrom purrr accumulate map_df map_int map2_df
@@ -385,13 +414,24 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
   
   # Compute max ID per arm
   maxIDPerArm <- arms@list %>% purrr::map_int(~.x@subjects) %>% purrr::accumulate(~(.x+.y))
+ 
+  # Get compartment mapping
+  compartmentMapping <- NULL
+  if (!is.null(model)) {
+    compartmentMapping <- getCompartmentMapping(model@compartments)
+  }
   
   retValue <- purrr::map2_df(arms@list, maxIDPerArm, .f=function(arm, maxID) {
     armID <- arm@id
     subjects <- arm@subjects
     protocol <- arm@protocol
     bootstrap <- arm@bootstrap
-    treatment <- protocol@treatment %>% assignDoseNumber()
+    
+    # Unwrap treatment and assign dose number
+    treatment <- protocol@treatment %>%
+      unwrapTreatment() %>%
+      assignDoseNumber()
+    
     if (treatment %>% length() > 0) {
       maxDoseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
     } else { 
@@ -473,9 +513,13 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
       table <- table %>% dplyr::left_join(occ, by="DOSENO")
     }
     
+    # Recode compartments names according to their indexes
+    table <- table %>%
+      mutate(CMT=recodeCompartments(.data$CMT, compartmentMapping))
+
     # Apply formula if dose adaptations are present
     for (doseAdaptation in doseAdaptations@list) {
-      compartments <- doseAdaptation@compartments
+      compartments <- recodeCompartments(doseAdaptation@compartments, compartmentMapping)
       expr <- rlang::parse_expr(doseAdaptation@formula)
       # If a duration was specified, same duration applies on new AMT (i.e. RATE is recomputed)
       # If a rate was specified, same rate applies on new AMT (nothing to do)
@@ -515,6 +559,19 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
   }
   
   return(retValue)
+}
+
+recodeCompartments <- function(x, compartmentMapping) {
+  if (is.null(compartmentMapping)) {
+    return(x)
+  }
+  cmtValues <- unique(x) %>% stats::na.omit() # Character, but can be compartment indexes or names (or mixed)
+  assert_that(all(cmtValues %in% compartmentMapping$NAME),
+              msg=sprintf("Unknown compartment name(s): %s",
+                          paste0(cmtValues[!cmtValues %in% compartmentMapping$NAME], collapse=", ")))
+  # Argument .missing means that missing values in .x (NAs) are replaced by the provided value (NA)
+  # Argument .default not set meaning we get a message if a compartment name is not found in the model
+  return(as.integer(dplyr::recode(x, !!!setNames(compartmentMapping$INDEX, compartmentMapping$NAME))))
 }
 
 #' Fill IOV/Occasion columns.
@@ -848,4 +905,54 @@ setMethod("show", signature=c("dataset"), definition=function(object) {
     cat("\n")
   }
   show(object@arms)
+})
+
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature=c("dataset"), definition = function(object) {
+  object@arms <- object@arms %>% unwrapTreatment()
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("dataset", "numeric", "character"), definition = function(object, amount, ref) {
+  object@arms <- object@arms %>% updateAmount(amount, ref)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                              updateII                                 ----
+#_______________________________________________________________________________
+
+#' @rdname updateII
+setMethod("updateII", signature = c("dataset", "numeric", "character"), definition = function(object, ii, ref) {
+  object@arms <- object@arms %>% updateII(ii, ref)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             updateADDL                                ----
+#_______________________________________________________________________________
+
+#' @rdname updateADDL
+setMethod("updateADDL", signature = c("dataset", "integer", "character"), definition = function(object, addl, ref) {
+  object@arms <- object@arms %>% updateADDL(addl, ref)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             updateRepeat                              ----
+#_______________________________________________________________________________
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("dataset", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  object@arms <- object@arms %>% updateRepeat(rep, ref)
+  return(object)
 })

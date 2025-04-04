@@ -12,7 +12,7 @@ Observations class.
 \describe{
 \item{\code{times}}{observation times, numeric vector}
 
-\item{\code{compartment}}{compartment index, integer}
+\item{\code{compartment}}{compartment index (integer) or name (character)}
 
 \item{\code{dv}}{observed values, numeric vector (FOR EXTERNAL USE)}
 }}

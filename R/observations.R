@@ -18,18 +18,18 @@ checkObservations <- function(object) {
 #' Observations class.
 #' 
 #' @slot times observation times, numeric vector
-#' @slot compartment compartment index, integer
+#' @slot compartment compartment index (integer) or name (character)
 #' @slot dv observed values, numeric vector (FOR EXTERNAL USE)
 #' @export
 setClass(
   "observations",
   representation(
     times = "numeric",
-    compartment = "integer",
+    compartment = "character",
     dv="numeric"
   ),
   contains = "pmx_element",
-  prototype = prototype(compartment=as.integer(NA), dv=numeric(0)),
+  prototype = prototype(compartment=as.character(NA), dv=numeric(0)),
   validity = checkObservations
 )
 
@@ -38,11 +38,11 @@ setClass(
 #' automatically be sorted. Duplicated times will be removed.
 #'
 #' @param times observation times, numeric vector
-#' @param compartment compartment index, integer
+#' @param compartment compartment index (integer) or name (character)
 #' @return an observations list
 #' @export
 Observations <- function(times, compartment=NA) {
-  return(new("observations", times=base::sort(unique(times)), compartment=as.integer(compartment)))
+  return(new("observations", times=base::sort(unique(times)), compartment=as.character(compartment)))
 }
 
 setMethod("getName", signature = c("observations"), definition = function(x) {
@@ -69,7 +69,7 @@ setClass(
 #' @return observations
 #' @keywords internal
 EventRelatedObservations <- function(times, compartment=NA) {
-  return(new("event_related_observations", times=base::sort(unique(times)), compartment=as.integer(compartment)))
+  return(new("event_related_observations", times=base::sort(unique(times)), compartment=as.character(compartment)))
 }
 
 #_______________________________________________________________________________
@@ -85,7 +85,7 @@ setMethod("sample", signature = c("observations", "integer"), definition = funct
   needsDV <- processExtraArg(args, name="needsDV", mandatory=TRUE, default=FALSE)
   
   if (is.na(object@compartment)) {
-    obsCmt <- config@def_obs_cmt
+    obsCmt <- as.character(config@def_obs_cmt)
   } else {
     obsCmt <- object@compartment
   }

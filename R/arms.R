@@ -119,3 +119,54 @@ setMethod("show", signature=c("arms"), definition=function(object) {
   }
 })
 
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("arms"), definition = function(object) {
+  object@list <- object@list %>% purrr::map(~.x %>% unwrapTreatment())
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("arms", "numeric", "character"), definition = function(object, amount, ref) {
+  object@list <- object@list %>% purrr::map(~updateAmount(.x, amount, ref))
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                              updateII                                 ----
+#_______________________________________________________________________________
+
+#' @rdname updateII
+setMethod("updateII", signature = c("arms", "numeric", "character"), definition = function(object, ii, ref) {
+  object@list <- object@list %>% purrr::map(~updateII(.x, ii, ref))
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             updateADDL                                ----
+#_______________________________________________________________________________
+
+#' @rdname updateADDL
+setMethod("updateADDL", signature = c("arms", "integer", "character"), definition = function(object, addl, ref) {
+  object@list <- object@list %>% purrr::map(~updateADDL(.x, addl, ref))
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             updateRepeat                              ----
+#_______________________________________________________________________________
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("arms", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  object@list <- object@list %>% purrr::map(~updateRepeat(.x, rep, ref))
+  return(object)
+})
+
+

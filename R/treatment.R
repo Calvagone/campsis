@@ -99,10 +99,11 @@ setMethod("replace", signature = c("treatment", "dose_adaptation"), definition =
 
 setMethod("sort", signature=c("treatment"), definition=function(x, decreasing=FALSE, ...) {
   types <- x@list %>% purrr::map_chr(~as.character(class(.x)))
-  times <- x@list %>% purrr::map_dbl(~.x@time)
+  times <- x@list %>% purrr::map_dbl(~.x@time[1]) # First element
   
   # Reorder
-  types <- factor(types, levels=c("bolus", "infusion"), labels=c("bolus", "infusion"))
+  classes <- c("bolus_wrapper", "infusion_wrapper", "bolus", "infusion")
+  types <- factor(types, levels=classes, labels=classes)
   order <- order(times, types)
   
   # Apply result to original list
@@ -111,7 +112,7 @@ setMethod("sort", signature=c("treatment"), definition=function(x, decreasing=FA
 })
 
 #_______________________________________________________________________________
-#----                       Assign dose number                              ----
+#----                         assignDoseNumber                              ----
 #_______________________________________________________________________________
 
 #' Assign dose number to each treatment entry.
@@ -144,40 +145,46 @@ setMethod("assignDoseNumber", signature = c("treatment"), definition = function(
 
 getAdminString <- function(object, type) {
   clz <- type$type
-  cmt <- type$cmt
-  
+  cmt <- type$cmt # Concatenated version of compartment (see show method below)
+  cmtSize <- type$cmtSize
+
   admins <- object@list %>% purrr::keep(.p=function(x){
     comp1 <- clz == (class(x) %>% as.character())
-    comp2 <- (cmt == x@compartment) || (is.na(cmt) && is.na(x@compartment))
-    comp2[is.na(comp2)] <- FALSE
+    comp2 <- cmt == getTreatmentEntryCmtString(x)
     return(comp1 && comp2)
   })
 
   str <- paste0("-> Adm. times (", clz, " into ")
-  if (is.na(cmt)) {
+  if (cmtSize==0) {
     str <- paste0(str, "DEFAULT", "): ")
   } else {
     str <- paste0(str, "CMT=", cmt, "): ")
   }
-  
-  amt <- -1
-  allTimes <- c()
-  for (admin in admins) {
-    if (admin@amount==amt) {
-      allTimes <- allTimes %>% append(admin@time)
-    } else {
-      allTimes <- allTimes %>% append(paste0(admin@time, " (", admin@amount, ")"))
-      amt <- admin@amount
-    }
-  }
-  return(paste0(str, paste0(allTimes, collapse=",")))
+  table <- admins %>%
+    purrr::map_dfr(~{
+      tibble::tibble(
+        TIME = .x@time,
+        AMT = .x@amount
+      )
+    }) %>%
+    dplyr::group_by(dplyr::across("TIME")) %>%
+    dplyr::summarise(AMT=sum(.data$AMT)) %>%
+    dplyr::mutate(AMT_STRING=ifelse(duplicated(.data$AMT), sprintf("%s", .data$TIME), sprintf("%s (%s)", .data$TIME, .data$AMT)))
+
+  return(paste0(str, paste0(table$AMT_STRING, collapse=",")))
 }
 
 setMethod("show", signature=c("treatment"), definition=function(object) {
-  object <- object %>% sort()
+  
+  # Unwrap treatment and sort
+  object <- object %>%
+    unwrapTreatment() %>%
+    sort()
   
   adminTypes <- object@list %>% purrr::map_df(.f=function(x){
-    return(tibble::tibble(type=class(x) %>% as.character(), cmt=x@compartment))
+    return(tibble::tibble(type=class(x) %>% as.character(),
+                          cmt=getTreatmentEntryCmtString(x),
+                          cmtSize=length(x@compartment)))
   }) %>% dplyr::distinct()
   
   for(index in seq_len(nrow(adminTypes))) {
@@ -188,3 +195,61 @@ setMethod("show", signature=c("treatment"), definition=function(object) {
   show(object@occasions)
   show(object@dose_adaptations)
 })
+
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("treatment"), definition = function(object) {
+  if (length(object@list)==0) {
+    # Do nothing
+  } else {
+    object@list <- object@list %>%
+      purrr::map(~unwrapTreatment(.x)) %>%
+      unlist() # Return NULL if input is empty list
+  }
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("treatment", "numeric", "character"), definition = function(object, amount, ref) {
+  object@list <- object@list %>% purrr::map(~updateAmount(.x, amount, ref))
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                              updateII                                 ----
+#_______________________________________________________________________________
+
+#' @rdname updateII
+setMethod("updateII", signature = c("treatment", "numeric", "character"), definition = function(object, ii, ref) {
+  object@list <- object@list %>% purrr::map(~updateII(.x, ii, ref))
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             updateADDL                                ----
+#_______________________________________________________________________________
+
+#' @rdname updateADDL
+setMethod("updateADDL", signature = c("treatment", "integer", "character"), definition = function(object, addl, ref) {
+  object@list <- object@list %>% purrr::map(~updateADDL(.x, addl, ref))
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             updateRepeat                              ----
+#_______________________________________________________________________________
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("treatment", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  object@list <- object@list %>% purrr::map(~updateRepeat(.x, rep, ref))
+  return(object)
+})
+
+

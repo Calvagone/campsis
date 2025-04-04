@@ -15,6 +15,12 @@ datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, 
   if (doseOnly) {
     table <- table %>% dplyr::filter(EVID==1)
   }
+  
+  # Convert CMT column
+  if (!is.null(model)) {
+    table <- table %>% dplyr::mutate(CMT=as.integer(CMT))
+  }
+  
   return(table)
 }
 
@@ -38,7 +44,15 @@ datasetRegressionTest <- function(dataset, model=NULL, seed, doseOnly=TRUE, file
     write.table(dataset1, file=file, sep=",", row.names=FALSE)
   }
   
-  dataset2 <- read.csv(file=file) %>% tibble::as_tibble()
+  dataset2 <- read.csv(file=file) %>%
+    tibble::as_tibble()
+  
+  # When model is not provided, export always returns CMT as character
+  if (is.null(model) && "CMT" %in% colnames(dataset2)) {
+    dataset2 <- dataset2 %>%
+      dplyr::mutate(CMT=as.character(CMT))
+  }
+
   expect_equal(dataset1, dataset2)
 }
 

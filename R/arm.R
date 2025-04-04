@@ -132,25 +132,8 @@ setMethod("add", signature = c("arm", "list"), definition = function(object, x) 
 })
 
 setMethod("add", signature = c("arm", "treatment_entry"), definition = function(object, x) {
-  existing <- object@protocol@treatment %>% find(x)
-  if (is.null(existing)) {
-    object@protocol@treatment <- object@protocol@treatment %>% add(x) 
-  } else {
-    oldAmount <- existing@amount
-    xAmount <- x@amount
-    existing@amount <- 0
-    x@amount <- 0
-    if (isTRUE(all.equal(existing, x))) {
-      # Combine old amount and new amount
-      existing@amount <- oldAmount + xAmount
-      # Replace old element
-      object@protocol@treatment <- object@protocol@treatment %>% replace(existing) 
-    } else {
-      where <- ifelse(object@id==0L, "dataset", object %>% getName())
-      stop(sprintf("Element '%s' already exists in %s and has different properties. Amounts cannot be added.",
-                   x %>% getName(), where))
-    }
-  }
+  # Note, we do not use add because add checks for uniqueness
+  object@protocol@treatment@list <- object@protocol@treatment@list %>% append(x) 
   return(object)
 })
 
@@ -352,4 +335,55 @@ setMethod("show", signature=c("arm"), definition=function(object) {
     show(object@covariates) # Display 'No covariates' if empty list
   }
 })
+
+#_______________________________________________________________________________
+#----                          unwrapTreatment                              ----
+#_______________________________________________________________________________
+
+#' @rdname unwrapTreatment
+setMethod("unwrapTreatment", signature = c("arm"), definition = function(object) {
+  object@protocol@treatment <- object@protocol@treatment %>% unwrapTreatment()
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                            updateAmount                               ----
+#_______________________________________________________________________________
+
+#' @rdname updateAmount
+setMethod("updateAmount", signature = c("arm", "numeric", "character"), definition = function(object, amount, ref) {
+  object@protocol@treatment <- object@protocol@treatment %>% updateAmount(amount, ref)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                              updateII                                 ----
+#_______________________________________________________________________________
+
+#' @rdname updateII
+setMethod("updateII", signature = c("arm", "numeric", "character"), definition = function(object, ii, ref) {
+  object@protocol@treatment <- object@protocol@treatment %>% updateII(ii, ref)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             updateADDL                                ----
+#_______________________________________________________________________________
+
+#' @rdname updateADDL
+setMethod("updateADDL", signature = c("arm", "integer", "character"), definition = function(object, addl, ref) {
+  object@protocol@treatment <- object@protocol@treatment %>% updateADDL(addl, ref)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                             updateRepeat                              ----
+#_______________________________________________________________________________
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("arm", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  object@protocol@treatment <- object@protocol@treatment %>% updateRepeat(rep, ref)
+  return(object)
+})
+
 

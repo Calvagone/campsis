@@ -7,33 +7,43 @@
 Infusion(
   time,
   amount,
-  compartment = NA,
+  compartment = NULL,
   f = NULL,
   lag = NULL,
   duration = NULL,
   rate = NULL,
   ii = NULL,
-  addl = NULL
+  addl = NULL,
+  wrap = TRUE,
+  ref = NULL,
+  rep = NULL
 )
 }
 \arguments{
 \item{time}{treatment time(s), numeric value or vector. First treatment time if used together with ii and addl.}
 
-\item{amount}{total amount to infuse, numeric}
+\item{amount}{amount to infuse, single numeric value}
 
-\item{compartment}{compartment index, integer}
+\item{compartment}{compartment index or name to give the infusion(s). A vector of integers or names can be used for a complex model administration.}
 
-\item{f}{fraction of infusion amount, distribution}
+\item{f}{fraction of infusion amount, list of distributions (one per compartment)}
 
-\item{lag}{infusion lag time, distribution}
+\item{lag}{infusion lag time, , list of distributions (one per compartment)}
 
-\item{duration}{infusion duration, distribution}
+\item{duration}{infusion duration, list of distributions (one per compartment)}
 
-\item{rate}{infusion rate, distribution}
+\item{rate}{infusion rate, list of distributions (one per compartment)}
 
-\item{ii}{interdose interval, requires argument 'time' to be a single numeric value}
+\item{ii}{inter-dose interval, requires argument 'time' to be a single numeric value}
 
 \item{addl}{number of additional doses, requires argument 'time' to be a single integer value}
+
+\item{wrap}{if TRUE, the infusion wrapper will be stored as is in the dataset, otherwise,
+it will be split into a list of infusions distinct in time. Default is TRUE.}
+
+\item{ref}{any reference name used to identify this infusion, single character value}
+
+\item{rep}{repeat the base dosing schedule several times, a 'repeated schedule' object is expected. Default is NULL (no repetition).}
 }
 \value{
 a single infusion or a list of infusions.

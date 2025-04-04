@@ -1,9 +1,9 @@
 ## Test environments
-* local R installation, R 4.4.2
-* ubuntu-latest (GitHub Actions), R 4.4.2
-* windows-latest (GitHub Actions), R 4.4.2
-* macos-latest (GitHub Actions), R 4.4.2
-* win-builder (devtools::check_win_devel), R 4.4.2
+* local R installation, R 4.4.3
+* ubuntu-latest (GitHub Actions), R 4.4.3
+* windows-latest (GitHub Actions), R 4.4.3
+* macos-latest (GitHub Actions), R 4.4.3
+* win-builder (devtools::check_win_devel), R 4.5.0
 
 ## R CMD check results
 

@@ -10,8 +10,8 @@ Infusion class.
 \section{Slots}{
 
 \describe{
-\item{\code{duration}}{infusion duration, distribution}
+\item{\code{duration}}{infusion duration, distribution list}
 
-\item{\code{rate}}{infusion rate, distribution}
+\item{\code{rate}}{infusion rate, distribution list}
 }}
 

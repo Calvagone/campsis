@@ -24,7 +24,8 @@ test_that(getTestName("Dose adaptations can be checked in CAMPSIS output if dosi
   campsisTest(simulation, test, env=environment())
   
   # With dosing output
-  expectedLength <- expectedLength + (dataset@arms %>% default())@protocol@treatment %>% length() * dataset %>% length()
+  expectedLength <- expectedLength +
+    (dataset@arms %>% default())@protocol@treatment %>% unwrapTreatment() %>% length() * dataset %>% length()
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, dosing=TRUE))
   test <- expression(
     expect_equal(results %>% nrow(), expectedLength),
