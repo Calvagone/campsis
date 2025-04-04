@@ -596,6 +596,16 @@ test_that("Compartment argument both accepts a character vector with compartment
                               AMT=c(100,100,100,100),
                               CMT=c("SC1", "SC2", "SC1", "SC2"),
                               RATE=c(100,100,100,100)))
+  
+  # Check a clear error message is given if the model does not contain the compartments
+  dataset <- Dataset() %>%
+    add(Bolus(time=0, amount=100, compartment=c("DEPOT", "DEPOT2", "DEPOT3"), ii=24, addl=1))
+  
+  model <- model_suite$testing$nonmem$advan4_trans4
+  compartmentNames <- model@compartments@list %>%
+    purrr::map_chr(~.x@name)
+  expect_equal(compartmentNames, c("DEPOT", "CENTRAL", "PERIPHERAL", "OUTPUT"))
+  expect_error(dataset %>% export(dest="rxode2", model=model), regexp="Unknown compartment name\\(s\\): DEPOT2, DEPOT3")
 
 })
 

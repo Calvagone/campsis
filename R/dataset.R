@@ -565,8 +565,8 @@ recodeCompartments <- function(x, compartmentMapping) {
   }
   cmtValues <- unique(x) %>% stats::na.omit() # Character, but can be compartment indexes or names (or mixed)
   assert_that(all(cmtValues %in% compartmentMapping$NAME),
-              msg=sprintf("Compartment name(s) %s are not found in the model",
-                          paste0(compartmentMapping$NAME[!compartmentMapping$NAME %in% cmtValues], collapse="/")))
+              msg=sprintf("Unknown compartment name(s): %s",
+                          paste0(cmtValues[!cmtValues %in% compartmentMapping$NAME], collapse=", ")))
   # Argument .missing means that missing values in .x (NAs) are replaced by the provided value (NA)
   # Argument .default not set meaning we get a message if a compartment name is not found in the model
   return(as.integer(dplyr::recode(x, !!!setNames(compartmentMapping$INDEX, compartmentMapping$NAME))))
