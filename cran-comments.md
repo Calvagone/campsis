@@ -3,7 +3,7 @@
 * ubuntu-latest (GitHub Actions), R 4.4.3
 * windows-latest (GitHub Actions), R 4.4.3
 * macos-latest (GitHub Actions), R 4.4.3
-* win-builder (devtools::check_win_devel), R 4.4.3
+* win-builder (devtools::check_win_devel), R 4.5.0
 
 ## R CMD check results
 

@@ -714,3 +714,26 @@ test_that("Method 'updateRepeat' works as expected", {
   expect_error(datasetB@arms@list[[1]]@protocol@treatment@list[[3]]@rep) # Slot does not exist!
 })
 
+test_that(getTestName("Assertion in method 'getCompartmentMapping' should properly work"), {
+  model <- model_suite$tmdd$`1cpt_fo_tmdd_full`
+
+  arm1 <- Arm(subjects=10, label="1000 mg") %>%
+    add(Bolus(time=0, amount=1000, compartment=1, ii=24, addl=0)) %>%
+    add(Observations(seq(0,24,by=1)))
+  
+  arm2 <- Arm(subjects=10, label="10000 mg") %>%
+    add(Bolus(time=0, amount=10000, compartment=1, ii=24, addl=0)) %>%
+    add(Observations(seq(0,24,by=1)))
+  
+  dataset <- Dataset() %>%
+    add(c(arm1, arm2)) %>%
+    add(DatasetConfig(exportTSLD=TRUE, exportTDOS=TRUE))
+  
+  # No error should be raised because the compartment name A_R is R (not a number, hence no confusion is possible)
+  table <- dataset %>% export(dest="rxode2", model=model, seed=1)
+  
+  # However if A_R CMT=3 is renamed into A_4, an error should be raised, since compartment 4 exists!
+  model@compartments@list[[3]]@name <- "4"
+  expect_error(dataset %>% export(dest="rxode2", model=model, seed=1),
+               regexp="Compartment name '4' not corresponding to its index")
+})

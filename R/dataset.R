@@ -370,8 +370,10 @@ getCompartmentMapping <- function(compartments) {
       if (is.na(cmt@name)) {
         return(tibble::tibble(INDEX=cmt@index, NAME=as.character(cmt@index)))
       } else {
-        assertthat::assert_that(!(nchar(cmt@name)==1 && cmt@name != as.character(cmt@index)),
-                                msg=paste0("Compartment name '%s' not corresponding to its index", cmt@name))
+        assertthat::assert_that(!(nchar(cmt@name)==1 &&
+                                    !is.na(suppressWarnings(as.numeric(cmt@name))) &&
+                                    cmt@name != as.character(cmt@index)),
+                                msg=sprintf("Compartment name '%s' not corresponding to its index", cmt@name))
         return(tibble::tibble(INDEX=c(cmt@index, cmt@index), NAME=c(cmt@name, as.character(cmt@index))))
       }
     })
