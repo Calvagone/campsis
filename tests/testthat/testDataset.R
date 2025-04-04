@@ -689,3 +689,28 @@ test_that("Methods 'updateII' and 'updateADDL' work as expected", {
   expect_false(is(datasetB@arms@list[[1]]@protocol@treatment@list[[3]], "bolus_wrapper")) # FALSE, because the wrapper is not used
 })
 
+test_that("Method 'updateRepeat' works as expected", {
+  
+  bolus <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=2, rep=CyclicSchedule(24*7, 1), ref="Admin1")
+  infusion <- Infusion(time=0, amount=100, compartment=c("DEPOT3"), ii=24, addl=2, rep=CyclicSchedule(24*7, 1), ref="Admin1")
+  
+  dataset <- Dataset(5) %>%
+    add(bolus) %>%
+    add(infusion) %>%
+    add(Bolus(time=0, amount=100, compartment="DEPOT1", wrap=FALSE, ref="Admin1"))
+  
+  # Check method is not doing anything if the reference is wrong
+  datasetA <- dataset %>%
+    updateRepeat(CyclicSchedule(24*7, 2), ref="Wrong ref")
+  
+  expect_equal(datasetA, dataset)
+  
+  # Check both methods work as expected
+  datasetB <- dataset %>%
+    updateRepeat(CyclicSchedule(24*7, 2), ref="Admin1")
+  
+  expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[1]]@rep, CyclicSchedule(24*7, 2))
+  expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[2]]@rep, CyclicSchedule(24*7, 2))
+  expect_error(datasetB@arms@list[[1]]@protocol@treatment@list[[3]]@rep) # Slot does not exist!
+})
+
