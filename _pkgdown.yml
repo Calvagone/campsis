@@ -52,6 +52,20 @@ reference:
   - ParameterDistribution
   - UniformDistribution
   
+- title: "Repeated dosing schedule"
+  contents:
+  - CyclicSchedule
+  - RepeatAtSchedule
+  
+- title: "Dataset shortcuts"
+  contents:
+  - setLabel
+  - setSubjects
+  - updateADDL
+  - updateAmount
+  - updateII
+  - updateRepeat
+  
 - title: "Create events"
   contents:
   - Event
@@ -114,6 +128,7 @@ reference:
 
 - title: "For advanced use"
   contents:
+  - applyCompartmentCharacteristics
   - dosingOnly
   - generateIIV
   - generateIIV_
@@ -126,27 +141,27 @@ reference:
   - getTimes
   - getTimeVaryingCovariates
   - length,arm-method
+  - length,cyclic_schedule-method
   - length,dataset-method
+  - length,repeat_at_schedule-method
   - nhanes
   - obsOnly
+  - repeatSchedule
   - retrieveParameterValue
-  - setLabel
-  - setSubjects
-  
-- title: "For use in external packages"
-  contents:
-  - applyCompartmentCharacteristics
-  
+  - unwrapTreatment
+
 - title: "Exported classes"
   contents:
   - arm-class
   - arms-class
   - bolus-class
+  - bolus_wrapper-class
   - bootstrap-class
   - bootstrap_distribution-class
   - constant_distribution-class
   - covariate-class
   - covariates-class
+  - cyclic_schedule-class
   - dataset-class
   - dataset_config-class
   - declare_settings-class
@@ -161,6 +176,7 @@ reference:
   - function_distribution-class
   - hardware_settings-class
   - infusion-class
+  - infusion_wrapper-class
   - internal_settings-class
   - mrgsolve_engine-class
   - nocb_settings-class
@@ -171,6 +187,8 @@ reference:
   - occasions-class
   - output_function-class
   - progress_settings-class
+  - repeated_schedule-class
+  - repeat_at_schedule-class
   - rxode_engine-class
   - scenario-class
   - scenarios-class
@@ -183,4 +201,5 @@ reference:
   - treatment_iov-class
   - treatment_iovs-class
   - undefined_distribution-class
+  - undefined_schedule-class
   

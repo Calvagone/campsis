@@ -1,3 +1,13 @@
+# campsis 1.7.0
+
+* Bolus/Infusion: accept a vector of compartment names (1 or several) #176
+* Bolus/Infusion: store arguments 'as is' in wrapper objects #177
+* Bolus/Infusions: vectorize compartment properties #178
+* Implement method 'updateAmount' #179
+* Implement methods 'updateII' and 'updateADDL' #180
+* Repeat the initial dosing schedule based on cycle duration #181
+* Update pkgdown website before release #182
+
 # campsis 1.6.0
 
 * Add option to sample uncertainty from SIR or bootstrap output #87
