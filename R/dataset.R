@@ -944,3 +944,13 @@ setMethod("updateADDL", signature = c("dataset", "integer", "character"), defini
   object@arms <- object@arms %>% updateADDL(addl, ref)
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                             updateRepeat                              ----
+#_______________________________________________________________________________
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("dataset", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  object@arms <- object@arms %>% updateRepeat(rep, ref)
+  return(object)
+})

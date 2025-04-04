@@ -292,3 +292,27 @@ setGeneric("updateADDL", function(object, addl, ref=NULL) {
   addl <- as.integer(addl)
   standardGeneric("updateADDL")
 })
+
+#_______________________________________________________________________________
+#----                            updateRepeat                               ----
+#_______________________________________________________________________________
+
+#' Update the repeat field (argument 'rep' in Bolus and Infusion constructors).
+#' 
+#' @param object generic object
+#' @param rep repeated dosing schedule (definition) object
+#' @param ref reference treatment name
+#' @return updated object
+#' @export
+#' @rdname updateRepeat
+updateRepeat <- function(object, rep, ref) {
+  stop("No default function is provided")
+}
+
+setGeneric("updateRepeat", function(object, rep, ref=NULL) {
+  if (is.null(ref)) {
+    ref <- as.character(NA)
+  }
+  standardGeneric("updateRepeat")
+})
+

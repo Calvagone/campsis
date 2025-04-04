@@ -158,3 +158,15 @@ setMethod("updateADDL", signature = c("arms", "integer", "character"), definitio
   object@list <- object@list %>% purrr::map(~updateADDL(.x, addl, ref))
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                             updateRepeat                              ----
+#_______________________________________________________________________________
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("arms", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  object@list <- object@list %>% purrr::map(~updateRepeat(.x, rep, ref))
+  return(object)
+})
+
+

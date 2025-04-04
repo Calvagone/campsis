@@ -376,3 +376,14 @@ setMethod("updateADDL", signature = c("arm", "integer", "character"), definition
   return(object)
 })
 
+#_______________________________________________________________________________
+#----                             updateRepeat                              ----
+#_______________________________________________________________________________
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("arm", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  object@protocol@treatment <- object@protocol@treatment %>% updateRepeat(rep, ref)
+  return(object)
+})
+
+

@@ -514,5 +514,36 @@ setMethod("updateADDL", signature = c("infusion", "integer", "character"), defin
   return(object) # Do nothing
 })
 
+#_______________________________________________________________________________
+#----                             updateRepeat                              ----
+#_______________________________________________________________________________
+
+updateRepeatDelegate <- function(object, rep, ref) {
+  if (is.na(ref) || ref==object@ref) {
+    object@rep <- rep
+  }
+  return(object)
+}
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("bolus_wrapper", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  return(updateRepeatDelegate(object, rep, ref))
+})
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("infusion_wrapper", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  return(updateRepeatDelegate(object, rep, ref))
+})
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("bolus", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  return(object) # Do nothing
+})
+
+#' @rdname updateRepeat
+setMethod("updateRepeat", signature = c("infusion", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  return(object) # Do nothing
+})
+
 
 
