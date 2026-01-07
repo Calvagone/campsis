@@ -2,6 +2,16 @@
 #----                       hardware_settings class                       ----
 #_______________________________________________________________________________
 
+validateHardware <- function(object) {
+  parallel <- c(object@dataset_parallel, object@replicate_parallel,
+                object@scenario_parallel, object@slice_parallel)
+  if (sum(parallel) > 1) {
+    return("Parallelization can only be applied at one level")
+  } else {
+    return(TRUE)
+  }
+}
+
 #' 
 #' Hardware settings class.
 #' 
@@ -28,7 +38,8 @@ setClass(
   ),
   prototype=prototype(cpu=as.integer(1), replicate_parallel=FALSE, scenario_parallel=FALSE,
                       slice_parallel=FALSE, slice_size=as.integer(NA),
-                      dataset_parallel=FALSE, dataset_slice_size=as.integer(500), auto_setup_plan=FALSE)
+                      dataset_parallel=FALSE, dataset_slice_size=as.integer(500), auto_setup_plan=FALSE),
+  validity=validateHardware
 )
 
 #'

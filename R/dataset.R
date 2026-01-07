@@ -757,8 +757,8 @@ processAllTimeColumns <- function(table, config) {
 #' 
 #' @param dataset Campsis dataset to export
 #' @param hardware hardware configuration
-#' @return splitting configuration list (if 'parallel_dataset' is enabled) or
-#'  NA (if 'parallel_dataset' disabled or if the length of the dataset is less than the dataset export slice size)
+#' @return splitting configuration list (if 'dataset_parallel' is enabled) or
+#'  NA (if 'dataset_parallel' disabled or if the length of the dataset is less than the dataset export slice size)
 #' @export
 #'
 getSplittingConfiguration <- function(dataset, hardware) {
@@ -822,6 +822,8 @@ splitDataset <- function(dataset, config) {
   return(dataset)
 }
 
+#' @importFrom furrr future_map_dfr
+#' @importFrom purrr map_dfr
 setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(object, dest, seed, model, settings) {
   
   # NOCB management
@@ -838,14 +840,13 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   configList <- getSplittingConfiguration(dataset=object, hardware=settings@hardware)
   furrrSeed <- if (is.list(configList)) {TRUE} else {NULL}
   
-  retValue <- furrr::future_map_dfr(.x=configList, .f=function(config) {
-
+  exportFun <- function(config) {
     # Export table
     arm_offset <- if (is.list(config)) {config$arm_offset} else {NULL}
     offset_within_arm <- if (is.list(config)) {config$offset_within_arm} else {0}
     table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model,
                             arm_offset=arm_offset, offset_within_arm=offset_within_arm)
-
+    
     # TSLD/TDOS pre-processing
     table <- table %>% preprocessTSLDAndTDOSColumn(config=object@config)
     
@@ -866,14 +867,23 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     table <- table %>% processAllTimeColumns(config=object@config)
     
     return(table %>% dplyr::ungroup())
-  }, .options=furrr::furrr_options(seed=furrrSeed, scheduling=getFurrrScheduling(settings@hardware@dataset_parallel)))
+  }
   
+  # Use 'future' only when required
+  mapFun <- if (settings@hardware@dataset_parallel) {
+    function(.x) {furrr::future_map_dfr(.x=.x, .f=exportFun, .options=furrr::furrr_options(seed=furrrSeed))}
+  } else {
+    function(.x) {purrr::map_dfr(.x=.x, .f=exportFun)}
+  }
+
   # Left-join IIV matrix
-  retValue <- leftJoinIIV(table=retValue, iiv=iiv)
+  retValue <- leftJoinIIV(table=configList %>% mapFun(), iiv=iiv)
   
   return(retValue)
 })
 
+#' @importFrom furrr future_map_dfr
+#' @importFrom purrr map_dfr
 setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=function(object, dest, seed, model, settings) {
   
   # NOCB management
@@ -889,9 +899,8 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   # Retrieve splitting configuration
   configList <- getSplittingConfiguration(dataset=object, hardware=settings@hardware)
   furrrSeed <- if (is.list(configList)) {TRUE} else {NULL}
-
-  retValue <- furrr::future_map_dfr(.x=configList, .f=function(config) {
-    
+  
+  exportFun <- function(config) {
     # Export table
     arm_offset <- if (is.list(config)) {config$arm_offset} else {NULL}
     offset_within_arm <- if (is.list(config)) {config$offset_within_arm} else {0}
@@ -918,10 +927,17 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
     table <- table %>% processAllTimeColumns(config=object@config)
     
     return(table %>% dplyr::ungroup())
-  }, .options=furrr::furrr_options(seed=furrrSeed, scheduling=getFurrrScheduling(settings@hardware@dataset_parallel)))
+  }
   
+  # Use 'future' only when required
+  mapFun <- if (settings@hardware@dataset_parallel) {
+    function(.x) {furrr::future_map_dfr(.x=.x, .f=exportFun, .options=furrr::furrr_options(seed=furrrSeed))}
+  } else {
+    function(.x) {purrr::map_dfr(.x=.x, .f=exportFun)}
+  }
+
   # Left-join IIV matrix
-  retValue <- leftJoinIIV(table=retValue, iiv=iiv)
+  retValue <- leftJoinIIV(table=configList %>% mapFun(), iiv=iiv)
 
   return(retValue)
 })
