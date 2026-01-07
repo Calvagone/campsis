@@ -52,10 +52,13 @@ reference:
   - ParameterDistribution
   - UniformDistribution
   
-- title: "Repeated dosing schedule"
+- title: "Dosing schedules and helpers"
   contents:
+  - DosingSchedule
   - CyclicSchedule
   - RepeatAtSchedule
+  - TimeSequence
+  - TimeVector
   
 - title: "Dataset shortcuts"
   contents:
@@ -102,6 +105,7 @@ reference:
 - title: "Simulation settings"
   contents:
   - campsis_handler
+  - DefaultSettings
   - Declare
   - Hardware
   - NOCB
@@ -128,10 +132,14 @@ reference:
 
 - title: "For advanced use"
   contents:
+  - as.numeric,time_sequence-method
+  - as.numeric,time_vector-method
+  - applyAction
   - applyCompartmentCharacteristics
   - dosingOnly
   - generateIIV
   - generateIIV_
+  - getCampsisOption
   - getCovariates
   - getEventCovariates
   - getFixedCovariates
@@ -147,6 +155,7 @@ reference:
   - nhanes
   - obsOnly
   - repeatSchedule
+  - ReplaceAction
   - retrieveParameterValue
   - unwrapTreatment
 
@@ -154,6 +163,7 @@ reference:
   contents:
   - arm-class
   - arms-class
+  - binomial_distribution-class
   - bolus-class
   - bolus_wrapper-class
   - bootstrap-class
@@ -165,9 +175,12 @@ reference:
   - dataset-class
   - dataset_config-class
   - declare_settings-class
+  - default_settings-class
+  - discrete_distribution-class
   - distribution-class
   - dose_adaptation-class
   - dose_adaptations-class
+  - dosing_schedule-class
   - event-class
   - event_covariate-class
   - events-class
@@ -178,7 +191,9 @@ reference:
   - infusion-class
   - infusion_wrapper-class
   - internal_settings-class
+  - lognormal_distribution-class
   - mrgsolve_engine-class
+  - normal_distribution-class
   - nocb_settings-class
   - protocol-class
   - observations-class
@@ -189,17 +204,23 @@ reference:
   - progress_settings-class
   - repeated_schedule-class
   - repeat_at_schedule-class
+  - replace_action-class
   - rxode_engine-class
   - scenario-class
+  - scenario_action-class
+  - scenario_actions-class
   - scenarios-class
   - simulation_engine-class
   - simulation_settings-class
   - simulation_progress-class
   - solver_settings-class
+  - time_sequence-class
   - time_varying_covariate-class
+  - time_vector-class
   - treatment-class
   - treatment_iov-class
   - treatment_iovs-class
   - undefined_distribution-class
   - undefined_schedule-class
+  - uniform_distribution-class
   
