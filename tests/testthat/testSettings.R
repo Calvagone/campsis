@@ -34,7 +34,7 @@ test_that("Default simulation settings work as expected", {
 test_that("Hardware settings work as expected", {
   
   settings <- Settings(Hardware(cpu=10, slice_parallel=TRUE, slice_size=100,
-                                dataset_parallel=TRUE, dataset_slice_size=250))
+                                dataset_parallel=FALSE, dataset_slice_size=250))
   
   # Hardware settings, default values
   expect_equal(settings@hardware@cpu, 10)
@@ -42,11 +42,14 @@ test_that("Hardware settings work as expected", {
   expect_equal(settings@hardware@scenario_parallel, FALSE)
   expect_equal(settings@hardware@slice_parallel, TRUE)
   expect_equal(settings@hardware@slice_size, as.integer(100))
-  expect_equal(settings@hardware@dataset_parallel, TRUE)
+  expect_equal(settings@hardware@dataset_parallel, FALSE)
   expect_equal(settings@hardware@dataset_slice_size, 250)
   expect_equal(settings@hardware@auto_setup_plan, TRUE)
   
-  expect_true("Hardware: 10 CPU core(s), parallelisation enabled (dataset, slices)" %in% capture.output(show(settings)))
+  expect_true("Hardware: 10 CPU core(s), parallelisation enabled (slices)" %in% capture.output(show(settings)))
+  
+  expect_error(Settings(Hardware(cpu=10, slice_parallel=TRUE, slice_size=100,
+                    dataset_parallel=TRUE, dataset_slice_size=250)), regexp="Parallelization can only be applied at one level")
 })
 
 test_that("Solver settings work as expected", {

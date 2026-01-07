@@ -12,8 +12,8 @@ getSplittingConfiguration(dataset, hardware)
 \item{hardware}{hardware configuration}
 }
 \value{
-splitting configuration list (if 'parallel_dataset' is enabled) or
- NA (if 'parallel_dataset' disabled or if the length of the dataset is less than the dataset export slice size)
+splitting configuration list (if 'dataset_parallel' is enabled) or
+ NA (if 'dataset_parallel' disabled or if the length of the dataset is less than the dataset export slice size)
 }
 \description{
 Get splitting configuration for parallel export.

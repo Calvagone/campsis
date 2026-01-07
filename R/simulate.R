@@ -238,6 +238,7 @@ processArmLabels <- function(campsis, arms) {
 #' @keywords internal
 #' @importFrom methods validObject
 #' @importFrom furrr future_imap_dfr
+#' @importFrom purrr imap_dfr
 simulateScenarios <- function(scenarios, model, dataset, dest, events,
                               tablefun, outvars, outfun, seed, replicates,
                               dosing, settings) {
@@ -247,7 +248,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
       add(Scenario())
   }
   
-  outer <-  furrr::future_imap_dfr(.x=scenarios@list, .f=function(scenario, scenarioIndex) {
+  scenarioFun <- function(scenario, scenarioIndex) {
     model <- model %>% applyScenario(scenario)
     dataset <- dataset %>% applyScenario(scenario)
     
@@ -274,8 +275,8 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     }
     
     inner <- simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
-                                    tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                    dosing=dosing, settings=settings)
+                                  tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                  dosing=dosing, settings=settings)
     
     # Apply potential output function
     inner <- inner %>% applyOutfun(outfun=outfun, level="scenario", scenario=scenario@name)
@@ -284,9 +285,18 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     if (!emptyScenarios) {
       inner <- inner %>% dplyr::mutate(SCENARIO=scenario@name)
     }
-
+    
     return(inner)
-  }, .options=furrr::furrr_options(seed=NULL, scheduling=getFurrrScheduling(settings@hardware@scenario_parallel)))
+  }
+  
+  # Use 'future' only when required
+  mapFun <- if (settings@hardware@scenario_parallel && settings@hardware@cpu > 1) {
+    function(.x) {furrr::future_imap_dfr(.x=.x, .f=scenarioFun, .options=furrr::furrr_options(seed=NULL))}
+  } else {
+    function(.x) {purrr::imap_dfr(.x=.x, .f=scenarioFun)}
+  }
+  
+  outer <-  scenarios@list %>% mapFun()
   
   # Label arms (ARM column)
   if (is(dataset, "dataset")) {
@@ -302,6 +312,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @return a data frame with the results
 #' @keywords internal
 #' @importFrom furrr furrr_options future_imap_dfr
+#' @importFrom purrr imap_dfr
 #' @importFrom progressr progressor
 #' @importFrom dplyr all_of mutate
 #' @importFrom stats setNames
@@ -341,7 +352,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   seqReplicates <- as.list(seqReplicates) %>%
     stats::setNames(seqReplicates) # Names are added for furrr (added automatically to the output with .id="replicate")
 
-  allRep <- seqReplicates %>% furrr::future_map_dfr(.f=function(replicate) {
+  repFun <- function(replicate) {
     # Export model for each replicate
     model_ <- replicatedModel %>%
       campsismod::export(dest=CampsisModel(), index=replicate)
@@ -358,8 +369,8 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     retValue <- tryCatch(
       expr={
         inner <- simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
-                                     tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
-                                     dosing=dosing, settings=settings)
+                                   tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
+                                   dosing=dosing, settings=settings)
         # Apply potential output function
         inner <- inner %>% applyOutfun(outfun=outfun, level="replicate", replicate=replicate) 
       },
@@ -374,7 +385,15 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
       }
     )
     return(retValue)
-  }, .id="replicate", .options=furrr::furrr_options(seed=NULL, scheduling=getFurrrScheduling(settings@hardware@replicate_parallel)))
+  }
+  
+  mapFun <- if (settings@hardware@replicate_parallel && settings@hardware@cpu > 1) {
+    function(.x) {furrr::future_map_dfr(.x=.x, .f=repFun, .id="replicate", .options=furrr::furrr_options(seed=NULL))}
+  } else {
+    function(.x) {purrr::map_dfr(.x=.x, .f=repFun, .id="replicate")}
+  }
+  
+  allRep <- seqReplicates %>% mapFun()
   
   # Remove 'replicate' column if only 1 replicate
   if (replicates==1) {
@@ -560,6 +579,7 @@ reorderColumns <- function(results, dosing) {
 }
 
 #' @importFrom furrr future_imap_dfr furrr_options
+#' @importFrom purrr imap_dfr
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
@@ -609,10 +629,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   # Make sure to remove the list of sub-datasets from 'config' (see #166)
   subdatasets <- config$subdatasets
   config$subdatasets <- NULL
-
-  results <- furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
+  
+  # This function will be called for each slice
+  sliceFunRxode <- function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
-
+    
     # Launch simulation with RxODE
     if (dest@rxode2) {
       tmp <- rxode2::rxSolve(object=mod, params=params, omega=omega, sigma=sigma, events=subdataset, returnType="tibble",
@@ -645,7 +666,16 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     }
     
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
+  }
+  
+  # Use 'future' only when required
+  mapFun <- if (settings@hardware@slice_parallel && settings@hardware@cpu > 1) {
+    function(.x) {furrr::future_imap_dfr(.x=.x, .f=sliceFunRxode, .options=furrr::furrr_options(seed=TRUE))}
+  } else {
+    function(.x) {purrr::imap_dfr(.x=.x, .f=sliceFunRxode)}
+  }
+
+  results <- subdatasets %>% mapFun()
   
   # Tick progress
   if (!tick_slice) {
@@ -657,6 +687,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
 })
 
 #' @importFrom furrr future_imap_dfr furrr_options
+#' @importFrom purrr imap_dfr
 #' @importFrom digest sha1
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "output_function", "integer", "integer", "logical", "simulation_settings"),
@@ -702,10 +733,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   if (nrow(sigma) > 0) {
     mod <- mod %>% mrgsolve::update(sigma=sigma)
   }
-
-  results <-  furrr::future_imap_dfr(.x=subdatasets, .f=function(subdataset, index) {
+  
+  # This function will be called for each slice
+  sliceFunMrgsolve <- function(subdataset, index) {
     inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
-
+    
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {
       mod <- mod %>% mrgsolve::update(init=inits)
@@ -714,15 +746,24 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     # Launch simulation with mrgsolve
     # Observation only set to TRUE to align results with RxODE
     tmp <- mod %>% mrgsolve::data_set(data=subdataset) %>% mrgsolve::mrgsim(obsonly=!dosing, output="df", nocb=nocb) %>% tibble::as_tibble()
-
+    
     # Tick progress
     if (tick_slice) {
       progress <- progress %>% updateSlice(index)
       progress <- progress %>% tick(tick_slice=tick_slice)
     }
-
+    
     return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
-  }, .options=furrr::furrr_options(seed=TRUE, scheduling=getFurrrScheduling(settings@hardware@slice_parallel)))
+  }
+  
+  # Use 'future' only when required
+  mapFun <- if (settings@hardware@slice_parallel && settings@hardware@cpu > 1) {
+    function(.x) {furrr::future_imap_dfr(.x=.x, .f=sliceFunMrgsolve, .options=furrr::furrr_options(seed=TRUE))}
+  } else {
+    function(.x) {purrr::imap_dfr(.x=.x, .f=sliceFunMrgsolve)}
+  }
+
+  results <-  subdatasets %>% mapFun()
   
   # Tick progress
   if (!tick_slice) {
