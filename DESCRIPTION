@@ -63,8 +63,6 @@ Suggests:
     xfun
 VignetteBuilder: 
     knitr
-Remotes: 
-    Calvagone/campsismod
 Encoding: UTF-8
 Language: en-US
 LazyData: true
