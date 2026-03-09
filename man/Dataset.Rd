@@ -4,12 +4,14 @@
 \alias{Dataset}
 \title{Create a dataset.}
 \usage{
-Dataset(subjects = NULL, label = as.character(NA))
+Dataset(subjects = NULL, label = as.character(NA), json = NULL)
 }
 \arguments{
 \item{subjects}{number of subjects in the default arm}
 
 \item{label}{label of the default arm, NA by default}
+
+\item{json}{path to JSON dataset file or JSON content in string form}
 }
 \value{
 a dataset

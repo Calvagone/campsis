@@ -28,21 +28,7 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
   if (is.null(settings)) {
     settings <- Settings()
   }
-  
-  # Loading from JSON
-  if (is.character(model) || is(model, "json_element")) {
-    model <- loadFromJSON(CampsisModel(), model)
-  }
-  if (is.character(dataset) || is(dataset, "json_element")) {
-    dataset <- loadFromJSON(Dataset(), dataset)
-  }
-  if (is.character(settings) || is(settings, "json_element")) {
-    settings <- loadFromJSON(Settings(), settings)
-  }
-  if (is.character(scenarios) || is(scenarios, "json_element")) {
-    scenarios <- loadFromJSON(Scenarios(), scenarios)
-  }
-  
+
   # Propagate default settings
   defaultSettings <- settings@default
   if (is.null(dest)) {

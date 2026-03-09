@@ -4,10 +4,12 @@
 \alias{Settings}
 \title{Create advanced simulation settings.}
 \usage{
-Settings(...)
+Settings(..., json = NULL)
 }
 \arguments{
 \item{...}{any user-required settings: see ?Hardware, ?Solver, ?NOCB, ?Declare, ?Progress or ?AutoReplicationSettings}
+
+\item{json}{path to JSON settings file or JSON content in string form}
 }
 \value{
 advanced simulation settings
