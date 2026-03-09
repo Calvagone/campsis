@@ -36,11 +36,15 @@ EventIteration <- function(index, start, end, inits=data.frame(), maxIndex) {
 #' Get list of event iterations.
 #' 
 #' @param events events
-#' @param maxTime simulation max time
-#' @return a list of event iterations
+#' @param dataset dataset, Campsis dataset or data frame
+#' @return a list of event iterations. Note: start and end slots have the same unit as the 'exported' dataset time.
 #' @keywords internal
 #'
-getEventIterations <- function(events, maxTime) {
+getEventIterations <- function(events, dataset) {
+  maxTime <- getDatasetMaxTime(dataset)
+  if (is(dataset, "dataset")) {
+    maxTime <- convertTime(maxTime, from=dataset@config@time_unit_dataset, to=dataset@config@time_unit_export)
+  }
   userEventTimes <- events %>% getTimes()
   eventTimes <- userEventTimes %>% append(c(0, maxTime)) %>% unique() %>% base::sort()
   if (0 %in% userEventTimes || maxTime==0) {
@@ -95,4 +99,22 @@ cutTableForEvent <- function(table, iteration, summary) {
   table_$TIME <- table_$TIME - start
   
   return(table_ %>% dplyr::ungroup())
+}
+
+#' Get dataset max time.
+#' 
+#' @param dataset dataset
+#' @return max time of dataset, whatever its form, 2-dimensional or structured
+#' @keywords internal
+#' 
+getDatasetMaxTime <- function(dataset) {
+  if (is(dataset, "dataset")) {
+    times <- dataset %>% getTimes()
+  } else {
+    times <- dataset$TIME
+  }
+  if (is.null(times) || times %>% length()==0) {
+    stop(paste0("Dataset does not contain any observation."))
+  }
+  return(max(times))
 }

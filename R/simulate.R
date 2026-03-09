@@ -127,24 +127,6 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, se
   return(table)
 }
 
-#' Get dataset max time.
-#' 
-#' @param dataset dataset
-#' @return max time of dataset, whatever its form, 2-dimensional or structured
-#' @keywords internal
-#' 
-getDatasetMaxTime <- function(dataset) {
-  if (is(dataset, "dataset")) {
-    times <- dataset %>% getTimes()
-  } else {
-    times <- dataset$TIME
-  }
-  if (is.null(times) || times %>% length()==0) {
-    stop(paste0("Dataset does not contain any observation."))
-  }
-  return(max(times))
-}
-
 #' Simulation delegate core (single replicate).
 #' 
 #' @inheritParams simulate
@@ -259,8 +241,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     methods::validObject(dataset, complete=TRUE)
     
     # Find out how many iterations are needed
-    maxTime <- getDatasetMaxTime(dataset)
-    iterations <- getEventIterations(events, maxTime=maxTime)
+    iterations <- getEventIterations(events, dataset=dataset)
     settings@internal@iterations <- iterations
     
     # Update number of iterations in progress object
