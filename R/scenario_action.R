@@ -77,3 +77,13 @@ setMethod("applyAction", signature=c("dataset", "replace_action"), definition=fu
   # Nothing to do yet
   return(object)
 })
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("replace_action"), definition=function(object) {
+  cat("Replacement object:\n")
+  show(object@object)
+  cat("\n")
+})

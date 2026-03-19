@@ -62,3 +62,13 @@ setMethod("loadFromJSON", signature=c("scenarios", "character"), definition=func
   return(loadFromJSON(object=object, json=openJSON(json=json, schema=schema)))
 })
 
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("scenarios"), definition=function(object) {
+  for (scenario in object@list) {
+    show(scenario)
+    cat("\n")
+  }
+})

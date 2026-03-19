@@ -151,4 +151,7 @@ test_that("Import Campsis scenarios in JSON format", {
           add(ReplaceAction(Theta(name="KA", value=0.3, label="Absorption rate", unit="1/h"))))
   
   expect_equal(scenarios1a, expScenarios1a)
+  
+  expect_true("Scenario 'Base scenario'" %in% capture.output(show(scenarios1a)))
+  expect_true("Scenario 'Slow KA'" %in% capture.output(show(scenarios1a)))
 })

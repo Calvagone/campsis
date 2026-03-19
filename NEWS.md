@@ -1,3 +1,12 @@
+
+# campsis 1.8.2
+
+* Use straight single quotes, not directed ones, for the whole DESCRIPTION file #193
+* Add R-universe badge to README #194
+* Campsis output truncated if unit of exported dataset is 'minute' #195
+* Add 'json' argument to Dataset, Scenarios and Settings constructor #196
+* Implement show method on scenarios #197
+
 # campsis 1.8.1
 
 * Fix warnings from package 'future' #188
