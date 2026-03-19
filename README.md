@@ -12,6 +12,8 @@ version](http://www.r-pkg.org/badges/version/campsis)](https://cran.r-project.or
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/campsis)](https://cran.r-project.org/package=campsis)
 [![CRAN total
 downloads](https://cranlogs.r-pkg.org/badges/campsis)](https://cran.r-project.org/package=campsis)
+[![campsis status
+badge](https://calvagone.r-universe.dev/campsis/badges/version)](https://calvagone.r-universe.dev/campsis)
 <!-- badges: end -->
 
 ## Requirements

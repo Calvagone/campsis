@@ -4,15 +4,15 @@
 \alias{getEventIterations}
 \title{Get list of event iterations.}
 \usage{
-getEventIterations(events, maxTime)
+getEventIterations(events, dataset)
 }
 \arguments{
 \item{events}{events}
 
-\item{maxTime}{simulation max time}
+\item{dataset}{dataset, Campsis dataset or data frame}
 }
 \value{
-a list of event iterations
+a list of event iterations. Note: start and end slots have the same unit as the 'exported' dataset time.
 }
 \description{
 Get list of event iterations.

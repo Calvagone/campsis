@@ -25,17 +25,25 @@ setClass(
 #'
 #' @param subjects number of subjects in the default arm
 #' @param label label of the default arm, NA by default
+#' @param json path to JSON dataset file or JSON content in string form
 #' @return a dataset
 #' @export
-Dataset <- function(subjects=NULL, label=as.character(NA)) {
-  arms=new("arms")
-  if (!is.null(subjects)) {
-    arm <- arms %>% default()
-    arm@subjects <- as.integer(subjects)
-    arm@label <- as.character(label)
-    arms <- arms %>% add(arm)
+Dataset <- function(subjects=NULL, label=as.character(NA), json=NULL) {
+  if (is.null(json)) {
+    arms <- new("arms")
+    if (!is.null(subjects)) {
+      arm <- arms %>% default()
+      arm@subjects <- as.integer(subjects)
+      arm@label <- as.character(label)
+      arms <- arms %>% add(arm)
+    }
+    dataset <- new("dataset", arms=arms)
   }
-  return(new("dataset", arms=arms))
+  else {
+    schema <- system.file("extdata", "campsis.schema.json", package="campsis")
+    dataset <- loadFromJSON(new("dataset"), openJSON(json=json, schema=schema))
+  }
+  return(dataset)
 }
 
 #_______________________________________________________________________________

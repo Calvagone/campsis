@@ -4,7 +4,10 @@
 \alias{Scenarios}
 \title{Create a list of scenarios.}
 \usage{
-Scenarios()
+Scenarios(json = NULL)
+}
+\arguments{
+\item{json}{path to JSON scenarios file or JSON content in string form}
 }
 \value{
 a scenarios object

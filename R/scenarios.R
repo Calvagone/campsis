@@ -18,10 +18,17 @@ setClass(
 #' 
 #' Create a list of scenarios.
 #' 
+#' @param json path to JSON scenarios file or JSON content in string form
 #' @return a scenarios object
 #' @export
-Scenarios <- function() {
-  return(new("scenarios"))
+Scenarios <- function(json=NULL) {
+  if (is.null(json)) {
+    scenarios <- new("scenarios")
+  } else {
+    schema <- system.file("extdata", "no_sub_schemas", "campsis_scenarios.schema.json", package="campsis") 
+    scenarios <- loadFromJSON(new("scenarios"), openJSON(json=json, schema=schema))
+  }
+  return(scenarios)
 }
 
 #_______________________________________________________________________________
@@ -55,3 +62,13 @@ setMethod("loadFromJSON", signature=c("scenarios", "character"), definition=func
   return(loadFromJSON(object=object, json=openJSON(json=json, schema=schema)))
 })
 
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("scenarios"), definition=function(object) {
+  for (scenario in object@list) {
+    show(scenario)
+    cat("\n")
+  }
+})

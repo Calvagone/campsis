@@ -143,3 +143,15 @@ applyScenario <- function(x, scenario) {
   
   return(retValue)
 }
+
+#_______________________________________________________________________________
+#----                                  show                                 ----
+#_______________________________________________________________________________
+
+setMethod("show", signature=c("scenario"), definition=function(object) {
+  cat(sprintf("Scenario '%s'", object@name), "\n", sep="")
+  for (action in object@actions@list) {
+    cat(" - ")
+    show(action)
+  }
+})

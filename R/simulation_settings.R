@@ -34,10 +34,15 @@ setClass(
 #' Create advanced simulation settings.
 #'
 #' @param ... any user-required settings: see ?Hardware, ?Solver, ?NOCB, ?Declare, ?Progress or ?AutoReplicationSettings
+#' @param json path to JSON settings file or JSON content in string form
 #' @return advanced simulation settings
 #' @importFrom purrr detect
 #' @export
-Settings <- function(...) {
+Settings <- function(..., json=NULL) {
+  if (!is.null(json)) {
+    schema <- system.file("extdata", "campsis_settings.schema.json", package="campsis")
+    return(loadFromJSON(new("simulation_settings"), openJSON(json=json, schema=schema)))
+  }
   args <- list(...)
   
   # Check if hardware settings are specified

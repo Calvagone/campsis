@@ -28,21 +28,7 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
   if (is.null(settings)) {
     settings <- Settings()
   }
-  
-  # Loading from JSON
-  if (is.character(model) || is(model, "json_element")) {
-    model <- loadFromJSON(CampsisModel(), model)
-  }
-  if (is.character(dataset) || is(dataset, "json_element")) {
-    dataset <- loadFromJSON(Dataset(), dataset)
-  }
-  if (is.character(settings) || is(settings, "json_element")) {
-    settings <- loadFromJSON(Settings(), settings)
-  }
-  if (is.character(scenarios) || is(scenarios, "json_element")) {
-    scenarios <- loadFromJSON(Scenarios(), scenarios)
-  }
-  
+
   # Propagate default settings
   defaultSettings <- settings@default
   if (is.null(dest)) {
@@ -125,24 +111,6 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, se
   }
   table <- tablefun(table)
   return(table)
-}
-
-#' Get dataset max time.
-#' 
-#' @param dataset dataset
-#' @return max time of dataset, whatever its form, 2-dimensional or structured
-#' @keywords internal
-#' 
-getDatasetMaxTime <- function(dataset) {
-  if (is(dataset, "dataset")) {
-    times <- dataset %>% getTimes()
-  } else {
-    times <- dataset$TIME
-  }
-  if (is.null(times) || times %>% length()==0) {
-    stop(paste0("Dataset does not contain any observation."))
-  }
-  return(max(times))
 }
 
 #' Simulation delegate core (single replicate).
@@ -259,8 +227,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     methods::validObject(dataset, complete=TRUE)
     
     # Find out how many iterations are needed
-    maxTime <- getDatasetMaxTime(dataset)
-    iterations <- getEventIterations(events, maxTime=maxTime)
+    iterations <- getEventIterations(events, dataset=dataset)
     settings@internal@iterations <- iterations
     
     # Update number of iterations in progress object
