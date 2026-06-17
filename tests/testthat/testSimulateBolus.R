@@ -1,11 +1,11 @@
 library(testthat)
 
-context("Test the simulate method with boluses")
-
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simulate a bolus"), {
+context(getContext("Test the simulate method with boluses"))
+
+test_that("Simulate a bolus", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "simple_bolus"
 
@@ -23,7 +23,7 @@ test_that(getTestName("Simulate a bolus"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate a bolus, single-labelled arm"), {
+test_that("Simulate a bolus, single-labelled arm", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "simple_bolus"
 
@@ -40,7 +40,7 @@ test_that(getTestName("Simulate a bolus, single-labelled arm"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate a bolus, 2 arms"), {
+test_that("Simulate a bolus, 2 arms", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "bolus_2arms"
 
@@ -66,7 +66,7 @@ test_that(getTestName("Simulate a bolus, 2 arms"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate a bolus, 2 labelled arms"), {
+test_that("Simulate a bolus, 2 labelled arms", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "bolus_2arms"
 
@@ -89,7 +89,7 @@ test_that(getTestName("Simulate a bolus, 2 labelled arms"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate multiple doses, with and without the repeat option"), {
+test_that("Simulate multiple doses, with and without the repeat option", {
   
   # We disable IIV since this is not the topic of this test
   model <- model_suite$testing$nonmem$advan4_trans4 %>%

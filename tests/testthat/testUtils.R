@@ -2,10 +2,8 @@
 # setwd("C:/prj/campsis/")
 # roxygen2::roxygenise()
 # setwd("C:/prj/campsis/tests/")
-# testFolder <- "C:/prj/campsis/tests/testthat/"
 
 overwriteNonRegressionFiles <- FALSE
-testFolder <- ""
 testEngines <- c("rxode2", "mrgsolve")
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, dest) {
@@ -38,7 +36,7 @@ datasetRegressionTest <- function(dataset, model=NULL, seed, doseOnly=TRUE, file
   dataset1 <- datasetInMemory(dataset=dataset, model=model, seed=seed, doseOnly=doseOnly, settings=settings, dest=dest)
   dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6)
   
-  file <- paste0(testFolder, "non_regression/", paste0(filename, ".csv"))
+  file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, ".csv"))
   
   if (overwriteNonRegressionFiles) {
     write.table(dataset1, file=file, sep=",", row.names=FALSE)
@@ -69,7 +67,7 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
   results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
-  file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
+  file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, "_", suffix, ".csv"))
   
   if (overwriteNonRegressionFiles) {
     write.table(results1, file=file, sep=",", row.names=FALSE)
@@ -103,7 +101,7 @@ vpcOutputRegressionTest <- function(results, output, filename) {
     dplyr::arrange(replicate, TIME, metric)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
-  file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
+  file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, "_", suffix, ".csv"))
   
   if (overwriteNonRegressionFiles) {
     write.table(results1, file=file, sep=",", row.names=FALSE)
@@ -147,6 +145,10 @@ getTestName <- function(name) {
   return(paste0(name, " (", paste0(testEngines, collapse="/"), ")"))
 }
 
+getContext <- function(name) {
+  return(paste0(name, " (", paste0(testEngines, collapse="/"), ")"))
+}
+
 skipLongTests <- function() {
   # On CRAN, default value is TRUE
   # FALSE otherwise
@@ -168,6 +170,3 @@ skipVdiffrTests <- function() {
   # FALSE otherwise
   return(getCampsisOption(name="SKIP_VDIFFR_TESTS", default=ifelse(isMacOs(), TRUE, FALSE)))
 }
-
-
-
