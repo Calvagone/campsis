@@ -5,9 +5,9 @@ library(ggplot2)
 context("Study can be replicated using argument 'replicates'")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("VPC on CP, using predicate"), {
+test_that("VPC on CP, using predicate", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$other$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
@@ -38,7 +38,7 @@ test_that(getTestName("VPC on CP, using predicate"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("VPC on both CP and Y, using function"), {
+test_that("VPC on both CP and Y, using function", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$other$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
@@ -62,7 +62,7 @@ test_that(getTestName("VPC on both CP and Y, using function"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Study replication also works with scenarios"), {
+test_that("Study replication also works with scenarios", {
   if (skipLongTests()) return(TRUE)
 
   model <- model_suite$testing$nonmem$advan2_trans1
@@ -115,7 +115,7 @@ test_that(getTestName("Study replication also works with scenarios"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Try/catch works as expected if one replicate fails"), {
+test_that("Try/catch works as expected if one replicate fails", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan2_trans2
 
@@ -151,7 +151,7 @@ test_that(getTestName("Try/catch works as expected if one replicate fails"), {
   campsisTest(expression(), test, env=environment())
 })
 
-test_that(getTestName("Replicates can be simulated in parallel"), {
+test_that("Replicates can be simulated in parallel", {
   if (skipLongTests()) return(TRUE)
   # progressr::handlers(global=TRUE)
   # progressr::handlers(campsis_handler())
@@ -186,7 +186,7 @@ test_that(getTestName("Replicates can be simulated in parallel"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("SIGMAs are correctly updated from replicate to replicate"), {
+test_that("SIGMAs are correctly updated from replicate to replicate", {
   if (skipLongTests()) return(TRUE)
   
   # Add another SIGMA in the model, to test the SIGMA matrix

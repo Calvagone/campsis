@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with argument 'dosing' set to TRUE")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Dose adaptations can be checked in CAMPSIS output if dosing is TRUE"), {
+test_that("Dose adaptations can be checked in CAMPSIS output if dosing is TRUE", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   times <- seq(0,7*24, by=4)

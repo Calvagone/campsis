@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with infusions")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simulate infusion using duration in dataset, then in model"), {
+test_that("Simulate infusion using duration in dataset, then in model", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan3_trans4
   regFilename <- "infusion_duration"
@@ -40,7 +40,7 @@ test_that(getTestName("Simulate infusion using duration in dataset, then in mode
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate infusion using rate in dataset"), {
+test_that("Simulate infusion using rate in dataset", {
   model <- model_suite$testing$nonmem$advan3_trans4
   regFilename <- "infusion_duration"
 
@@ -73,7 +73,7 @@ test_that(getTestName("Simulate infusion using rate in dataset"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate infusion using rate and lag time in dataset"), {
+test_that("Simulate infusion using rate and lag time in dataset", {
   model <- model_suite$testing$nonmem$advan3_trans4
   regFilename <- "infusion_rate_lag_time1_dataset"
 
@@ -96,7 +96,7 @@ test_that(getTestName("Simulate infusion using rate and lag time in dataset"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate infusion using rate and lag time (parameter distribution) in dataset"), {
+test_that("Simulate infusion using rate and lag time (parameter distribution) in dataset", {
   model <- model_suite$testing$nonmem$advan3_trans4
   regFilename <- "infusion_rate_lag_time2_dataset"
   model <- model %>% add(Theta(name="ALAG1", index=5, value=2)) # 2 hours lag time

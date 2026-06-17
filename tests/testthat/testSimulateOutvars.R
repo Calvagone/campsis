@@ -2,9 +2,9 @@ library(testthat)
 
 context("Test the outvars argument of the simulate function")
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("NULL outvars"), {
+test_that("NULL outvars", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   dataset <- Dataset() %>%
@@ -23,7 +23,7 @@ test_that(getTestName("NULL outvars"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Not NULL outvars"), {
+test_that("Not NULL outvars", {
   model <- model_suite$testing$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
@@ -42,7 +42,7 @@ test_that(getTestName("Not NULL outvars"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Not NULL outvars + DROP_OTHERS"), {
+test_that("Not NULL outvars + DROP_OTHERS", {
   model <- model_suite$testing$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
@@ -57,7 +57,7 @@ test_that(getTestName("Not NULL outvars + DROP_OTHERS"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Not NULL outvars from ERROR block + DROP_OTHERS"), {
+test_that("Not NULL outvars from ERROR block + DROP_OTHERS", {
   model <- model_suite$testing$nonmem$advan4_trans4
   
   dataset <- Dataset() %>%
@@ -72,7 +72,7 @@ test_that(getTestName("Not NULL outvars from ERROR block + DROP_OTHERS"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Covariates in outvars can be output well"), {
+test_that("Covariates in outvars can be output well", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   dataset <- Dataset(2) %>%
@@ -89,7 +89,7 @@ test_that(getTestName("Covariates in outvars can be output well"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("ETAs in outvars can be output well"), {
+test_that("ETAs in outvars can be output well", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   dataset <- Dataset() %>%

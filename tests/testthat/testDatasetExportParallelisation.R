@@ -1,7 +1,7 @@
 library(testthat)
 library(tibble)
 
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
 context("Parallelisation of the dataset export")
 

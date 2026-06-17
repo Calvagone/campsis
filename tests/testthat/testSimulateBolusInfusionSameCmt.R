@@ -3,9 +3,9 @@ library(testthat)
 context("Simulate boluses and infusions into the same compartment")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Bolus and infusion in CMT 1"), {
+test_that("Bolus and infusion in CMT 1", {
   
   regFilename <- "bolus_infusion_same_cmt"
   

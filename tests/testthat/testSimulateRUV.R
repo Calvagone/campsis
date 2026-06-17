@@ -4,9 +4,9 @@ library(ggplot2)
 context("Simulation with residual unexplained variability")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Test generated RUV is correct"), {
+test_that("Test generated RUV is correct", {
   model <- model_suite$testing$nonmem$advan4_trans4
   
   ds <- Dataset(500) %>%

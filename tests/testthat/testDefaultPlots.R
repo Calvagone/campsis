@@ -3,9 +3,9 @@ library(testthat)
 context("Test all default plots available in Campsis")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Scatter plot works as expected"), {
+test_that("Scatter plot works as expected", {
   model <- model_suite$testing$pk$`1cpt_fo`
   thetaVc <- model %>% find(Theta("VC"))
   thetaCl <- model %>% find(Theta("CL"))
@@ -50,7 +50,7 @@ test_that(getTestName("Scatter plot works as expected"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Shaded and spaghetti plots work as expected"), {
+test_that("Shaded and spaghetti plots work as expected", {
   model <- model_suite$testing$pk$`1cpt_fo`
 
   dataset <- Dataset(subjects=20) %>%
@@ -77,7 +77,7 @@ test_that(getTestName("Shaded and spaghetti plots work as expected"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Grouping by ARM and stratifying by WT should work"), {
+test_that("Grouping by ARM and stratifying by WT should work", {
   model <- model_suite$testing$pk$'1cpt_fo' %>%
     replace(Equation("CL", "TVCL * exp(ETA_CL) * pow(WT/70,0.75)")) %>%
     replace(Equation("VC", "TVVC * exp(ETA_VC) * WT/70"))

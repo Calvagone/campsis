@@ -2,7 +2,7 @@ library(testthat)
 
 context("Test the simulate arguments")
 
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
 test_that("Argument dest works well", {
   model <- model_suite$testing$nonmem$advan4_trans4

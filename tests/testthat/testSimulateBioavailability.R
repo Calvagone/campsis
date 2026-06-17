@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with different bioavailabilities")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simulate a bolus, 2 arms, F1 only in arm1, in dataset"), {
+test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "bolus_2arms_bioavailability"
   
@@ -30,7 +30,7 @@ test_that(getTestName("Simulate a bolus, 2 arms, F1 only in arm1, in dataset"), 
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate a simple bolus with bioavailability, dataset versus model"), {
+test_that("Simulate a simple bolus with bioavailability, dataset versus model", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "simple_bolus_bioavailability"
   
@@ -64,7 +64,7 @@ test_that(getTestName("Simulate a simple bolus with bioavailability, dataset ver
 })
 
 
-test_that(getTestName("Simulate several fixed F's at once"), {
+test_that("Simulate several fixed F's at once", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   # Bioavailability implemented in dataset

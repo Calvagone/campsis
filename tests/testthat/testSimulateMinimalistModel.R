@@ -3,11 +3,11 @@ library(testthat)
 context("Test the simulate method with minimalist examples")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simulate a minimalist model, no parameters/IIV/error model"), {
+test_that("Simulate a minimalist model, no parameters/IIV/error model", {
   regFilename <- "minimalist_model"
-  model <- suppressWarnings(read.campsis(paste0(testFolder, "models/", regFilename)))
+  model <- suppressWarnings(read.campsis(file.path(getwd(), test_path(), "models/", regFilename)))
   
   dataset <- Dataset() %>%
     add(Observations(times=seq(0,24, by=0.5)))
