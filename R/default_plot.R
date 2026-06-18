@@ -1,24 +1,4 @@
 
-#' Factor scenarios columns if not done yet.
-#' 
-#' @param x data frame
-#' @param scenarios scenarios
-#' @importFrom dplyr mutate_at
-#' @keywords internal
-factorScenarios <- function(x, scenarios=NULL) {
-  if (length(scenarios) > 0) {
-    return(x %>% dplyr::mutate_at(.vars=scenarios, .funs=function(col){
-      if (!is.factor(col)) {
-        return(factor(col))
-      } else {
-        return(col)
-      }
-    }))
-  } else {
-    return(x)
-  }
-}
-
 #' Filter CAMPSIS output on observation rows.
 #' 
 #' @param x data frame, CAMPSIS output
@@ -84,12 +64,12 @@ getColumn <- function(.data, colname) {
 #' Spaghetti plot.
 #' 
 #' @param x data frame
-#' @param output variable to show
+#' @param variable variable to show
 #' @param colour variable(s) to colour
 #' @return plot
 #' @importFrom ggplot2 aes ggplot geom_line
 #' @export
-spaghettiPlot <- function(x, output, colour=NULL) {
+spaghettiPlot <- function(x, variable, colour=NULL) {
   group <- "GROUP_GGPLOT"
   x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", colour), colname=group)
   
@@ -99,7 +79,7 @@ spaghettiPlot <- function(x, output, colour=NULL) {
   } else {
     colourColumn <- NULL
   }
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[output]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[variable]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_line()
   
   if (length(colour) > 0) {
@@ -112,7 +92,7 @@ spaghettiPlot <- function(x, output, colour=NULL) {
 #' Shaded plot (or prediction interval plot).
 #' 
 #' @param x data frame
-#' @param output variable to show
+#' @param variable variable to show
 #' @param colour variable(s) to colour
 #' @param strat_extra variable(s) to stratify, but not to colour (useful for use with facet_wrap)
 #' @param level PI level, default is 0.9 (90\% PI)
@@ -120,7 +100,7 @@ spaghettiPlot <- function(x, output, colour=NULL) {
 #' @return a ggplot object
 #' @importFrom ggplot2 aes ggplot geom_line geom_ribbon ylab
 #' @export
-shadedPlot <- function(x, output, colour=NULL, strat_extra=NULL, level=0.90, alpha=0.25) {
+shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, alpha=0.25) {
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
     x <- uniteColumns(x=x %>% obsOnly(), columns=colour, colname=colourColumn)
@@ -128,14 +108,14 @@ shadedPlot <- function(x, output, colour=NULL, strat_extra=NULL, level=0.90, alp
     colourColumn <- NULL
   }
   strata_names <- c(colour, strat_extra, colourColumn)
-  strata <- setNames(rep(allStrataLevels(), length(strata_names)), strata_names)
+  strata <- if (is.null(strata_names)) NULL else setNames(rep(allStrataLevels(), length(strata_names)), strata_names)
 
-  x <- PI(x=x, variable=output, strata=strata, level=level, gather=FALSE)
+  x <- PI(x=x, variable=variable, strata=strata, level=level, gather=FALSE)
 
   plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=getColumn(.data, colourColumn), fill=getColumn(.data, colourColumn)), colour=NA, alpha=alpha) +
-    ggplot2::ylab(output)
+    ggplot2::ylab(variable)
   
   if (length(colour) > 0) {
     plot <- plot + ggplot2::labs(colour=paste0(colour, collapse = " / "),
@@ -155,7 +135,7 @@ shadedPlot <- function(x, output, colour=NULL, strat_extra=NULL, level=0.90, alp
 #' @importFrom dplyr filter
 #' @importFrom ggplot2 aes ggplot geom_point
 #' @export
-scatterPlot <- function (x, output, colour=NULL, time=NULL) {
+scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
   group <- "GROUP_GGPLOT"
   x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", colour), colname=group)
   
@@ -164,11 +144,11 @@ scatterPlot <- function (x, output, colour=NULL, time=NULL) {
   }
   x <- x %>% dplyr::filter(.data$TIME %in% time)
   
-  if (output %>% length() == 1) {
-    x$MY_OUTPUT_2 <- 0
-    output <- c(output, "MY_OUTPUT_2")
-  } else if (output %>% length() > 2) {
-    stop("Please provide 2 outputs at most !")
+  if (variable %>% length() == 1) {
+    x$MY_VARIABLE_2 <- 0
+    variable <- c(variable, "MY_VARIABLE_2")
+  } else if (variable %>% length() > 2) {
+    stop("Please provide 2 variables at most !")
   }
 
   if (length(colour) > 0) {
@@ -178,7 +158,7 @@ scatterPlot <- function (x, output, colour=NULL, time=NULL) {
     colourColumn <- NULL
   }
   
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[output[1]]], y=.data[[output[2]]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[variable[1]]], y=.data[[variable[2]]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_point()
   
   if (length(colour) > 0) {
