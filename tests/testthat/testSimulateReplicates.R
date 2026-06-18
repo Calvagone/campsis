@@ -44,19 +44,14 @@ test_that("VPC on both CP and Y, using function", {
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
 
-  fun <- function(x) {
-    return(dplyr::bind_rows(
-            PI(x=x, variable="CP", level=0.90, gather=TRUE) %>% dplyr::mutate(output="CP"),
-            PI(x=x, variable="Y", level=0.90, gather=TRUE) %>% dplyr::mutate(output="Y")))
-  }
-
   ds <- Dataset(100) %>%
     add(Infusion(time=0, amount=1000, compartment=1, ii=24, addl=2)) %>%
     add(Observations(times=seq(0, 3*24, by=4)))
 
-  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5, outfun=fun, seed=seed))
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
+     outfun=~PI(x=.x, variable=c("CP", "Y")), seed=seed))
   test <- expression(
-    vpcPlot(results, strata=c("output"="all")) + facet_wrap(~output),
+    vpcPlot(results %>% dplyr::rename(output=variable), strata=c(output="all")) + facet_wrap(~output),
     vpcOutputRegressionTest(results, output="CP", filename=regFilename)
   )
   campsisTest(simulation, test, env=environment())

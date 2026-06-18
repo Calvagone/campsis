@@ -24,49 +24,77 @@ filterOutputOnStrata <- function(x, strata) {
 #' Compute the prediction interval summary over time.
 #' 
 #' @param x data frame
-#' @param variable variable(s) used to compute the prediction interval, character vector
+#' @param variable variable(s) used to compute the prediction interval, character vector.
+#'   When more than one variable is supplied, a \code{variable} column is added to the
+#'   output to identify each one.
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 #'   Only columns that are actually present in \code{x} are used.
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param gather FALSE: med, low & up columns, TRUE: metric column
 #' @return a summary table
-#' @importFrom dplyr across all_of group_by_at mutate rename_at summarise
+#' @importFrom dplyr across all_of bind_rows mutate group_by summarise
 #' @importFrom tidyr pivot_longer
 #' @importFrom stats median quantile
 #' @export
 PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90, gather = TRUE) {
-  assertthat::assert_that(is.character(variable) && length(variable) == 1,
-   msg = "variable must be a character vector of length 1")
+  assertthat::assert_that(
+    is.character(variable) && length(variable) >= 1,
+    msg = "variable must be a non-empty character vector"
+  )
   assertthat::assert_that(
     is.null(strata) || (is.atomic(strata) && !is.null(names(strata)) && all(nzchar(names(strata)))),
-    msg = "strata must be a fully named vector or NULL")
+    msg = "strata must be a fully named vector or NULL"
+  )
 
   # Only keep strata columns that are actually present in x
-  strata_cols <- names(strata)
-  strata_cols <- strata_cols[strata_cols %in% colnames(x)]
+  strata_cols <- names(strata)[names(strata) %in% colnames(x)]
+  group_cols  <- c(strata_cols, "TIME")
 
-  # Calculate prediction intervals
-  retValue <- filterOutputOnStrata(x = x, strata = strata) %>%
-    dplyr::rename(variable_ = dplyr::all_of(variable)) %>%
-    dplyr::group_by(dplyr::across(dplyr::all_of(c("TIME", strata_cols)))) %>%
+  assertthat::assert_that(
+    !"variable" %in% strata_cols,
+    msg = "variable can't be used as a stratification column name"
+  )
+  
+  # Filter data
+  x_filtered <- filterOutputOnStrata(x = x, strata = strata)
+
+  # Pre-calculate quantile probabilities
+  prob_low <- (1 - level) / 2
+  prob_up  <- 1 - prob_low
+
+  # Pivot the variables long first, keeping data grouped properly
+  res <- x_filtered |>
+    dplyr::select(dplyr::all_of(c(group_cols, variable))) |>
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(variable), 
+      names_to = "variable", 
+      values_to = "value"
+    ) |>
+    # Group by the grouping columns AND the new variable column
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(group_cols, "variable")))) |>
+    # Summarize directly into clean columns
     dplyr::summarise(
-      med = stats::median(.data$variable_, na.rm = TRUE),
-      low = stats::quantile(.data$variable_, (1 - level) / 2, names = FALSE, na.rm = TRUE),
-      up = stats::quantile(.data$variable_, 1 - (1 - level) / 2, names = FALSE, na.rm = TRUE),
+      med = stats::median(.data$value, na.rm = TRUE),
+      low = stats::quantile(.data$value, prob_low, names = FALSE, na.rm = TRUE),
+      up  = stats::quantile(.data$value, prob_up,  names = FALSE, na.rm = TRUE),
       .groups = "drop"
     )
 
-  # Gather data if requested
+  # Handle gathering if requested
   if (gather) {
-    retValue <- retValue %>%
+    res <- res |>
       tidyr::pivot_longer(
-        cols = c("med", "low", "up"), 
-        names_to = "metric", 
+        cols = c("med", "low", "up"),
+        names_to = "metric",
         values_to = "value"
       )
   }
 
-  return(retValue)
+  # Variable before TIME
+  res <- res |>
+    dplyr::relocate("variable", .before = "TIME")
+
+  return(res)
 }
 
 #' Compute the VPC summary. Input data frame must contain the following columns:
