@@ -1,0 +1,53 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "📄 Document",
+      "type": "process",
+      "command": "Rscript",
+      "args": ["-e", "devtools::document()"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "📦 Load all",
+      "type": "process",
+      "command": "Rscript",
+      "args": ["-e", "devtools::load_all()"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "🧪 Test package",
+      "type": "process",
+      "command": "Rscript",
+      "args": ["-e", "devtools::test()"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "🔍 Check package",
+      "type": "process",
+      "command": "Rscript",
+      "args": ["-e", "devtools::check()"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "📦 Build source",
+      "type": "process",
+      "command": "Rscript",
+      "args": ["-e", "devtools::build()"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "📦 Install package from sources",
+      "type": "process",
+      "command": "Rscript",
+      "args": ["-e", "devtools::install(build_vignettes=FALSE, dependencies=FALSE)"],
+      "group": "build",
+      "problemMatcher": []
+    }
+  ]
+}

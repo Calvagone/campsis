@@ -127,7 +127,10 @@ shadedPlot <- function(x, output, colour=NULL, strat_extra=NULL, level=0.90, alp
   } else {
     colourColumn <- NULL
   }
-  x <- PI(x=x, output=output, scenarios=c(colour, strat_extra, colourColumn), level=level, gather=FALSE)
+  strata_names <- c(colour, strat_extra, colourColumn)
+  strata <- setNames(rep(allStrataLevels(), length(strata_names)), strata_names)
+
+  x <- PI(x=x, variable=output, strata=strata, level=level, gather=FALSE)
 
   plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
@@ -188,20 +191,21 @@ scatterPlot <- function (x, output, colour=NULL, time=NULL) {
 #' VPC plot.
 #' 
 #' @param x data frame, output of CAMPSIS with replicates
-#' @param scenarios scenarios, character vector, NULL is default
+#' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
+#'   Only columns that are actually present in \code{x} are used.
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
 #' @return a ggplot object
 #' @importFrom ggplot2 aes ggplot ylab
 #' @export
-vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
-  if (length(scenarios) > 1) {
-    stop("Currently max 1 scenario allowed")
+vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15) {
+  if (length(strata) > 1) {
+    stop("Currently max 1 stratification variable is allowed")
   }
-  summary <- VPC(x=x, scenarios=scenarios, level=level)
-  if (length(scenarios) > 0) {
+  summary <- VPC(x=x, strata=strata, level=level)
+  if (length(strata) > 0) {
     group <- "GROUP_GGPLOT"
-    summary <- uniteColumns(x=summary, columns=scenarios, colname=group)
+    summary <- uniteColumns(x=summary, columns=names(strata), colname=group)
   } else {
     group <- NULL
   }
