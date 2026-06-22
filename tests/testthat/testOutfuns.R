@@ -4,20 +4,20 @@ context("Test the output_functions class")
 
 test_that("Output functions can be added and retrieved", {
   outfuns <- Outfuns() %>%
-    add(Outfun(~PI(.x, variable="CP"), level="scenario")) %>%
-    add(Outfun(~PI(.x, variable="CP"), level="replicate"))
+    add(Outfun(~PI(.x, variable="CP"), fun_name="PI on CP")) %>%
+    add(Outfun(~PI(.x, variable="Y"), fun_name="PI on Y"))
 
   expect_equal(outfuns %>% length(), 2)
-  expect_equal(outfuns %>% getByIndex(1) %>% .@level, "scenario")
-  expect_equal(outfuns %>% getByIndex(2) %>% .@level, "replicate")
+  expect_equal(outfuns %>% getByIndex(1) %>% .@fun_name, "PI on CP")
+  expect_equal(outfuns %>% getByIndex(2) %>% .@fun_name, "PI on Y")
 })
 
 test_that("Adding a duplicate level throws an error", {
   expect_error(
     Outfuns() %>%
-      add(Outfun(level="scenario")) %>%
-      add(Outfun(level="scenario")),
-    regexp="already present"
+      add(Outfun(fun_name="Function 1")) %>%
+      add(Outfun(fun_name="Function 1")),
+    regexp="'Function 1' is already present"
   )
 })
 

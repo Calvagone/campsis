@@ -14,16 +14,17 @@ setClass(
   "output_function",
   representation(
     fun="function",
+    fun_name="character",
     args="list",
     packages="character",
     level="character"
   ),
   contains="pmx_element",
-  prototype=prototype(fun=function(x, ...){x}, level="scenario")
+  prototype=prototype(fun=function(x, ...){x}, level="scenario", fun_name="default")
 )
 
 setMethod("getName", signature=c("output_function"), definition=function(x) {
-  return(x@level)
+  return(x@fun_name)
 })
 
 #'
@@ -33,10 +34,11 @@ setMethod("getName", signature=c("output_function"), definition=function(x) {
 #' @param args extra arguments, named list
 #' @param packages packages that must be loaded to execute the given function, character vector
 #' @param level either 'scenario' or 'replicate'. Default is 'scenario'.
+#' @param fun_name name of the output function. Default is 'default'.
 #' @importFrom rlang as_function is_formula
 #' @return an output function
 #' @export
-Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="scenario") {
+Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="scenario", fun_name="default") {
   if (is.function(fun)) {
     # Do nothing
   } else if (rlang::is_formula(fun)) {
@@ -50,7 +52,7 @@ Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="s
     packages <- character(0)
   } 
    
-  return(new("output_function", fun=fun, args=args, packages=packages, level=level))
+  return(new("output_function", fun=fun, fun_name=fun_name,args=args, packages=packages, level=level))
 }
 
 applyOutfun <- function(x, outfun, level, ...) {
@@ -117,7 +119,7 @@ setMethod("show", signature=c("output_functions"), definition=function(object) {
     cat("No output functions\n")
   } else {
     for (outfun in object@list) {
-      cat(sprintf("Output function (level='%s')\n", outfun@level))
+      cat(sprintf("Output function (name='%s')\n", outfun@fun_name))
     }
   }
 })
