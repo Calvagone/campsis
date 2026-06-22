@@ -4,14 +4,17 @@
 \alias{PI}
 \title{Compute the prediction interval summary over time.}
 \usage{
-PI(x, output, scenarios = NULL, level = 0.9, gather = TRUE)
+PI(x, variable, strata = getDefaultStrata(), level = 0.9, gather = TRUE)
 }
 \arguments{
 \item{x}{data frame}
 
-\item{output}{variable to show, character value}
+\item{variable}{variable(s) used to compute the prediction interval, character vector.
+When more than one variable is supplied, a \code{variable} column is added to the
+output to identify each one.}
 
-\item{scenarios}{scenarios, character vector, NULL is default}
+\item{strata}{named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
+Only columns that are actually present in \code{x} are used.}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
 

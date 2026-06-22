@@ -9,17 +9,18 @@
 - up: up percentile value in replicate (and in scenario if present)
 - any scenario column}
 \usage{
-VPC(x, scenarios = NULL, level = 0.9)
+VPC(x, strata = NULL, level = 0.9)
 }
 \arguments{
 \item{x}{data frame}
 
-\item{scenarios}{scenarios, character vector, NULL is default}
+\item{strata}{named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
+Only columns that are actually present in \code{x} are used.}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
 }
 \value{
-VPC summary with columns TIME, <scenarios> and all combinations of 
+VPC summary with columns TIME, stratification variables and all combinations of 
 low, med, up (i.e. low_low, low_med, low_up, etc.)
 }
 \description{

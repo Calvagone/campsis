@@ -52,7 +52,7 @@ Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="s
     packages <- character(0)
   } 
    
-  return(new("output_function", fun=fun, fun_name=fun_name,args=args, packages=packages, level=level))
+  return(new("output_function", fun=fun, fun_name=fun_name, args=args, packages=packages, level=level))
 }
 
 applyOutfun <- function(x, outfun, level, ...) {

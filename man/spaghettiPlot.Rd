@@ -4,12 +4,12 @@
 \alias{spaghettiPlot}
 \title{Spaghetti plot.}
 \usage{
-spaghettiPlot(x, output, colour = NULL)
+spaghettiPlot(x, variable, colour = NULL)
 }
 \arguments{
 \item{x}{data frame}
 
-\item{output}{variable to show}
+\item{variable}{variable to show}
 
 \item{colour}{variable(s) to colour}
 }

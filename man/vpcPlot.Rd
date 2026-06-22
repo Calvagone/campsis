@@ -4,12 +4,13 @@
 \alias{vpcPlot}
 \title{VPC plot.}
 \usage{
-vpcPlot(x, scenarios = NULL, level = 0.9, alpha = 0.15)
+vpcPlot(x, strata = NULL, level = 0.9, alpha = 0.15)
 }
 \arguments{
 \item{x}{data frame, output of CAMPSIS with replicates}
 
-\item{scenarios}{scenarios, character vector, NULL is default}
+\item{strata}{named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
+Only columns that are actually present in \code{x} are used.}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
 

@@ -81,21 +81,29 @@ preprocessTablefun <- function(fun) {
 
 #' Pre-process outfun argument.
 #'
-#' @param outfun function, lambda formula or output function object
-#' @return an output function
+#' @param outfun function, lambda formula, output_function or output_functions object
+#' @return an output_functions object in any case
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
 preprocessOutfun <- function(outfun) {
+  fun <- NULL
   if (is.null(outfun)) {
-    return(Outfun())
+    fun <- Outfun()
   } else if (is.function(outfun) || rlang::is_formula(outfun)) {
-    # Backwards compatibility
-    return(Outfun(fun=outfun, level="scenario"))
+    # Backwards compatibility: bare function or formula treated as scenario-level outfun
+    fun <- Outfun(fun=outfun, level="scenario")
+  } else if (is(outfun, "output_function")) {
+    fun <- outfun
+  } else if (is(outfun, "output_functions")) {
+    levels <- unique(purrr::map_chr(outfun@list, ~.x@level))
+    assertthat::assert_that(length(levels) == 1,
+      msg=paste0('All output functions in Outfuns() must share the same level. Found: ', paste(levels, collapse=', ')))
+    return(outfun)                       # 2+ elements -> keep as output_functions for multi dispatch
   } else {
-    assertthat::assert_that(is(outfun, "output_function"), msg="outfun is not an output function. Type ?Outfun for more info.")
-    return(outfun)
+    stop("outfun must be a function, formula, Outfun() or Outfuns() object.")
   }
+  return(Outfuns() %>% add(fun))
 }
 
 #' Preprocess 'outvars' argument. 'Outvars' is a character vector which tells

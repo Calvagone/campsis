@@ -10,7 +10,8 @@ Outfun(
  },
   args = list(),
   packages = NULL,
-  level = "scenario"
+  level = "scenario",
+  fun_name = "default"
 )
 }
 \arguments{
@@ -21,6 +22,8 @@ Outfun(
 \item{packages}{packages that must be loaded to execute the given function, character vector}
 
 \item{level}{either 'scenario' or 'replicate'. Default is 'scenario'.}
+
+\item{fun_name}{name of the output function. Default is 'default'.}
 }
 \value{
 an output function

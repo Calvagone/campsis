@@ -48,6 +48,14 @@
       "args": ["-e", "devtools::install(build_vignettes=FALSE, dependencies=FALSE)"],
       "group": "build",
       "problemMatcher": []
+    },
+    {
+      "label": "📦 Roxygen",
+      "type": "process",
+      "command": "Rscript",
+      "args": ["-e", "roxygen2::roxygenise()"],
+      "group": "build",
+      "problemMatcher": []
     }
   ]
 }
