@@ -18,8 +18,13 @@ setClass(
     packages="character",
     level="character"
   ),
+  contains="pmx_element",
   prototype=prototype(fun=function(x, ...){x}, level="scenario")
 )
+
+setMethod("getName", signature=c("output_function"), definition=function(x) {
+  return(x@level)
+})
 
 #'
 #' Create a new output function
@@ -75,3 +80,44 @@ applyOutfun <- function(x, outfun, level, ...) {
   }
   return(x)
 }
+
+#_______________________________________________________________________________
+#----                        output_functions class                         ----
+#_______________________________________________________________________________
+
+#' 
+#' Output functions class.
+#' 
+#' @export
+setClass(
+  "output_functions",
+  representation(
+  ),
+  contains="pmx_list",
+  prototype=prototype(type="output_function")
+)
+
+#'
+#' Create a collection of output functions.
+#'
+#' @return an output_functions object
+#' @export
+Outfuns <- function() {
+  return(new("output_functions"))
+}
+
+#' @importFrom methods callNextMethod
+setMethod("add", signature=c("output_functions", "output_function"), definition=function(object, x) {
+  return(methods::callNextMethod(object, x))
+})
+
+setMethod("show", signature=c("output_functions"), definition=function(object) {
+  n <- object %>% length()
+  if (n == 0) {
+    cat("No output functions\n")
+  } else {
+    for (outfun in object@list) {
+      cat(sprintf("Output function (level='%s')\n", outfun@level))
+    }
+  }
+})
