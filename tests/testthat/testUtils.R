@@ -88,12 +88,8 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 #' @export
 vpcOutputRegressionTest <- function(results, output, filename) {
   selectedColumns <- unique(c("replicate", "TIME", "metric", "value"))
-  if ("output" %in% colnames(results)) {
-    results <- results %>%
-      dplyr::rename(output2="output") %>%
-      dplyr::filter(output2 %in% output) %>%
-      dplyr::select(-output2)
-  }
+  results <- results %>%
+      dplyr::filter(variable %in% output)
   
   results1 <- results %>%
     dplyr::ungroup() %>%
