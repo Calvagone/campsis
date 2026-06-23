@@ -11,7 +11,7 @@
 #' @slot level either 'scenario' or 'replicate'. Default is 'scenario'.
 #' @export
 setClass(
-  "output_function",
+  "outfun",
   representation(
     fun="function",
     fun_name="character",
@@ -23,7 +23,7 @@ setClass(
   prototype=prototype(fun=function(x, ...){x}, level="scenario", fun_name="default")
 )
 
-setMethod("getName", signature=c("output_function"), definition=function(x) {
+setMethod("getName", signature=c("outfun"), definition=function(x) {
   return(x@fun_name)
 })
 
@@ -52,11 +52,11 @@ Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="r
     packages <- character(0)
   } 
    
-  return(new("output_function", fun=fun, fun_name=fun_name, args=args, packages=packages, level=level))
+  return(new("outfun", fun=fun, fun_name=fun_name, args=args, packages=packages, level=level))
 }
 
 applyOutfun <- function(x, outfun, level, ...) {
-  assertthat::assert_that(is(outfun, "output_function"), msg="x is not an output function")
+  assertthat::assert_that(is(outfun, "outfun"), msg="x is not an output function")
   
   if (level==outfun@level) {
     # Retrieve all formal arguments of the user-given function
@@ -92,11 +92,11 @@ applyOutfun <- function(x, outfun, level, ...) {
 #' 
 #' @export
 setClass(
-  "output_functions",
+  "outfuns",
   representation(
   ),
   contains="pmx_list",
-  prototype=prototype(type="output_function")
+  prototype=prototype(type="outfun")
 )
 
 #'
@@ -105,15 +105,15 @@ setClass(
 #' @return an output_functions object
 #' @export
 Outfuns <- function() {
-  return(new("output_functions"))
+  return(new("outfuns"))
 }
 
 #' @importFrom methods callNextMethod
-setMethod("add", signature=c("output_functions", "output_function"), definition=function(object, x) {
+setMethod("add", signature=c("outfuns", "outfun"), definition=function(object, x) {
   return(methods::callNextMethod(object, x))
 })
 
-setMethod("show", signature=c("output_functions"), definition=function(object) {
+setMethod("show", signature=c("outfuns"), definition=function(object) {
   n <- object %>% length()
   if (n == 0) {
     cat("No output functions\n")

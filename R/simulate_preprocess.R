@@ -92,9 +92,9 @@ preprocessOutfun <- function(outfun) {
     fun <- Outfun()
   } else if (is.function(outfun) || rlang::is_formula(outfun)) {
       fun <- Outfun(fun=outfun)
-  } else if (is(outfun, "output_function")) {
+  } else if (is(outfun, "outfun")) {
     fun <- outfun
-  } else if (is(outfun, "output_functions")) {
+  } else if (is(outfun, "outfuns")) {
     return(outfun)
   } else {
     stop("outfun must be a function, formula, Outfun() or Outfuns() object.")

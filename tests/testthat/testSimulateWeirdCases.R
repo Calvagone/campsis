@@ -109,7 +109,7 @@ test_that("Arm label mapping must first verify the ARM column exists", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   # Explicitely remove ARM column
-  outfun <- Outfun(level="scenario", fun=~.x %>% dplyr::select(-dplyr::all_of("ARM")))
+  outfun <- Outfun(fun=~.x %>% dplyr::select(-dplyr::all_of("ARM")))
 
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, outfun=outfun))
   test <- expression(

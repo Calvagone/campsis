@@ -390,28 +390,28 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
 }
 
 #' @rdname simulate
-setMethod("simulate", signature=c("replicated_campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "output_functions", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("replicated_campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "output_functions", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "tbl_df", "character", "events", "scenarios", "function", "character", "output_functions", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "tbl_df", "character", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "events", "scenarios", "function", "character", "output_functions", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   return(simulateDelegate(model=model, dataset=tibble::as_tibble(dataset), dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
                                     outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
@@ -565,7 +565,7 @@ reorderColumns <- function(results, dosing) {
 #' @importFrom furrr future_imap_dfr furrr_options
 #' @importFrom purrr imap_dfr
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "scenarios", "function", "character", "output_functions", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   
   # Add ARM equation in model
@@ -674,7 +674,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
 #' @importFrom purrr imap_dfr
 #' @importFrom digest sha1
 #' @rdname simulate
-setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "output_functions", "integer", "integer", "logical", "simulation_settings"),
+setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   
   # Retrieve simulation config
