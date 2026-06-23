@@ -10,7 +10,7 @@ Outfun(
  },
   args = list(),
   packages = NULL,
-  level = "scenario",
+  level = "replicate",
   fun_name = "default"
 )
 }
@@ -21,7 +21,7 @@ Outfun(
 
 \item{packages}{packages that must be loaded to execute the given function, character vector}
 
-\item{level}{either 'scenario' or 'replicate'. Default is 'scenario'.}
+\item{level}{where to apply the output function, only 'replicate' is allowed since Campsis v1.9.0}
 
 \item{fun_name}{name of the output function. Default is 'default'.}
 }

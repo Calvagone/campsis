@@ -2,22 +2,6 @@
 #----                             simulate                                  ----
 #_______________________________________________________________________________
 
-no_default_function_provided <- function(args_list) {
-  # Get the class of each argument as a string (fixed CHARACTER to character)
-  arg_classes <- vapply(args_list, function(x) {
-    if (is.null(x)) "NULL" else paste(class(x), collapse = "/")
-  }, character(1))
-  
-  # Format into a readable string: "arg1 (class), arg2 (class), ..."
-  formatted_args <- sprintf("%s (%s)", names(arg_classes), arg_classes)
-  error_details <- paste(formatted_args, collapse = "\n  ")
-  
-  stop(paste0(
-    "Generic 'simulate' function cannot be called directly.\n",
-    "Received arguments:\n  ", error_details
-  ), call. = FALSE)
-}
-
 #' Simulate function.
 #' 
 #' @param model generic CAMPSIS model
@@ -36,7 +20,7 @@ no_default_function_provided <- function(args_list) {
 #' @export
 #' @rdname simulate
 simulate <- function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, dosing=FALSE, settings=NULL) {
-  no_default_function_provided(mget(names(formals()), envir = environment()))
+  no_default_function_provided_debug(mget(names(formals()), envir = environment()), "simulate")
 }
 
 setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, dosing=FALSE, settings=NULL) {
@@ -260,13 +244,11 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     inner <- simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
                                   tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
                                   dosing=dosing, settings=settings)
-    
-    # Apply potential output function
-    # inner <- inner %>% applyOutfun(outfun=outfun, level="scenario", scenario=scenario@name)
-    
+        
     # Add column SCENARIO if scenarios were provided (at least 1)
     if (!emptyScenarios) {
-      inner <- inner %>% dplyr::mutate(SCENARIO=scenario@name)
+      inner <- inner %>%
+        dplyr::mutate(SCENARIO=scenario@name)
     }
     
     return(inner)

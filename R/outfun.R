@@ -33,12 +33,12 @@ setMethod("getName", signature=c("output_function"), definition=function(x) {
 #' @param fun function or purrr-style lambda formula, first argument 'x' must be the results
 #' @param args extra arguments, named list
 #' @param packages packages that must be loaded to execute the given function, character vector
-#' @param level either 'scenario' or 'replicate'. Default is 'scenario'.
+#' @param level where to apply the output function, only 'replicate' is allowed since Campsis v1.9.0
 #' @param fun_name name of the output function. Default is 'default'.
 #' @importFrom rlang as_function is_formula
 #' @return an output function
 #' @export
-Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="scenario", fun_name="default") {
+Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="replicate", fun_name="default") {
   if (is.function(fun)) {
     # Do nothing
   } else if (rlang::is_formula(fun)) {
@@ -47,7 +47,7 @@ Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="s
   } else {
     stop("fun must be a function or a purrr-style lambda formula") 
   }
-  assertthat::assert_that(level %in% c("scenario", "replicate"), msg="Level must be 'scenario' or 'replicate'")
+  assertthat::assert_that(level %in% c("replicate"), msg="No level other than 'replicate' is allowed since Campsis v1.9.0")
   if (is.null(packages)) {
     packages <- character(0)
   } 

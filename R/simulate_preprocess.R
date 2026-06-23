@@ -91,15 +91,11 @@ preprocessOutfun <- function(outfun) {
   if (is.null(outfun)) {
     fun <- Outfun()
   } else if (is.function(outfun) || rlang::is_formula(outfun)) {
-    # Backwards compatibility: bare function or formula treated as scenario-level outfun
-    fun <- Outfun(fun=outfun, level="scenario")
+      fun <- Outfun(fun=outfun)
   } else if (is(outfun, "output_function")) {
     fun <- outfun
   } else if (is(outfun, "output_functions")) {
-    levels <- unique(purrr::map_chr(outfun@list, ~.x@level))
-    assertthat::assert_that(length(levels) == 1,
-      msg=paste0('All output functions in Outfuns() must share the same level. Found: ', paste(levels, collapse=', ')))
-    return(outfun)                       # 2+ elements -> keep as output_functions for multi dispatch
+    return(outfun)
   } else {
     stop("outfun must be a function, formula, Outfun() or Outfuns() object.")
   }
