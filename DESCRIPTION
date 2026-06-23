@@ -106,6 +106,7 @@ Collate:
     'scenarios.R'
     'event_logic.R'
     'dataset_summary.R'
+    'outfun_core.R'
     'outfun.R'
     'outfuns.R'
     'default_settings.R'
@@ -121,5 +122,4 @@ Collate:
     'json_interface.R'
     'simulate_preprocess.R'
     'simulate.R'
-    'results_processing.R'
     'default_plot.R'

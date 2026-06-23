@@ -3,6 +3,7 @@ allStrataLevels <- function() {
   return("all")
 }
 
+
 getDefaultStrata <- function() {
   return(c(SCENARIO=allStrataLevels(), ARM=allStrataLevels()))
 }

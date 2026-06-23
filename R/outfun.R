@@ -82,3 +82,82 @@ applyOutfun <- function(x, outfun, level, ...) {
   }
   return(x)
 }
+
+#_______________________________________________________________________________
+#----                            pi_outfun class                            ----
+#_______________________________________________________________________________
+
+#'
+#' Prediction interval output function class.
+#'
+#' @slot variable variable(s) used to compute the prediction interval, character vector
+#' @slot strata named vector with the strata to use
+#' @slot level PI level, default is 0.9 (90\% PI)
+#' @slot gather FALSE: med, low & up columns, TRUE: metric column
+#' @export
+setClass(
+  "pi_outfun",
+  representation(
+    variable="character",
+    strata="vector",
+    pi_level="numeric",
+    gather="logical"
+  ),
+  contains="outfun",
+  prototype=prototype(
+    variable=character(0),
+    strata=getDefaultStrata(),
+    pi_level=0.90,
+    gather=TRUE,
+    fun=function(x, ...) { x },
+    level="replicate",
+    fun_name="pi"
+  )
+)
+
+#'
+#' Create a prediction interval output function
+#'
+#' @param variable variable(s) used to compute the prediction interval, character vector
+#' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all")
+#' @param level PI level, default is 0.9 (90\% PI)
+#' @param gather FALSE: med, low & up columns, TRUE: metric column
+#' @importFrom assertthat assert_that
+#' @return a pi_outfun object
+#' @export
+PIOutfun <- function(variable, strata=getDefaultStrata(), level=0.90, gather=TRUE) {
+  assertthat::assert_that(
+    is.character(variable) && length(variable) >= 1,
+    msg = "variable must be a non-empty character vector"
+  )
+  assertthat::assert_that(
+    is.null(strata) || (is.atomic(strata) && !is.null(names(strata)) && all(nzchar(names(strata)))),
+    msg = "strata must be a fully named vector or NULL"
+  )
+  assertthat::assert_that(
+    is.numeric(level) && level > 0 && level < 1,
+    msg = "level must be a numeric value between 0 and 1"
+  )
+  assertthat::assert_that(
+    is.logical(gather),
+    msg = "gather must be a logical value"
+  )
+  
+  # Create the wrapper function that delegates to PI
+  pi_wrapper <- function(x, ...) {
+    PI(x = x, variable = variable, strata = strata, level = level, gather = gather)
+  }
+  
+  return(new(
+    "pi_outfun",
+    fun = pi_wrapper,
+    fun_name = "pi",
+    args = list(),
+    packages = character(0),
+    level = "replicate",
+    variable = variable,
+    strata = strata,
+    pi_level = level,
+    gather = gather
+  ))
+}
