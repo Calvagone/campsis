@@ -4,7 +4,14 @@
 \alias{PIOutfun}
 \title{Create a prediction interval output function}
 \usage{
-PIOutfun(variable, strata = getDefaultStrata(), level = 0.9, gather = TRUE)
+PIOutfun(
+  variable,
+  strata = getDefaultStrata(),
+  level = 0.9,
+  gather = TRUE,
+  fun_name = sprintf("pi_\%s_\%ipc", paste0(variable, collapse = "_"), round(level *
+    100))
+)
 }
 \arguments{
 \item{variable}{variable(s) used to compute the prediction interval, character vector}
@@ -14,6 +21,8 @@ PIOutfun(variable, strata = getDefaultStrata(), level = 0.9, gather = TRUE)
 \item{level}{PI level, default is 0.9 (90\% PI)}
 
 \item{gather}{FALSE: med, low & up columns, TRUE: metric column}
+
+\item{fun_name}{name of the output function. Default is 'pi_<variable>_<level>pc'.}
 }
 \value{
 a pi_outfun object

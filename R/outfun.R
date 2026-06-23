@@ -111,7 +111,7 @@ setClass(
     gather=TRUE,
     fun=function(x, ...) { x },
     level="replicate",
-    fun_name="pi"
+    fun_name="default_pi"
   )
 )
 
@@ -122,10 +122,13 @@ setClass(
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all")
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param gather FALSE: med, low & up columns, TRUE: metric column
+#' @param fun_name name of the output function. Default is 'pi_<variable>_<level>pc'.
 #' @importFrom assertthat assert_that
 #' @return a pi_outfun object
 #' @export
-PIOutfun <- function(variable, strata=getDefaultStrata(), level=0.90, gather=TRUE) {
+PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9, gather = TRUE,
+  fun_name = sprintf("PI_%s_%i%%", paste0(variable, collapse="_"), round(level*100))) {
+
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
@@ -151,7 +154,7 @@ PIOutfun <- function(variable, strata=getDefaultStrata(), level=0.90, gather=TRU
   return(new(
     "pi_outfun",
     fun = pi_wrapper,
-    fun_name = "pi",
+    fun_name = fun_name,
     args = list(),
     packages = character(0),
     level = "replicate",

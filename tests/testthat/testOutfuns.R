@@ -1,10 +1,7 @@
 library(testthat)
 library(dplyr)
 
-context("Test the output_functions class")
-
-seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+context("Test the outfun(s) class")
 
 test_that("Output functions can be added and retrieved", {
   outfuns <- Outfuns() %>%

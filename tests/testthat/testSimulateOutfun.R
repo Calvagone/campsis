@@ -49,6 +49,10 @@ test_that("Use argument 'outfun' with PIOutfun", {
   fun <- PIOutfun(variable=c("CP", "Y"), level=0.9)
   results <- simulate(model=model, dataset=ds, dest="mrgsolve", outfun=fun, seed=seed)
 
+  fun1 <- PIOutfun(variable=c("CP", "Y"), level=0.9)
+  fun2 <- PIOutfun(variable=c("CP", "Y"), level=0.8)
+  results <- simulate(model=model, dataset=ds, dest="mrgsolve", outfun=Outfuns() %>% add(c(fun1, fun2)), seed=seed)
+
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=fun, seed=seed))
 
 })
