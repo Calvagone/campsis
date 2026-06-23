@@ -379,7 +379,16 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
         tmp <- tmp %>%
           dplyr::select(-dplyr::all_of("replicate"))
       }
-      return(tmp)
+      metadata <- new(
+        "campsis_metadata",
+        dataset = dataset,
+        dest = dest,
+        scenarios = scenarios,
+        outvars = outvars,
+        outfun = outfun %>% getByName(name),
+        replicates = replicates
+      )
+      return(new_campsis_tbl(x=tmp, metadata=metadata))
     })
   
   if (outfun_names %>% length() == 1) {

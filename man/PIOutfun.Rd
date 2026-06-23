@@ -9,7 +9,7 @@ PIOutfun(
   strata = getDefaultStrata(),
   level = 0.9,
   gather = TRUE,
-  fun_name = sprintf("pi_\%s_\%ipc", paste0(variable, collapse = "_"), round(level *
+  fun_name = sprintf("PI_\%s_\%i\%\%", paste0(variable, collapse = "_"), round(level *
     100))
 )
 }

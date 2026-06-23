@@ -45,7 +45,8 @@ Imports:
     rlang,
     stats,
     tibble,
-    tidyr
+    tidyr,
+    vctrs
 Suggests:
     bookdown,
     devtools,
@@ -118,6 +119,7 @@ Collate:
     'progress_settings.R'
     'internal_settings.R'
     'simulation_settings.R'
+    'campsis_metadata.R'
     'plan_setup.R'
     'json_interface.R'
     'simulate_preprocess.R'
