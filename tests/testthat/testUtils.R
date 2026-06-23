@@ -1,8 +1,4 @@
 
-# setwd("C:/prj/campsis/")
-# roxygen2::roxygenise()
-# setwd("C:/prj/campsis/tests/")
-
 overwriteNonRegressionFiles <- FALSE
 testEngines <- c("rxode2", "mrgsolve")
 

@@ -107,6 +107,7 @@ Collate:
     'event_logic.R'
     'dataset_summary.R'
     'outfun.R'
+    'outfuns.R'
     'default_settings.R'
     'hardware_settings.R'
     'simulation_progress.R'
