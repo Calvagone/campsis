@@ -46,13 +46,35 @@ test_that("Use argument 'outfun' with PIOutfun", {
     add(Bolus(time=0, amount=1000)) %>%
     add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
 
-  fun <- PIOutfun(variable=c("CP", "Y"), level=0.9)
-  results <- simulate(model=model, dataset=ds, dest="mrgsolve", outfun=fun, seed=seed)
-
   fun1 <- PIOutfun(variable=c("CP", "Y"), level=0.9)
   fun2 <- PIOutfun(variable=c("CP", "Y"), level=0.8)
-  results <- simulate(model=model, dataset=ds, dest="mrgsolve", outfun=Outfuns() %>% add(c(fun1, fun2)), seed=seed)
 
-  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=fun, seed=seed))
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=Outfuns() %>% add(c(fun1, fun2)), seed=seed))
+  test <- expression(
+    expect_true(is.list(results) && !is.data.frame(results)),
+    expect_equal(names(results), c("PI_CP_Y_90%", "PI_CP_Y_80%")),
 
+    expect_equal(
+      results[["PI_CP_Y_90%"]] %>% filter(metric == "med") %>% pull("value"),
+      results[["PI_CP_Y_80%"]] %>% filter(metric == "med") %>% pull("value")
+    ),
+
+    expect_true(all(
+      results[["PI_CP_Y_90%"]] %>%
+        filter(metric == "low" & value != 0) %>%
+        pull("value") <
+        results[["PI_CP_Y_80%"]] %>%
+          filter(metric == "low" & value != 0) %>%
+          pull("value")
+    )),
+    expect_true(all(
+      results[["PI_CP_Y_90%"]] %>%
+        filter(metric == "up" & value != 0) %>%
+        pull("value") >
+        results[["PI_CP_Y_80%"]] %>%
+          filter(metric == "up" & value != 0) %>%
+          pull("value")
+    ))
+  )
+  campsisTest(simulation, test, env=environment())
 })
