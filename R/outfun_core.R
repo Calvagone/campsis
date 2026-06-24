@@ -53,7 +53,7 @@ metrics_pivot_wider <- function(x) {
 #' @importFrom tidyr pivot_longer
 #' @importFrom stats median quantile
 #' @export
-PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
+compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
@@ -98,7 +98,6 @@ PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
     )
   
   # Pivot longer by default
-  print(res)
   res <- metrics_pivot_longer(x = res, cols = c("med", "low", "up"))
 
   # Variable before TIME
@@ -126,7 +125,7 @@ PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
 VPC <- function(x, strata=NULL, level=0.90) {
   x <- x |>
     dplyr::rename(original_metric=metric)
-  retValue <- PI(x=x, variable="value", strata=c(original_metric=allStrataLevels(), strata), level=level) |>
+  retValue <- compute_pi(x=x, variable="value", strata=c(original_metric=allStrataLevels(), strata), level=level) |>
     metrics_pivot_wider()
 
   retValue_ <- retValue |>

@@ -140,7 +140,7 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
   
   # Create the wrapper function that delegates to PI
   pi_wrapper <- function(x, ...) {
-    PI(x = x, variable = variable, strata = strata, level = level)
+    compute_pi(x = x, variable = variable, strata = strata, level = level)
   }
   
   return(new(

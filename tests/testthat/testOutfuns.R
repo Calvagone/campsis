@@ -5,8 +5,8 @@ context("Test the outfun(s) class")
 
 test_that("Output functions can be added and retrieved", {
   outfuns <- Outfuns() %>%
-    add(Outfun(~PI(.x, variable="CP"), fun_name="PI on CP")) %>%
-    add(Outfun(~PI(.x, variable="Y"), fun_name="PI on Y"))
+    add(Outfun(~compute_pi(.x, variable="CP"), fun_name="PI on CP")) %>%
+    add(Outfun(~compute_pi(.x, variable="Y"), fun_name="PI on Y"))
 
   expect_equal(outfuns %>% length(), 2)
   expect_equal(outfuns %>% getByIndex(1) %>% .@fun_name, "PI on CP")

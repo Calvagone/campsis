@@ -17,15 +17,15 @@ test_that("Simulate with Outfuns returns a named list; single Outfun still retur
 
   # Single Outfun: result must be a plain data frame (unchanged behaviour)
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine,
-                                    outfun=Outfun(~PI(.x, variable="CP"), fun_name="cp"),
+                                    outfun=Outfun(~compute_pi(.x, variable="CP"), fun_name="cp"),
                                     seed=seed))
   test <- expression(expect_true(is.data.frame(results)))
   campsisTest(simulation, test, env=environment())
 
   # Outfuns with 2 functions at the same level: result must be a named list
   outfuns <- Outfuns() %>%
-    add(Outfun(~PI(.x, variable="CP"), fun_name="cp")) %>%
-    add(Outfun(~PI(.x, variable="Y"), fun_name="y"))
+    add(Outfun(~compute_pi(.x, variable="CP"), fun_name="cp")) %>%
+    add(Outfun(~compute_pi(.x, variable="Y"), fun_name="y"))
 
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=outfuns, seed=seed))
   test <- expression(

@@ -125,3 +125,4 @@ Collate:
     'simulate_preprocess.R'
     'simulate.R'
     'default_plot.R'
+    'deprecated_methods.R'

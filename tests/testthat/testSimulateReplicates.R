@@ -17,7 +17,7 @@ test_that("VPC on CP, using predicate", {
     add(Infusion(time=0, amount=1000, compartment=1, ii=24, addl=2)) %>%
     add(Observations(times=seq(0, 3*24, by=4)))
 
-  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5, outfun=~PI(.x, variable="CP"), seed=seed))
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5, outfun=PIOutfun(variable="CP"), seed=seed))
   test <- expression(
     vpcOutputRegressionTest(results, output="CP", filename=regFilename)
   )
@@ -31,7 +31,7 @@ test_that("VPC on CP, using predicate", {
   model1 <- repModel %>% export(dest=CampsisModel(), index=1)
   expect_equal(model1@parameters@varcov, matrix(numeric(0), nrow=0, ncol=0)) # Variance-covariance not preserved
 
-  simulation <- expression(simulate(model=repModel, dataset=ds, dest=destEngine, outfun=~PI(.x, variable="CP"), seed=seed))
+  simulation <- expression(simulate(model=repModel, dataset=ds, dest=destEngine, outfun=PIOutfun(variable="CP"), seed=seed))
   test <- expression(
     vpcOutputRegressionTest(results, output="CP", filename=regFilename)
   )
@@ -49,7 +49,7 @@ test_that("VPC on both CP and Y, using function", {
     add(Observations(times=seq(0, 3*24, by=4)))
 
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
-     outfun=~PI(x=.x, variable=c("CP", "Y")), seed=seed))
+     outfun=PIOutfun(variable=c("CP", "Y")), seed=seed))
   test <- expression(
     vpcPlot(results %>% dplyr::rename(output=variable), strata=c(output="all")) + facet_wrap(~output),
     vpcOutputRegressionTest(results, output="CP", filename=regFilename)
@@ -71,7 +71,7 @@ test_that("Study replication also works with scenarios", {
 
   # Outfun executed at the level of the scenario (backwards compatibility)
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
-                                    outfun=~PI(.x, variable="CP"), seed=seed, scenarios=scenarios))
+                                    outfun=PIOutfun(variable="CP"), seed=seed, scenarios=scenarios))
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
     expect_true(all(results$SCENARIO %>% unique()==c("Base model", "Increased KA"))),
@@ -83,7 +83,7 @@ test_that("Study replication also works with scenarios", {
 
   # Outfun executed at the level of the replicate (possible since Campsis v1.5.3)
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
-                                    outfun=Outfun(~PI(.x, variable="CP"), level="replicate"),
+                                    outfun=PIOutfun(variable="CP"),
                                     seed=seed, scenarios=scenarios))
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
@@ -98,7 +98,7 @@ test_that("Study replication also works with scenarios", {
   # This is particularly useful when parallelisation on replicates is enabled since
   # the function written in a lambda will not be detected as part of the environment by the 'future' package
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
-                                    outfun=Outfun(PI, args=list(variable="CP"), level="replicate"),
+                                    outfun=Outfun(compute_pi, args=list(variable="CP"), level="replicate"),
                                     seed=seed, scenarios=scenarios))
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
