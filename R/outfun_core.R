@@ -20,6 +20,24 @@ filterOutputOnStrata <- function(x, strata) {
   return(x_reduced)
 }
 
+metrics_pivot_longer <- function(x, cols) {
+  x <- x |>
+      tidyr::pivot_longer(
+        cols = dplyr::all_of(cols),
+        names_to = "metric",
+        values_to = "value"
+      )
+  return(x)
+}
+
+metrics_pivot_wider <- function(x) {
+  x <- x |>
+    tidyr::pivot_wider(
+      names_from = "metric",
+      values_from = "value"
+    )
+  return(x)
+}
 
 #' Compute the prediction interval summary over time.
 #' 
@@ -30,13 +48,12 @@ filterOutputOnStrata <- function(x, strata) {
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 #'   Only columns that are actually present in \code{x} are used.
 #' @param level PI level, default is 0.9 (90\% PI)
-#' @param gather FALSE: med, low & up columns, TRUE: metric column
 #' @return a summary table
 #' @importFrom dplyr across all_of bind_rows mutate group_by summarise
 #' @importFrom tidyr pivot_longer
 #' @importFrom stats median quantile
 #' @export
-PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90, gather = TRUE) {
+PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
@@ -79,16 +96,10 @@ PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90, gather = 
       up  = stats::quantile(.data$value, prob_up,  names = FALSE, na.rm = TRUE),
       .groups = "drop"
     )
-
-  # Handle gathering if requested
-  if (gather) {
-    res <- res |>
-      tidyr::pivot_longer(
-        cols = c("med", "low", "up"),
-        names_to = "metric",
-        values_to = "value"
-      )
-  }
+  
+  # Pivot longer by default
+  print(res)
+  res <- metrics_pivot_longer(x = res, cols = c("med", "low", "up"))
 
   # Variable before TIME
   res <- res |>
@@ -104,7 +115,7 @@ PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90, gather = 
 #' - up: up percentile value in replicate (and in scenario if present)
 #' - any scenario column
 #' 
-#' @param x data frame
+#' @param x data frame, with metric
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 #'   Only columns that are actually present in \code{x} are used.
 #' @param level PI level, default is 0.9 (90\% PI)
@@ -113,10 +124,14 @@ PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90, gather = 
 #' low, med, up (i.e. low_low, low_med, low_up, etc.) 
 #' @export
 VPC <- function(x, strata=NULL, level=0.90) {
-  retValue <- PI(x=x, variable="value", strata=c(metric=allStrataLevels(), strata), level=level, gather=FALSE)
-  retValue_ <- retValue %>%
-    tidyr::pivot_wider(names_from="metric",
-                       names_glue="{metric}_{.value}",
+  x <- x |>
+    dplyr::rename(original_metric=metric)
+  retValue <- PI(x=x, variable="value", strata=c(original_metric=allStrataLevels(), strata), level=level) |>
+    metrics_pivot_wider()
+
+  retValue_ <- retValue |>
+    tidyr::pivot_wider(names_from="original_metric",
+                       names_glue="{original_metric}_{.value}",
                        values_from=c("low", "med", "up"))
   return(retValue_)
 }

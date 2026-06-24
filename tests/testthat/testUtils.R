@@ -18,6 +18,16 @@ datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, 
   return(table)
 }
 
+stripMetadata <- function(x) {
+  # Revert class back to standard tibble components
+  class(x) <- c("tbl_df", "tbl", "data.frame")
+  
+  # Delete the attribute
+  attr(x, "metadata") <- NULL
+  
+  return(x)
+}
+
 #' Test there is no regression in the exported dataset.
 #' 
 #' @param dataset newly generated CAMPSIS dataset
@@ -60,7 +70,10 @@ datasetRegressionTest <- function(dataset, model=NULL, seed, doseOnly=TRUE, file
 #' @export
 outputRegressionTest <- function(results, output, filename, times=NULL) {
   selectedColumns <- unique(c("ID", "TIME", output))
-  results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)
+  results1 <- results %>%
+    stripMetadata() %>%
+    dplyr::select(dplyr::all_of(selectedColumns)) %>%
+    dplyr::mutate_if(is.numeric, round, digits=2)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
   file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, "_", suffix, ".csv"))
@@ -71,7 +84,8 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
   if (!is.null(times)) {
-    results2 <- results2 %>% dplyr::filter(TIME %in% times)
+    results2 <- results2 %>%
+      dplyr::filter(TIME %in% times)
   }
   expect_equal(results1, results2)
 }
@@ -84,6 +98,7 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 #' @export
 vpcOutputRegressionTest <- function(results, output, filename) {
   results <- results %>%
+    stripMetadata() %>%
       dplyr::filter(.data$variable %in% output)
   
   results1 <- results %>%

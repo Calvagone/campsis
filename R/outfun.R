@@ -93,22 +93,19 @@ applyOutfun <- function(x, outfun, level, ...) {
 #' @slot variable variable(s) used to compute the prediction interval, character vector
 #' @slot strata named vector with the strata to use
 #' @slot level PI level, default is 0.9 (90\% PI)
-#' @slot gather FALSE: med, low & up columns, TRUE: metric column
 #' @export
 setClass(
   "pi_outfun",
   representation(
     variable="character",
     strata="vector",
-    pi_level="numeric",
-    gather="logical"
+    pi_level="numeric"  
   ),
   contains="outfun",
   prototype=prototype(
     variable=character(0),
     strata=getDefaultStrata(),
     pi_level=0.90,
-    gather=TRUE,
     fun=function(x, ...) { x },
     level="replicate",
     fun_name="default_pi"
@@ -121,12 +118,11 @@ setClass(
 #' @param variable variable(s) used to compute the prediction interval, character vector
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all")
 #' @param level PI level, default is 0.9 (90\% PI)
-#' @param gather FALSE: med, low & up columns, TRUE: metric column
 #' @param fun_name name of the output function. Default is 'pi_<variable>_<level>pc'.
 #' @importFrom assertthat assert_that
 #' @return a pi_outfun object
 #' @export
-PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9, gather = TRUE,
+PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
   fun_name = sprintf("PI_%s_%i%%", paste0(variable, collapse="_"), round(level*100))) {
 
   assertthat::assert_that(
@@ -141,14 +137,10 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9, gather 
     is.numeric(level) && level > 0 && level < 1,
     msg = "level must be a numeric value between 0 and 1"
   )
-  assertthat::assert_that(
-    is.logical(gather),
-    msg = "gather must be a logical value"
-  )
   
   # Create the wrapper function that delegates to PI
   pi_wrapper <- function(x, ...) {
-    PI(x = x, variable = variable, strata = strata, level = level, gather = gather)
+    PI(x = x, variable = variable, strata = strata, level = level)
   }
   
   return(new(
@@ -160,7 +152,6 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9, gather 
     level = "replicate",
     variable = variable,
     strata = strata,
-    pi_level = level,
-    gather = gather
+    pi_level = level
   ))
 }

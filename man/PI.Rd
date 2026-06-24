@@ -4,7 +4,7 @@
 \alias{PI}
 \title{Compute the prediction interval summary over time.}
 \usage{
-PI(x, variable, strata = getDefaultStrata(), level = 0.9, gather = TRUE)
+PI(x, variable, strata = getDefaultStrata(), level = 0.9)
 }
 \arguments{
 \item{x}{data frame}
@@ -17,8 +17,6 @@ output to identify each one.}
 Only columns that are actually present in \code{x} are used.}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
-
-\item{gather}{FALSE: med, low & up columns, TRUE: metric column}
 }
 \value{
 a summary table

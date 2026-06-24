@@ -110,9 +110,10 @@ shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, a
   strata_names <- c(colour, strat_extra, colourColumn)
   strata <- if (is.null(strata_names)) NULL else setNames(rep(allStrataLevels(), length(strata_names)), strata_names)
 
-  x <- PI(x=x, variable=variable, strata=strata, level=level, gather=FALSE)
+  x_ <- PI(x=x, variable=variable, strata=strata, level=level) |>
+    metrics_pivot_wider()
 
-  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colourColumn))) +
+  plot <- ggplot2::ggplot(data=x_, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=getColumn(.data, colourColumn), fill=getColumn(.data, colourColumn)), colour=NA, alpha=alpha) +
     ggplot2::ylab(variable)

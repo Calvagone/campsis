@@ -8,7 +8,6 @@ PIOutfun(
   variable,
   strata = getDefaultStrata(),
   level = 0.9,
-  gather = TRUE,
   fun_name = sprintf("PI_\%s_\%i\%\%", paste0(variable, collapse = "_"), round(level *
     100))
 )
@@ -19,8 +18,6 @@ PIOutfun(
 \item{strata}{named vector with the strata to use, default is c(SCENARIO="all", ARM="all")}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
-
-\item{gather}{FALSE: med, low & up columns, TRUE: metric column}
 
 \item{fun_name}{name of the output function. Default is 'pi_<variable>_<level>pc'.}
 }
