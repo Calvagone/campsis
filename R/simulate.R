@@ -381,7 +381,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
       }
       metadata <- new(
         "campsis_metadata",
-        dataset = dataset,
+        dataset = if (is(dataset, "dataset")) {dataset} else {Dataset()},
         dest = dest,
         scenarios = scenarios,
         outvars = outvars,

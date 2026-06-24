@@ -29,6 +29,7 @@ test_that("Simulate a bolus with single observation at time 0", {
 
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
   test <- expression(
+    results <- results %>% stripMetadata(),
     expect_equal(nrow(results), 1),
     expect_equal(results[c("ID", "TIME", "CP")], tibble::tibble(ID=1, TIME=0, CP=0))
   )
