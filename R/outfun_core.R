@@ -1,3 +1,4 @@
+#' @importFrom rlang expr
 allStrataLevels <- function() {
   return("all")
 }
@@ -6,6 +7,8 @@ getDefaultStrata <- function() {
   return(c(SCENARIO=allStrataLevels(), ARM=allStrataLevels()))
 }
 
+#' @importFrom purrr reduce
+#' @importFrom dplyr filter
 filterOutputOnStrata <- function(x, strata) {
   # Detect the specific strata
   specific_strata <- strata[strata != allStrataLevels()]
@@ -19,6 +22,8 @@ filterOutputOnStrata <- function(x, strata) {
   return(x_reduced)
 }
 
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr all_of
 metrics_pivot_longer <- function(x, cols) {
   x <- x |>
       tidyr::pivot_longer(
@@ -29,6 +34,7 @@ metrics_pivot_longer <- function(x, cols) {
   return(x)
 }
 
+#' @importFrom tidyr pivot_wider
 metrics_pivot_wider <- function(x) {
   x <- x |>
     tidyr::pivot_wider(
@@ -45,6 +51,12 @@ metrics_pivot_wider <- function(x) {
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 #' @param stats character vector of statistics to compute. Supported: "median", "mean", or percentiles like "p5", "p95".
 #' @return a summary table in long format
+#' @importFrom assertthat assert_that
+#' @importFrom purrr map
+#' @importFrom rlang expr set_names
+#' @importFrom stats median quantile
+#' @importFrom dplyr all_of group_by across summarise relocate
+#' @importFrom tidyr pivot_longer
 #' @export
 compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p5", "median", "p95")) {
   assertthat::assert_that(
@@ -118,6 +130,7 @@ compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @return a summary table
+#' @importFrom dplyr mutate case_when
 #' @export
 compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
   # Map PI level to requested percentile strings
@@ -158,6 +171,7 @@ compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 #'   Only columns that are actually present in \code{x} are used.
 #' @param level PI level, default is 0.9 (90\% PI)
+#' @importFrom dplyr rename
 #' @importFrom tidyr pivot_wider
 #' @return VPC summary with columns TIME, stratification variables and all combinations of 
 #' low, med, up (i.e. low_low, low_med, low_up, etc.) 
