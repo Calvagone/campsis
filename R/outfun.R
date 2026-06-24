@@ -155,3 +155,76 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
     pi_level = level
   ))
 }
+
+#_______________________________________________________________________________
+#----                          stats_outfun class                           ----
+#_______________________________________________________________________________
+
+#'
+#' Statistics output function class.
+#'
+#' @slot variable variable(s) used to compute the statistics, character vector
+#' @slot strata named vector with the strata to use
+#' @slot stats character vector of statistics to compute
+#' @export
+setClass(
+  "stats_outfun",
+  representation(
+    variable="character",
+    strata="vector",
+    stats="character"  
+  ),
+  contains="outfun",
+  prototype=prototype(
+    variable=character(0),
+    strata=getDefaultStrata(),
+    stats=c("p5", "median", "p95"),
+    fun=function(x, ...) { x },
+    level="replicate",
+    fun_name="default_stats"
+  )
+)
+
+#'
+#' Create a statistics output function
+#'
+#' @param variable variable(s) used to compute the statistics, character vector
+#' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all")
+#' @param stats character vector of statistics to compute. Supported: "median", "mean", or percentiles like "p5", "p95". Default is c("p5", "median", "p95").
+#' @param fun_name name of the output function. Default is 'stats_<variable>'.
+#' @importFrom assertthat assert_that
+#' @return a stats_outfun object
+#' @export
+StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "median", "p95"),
+  fun_name = sprintf("stats_%s", paste0(variable, collapse="_"))) {
+
+  assertthat::assert_that(
+    is.character(variable) && length(variable) >= 1,
+    msg = "variable must be a non-empty character vector"
+  )
+  assertthat::assert_that(
+    is.null(strata) || (is.atomic(strata) && !is.null(names(strata)) && all(nzchar(names(strata)))),
+    msg = "strata must be a fully named vector or NULL"
+  )
+  assertthat::assert_that(
+    is.character(stats) && length(stats) >= 1,
+    msg = "stats must be a non-empty character vector"
+  )
+  
+  # Create the wrapper function that delegates to compute_stats
+  stats_wrapper <- function(x, ...) {
+    compute_stats(x = x, variable = variable, strata = strata, stats = stats)
+  }
+  
+  return(new(
+    "stats_outfun",
+    fun = stats_wrapper,
+    fun_name = fun_name,
+    args = list(),
+    packages = character(0),
+    level = "replicate",
+    variable = variable,
+    strata = strata,
+    stats = stats
+  ))
+}

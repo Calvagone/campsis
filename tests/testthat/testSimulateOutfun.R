@@ -78,3 +78,53 @@ test_that("Use argument 'outfun' with PIOutfun", {
   )
   campsisTest(simulation, test, env=environment())
 })
+
+test_that("Use argument 'outfun' with StatsOutfun", {
+  if (skipLongTests()) return(TRUE)
+
+  model <- model_suite$testing$nonmem$advan2_trans2
+
+  ds <- Dataset(10) %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
+
+  fun1 <- StatsOutfun(variable=c("CP", "Y"), stats=c("p5", "median", "p95"))
+  fun2 <- StatsOutfun(variable=c("CP", "Y"), stats=c("mean", "median"))
+
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=Outfuns() %>% add(c(fun1, fun2)), seed=seed))
+  test <- expression(
+    expect_true(is.list(results) && !is.data.frame(results)),
+    expect_equal(names(results), c("stats_CP_Y", "stats_CP_Y")),
+
+    expect_true(all(c("TIME", "variable", "metric", "value") %in% colnames(results[[1]]))),
+    expect_true(all(c("TIME", "variable", "metric", "value") %in% colnames(results[[2]]))),
+
+    expect_true(all(unique(results[[1]]$variable) %in% c("CP", "Y"))),
+    expect_true(all(unique(results[[1]]$metric) %in% c("p5", "median", "p95"))),
+
+    expect_true(all(unique(results[[2]]$variable) %in% c("CP", "Y"))),
+    expect_true(all(unique(results[[2]]$metric) %in% c("mean", "median")))
+  )
+  campsisTest(simulation, test, env=environment())
+})
+
+test_that("Use argument 'outfun' with single StatsOutfun returns data frame", {
+  if (skipLongTests()) return(TRUE)
+
+  model <- model_suite$testing$nonmem$advan2_trans2
+
+  ds <- Dataset(10) %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
+
+  fun <- StatsOutfun(variable="CP", stats=c("p5", "median", "p95"))
+
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=fun, seed=seed))
+  test <- expression(
+    expect_true(is.data.frame(results)),
+    expect_true(all(c("TIME", "variable", "metric", "value") %in% colnames(results))),
+    expect_equal(unique(results$variable), "CP"),
+    expect_true(all(unique(results$metric) %in% c("p5", "median", "p95")))
+  )
+  campsisTest(simulation, test, env=environment())
+})
