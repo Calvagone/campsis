@@ -1,4 +1,3 @@
-
 allStrataLevels <- function() {
   return("all")
 }
@@ -39,21 +38,15 @@ metrics_pivot_wider <- function(x) {
   return(x)
 }
 
-#' Compute the prediction interval summary over time.
+#' Compute generic statistics over time.
 #' 
 #' @param x data frame
-#' @param variable variable(s) used to compute the prediction interval, character vector.
-#'   When more than one variable is supplied, a \code{variable} column is added to the
-#'   output to identify each one.
+#' @param variable variable(s) used to compute the statistics, character vector.
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
-#'   Only columns that are actually present in \code{x} are used.
-#' @param level PI level, default is 0.9 (90\% PI)
-#' @return a summary table
-#' @importFrom dplyr across all_of bind_rows mutate group_by summarise
-#' @importFrom tidyr pivot_longer
-#' @importFrom stats median quantile
+#' @param stats character vector of statistics to compute. Supported: "median", "mean", or percentiles like "p5", "p95".
+#' @return a summary table in long format
 #' @export
-compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
+compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p5", "median", "p95")) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
@@ -61,6 +54,10 @@ compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
   assertthat::assert_that(
     is.null(strata) || (is.atomic(strata) && !is.null(names(strata)) && all(nzchar(names(strata)))),
     msg = "strata must be a fully named vector or NULL"
+  )
+  assertthat::assert_that(
+    is.character(stats) && length(stats) >= 1,
+    msg = "stats must be a non-empty character vector"
   )
 
   # Only keep strata columns that are actually present in x
@@ -75,9 +72,21 @@ compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
   # Filter data
   x_filtered <- filterOutputOnStrata(x = x, strata = strata)
 
-  # Pre-calculate quantile probabilities
-  prob_low <- (1 - level) / 2
-  prob_up  <- 1 - prob_low
+  # Map string shortcuts to an expression list for summarize()
+  # This dynamically builds the calls for mean, median, or any pXX quantile
+  summary_exprs <- purrr::map(stats, function(stat) {
+    if (stat == "median") {
+      rlang::expr(stats::median(.data$value, na.rm = TRUE))
+    } else if (stat == "mean") {
+      rlang::expr(mean(.data$value, na.rm = TRUE))
+    } else if (grepl("^p\\d+$", stat)) {
+      # Extract digits for percentile (e.g., "p95" -> 0.95)
+      prob <- as.numeric(sub("p", "", stat)) / 100
+      rlang::expr(stats::quantile(.data$value, !!prob, names = FALSE, na.rm = TRUE))
+    } else {
+      stop(paste("Unsupported statistic:", stat))
+    }
+  }) |> rlang::set_names(stats)
 
   # Pivot the variables long first, keeping data grouped properly
   res <- x_filtered |>
@@ -89,21 +98,52 @@ compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
     ) |>
     # Group by the grouping columns AND the new variable column
     dplyr::group_by(dplyr::across(dplyr::all_of(c(group_cols, "variable")))) |>
-    # Summarize directly into clean columns
-    dplyr::summarise(
-      med = stats::median(.data$value, na.rm = TRUE),
-      low = stats::quantile(.data$value, prob_low, names = FALSE, na.rm = TRUE),
-      up  = stats::quantile(.data$value, prob_up,  names = FALSE, na.rm = TRUE),
-      .groups = "drop"
-    )
+    # Dynamically summarize based on user requests
+    dplyr::summarise(!!!summary_exprs, .groups = "drop")
   
-  # Pivot longer by default
-  res <- metrics_pivot_longer(x = res, cols = c("med", "low", "up"))
+  # Pivot longer into the final format
+  res <- metrics_pivot_longer(x = res, cols = stats)
 
   # Variable before TIME
   res <- res |>
     dplyr::relocate("variable", .before = "TIME")
 
+  return(res)
+}
+
+#' Compute the prediction interval summary over time.
+#' 
+#' @param x data frame
+#' @param variable variable(s) used to compute the prediction interval, character vector.
+#' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
+#' @param level PI level, default is 0.9 (90\% PI)
+#' @return a summary table
+#' @export
+compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
+  # Map PI level to requested percentile strings
+  prob_low <- (1 - level) / 2
+  prob_up  <- 1 - prob_low
+  
+  low_name <- paste0("p", prob_low * 100)
+  up_name  <- paste0("p", prob_up * 100)
+  
+  # Call the generic function
+  res <- compute_stats(
+    x = x, 
+    variable = variable, 
+    strata = strata, 
+    stats = c(low_name, "median", up_name)
+  )
+  
+  # Map the generic metric names ("p5", "median", "p95") back to ("low", "med", "up")
+  res <- res |> 
+    dplyr::mutate(metric = dplyr::case_when(
+      metric == "median" ~ "med",
+      metric == low_name ~ "low",
+      metric == up_name  ~ "up",
+      TRUE               ~ metric
+    ))
+  
   return(res)
 }
 

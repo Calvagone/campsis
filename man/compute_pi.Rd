@@ -9,12 +9,9 @@ compute_pi(x, variable, strata = getDefaultStrata(), level = 0.9)
 \arguments{
 \item{x}{data frame}
 
-\item{variable}{variable(s) used to compute the prediction interval, character vector.
-When more than one variable is supplied, a \code{variable} column is added to the
-output to identify each one.}
+\item{variable}{variable(s) used to compute the prediction interval, character vector.}
 
-\item{strata}{named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
-Only columns that are actually present in \code{x} are used.}
+\item{strata}{named vector with the strata to use, default is c(SCENARIO="all", ARM="all").}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
 }
