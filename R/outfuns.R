@@ -35,7 +35,7 @@ setMethod("show", signature=c("outfuns"), definition=function(object) {
     cat("No output functions\n")
   } else {
     for (outfun in object@list) {
-      cat(sprintf("Output function (name='%s')\n", outfun@fun_name))
+      cat(sprintf("Output function (name='%s')\n", outfun@name))
     }
   }
 })

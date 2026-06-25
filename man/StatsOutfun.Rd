@@ -8,7 +8,7 @@ StatsOutfun(
   variable,
   strata = getDefaultStrata(),
   stats = c("p5", "median", "p95"),
-  fun_name = sprintf("stats_\%s", paste0(variable, collapse = "_"))
+  name = sprintf("stats_\%s", paste0(variable, collapse = "_"))
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ StatsOutfun(
 
 \item{stats}{character vector of statistics to compute. Supported: "median", "mean", or percentiles like "p5", "p95". Default is c("p5", "median", "p95").}
 
-\item{fun_name}{name of the output function. Default is 'stats_<variable>'.}
+\item{name}{name of the output function. Default is 'stats_<variable>'.}
 }
 \value{
 a stats_outfun object

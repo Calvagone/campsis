@@ -14,17 +14,17 @@ setClass(
   "outfun",
   representation(
     fun="function",
-    fun_name="character",
+    name="character",
     args="list",
     packages="character",
     level="character"
   ),
   contains="pmx_element",
-  prototype=prototype(fun=function(x, ...){x}, level="scenario", fun_name="default")
+  prototype=prototype(fun=function(x, ...){x}, level="scenario", name="default")
 )
 
 setMethod("getName", signature=c("outfun"), definition=function(x) {
-  return(x@fun_name)
+  return(x@name)
 })
 
 #'
@@ -34,11 +34,11 @@ setMethod("getName", signature=c("outfun"), definition=function(x) {
 #' @param args extra arguments, named list
 #' @param packages packages that must be loaded to execute the given function, character vector
 #' @param level where to apply the output function, only 'replicate' is allowed since Campsis v1.9.0
-#' @param fun_name name of the output function. Default is 'default'.
+#' @param name name of the output function. Default is 'default'.
 #' @importFrom rlang as_function is_formula
 #' @return an output function
 #' @export
-Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="replicate", fun_name="default") {
+Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="replicate", name="default") {
   if (is.function(fun)) {
     # Do nothing
   } else if (rlang::is_formula(fun)) {
@@ -52,7 +52,7 @@ Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="r
     packages <- character(0)
   } 
    
-  return(new("outfun", fun=fun, fun_name=fun_name, args=args, packages=packages, level=level))
+  return(new("outfun", fun=fun, name=name, args=args, packages=packages, level=level))
 }
 
 applyOutfun <- function(x, outfun, level, ...) {
@@ -108,7 +108,7 @@ setClass(
     pi_level=0.90,
     fun=function(x, ...) { x },
     level="replicate",
-    fun_name="default_pi"
+    name="default_pi"
   )
 )
 
@@ -118,12 +118,12 @@ setClass(
 #' @param variable variable(s) used to compute the prediction interval, character vector
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all")
 #' @param level PI level, default is 0.9 (90\% PI)
-#' @param fun_name name of the output function. Default is 'pi_<variable>_<level>pc'.
+#' @param name name of the output function. Default is 'pi_<variable>_<level>pc'.
 #' @importFrom assertthat assert_that
 #' @return a pi_outfun object
 #' @export
 PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
-  fun_name = sprintf("PI_%s_%i%%", paste0(variable, collapse="_"), round(level*100))) {
+  name = sprintf("PI_%s_%i%%", paste0(variable, collapse="_"), round(level*100))) {
 
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
@@ -146,7 +146,7 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
   return(new(
     "pi_outfun",
     fun = pi_wrapper,
-    fun_name = fun_name,
+    name = name,
     args = list(),
     packages = character(0),
     level = "replicate",
@@ -181,7 +181,7 @@ setClass(
     stats=c("p5", "median", "p95"),
     fun=function(x, ...) { x },
     level="replicate",
-    fun_name="default_stats"
+    name="default_stats"
   )
 )
 
@@ -191,12 +191,12 @@ setClass(
 #' @param variable variable(s) used to compute the statistics, character vector
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all")
 #' @param stats character vector of statistics to compute. Supported: "median", "mean", or percentiles like "p5", "p95". Default is c("p5", "median", "p95").
-#' @param fun_name name of the output function. Default is 'stats_<variable>'.
+#' @param name name of the output function. Default is 'stats_<variable>'.
 #' @importFrom assertthat assert_that
 #' @return a stats_outfun object
 #' @export
 StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "median", "p95"),
-  fun_name = sprintf("stats_%s", paste0(variable, collapse="_"))) {
+  name = sprintf("stats_%s", paste0(variable, collapse="_"))) {
 
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
@@ -219,7 +219,7 @@ StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "
   return(new(
     "stats_outfun",
     fun = stats_wrapper,
-    fun_name = fun_name,
+    name = name,
     args = list(),
     packages = character(0),
     level = "replicate",

@@ -11,7 +11,7 @@ Outfun(
   args = list(),
   packages = NULL,
   level = "replicate",
-  fun_name = "default"
+  name = "default"
 )
 }
 \arguments{
@@ -23,7 +23,7 @@ Outfun(
 
 \item{level}{where to apply the output function, only 'replicate' is allowed since Campsis v1.9.0}
 
-\item{fun_name}{name of the output function. Default is 'default'.}
+\item{name}{name of the output function. Default is 'default'.}
 }
 \value{
 an output function

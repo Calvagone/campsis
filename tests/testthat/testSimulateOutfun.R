@@ -17,15 +17,15 @@ test_that("Simulate with Outfuns returns a named list; single Outfun still retur
 
   # Single Outfun: result must be a plain data frame (unchanged behaviour)
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine,
-                                    outfun=Outfun(~compute_pi(.x, variable="CP"), fun_name="cp"),
+                                    outfun=Outfun(~compute_pi(.x, variable="CP"), name="cp"),
                                     seed=seed))
   test <- expression(expect_true(is.data.frame(results)))
   campsisTest(simulation, test, env=environment())
 
   # Outfuns with 2 functions at the same level: result must be a named list
   outfuns <- Outfuns() %>%
-    add(Outfun(~compute_pi(.x, variable="CP"), fun_name="cp")) %>%
-    add(Outfun(~compute_pi(.x, variable="Y"), fun_name="y"))
+    add(Outfun(~compute_pi(.x, variable="CP"), name="cp")) %>%
+    add(Outfun(~compute_pi(.x, variable="Y"), name="y"))
 
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=outfuns, seed=seed))
   test <- expression(
@@ -88,8 +88,8 @@ test_that("Use argument 'outfun' with StatsOutfun", {
     add(Bolus(time=0, amount=1000)) %>%
     add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
 
-  fun1 <- StatsOutfun(variable=c("CP", "Y"), stats=c("p5", "median", "p95"), fun_name="fun1")
-  fun2 <- StatsOutfun(variable=c("CP", "Y"), stats=c("mean", "median"), fun_name="fun2")
+  fun1 <- StatsOutfun(variable=c("CP", "Y"), stats=c("p5", "median", "p95"), name="fun1")
+  fun2 <- StatsOutfun(variable=c("CP", "Y"), stats=c("mean", "median"), name="fun2")
 
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=Outfuns() %>% add(c(fun1, fun2)), seed=seed))
   test <- expression(
@@ -121,7 +121,7 @@ test_that("Use argument 'outfun' with single StatsOutfun returns data frame", {
     add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
 
   fun <- StatsOutfun(variable="CP", stats=c("p5", "median", "p95"))
-  expect_equal(fun@fun_name, "stats_CP")
+  expect_equal(fun@name, "stats_CP")
 
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=fun, seed=seed))
   test <- expression(
