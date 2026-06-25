@@ -88,13 +88,13 @@ test_that("Use argument 'outfun' with StatsOutfun", {
     add(Bolus(time=0, amount=1000)) %>%
     add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
 
-  fun1 <- StatsOutfun(variable=c("CP", "Y"), stats=c("p5", "median", "p95"))
-  fun2 <- StatsOutfun(variable=c("CP", "Y"), stats=c("mean", "median"))
+  fun1 <- StatsOutfun(variable=c("CP", "Y"), stats=c("p5", "median", "p95"), fun_name="fun1")
+  fun2 <- StatsOutfun(variable=c("CP", "Y"), stats=c("mean", "median"), fun_name="fun2")
 
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=Outfuns() %>% add(c(fun1, fun2)), seed=seed))
   test <- expression(
     expect_true(is.list(results) && !is.data.frame(results)),
-    expect_equal(names(results), c("stats_CP_Y", "stats_CP_Y")),
+    expect_equal(names(results), c("fun1", "fun2")),
 
     expect_true(all(c("TIME", "variable", "metric", "value") %in% colnames(results[[1]]))),
     expect_true(all(c("TIME", "variable", "metric", "value") %in% colnames(results[[2]]))),
@@ -103,7 +103,10 @@ test_that("Use argument 'outfun' with StatsOutfun", {
     expect_true(all(unique(results[[1]]$metric) %in% c("p5", "median", "p95"))),
 
     expect_true(all(unique(results[[2]]$variable) %in% c("CP", "Y"))),
-    expect_true(all(unique(results[[2]]$metric) %in% c("mean", "median")))
+    expect_true(all(unique(results[[2]]$metric) %in% c("mean", "median"))),
+    
+    expect_equal(nrow(results[[1]]), 14*3), # 3 metrics
+    expect_equal(nrow(results[[2]]), 14*2)  # 2 metrics
   )
   campsisTest(simulation, test, env=environment())
 })
@@ -118,6 +121,7 @@ test_that("Use argument 'outfun' with single StatsOutfun returns data frame", {
     add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
 
   fun <- StatsOutfun(variable="CP", stats=c("p5", "median", "p95"))
+  expect_equal(fun@fun_name, "stats_CP")
 
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=fun, seed=seed))
   test <- expression(
