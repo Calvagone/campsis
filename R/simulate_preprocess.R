@@ -89,7 +89,7 @@ preprocessTablefun <- function(fun) {
 preprocessOutfun <- function(outfun) {
   fun <- NULL
   if (is.null(outfun)) {
-    fun <- Outfun()
+    fun <- DefaultOutfun()
   } else if (is.function(outfun) || rlang::is_formula(outfun)) {
       fun <- Outfun(fun=outfun)
   } else if (is(outfun, "outfun")) {

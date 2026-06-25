@@ -32,7 +32,9 @@ test_that("Simulate with Outfuns returns a named list; single Outfun still retur
     expect_true(is.list(results) && !is.data.frame(results)),
     expect_equal(names(results), c("cp", "y")),
     expect_true(all(c("TIME", "metric", "value") %in% colnames(results[["cp"]]))),
-    expect_true(all(c("TIME", "metric", "value") %in% colnames(results[["y"]])))
+    expect_true(all(c("TIME", "metric", "value") %in% colnames(results[["y"]]))),
+    expect_true(all(c("custom_campsis_tbl", "campsis_tbl") %in% class(results[["cp"]]))),
+    expect_true(all(c("custom_campsis_tbl", "campsis_tbl") %in% class(results[["y"]])))
   )
   campsisTest(simulation, test, env=environment())
 })
@@ -74,7 +76,9 @@ test_that("Use argument 'outfun' with PIOutfun", {
         results[["PI_CP_Y_80%"]] %>%
           filter(metric == "up" & value != 0) %>%
           pull("value")
-    ))
+    )),
+    expect_true(all(c("pi_campsis_tbl", "campsis_tbl") %in% class(results[["PI_CP_Y_90%"]]))),
+    expect_true(all(c("pi_campsis_tbl", "campsis_tbl") %in% class(results[["PI_CP_Y_80%"]])))
   )
   campsisTest(simulation, test, env=environment())
 })
@@ -106,7 +110,10 @@ test_that("Use argument 'outfun' with StatsOutfun", {
     expect_true(all(unique(results[[2]]$metric) %in% c("mean", "median"))),
     
     expect_equal(nrow(results[[1]]), 14*3), # 3 metrics
-    expect_equal(nrow(results[[2]]), 14*2)  # 2 metrics
+    expect_equal(nrow(results[[2]]), 14*2),  # 2 metrics
+
+    expect_true(all(c("stats_campsis_tbl", "campsis_tbl") %in% class(results[[1]]))),
+    expect_true(all(c("stats_campsis_tbl", "campsis_tbl") %in% class(results[[2]])))
   )
   campsisTest(simulation, test, env=environment())
 })

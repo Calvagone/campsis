@@ -9,6 +9,7 @@
 #' @slot args extra arguments, named list
 #' @slot packages packages that must be loaded to execute the given function, character vector
 #' @slot level either 'scenario' or 'replicate'. Default is 'scenario'.
+#' @slot cls resulting S3 class(es) of the Campsis output
 #' @export
 setClass(
   "outfun",
@@ -17,10 +18,11 @@ setClass(
     name="character",
     args="list",
     packages="character",
-    level="character"
+    level="character",
+    cls="character"
   ),
   contains="pmx_element",
-  prototype=prototype(fun=function(x, ...){x}, level="scenario", name="default")
+  prototype=prototype(fun=function(x, ...){x}, level="scenario", name="default", cls="campsis_tbl")
 )
 
 setMethod("getName", signature=c("outfun"), definition=function(x) {
@@ -34,11 +36,11 @@ setMethod("getName", signature=c("outfun"), definition=function(x) {
 #' @param args extra arguments, named list
 #' @param packages packages that must be loaded to execute the given function, character vector
 #' @param level where to apply the output function, only 'replicate' is allowed since Campsis v1.9.0
-#' @param name name of the output function. Default is 'default'.
+#' @param name name of the output function. Default is 'custom'.
 #' @importFrom rlang as_function is_formula
 #' @return an output function
 #' @export
-Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="replicate", name="default") {
+Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="replicate", name="custom") {
   if (is.function(fun)) {
     # Do nothing
   } else if (rlang::is_formula(fun)) {
@@ -50,9 +52,19 @@ Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="r
   assertthat::assert_that(level %in% c("replicate"), msg="No level other than 'replicate' is allowed since Campsis v1.9.0")
   if (is.null(packages)) {
     packages <- character(0)
-  } 
+  }
    
-  return(new("outfun", fun=fun, name=name, args=args, packages=packages, level=level))
+  return(new("outfun", fun=fun, name=name, args=args, packages=packages, level=level,
+   cls=c("custom_campsis_tbl", "campsis_tbl")))
+}
+
+#'
+#' Default output function (identity function).
+#' @return an output function that returns the Campsis results as is.
+#' @export
+DefaultOutfun <- function() {
+  return(new("outfun", fun=function(x, ...){x}, name="default", args=list(), packages=character(0), level="replicate",
+   cls=c("std_campsis_tbl", "campsis_tbl")))
 }
 
 applyOutfun <- function(x, outfun, level, ...) {
@@ -108,7 +120,8 @@ setClass(
     pi_level=0.90,
     fun=function(x, ...) { x },
     level="replicate",
-    name="default_pi"
+    name="default_pi",
+    cls=c("pi_campsis_tbl", "campsis_tbl")
   )
 )
 
@@ -181,7 +194,8 @@ setClass(
     stats=c("p5", "median", "p95"),
     fun=function(x, ...) { x },
     level="replicate",
-    name="default_stats"
+    name="default_stats",
+    cls=c("stats_campsis_tbl", "campsis_tbl")
   )
 )
 

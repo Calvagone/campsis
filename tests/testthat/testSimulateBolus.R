@@ -18,7 +18,8 @@ test_that("Simulate a bolus", {
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
   test <- expression(
     expect_equal(nrow(results), 49),
-    outputRegressionTest(results, output="CP", filename=regFilename)
+    outputRegressionTest(results, output="CP", filename=regFilename),
+    expect_true(all(c("std_campsis_tbl", "campsis_tbl") %in% class(results)))
   )
   campsisTest(simulation, test, env=environment())
 })
