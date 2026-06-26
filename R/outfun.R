@@ -19,7 +19,8 @@ setClass(
     args = "list",
     packages = "character",
     level = "character",
-    cls = "character"
+    cls = "character",
+    outfun_as_arg = "logical"
   ),
   contains = "pmx_element",
   prototype = prototype(
@@ -30,11 +31,12 @@ setClass(
     args = list(),
     packages = character(0),
     level = "replicate",
-    cls = "campsis_tbl"
+    cls = "campsis_tbl",
+    outfun_as_arg = FALSE
   )
 )
 
-setMethod("getName", signature=c("outfun"), definition=function(x) {
+setMethod("getName", signature = c("outfun"), definition = function(x) {
   return(x@name)
 })
 
@@ -49,22 +51,32 @@ setMethod("getName", signature=c("outfun"), definition=function(x) {
 #' @importFrom rlang as_function is_formula
 #' @return an output function
 #' @export
-Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="replicate", name="custom") {
+Outfun <- function(fun = function(x, ...) {x}, args = list(), packages = NULL, level = "replicate", name = "custom") {
   if (is.function(fun)) {
     # Do nothing
   } else if (rlang::is_formula(fun)) {
     fun <- rlang::as_function(fun)
     class(fun) <- "function" # Cast needed to work with S4 class system
   } else {
-    stop("fun must be a function or a purrr-style lambda formula") 
+    stop("fun must be a function or a purrr-style lambda formula")
   }
-  assertthat::assert_that(level %in% c("replicate"), msg="No level other than 'replicate' is allowed since Campsis v1.9.0")
+  assertthat::assert_that(
+    level %in% c("replicate"),
+    msg = "No level other than 'replicate' is allowed since Campsis v1.9.0"
+  )
   if (is.null(packages)) {
     packages <- character(0)
   }
-   
-  return(new("outfun", fun=fun, name=name, args=args, packages=packages, level=level,
-   cls=c("custom_campsis_tbl", "campsis_tbl")))
+
+  return(new(
+    "outfun",
+    fun = fun,
+    name = name,
+    args = args,
+    packages = packages,
+    level = level,
+    cls = c("custom_campsis_tbl", "campsis_tbl")
+  ))
 }
 
 #'
@@ -72,21 +84,32 @@ Outfun <- function(fun=function(x, ...){x}, args=list(), packages=NULL, level="r
 #' @return an output function that returns the Campsis results as is.
 #' @export
 DefaultOutfun <- function() {
-  return(new("outfun", fun=function(x, ...){x}, name="default", args=list(), packages=character(0), level="replicate",
-   cls=c("std_campsis_tbl", "campsis_tbl")))
+  return(new(
+    "outfun",
+    fun = function(x, ...) {x},
+    name = "default",
+    args = list(),
+    packages = character(0),
+    level = "replicate",
+    cls = c("std_campsis_tbl", "campsis_tbl")
+  ))
 }
 
 applyOutfun <- function(x, outfun, level, ...) {
-  assertthat::assert_that(is(outfun, "outfun"), msg="x is not an output function")
-  
-  if (level==outfun@level) {
+  assertthat::assert_that(is(outfun, "outfun"), msg = "x is not an output function")
+
+  if (level == outfun@level) {
     # Retrieve all formal arguments of the user-given function
     formalArgs_ <- formalArgs(outfun@fun)
-    
+
     # Prepare list of arguments
     args <- list(x) %>% # First argument is the Campsis results
       append(outfun@args) # user-given arguments list
-    
+
+    if (outfun@outfun_as_arg) {
+      args <- append(args, list(obj = outfun))
+    }
+
     # Some more arguments (like 'replicate' or 'scenario') are transmitted by Campsis automatically
     # This requires the three dot ellipsis to be there
     # Note that if lambda was passed in 'Outfun' constructor, three dot ellipsis is always there
@@ -94,12 +117,12 @@ applyOutfun <- function(x, outfun, level, ...) {
       args <- args %>%
         append(list(...))
     }
-    
+
     # Load packages
-    lapply(outfun@packages, require, character.only=TRUE)
-    
+    lapply(outfun@packages, require, character.only = TRUE)
+
     # Call output function with args
-    x <- do.call(outfun@fun, args=args)
+    x <- do.call(outfun@fun, args = args)
   }
   return(x)
 }
@@ -107,6 +130,15 @@ applyOutfun <- function(x, outfun, level, ...) {
 #_______________________________________________________________________________
 #----                            pi_outfun class                            ----
 #_______________________________________________________________________________
+
+pi_wrapper <- function(x, obj, ...) {
+  compute_pi(
+    x = x,
+    variable = obj@variable,
+    strata = obj@strata,
+    level = obj@pi_level
+  )
+}
 
 #'
 #' Prediction interval output function class.
@@ -118,19 +150,19 @@ applyOutfun <- function(x, outfun, level, ...) {
 setClass(
   "pi_outfun",
   representation(
-    variable="character",
-    strata="vector",
-    pi_level="numeric"  
+    variable = "character",
+    strata = "vector",
+    pi_level = "numeric"
   ),
-  contains="outfun",
-  prototype=prototype(
-    fun=function(x, ...) { stop("No execution function provided. Use PIOutfun() to create this object.") },
-    variable=character(0),
-    strata=getDefaultStrata(),
-    pi_level=0.90,
-    fun=function(x, ...) { x },
-    name="default_pi",
-    cls=c("pi_campsis_tbl", "campsis_tbl")
+  contains = "outfun",
+  prototype = prototype(
+    fun = pi_wrapper,
+    variable = character(0),
+    strata = getDefaultStrata(),
+    pi_level = 0.90,
+    name = "default_pi",
+    cls = c("pi_campsis_tbl", "campsis_tbl"),
+    outfun_as_arg = TRUE
   )
 )
 
@@ -145,14 +177,16 @@ setClass(
 #' @return a pi_outfun object
 #' @export
 PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
-  name = sprintf("PI_%s_%i%%", paste0(variable, collapse="_"), round(level*100))) {
-
+  name = sprintf("PI_%s_%i%%", paste0(variable, collapse = "_"), round(level * 100))) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
   )
   assertthat::assert_that(
-    is.null(strata) || (is.atomic(strata) && !is.null(names(strata)) && all(nzchar(names(strata)))),
+    is.null(strata) ||
+      (is.atomic(strata) &&
+        !is.null(names(strata)) &&
+        all(nzchar(names(strata)))),
     msg = "strata must be a fully named vector or NULL"
   )
   assertthat::assert_that(
@@ -160,13 +194,8 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
     msg = "level must be a numeric value between 0 and 1"
   )
 
-  pi_wrapper <- function(x, ...) {
-    compute_pi(x = x, variable = variable, strata = strata, level = level)
-  }
-
   return(new(
     "pi_outfun",
-    fun = pi_wrapper,
     name = name,
     variable = variable,
     strata = strata,
@@ -174,14 +203,24 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
   ))
 }
 
-setMethod("loadFromJSON", signature=c("pi_outfun", "json_element"), definition=function(object, json) {
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
-  return(object)
-})
+setMethod("loadFromJSON", signature = c("pi_outfun", "json_element"), definition = function(object, json) {
+    object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+    return(object)
+  }
+)
 
 #_______________________________________________________________________________
 #----                          stats_outfun class                           ----
 #_______________________________________________________________________________
+
+stats_wrapper <- function(x, obj, ...) {
+  compute_stats(
+    x = x,
+    variable = obj@variable,
+    strata = obj@strata,
+    stats = obj@stats
+  )
+}
 
 #'
 #' Statistics output function class.
@@ -199,12 +238,13 @@ setClass(
   ),
   contains = "outfun",
   prototype = prototype(
-    fun=function(x, ...) { stop("No execution function provided. Use StatsOutfun() to create this object.") },
+    fun = stats_wrapper,
     variable = character(0),
     strata = getDefaultStrata(),
     stats = c("p5", "median", "p95"),
     name = "default_stats",
-    cls = c("stats_campsis_tbl", "campsis_tbl")
+    cls = c("stats_campsis_tbl", "campsis_tbl"),
+    outfun_as_arg = TRUE
   )
 )
 
@@ -219,14 +259,16 @@ setClass(
 #' @return a stats_outfun object
 #' @export
 StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "median", "p95"),
-  name = sprintf("stats_%s", paste0(variable, collapse="_"))) {
-
+  name = sprintf("stats_%s", paste0(variable, collapse = "_"))) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
   )
   assertthat::assert_that(
-    is.null(strata) || (is.atomic(strata) && !is.null(names(strata)) && all(nzchar(names(strata)))),
+    is.null(strata) ||
+      (is.atomic(strata) &&
+        !is.null(names(strata)) &&
+        all(nzchar(names(strata)))),
     msg = "strata must be a fully named vector or NULL"
   )
   assertthat::assert_that(
@@ -234,13 +276,8 @@ StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "
     msg = "stats must be a non-empty character vector"
   )
 
-  stats_wrapper <- function(x, ...) {
-    compute_stats(x = x, variable = variable, strata = strata, stats = stats)
-  }
-    
   return(new(
     "stats_outfun",
-    fun = stats_wrapper,
     name = name,
     variable = variable,
     strata = strata,
@@ -248,7 +285,8 @@ StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "
   ))
 }
 
-setMethod("loadFromJSON", signature=c("stats_outfun", "json_element"), definition=function(object, json) {
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
-  return(object)
-})
+setMethod("loadFromJSON", signature = c("stats_outfun", "json_element"), definition = function(object, json) {
+    object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+    return(object)
+  }
+)
