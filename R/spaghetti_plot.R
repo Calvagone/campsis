@@ -1,6 +1,6 @@
 
 #_______________________________________________________________________________
-#----                         spaghetti_plot generic                        ----
+#----                        spaghetti_plot generic                         ----
 #_______________________________________________________________________________
 
 #' Spaghetti plot (S3 generic).
@@ -14,7 +14,7 @@ spaghetti_plot <- function(x, ...) {
 }
 
 #_______________________________________________________________________________
-#----                   spaghetti_plot.std_campsis_tbl                      ----
+#----                  spaghetti_plot.std_campsis_tbl                       ----
 #_______________________________________________________________________________
 
 #' Spaghetti plot for standard CAMPSIS simulation output.
@@ -32,8 +32,7 @@ spaghetti_plot <- function(x, ...) {
 #'         directly to \code{\link{spaghettiPlot}}).
 #' }
 #'
-#' @param x a \code{std_campsis_tbl} object, i.e. the direct output of
-#'   \code{simulate()} with \code{DefaultOutfun()}
+#' @param x a \code{std_campsis_tbl} object
 #' @param variable name of the column to plot on the y-axis. Defaults to
 #'   \code{"CONC"}. An informative error is raised when the column is absent.
 #' @param colour stratification for line colour. One of \code{"auto"},
@@ -45,46 +44,11 @@ spaghetti_plot <- function(x, ...) {
 #' @export
 spaghetti_plot.std_campsis_tbl <- function(x, variable = "CONC",
                                            colour = "auto", ...) {
-  # Resolve variable -------------------------------------------------------
-  if (!variable %in% colnames(x)) {
-    available <- paste(colnames(x), collapse = ", ")
-    stop(sprintf(
-      "Column '%s' not found in data. Available columns: %s",
-      variable, available
-    ), call. = FALSE)
-  }
+  .assert_variable_present(x, variable)
 
-  # Resolve colour ---------------------------------------------------------
   if (identical(colour, "auto")) {
     colour <- .auto_colour_columns(x)
   }
 
-  # Delegate to spaghettiPlot ----------------------------------------------
   spaghettiPlot(x, variable = variable, colour = colour)
-}
-
-#_______________________________________________________________________________
-#----                         internal helpers                              ----
-#_______________________________________________________________________________
-
-#' Detect colour stratification columns automatically.
-#'
-#' Adds \code{"ARM"} when the column exists and contains more than one distinct
-#' value. Same logic for \code{"SCENARIO"}.
-#'
-#' @param x a data frame (typically \code{std_campsis_tbl})
-#' @return a character vector of column names to colour by, or \code{NULL}
-#' @keywords internal
-.auto_colour_columns <- function(x) {
-  colour <- character(0)
-
-  if ("ARM" %in% colnames(x) && dplyr::n_distinct(x$ARM) > 1) {
-    colour <- c(colour, "ARM")
-  }
-
-  if ("SCENARIO" %in% colnames(x) && dplyr::n_distinct(x$SCENARIO) > 1) {
-    colour <- c(colour, "SCENARIO")
-  }
-
-  if (length(colour) == 0) NULL else colour
 }

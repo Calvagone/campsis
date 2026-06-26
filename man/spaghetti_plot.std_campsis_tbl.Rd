@@ -7,8 +7,7 @@
 \method{spaghetti_plot}{std_campsis_tbl}(x, variable = "CONC", colour = "auto", ...)
 }
 \arguments{
-\item{x}{a \code{std_campsis_tbl} object, i.e. the direct output of
-\code{simulate()} with \code{DefaultOutfun()}}
+\item{x}{a \code{std_campsis_tbl} object}
 
 \item{variable}{name of the column to plot on the y-axis. Defaults to
 \code{"CONC"}. An informative error is raised when the column is absent.}
