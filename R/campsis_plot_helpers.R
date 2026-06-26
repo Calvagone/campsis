@@ -25,20 +25,21 @@
   if (length(colour) == 0) NULL else colour
 }
 
-#' Assert that a variable column is present in the data.
+#' Assert that one or more variable columns are present in the data.
 #'
-#' Raises an informative error when the variable is absent.
+#' Raises an informative error listing all absent column names.
 #'
 #' @param x a data frame
-#' @param variable column name to look for
+#' @param variable character vector of column name(s) to check
 #' @return invisibly \code{NULL}; called for its side-effect
 #' @keywords internal
 .assert_variable_present <- function(x, variable) {
-  if (!variable %in% colnames(x)) {
+  missing <- setdiff(variable, colnames(x))
+  if (length(missing) > 0) {
     available <- paste(colnames(x), collapse = ", ")
     stop(sprintf(
-      "Column '%s' not found in data. Available columns: %s",
-      variable, available
+      "Column(s) '%s' not found in data. Available columns: %s",
+      paste(missing, collapse = "', '"), available
     ), call. = FALSE)
   }
   invisible(NULL)

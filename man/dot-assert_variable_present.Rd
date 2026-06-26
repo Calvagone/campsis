@@ -2,19 +2,19 @@
 % Please edit documentation in R/campsis_plot_helpers.R
 \name{.assert_variable_present}
 \alias{.assert_variable_present}
-\title{Assert that a variable column is present in the data.}
+\title{Assert that one or more variable columns are present in the data.}
 \usage{
 .assert_variable_present(x, variable)
 }
 \arguments{
 \item{x}{a data frame}
 
-\item{variable}{column name to look for}
+\item{variable}{character vector of column name(s) to check}
 }
 \value{
 invisibly \code{NULL}; called for its side-effect
 }
 \description{
-Raises an informative error when the variable is absent.
+Raises an informative error listing all absent column names.
 }
 \keyword{internal}

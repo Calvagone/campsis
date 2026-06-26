@@ -88,7 +88,7 @@ test_that("spaghetti_plot raises an informative error for missing variable", {
 
   expect_error(
     spaghetti_plot(tbl, variable = "MISSING"),
-    regexp = "Column 'MISSING' not found"
+    regexp = "Column\\(s\\) 'MISSING' not found"
   )
 })
 

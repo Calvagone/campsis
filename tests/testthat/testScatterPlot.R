@@ -1,6 +1,6 @@
 library(testthat)
 
-context("Test shaded_plot S3 method")
+context("Test scatter_plot S3 method")
 
 source(file.path(getwd(), test_path(), "testUtils.R"))
 source(file.path(getwd(), test_path(), "testPlotUtils.R"))
@@ -9,52 +9,45 @@ source(file.path(getwd(), test_path(), "testPlotUtils.R"))
 #----           1. colour = "auto", single arm, no scenarios                ----
 #_______________________________________________________________________________
 
-test_that("shaded_plot auto colour: single arm, no scenarios → no colour", {
+test_that("scatter_plot auto colour: single arm, no scenarios → no colour", {
   data <- make_data()
   tbl  <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
 
-  # Same helper as used by spaghetti_plot — must return NULL.
   expect_null(campsis:::.auto_colour_columns(tbl))
 
-  plot <- expect_no_error(shaded_plot(tbl))
+  plot <- expect_no_error(scatter_plot(tbl))
   expect_s3_class(plot, "gg")
 
-  # shadedPlot sets labs(colour=, fill=) together; neither should be present.
   expect_null(plot$labels$colour)
-  expect_null(plot$labels$fill)
 })
 
 #_______________________________________________________________________________
 #----        2. colour = "auto", multiple arms and/or scenarios             ----
 #_______________________________________________________________________________
 
-test_that("shaded_plot auto colour: multiple arms → colour by ARM", {
+test_that("scatter_plot auto colour: multiple arms → colour by ARM", {
   data <- make_data(arms = c("100 mg", "100 mg", "200 mg"))
   tbl  <- make_std_campsis_tbl(data, dataset = two_arm_dataset)
 
   expect_equal(campsis:::.auto_colour_columns(tbl), "ARM")
 
-  plot <- expect_no_error(shaded_plot(tbl))
+  plot <- expect_no_error(scatter_plot(tbl))
   expect_s3_class(plot, "gg")
-
-  # Both colour and fill labels are set by shadedPlot when colour is active.
   expect_false(is.null(plot$labels$colour))
-  expect_false(is.null(plot$labels$fill))
 })
 
-test_that("shaded_plot auto colour: multiple scenarios → colour by SCENARIO", {
+test_that("scatter_plot auto colour: multiple scenarios → colour by SCENARIO", {
   data <- make_data(scenarios = c("Low dose", "Low dose", "High dose"))
   tbl  <- make_std_campsis_tbl(data, dataset = single_arm_dataset, scenarios = two_scenarios)
 
   expect_equal(campsis:::.auto_colour_columns(tbl), "SCENARIO")
 
-  plot <- expect_no_error(shaded_plot(tbl))
+  plot <- expect_no_error(scatter_plot(tbl))
   expect_s3_class(plot, "gg")
   expect_false(is.null(plot$labels$colour))
-  expect_false(is.null(plot$labels$fill))
 })
 
-test_that("shaded_plot auto colour: multiple arms + scenarios → colour by both", {
+test_that("scatter_plot auto colour: multiple arms + scenarios → colour by both", {
   data <- make_data(
     arms      = c("100 mg", "200 mg", "100 mg"),
     scenarios = c("Low dose", "Low dose", "High dose")
@@ -63,38 +56,46 @@ test_that("shaded_plot auto colour: multiple arms + scenarios → colour by both
 
   expect_equal(campsis:::.auto_colour_columns(tbl), c("ARM", "SCENARIO"))
 
-  plot <- expect_no_error(shaded_plot(tbl))
+  plot <- expect_no_error(scatter_plot(tbl))
   expect_s3_class(plot, "gg")
   expect_false(is.null(plot$labels$colour))
-  expect_false(is.null(plot$labels$fill))
 })
 
 #_______________________________________________________________________________
 #----              3. colour = NULL (explicit, disables colouring)          ----
 #_______________________________________________________________________________
 
-test_that("shaded_plot colour = NULL: no colour even with multiple arms", {
+test_that("scatter_plot colour = NULL: no colour even with multiple arms", {
   data <- make_data(arms = c("100 mg", "100 mg", "200 mg"))
   tbl  <- make_std_campsis_tbl(data, dataset = two_arm_dataset)
 
-  plot <- expect_no_error(shaded_plot(tbl, colour = NULL))
+  plot <- expect_no_error(scatter_plot(tbl, colour = NULL))
   expect_s3_class(plot, "gg")
 
   expect_null(plot$labels$colour)
-  expect_null(plot$labels$fill)
 })
 
 #_______________________________________________________________________________
 #----                     4. missing variable → error                       ----
 #_______________________________________________________________________________
 
-test_that("shaded_plot raises an informative error for missing variable", {
+test_that("scatter_plot raises an informative error for a missing variable", {
   data <- make_data()
   tbl  <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
 
   expect_error(
-    shaded_plot(tbl, variable = "MISSING"),
+    scatter_plot(tbl, variable = "MISSING"),
     regexp = "Column\\(s\\) 'MISSING' not found"
+  )
+})
+
+test_that("scatter_plot error lists all missing columns when both are absent", {
+  data <- make_data()
+  tbl  <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
+
+  expect_error(
+    scatter_plot(tbl, variable = c("X1", "X2")),
+    regexp = "Column\\(s\\) 'X1'.*'X2' not found"
   )
 })
 
@@ -102,38 +103,58 @@ test_that("shaded_plot raises an informative error for missing variable", {
 #----               5. non-default variable (explicit override)             ----
 #_______________________________________________________________________________
 
-test_that("shaded_plot plots a non-default variable when supplied", {
+test_that("scatter_plot plots a non-default single variable when supplied", {
   data     <- make_data()
   data$AUC <- data$CONC * 2
   tbl      <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
 
-  plot <- expect_no_error(shaded_plot(tbl, variable = "AUC"))
+  plot <- expect_no_error(scatter_plot(tbl, variable = "AUC"))
   expect_s3_class(plot, "gg")
 })
 
 #_______________________________________________________________________________
-#----              6. shaded_plot-specific: strat_extra forwarded           ----
+#----               6. scatter_plot-specific: two-variable scatter          ----
 #_______________________________________________________________________________
 
-test_that("shaded_plot forwards strat_extra without error", {
-  # strat_extra adds a stratification column used for PI computation but not
-  # mapped to colour — intended for use with facet_wrap().
+test_that("scatter_plot accepts two variables for an X vs Y scatter", {
   data     <- make_data()
-  data$WT  <- rep(c(50, 70, 90), each = 5)
+  data$AUC <- data$CONC * 2
   tbl      <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
 
-  plot <- expect_no_error(shaded_plot(tbl, strat_extra = "WT"))
+  # Both variables present → X vs Y scatter at default time.
+  plot <- expect_no_error(scatter_plot(tbl, variable = c("CONC", "AUC")))
   expect_s3_class(plot, "gg")
 })
 
+test_that("scatter_plot errors when more than two variables are supplied", {
+  data     <- make_data()
+  data$AUC <- data$CONC * 2
+  data$VD  <- data$CONC * 3
+  tbl      <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
+
+  expect_error(
+    scatter_plot(tbl, variable = c("CONC", "AUC", "VD")),
+    regexp = "'variable' must have length 1 or 2"
+  )
+})
+
 #_______________________________________________________________________________
-#----           7. shaded_plot-specific: level and alpha forwarded          ----
+#----              7. scatter_plot-specific: custom time point              ----
 #_______________________________________________________________________________
 
-test_that("shaded_plot accepts custom level and alpha without error", {
+test_that("scatter_plot filters to a supplied time point without error", {
   data <- make_data()
   tbl  <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
 
-  plot <- expect_no_error(shaded_plot(tbl, level = 0.80, alpha = 0.10))
+  # TIME=12 is present in the synthetic data (c(0, 6, 12, 18, 24)).
+  plot <- expect_no_error(scatter_plot(tbl, time = 12))
+  expect_s3_class(plot, "gg")
+})
+
+test_that("scatter_plot accepts multiple time points", {
+  data <- make_data()
+  tbl  <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
+
+  plot <- expect_no_error(scatter_plot(tbl, time = c(0, 12, 24)))
   expect_s3_class(plot, "gg")
 })
