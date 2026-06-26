@@ -1,0 +1,17 @@
+[
+  {
+     "type": "default_settings",
+     "engine": "mrgsolve",
+     "seed": 1,
+     "disabled_variabilities": [],
+     "outfuns": [
+        {
+           "type": "pi_outfun",
+           "variable": "CONC",
+           "name": "PI 90%",
+           "pi_level": 0.9
+        }
+     ],
+     "outvars": ["CONC", "CONC_ERR"]
+  }
+]

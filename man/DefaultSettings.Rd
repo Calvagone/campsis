@@ -8,6 +8,7 @@ DefaultSettings(
   engine = "rxode2",
   seed = NULL,
   outvars = character(),
+  outfuns = Outfuns(),
   disabled_variabilities = character(),
   dosing = FALSE
 )
@@ -18,6 +19,8 @@ DefaultSettings(
 \item{seed}{random seed number, integer (or NULL for auto-generated seed)}
 
 \item{outvars}{output variables, character vector}
+
+\item{outfuns}{output functions, outfuns object}
 
 \item{disabled_variabilities}{variabilities to disable in the simulation, character vector}
 

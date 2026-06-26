@@ -24,10 +24,19 @@ Outfuns <- function() {
   return(new("outfuns"))
 }
 
+#_______________________________________________________________________________
+#----                                 add                                   ----
+#_______________________________________________________________________________
+
+
 #' @importFrom methods callNextMethod
 setMethod("add", signature=c("outfuns", "outfun"), definition=function(object, x) {
   return(methods::callNextMethod(object, x))
 })
+
+#_______________________________________________________________________________
+#----                                show                                   ----
+#_______________________________________________________________________________
 
 setMethod("show", signature=c("outfuns"), definition=function(object) {
   n <- object %>% length()
@@ -38,4 +47,19 @@ setMethod("show", signature=c("outfuns"), definition=function(object) {
       cat(sprintf("Output function (name='%s')\n", outfun@name))
     }
   }
+})
+
+#_______________________________________________________________________________
+#----                           loadFromJSON                                ----
+#_______________________________________________________________________________
+
+setMethod("loadFromJSON", signature=c("outfuns", "json_element"), definition=function(object, json) {
+  json_outfuns <- json@data
+  
+  object@list <- json_outfuns %>% purrr::map(.f=function(json_outfun) {
+    outfun <- loadFromJSON(object=new(json_outfun$type), json=JSONElement(json_outfun))
+    return(outfun)
+  })
+  
+  return(object)
 })

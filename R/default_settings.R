@@ -13,11 +13,12 @@ setClass(
     engine="character",
     seed="integer", # NA means 'AUTO'
     outvars="character",
+    outfuns="outfuns",
     disabled_variabilities="character",
     dosing="logical"
   ),
   prototype=prototype(engine="rxode2", seed=as.integer(NA), outvars=character(),
-                      disabled_variabilities=character(), dosing=FALSE)
+                      outfuns=Outfuns(), disabled_variabilities=character(), dosing=FALSE)
 )
 
 #'
@@ -26,17 +27,25 @@ setClass(
 #' @param engine simulation engine, character
 #' @param seed random seed number, integer (or NULL for auto-generated seed)
 #' @param outvars output variables, character vector
+#' @param outfuns output functions, outfuns object
 #' @param disabled_variabilities variabilities to disable in the simulation, character vector
 #' @param dosing output dosing information, logical
 #' @return default settings
 #' @export
-DefaultSettings <- function(engine="rxode2", seed=NULL,
-                            outvars=character(), disabled_variabilities=character(), dosing=FALSE) {
+DefaultSettings <- function(engine = "rxode2", seed = NULL, outvars = character(),
+ outfuns=Outfuns(), disabled_variabilities = character(), dosing = FALSE) {
   if (is.null(seed)) {
     seed <- as.integer(NA)
   }
-  return(new("default_settings", engine=engine, seed=as.integer(seed), outvars=outvars,
-             disabled_variabilities=disabled_variabilities, dosing=dosing))
+  return(new(
+    "default_settings",
+    engine = engine,
+    seed = as.integer(seed),
+    outvars = outvars,
+    outfuns = outfuns,
+    disabled_variabilities = disabled_variabilities,
+    dosing = dosing
+  ))
 }
 
 #_______________________________________________________________________________
@@ -44,7 +53,16 @@ DefaultSettings <- function(engine="rxode2", seed=NULL,
 #_______________________________________________________________________________
 
 setMethod("loadFromJSON", signature=c("default_settings", "json_element"), definition=function(object, json) {
+  json_outfuns <- json@data$outfuns
+  json@data$outfuns <- NULL
   object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+
+  if (is.null(json_outfuns)) {
+    object@outfuns <- Outfuns()
+  } else {
+    object@outfuns <- loadFromJSON(Outfuns(), JSONElement(json_outfuns))
+  }
+  
   return(object)
 })
 

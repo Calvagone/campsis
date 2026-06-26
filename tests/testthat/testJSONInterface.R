@@ -138,6 +138,14 @@ test_that("Import Campsis settings in JSON format", {
   expSettings1b <- Settings(DefaultSettings(engine="mrgsolve", seed=1, outvars=c("CONC", "CONC_ERR")))
   
   expect_equal(settings1b, expSettings1b)
+
+  # CTS settings (example 1)
+  settings_cts1 <- Settings(json=file.path(testFolder, "json_examples", "settings_cts_example1.json"))
+  exp_outfuns_cts1 <- Outfuns() %>%
+    add(PIOutfun(variable="CONC", name="PI 90%", level=0.9))
+  exp_settings_cts1 <- Settings(DefaultSettings(engine="mrgsolve", seed=1, outvars=c("CONC", "CONC_ERR"), outfuns=exp_outfuns_cts1))
+  expect_equal(settings_cts1, exp_settings_cts1)
+
 })
 
 test_that("Import Campsis scenarios in JSON format", {

@@ -2,9 +2,9 @@
 #----                              outfun class                             ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Output function class.
-#' 
+#'
 #' @slot fun function or purrr-style lambda formula, first argument 'x' must be the results
 #' @slot args extra arguments, named list
 #' @slot packages packages that must be loaded to execute the given function, character vector
@@ -14,15 +14,24 @@
 setClass(
   "outfun",
   representation(
-    fun="function",
-    name="character",
-    args="list",
-    packages="character",
-    level="character",
-    cls="character"
+    fun = "function",
+    name = "character",
+    args = "list",
+    packages = "character",
+    level = "character",
+    cls = "character"
   ),
-  contains="pmx_element",
-  prototype=prototype(fun=function(x, ...){x}, level="scenario", name="default", cls="campsis_tbl")
+  contains = "pmx_element",
+  prototype = prototype(
+    fun = function(x, ...) {
+      x
+    },
+    name = "default",
+    args = list(),
+    packages = character(0),
+    level = "replicate",
+    cls = "campsis_tbl"
+  )
 )
 
 setMethod("getName", signature=c("outfun"), definition=function(x) {
@@ -115,11 +124,11 @@ setClass(
   ),
   contains="outfun",
   prototype=prototype(
+    fun=function(x, ...) { stop("No execution function provided. Use PIOutfun() to create this object.") },
     variable=character(0),
     strata=getDefaultStrata(),
     pi_level=0.90,
     fun=function(x, ...) { x },
-    level="replicate",
     name="default_pi",
     cls=c("pi_campsis_tbl", "campsis_tbl")
   )
@@ -150,24 +159,25 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
     is.numeric(level) && level > 0 && level < 1,
     msg = "level must be a numeric value between 0 and 1"
   )
-  
-  # Create the wrapper function that delegates to PI
+
   pi_wrapper <- function(x, ...) {
     compute_pi(x = x, variable = variable, strata = strata, level = level)
   }
-  
+
   return(new(
     "pi_outfun",
     fun = pi_wrapper,
     name = name,
-    args = list(),
-    packages = character(0),
-    level = "replicate",
     variable = variable,
     strata = strata,
     pi_level = level
   ))
 }
+
+setMethod("loadFromJSON", signature=c("pi_outfun", "json_element"), definition=function(object, json) {
+  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+  return(object)
+})
 
 #_______________________________________________________________________________
 #----                          stats_outfun class                           ----
@@ -183,19 +193,18 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
 setClass(
   "stats_outfun",
   representation(
-    variable="character",
-    strata="vector",
-    stats="character"  
+    variable = "character",
+    strata = "vector",
+    stats = "character"
   ),
-  contains="outfun",
-  prototype=prototype(
-    variable=character(0),
-    strata=getDefaultStrata(),
-    stats=c("p5", "median", "p95"),
-    fun=function(x, ...) { x },
-    level="replicate",
-    name="default_stats",
-    cls=c("stats_campsis_tbl", "campsis_tbl")
+  contains = "outfun",
+  prototype = prototype(
+    fun=function(x, ...) { stop("No execution function provided. Use StatsOutfun() to create this object.") },
+    variable = character(0),
+    strata = getDefaultStrata(),
+    stats = c("p5", "median", "p95"),
+    name = "default_stats",
+    cls = c("stats_campsis_tbl", "campsis_tbl")
   )
 )
 
@@ -224,21 +233,22 @@ StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "
     is.character(stats) && length(stats) >= 1,
     msg = "stats must be a non-empty character vector"
   )
-  
-  # Create the wrapper function that delegates to compute_stats
+
   stats_wrapper <- function(x, ...) {
     compute_stats(x = x, variable = variable, strata = strata, stats = stats)
   }
-  
+    
   return(new(
     "stats_outfun",
     fun = stats_wrapper,
     name = name,
-    args = list(),
-    packages = character(0),
-    level = "replicate",
     variable = variable,
     strata = strata,
     stats = stats
   ))
 }
+
+setMethod("loadFromJSON", signature=c("stats_outfun", "json_element"), definition=function(object, json) {
+  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+  return(object)
+})

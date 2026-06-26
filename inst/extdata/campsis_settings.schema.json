@@ -36,6 +36,16 @@
             "type": "string"
           }
         },
+        "outfuns": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pi_outfun"
+              }
+            ]
+          }
+        },
         "disabled_variabilities": {
           "type": "array",
           "items": {
@@ -49,6 +59,33 @@
       "required": [
         "engine",
         "seed"
+      ],
+      "additionalProperties": false
+    },
+    "pi_outfun": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "pi_outfun"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the output function (used for labeling the Campsis output)"
+        },
+        "variable": {
+          "type": "string",
+          "description": "Variable for which the prediction interval is computed"
+        },
+        "pi_level": {
+          "type": "number",
+          "description": "Prediction interval level (between 0 and 1)"
+        }
+      },
+      "required": [
+        "type",
+        "name",
+        "variable",
+        "pi_level"
       ],
       "additionalProperties": false
     }
