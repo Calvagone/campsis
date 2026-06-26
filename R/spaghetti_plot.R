@@ -1,6 +1,6 @@
 
 #_______________________________________________________________________________
-#----                         spaguetti_plot generic                        ----
+#----                         spaghetti_plot generic                        ----
 #_______________________________________________________________________________
 
 #' Spaghetti plot (S3 generic).
@@ -9,12 +9,12 @@
 #' @param ... additional arguments passed to the method
 #' @return a ggplot object
 #' @export
-spaguetti_plot <- function(x, ...) {
-  UseMethod("spaguetti_plot")
+spaghetti_plot <- function(x, ...) {
+  UseMethod("spaghetti_plot")
 }
 
 #_______________________________________________________________________________
-#----                   spaguetti_plot.std_campsis_tbl                      ----
+#----                   spaghetti_plot.std_campsis_tbl                      ----
 #_______________________________________________________________________________
 
 #' Spaghetti plot for standard CAMPSIS simulation output.
@@ -43,7 +43,7 @@ spaguetti_plot <- function(x, ...) {
 #' @seealso \code{\link{spaghettiPlot}}
 #' @importFrom ggplot2 aes ggplot geom_line labs
 #' @export
-spaguetti_plot.std_campsis_tbl <- function(x, variable = "CONC",
+spaghetti_plot.std_campsis_tbl <- function(x, variable = "CONC",
                                            colour = "auto", ...) {
   # Resolve variable -------------------------------------------------------
   if (!variable %in% colnames(x)) {
