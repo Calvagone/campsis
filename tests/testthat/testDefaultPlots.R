@@ -25,11 +25,11 @@ test_that("Scatter plot works as expected", {
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, scenarios=scenarios, outvars=c("VC", "CL")))
 
   test <- expression(
-    shadedPlot(results, "CONC", "SCENARIO"),
-    scatterPlot(results, c("VC")), # 1D scatter plot (of little interest)
-    plot1 <- expect_no_error(scatterPlot(results, c("VC", "CL"))), # No color
-    plot2 <- expect_no_error(scatterPlot(results, c("VC", "CL"), "SCENARIO")), # Stratify by SCENARIO value
-    scatterPlot(results, c("VC", "CL"), "SCENARIO", time=24), # Same plot, parameters do not change over time
+    shaded_plot(results, "CONC"),
+    scatter_plot(results, "VC"), # 1D scatter plot (of little interest)
+    plot1 <- expect_no_error(scatter_plot(results, c("VC", "CL"), colour=NULL)), # No color
+    plot2 <- expect_no_error(scatter_plot(results, c("VC", "CL"))), # Auto detection of colour (SCENARIO)
+    scatter_plot(results, c("VC", "CL"), time=24), # Same plot, parameters do not change over time
 
     scenarioA <- results %>% dplyr::filter(SCENARIO=="Correlation=0.5" & TIME==0),
     scenarioB <- results %>% dplyr::filter(SCENARIO=="Correlation=0.9" & TIME==0),
@@ -67,8 +67,8 @@ test_that("Shaded and spaghetti plots work as expected", {
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, scenarios=scenarios))
 
   test <- expression(
-    plot1 <- expect_no_error(shadedPlot(results, "CONC", "SCENARIO")),
-    plot2 <- expect_no_error(spaghettiPlot(results, "CONC", "SCENARIO")),
+    plot1 <- expect_no_error(shaded_plot(results)), # Auto colour by SCENARIO
+    plot2 <- expect_no_error(spaghetti_plot(results)), # Auto colour by SCENARIO
     if (!skipVdiffrTests()) {
       vdiffr::expect_doppelganger(sprintf("shadedPlot / colour: SCENARIO / %s", destEngine), plot1)
       vdiffr::expect_doppelganger(sprintf("spaghettiPlot / colour: SCENARIO / %s", destEngine), plot2)
@@ -99,16 +99,16 @@ test_that("Grouping by ARM and stratifying by WT should work", {
   simulation <- expression(simulate(model=model, dataset=dataset, seed=seed, dest=destEngine, outvars="WT"))
 
   test <- expression(
-    # Colour by ARM and stratify by WT
-    plot1 <- expect_no_error(spaghettiPlot(results, "CONC", c("ARM")) +
+    # Auto-colour by ARM
+    plot1 <- expect_no_error(spaghetti_plot(results) +
       ggplot2::facet_wrap(~WT)),
 
-    # Colour by ARM and stratify by WT
-    plot2 <- expect_no_error(shadedPlot(results, "CONC", c("ARM"), "WT") +
+    # Auto-colour by ARM and stratify by WT
+    plot2 <- expect_no_error(shaded_plot(results, strat_extra="WT") +
       ggplot2::facet_wrap(~WT)),
-
+    
     # Colour by both ARM and WT columns
-    plot3 <- expect_no_error(shadedPlot(results, "CONC", c("ARM","WT")) +
+    plot3 <- expect_no_error(shaded_plot(results, colour=c("ARM","WT")) +
       ggplot2::facet_wrap(~WT)),
 
     if (!skipVdiffrTests()) {
