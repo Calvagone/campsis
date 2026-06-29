@@ -4,15 +4,31 @@
 \alias{vpc_plot.std_campsis_tbl}
 \title{VPC plot for standard CAMPSIS simulation output.}
 \usage{
-\method{vpc_plot}{std_campsis_tbl}(x, strata = "auto", level = 0.9, alpha = 0.15, ...)
+\method{vpc_plot}{std_campsis_tbl}(
+  x,
+  variable = "CONC",
+  strata = "auto",
+  pi_level = 0.9,
+  ci_level = 0.9,
+  alpha = 0.15,
+  ...
+)
 }
 \arguments{
 \item{x}{a \code{std_campsis_tbl} object with a \code{replicate} column}
 
+\item{variable}{name of the column to summarise on the y-axis. Defaults to
+\code{"CONC"}. An informative error is raised when the column is absent.}
+
 \item{strata}{stratification for the VPC. One of \code{"auto"},
 \code{NULL}, or a named character vector of length 1. See Details.}
 
-\item{level}{prediction interval level. Default is \code{0.90} (90\% PI).}
+\item{pi_level}{prediction interval level, i.e. the percentiles of the data
+computed within each replicate. Default is \code{0.90} (90\% PI, i.e. the
+5th, 50th and 95th percentiles).}
+
+\item{ci_level}{confidence interval level for the ribbons around each
+percentile across replicates. Default is \code{0.90} (90\% CI).}
 
 \item{alpha}{transparency of the ribbons. Default is \code{0.15}.}
 
@@ -22,10 +38,14 @@
 a ggplot object
 }
 \description{
-Plots prediction interval ribbons (median PI and lower/upper PI) from a
-\code{std_campsis_tbl} produced with multiple replicates (i.e. the
-\code{replicate} column must be present and contain more than one distinct
-value).
+Plots VPC ribbons (a confidence interval around the median, lower and upper
+percentiles) from a \code{std_campsis_tbl}, i.e. the default output of
+\code{simulate()} with multiple replicates and no custom \code{outfun}
+(\code{\link{DefaultOutfun}}). In this case the data contains all
+unsummarised individual profiles, so the per-replicate prediction interval
+is computed first (the lower/median/upper percentiles of \code{variable}
+across individuals within each replicate), before the confidence interval
+around each percentile is computed across replicates.
 }
 \details{
 Stratification is resolved as follows:
@@ -41,5 +61,5 @@ Stratification is resolved as follows:
 }
 }
 \seealso{
-\code{\link{vpcPlot}}
+\code{\link{vpcPlot}}, \code{\link{vpc_plot.pi_campsis_tbl}}
 }
