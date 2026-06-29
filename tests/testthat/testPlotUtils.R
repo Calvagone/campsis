@@ -20,6 +20,22 @@ make_std_campsis_tbl <- function(data, dataset, scenarios = Scenarios()) {
   campsis:::new_campsis_tbl(data, metadata)
 }
 
+#' Build a minimal pi_campsis_tbl (the output of a PIOutfun) from a plain
+#' tibble in long PI format (replicate, TIME, metric, value) + metadata.
+make_pi_campsis_tbl <- function(data, dataset, scenarios = Scenarios(),
+                                variable = "CONC") {
+  metadata <- new(
+    "campsis_metadata",
+    dataset    = dataset,
+    dest       = "rxode2",
+    scenarios  = scenarios,
+    outvars    = character(0),
+    outfun     = PIOutfun(variable = variable),
+    replicates = as.integer(dplyr::n_distinct(data$replicate))
+  )
+  campsis:::new_campsis_tbl(data, metadata)
+}
+
 #_______________________________________________________________________________
 #----                        dataset fixtures                               ----
 #_______________________________________________________________________________
