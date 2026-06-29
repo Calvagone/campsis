@@ -50,6 +50,9 @@
               },
               {
                 "$ref": "#/$defs/stats_outfun"
+              },
+              {
+                "$ref": "#/$defs/default_outfun"
               }
             ]
           }
@@ -140,6 +143,18 @@
         "type": "string"
       },
       "minProperties": 1
+    },
+    "default_outfun": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "default_outfun"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
     }
   }
 }

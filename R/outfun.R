@@ -24,9 +24,7 @@ setClass(
   ),
   contains = "pmx_element",
   prototype = prototype(
-    fun = function(x, ...) {
-      x
-    },
+    fun = function(x, ...) {x}, # Identity function
     name = "default",
     args = list(),
     packages = character(0),
@@ -79,22 +77,6 @@ Outfun <- function(fun = function(x, ...) {x}, args = list(), packages = NULL, l
   ))
 }
 
-#'
-#' Default output function (identity function).
-#' @return an output function that returns the Campsis results as is.
-#' @export
-DefaultOutfun <- function() {
-  return(new(
-    "outfun",
-    fun = function(x, ...) {x},
-    name = "default",
-    args = list(),
-    packages = character(0),
-    level = "replicate",
-    cls = c("std_campsis_tbl", "campsis_tbl")
-  ))
-}
-
 applyOutfun <- function(x, outfun, level, ...) {
   assertthat::assert_that(is(outfun, "outfun"), msg = "x is not an output function")
 
@@ -126,6 +108,38 @@ applyOutfun <- function(x, outfun, level, ...) {
   }
   return(x)
 }
+
+#_______________________________________________________________________________
+#----                         default_outfun class                          ----
+#_______________________________________________________________________________
+
+#'
+#' Default output function class.
+#' @export
+setClass(
+  "default_outfun",
+  representation(
+  ),
+  contains = "outfun",
+  prototype = prototype(
+    fun = function(x, ...) {x}, # Identity function
+    name = "default",
+    cls = c("std_campsis_tbl", "campsis_tbl")
+  )
+)
+
+#'
+#' Default output function (identity function).
+#' @return an output function that returns the Campsis results as is.
+#' @export
+DefaultOutfun <- function() {
+  return(new("default_outfun"))
+}
+
+setMethod("loadFromJSON", signature = c("default_outfun", "json_element"), definition = function(object, json) {
+    return(object) # Nothing to do
+  }
+)
 
 #_______________________________________________________________________________
 #----                            pi_outfun class                            ----

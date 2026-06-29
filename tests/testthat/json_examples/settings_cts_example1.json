@@ -6,6 +6,9 @@
       "disabled_variabilities": [],
       "outfuns": [
          {
+            "type": "default_outfun"
+         },
+         {
             "type": "pi_outfun",
             "variable": "CONC",
             "strata": {
