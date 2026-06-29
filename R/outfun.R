@@ -177,7 +177,7 @@ setClass(
 #' @return a pi_outfun object
 #' @export
 PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
-  name = sprintf("PI_%s_%i%%", paste0(variable, collapse = "_"), round(level * 100))) {
+  name = sprintf("pi_%s_%i%%", paste0(variable, collapse = "_"), round(level * 100))) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"

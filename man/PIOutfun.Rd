@@ -8,7 +8,7 @@ PIOutfun(
   variable,
   strata = getDefaultStrata(),
   level = 0.9,
-  name = sprintf("PI_\%s_\%i\%\%", paste0(variable, collapse = "_"), round(level * 100))
+  name = sprintf("pi_\%s_\%i\%\%", paste0(variable, collapse = "_"), round(level * 100))
 )
 }
 \arguments{

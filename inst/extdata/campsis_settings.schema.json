@@ -79,6 +79,10 @@
           "type": "string",
           "description": "Variable for which the prediction interval is computed"
         },
+        "strata": {
+          "$ref": "#/$defs/outfun_strata",
+          "description": "Named strata filters used to subset the Campsis output. See outfun_strata definition."
+        },
         "pi_level": {
           "type": "number",
           "description": "Prediction interval level (between 0 and 1)"
@@ -105,6 +109,10 @@
           "type": "string",
           "description": "Variable for which the prediction interval is computed"
         },
+        "strata": {
+          "$ref": "#/$defs/outfun_strata",
+          "description": "Named strata filters used to subset the Campsis output. See outfun_strata definition."
+        },
         "stats": {
           "type": "array",
           "items": {
@@ -119,6 +127,14 @@
         "stats"
       ],
       "additionalProperties": false
+    },
+    "outfun_strata": {
+      "type": "object",
+      "description": "Named strata filters used to subset the dataset (e.g., ARM, SCENARIO). Each property name represents a column and its value the level to select. Use value 'all' to select all levels of a column. Example: {\"ARM\": \"Arm 1\", \"SCENARIO\": \"all\"} selects all rows where ARM is Arm 1, regardless of SCENARIO.",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "minProperties": 1
     }
   }
 }

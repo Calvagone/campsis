@@ -1,23 +1,38 @@
 [
-  {
-     "type": "default_settings",
-     "engine": "mrgsolve",
-     "seed": 1,
-     "disabled_variabilities": [],
-     "outfuns": [
-        {
-           "type": "pi_outfun",
-           "variable": "CONC",
-           "name": "PI 90%",
-           "pi_level": 0.9
-        },
-        {
-           "type": "stats_outfun",
-           "variable": "CONC",
-           "name": "STATS CONC",
-           "stats": ["median", "p5", "p95"]
-        }
-     ],
-     "outvars": ["CONC", "CONC_ERR"]
-  }
+   {
+      "type": "default_settings",
+      "engine": "mrgsolve",
+      "seed": 1,
+      "disabled_variabilities": [],
+      "outfuns": [
+         {
+            "type": "pi_outfun",
+            "variable": "CONC",
+            "strata": {
+               "SCENARIO": "all",
+               "ARM": "all"
+            },
+            "name": "PI 90%",
+            "pi_level": 0.9
+         },
+         {
+            "type": "stats_outfun",
+            "variable": "CONC",
+            "strata": {
+               "SCENARIO": "all",
+               "ARM": "all"
+            },
+            "name": "Statistics on CONC",
+            "stats": [
+               "median",
+               "p5",
+               "p95"
+            ]
+         }
+      ],
+      "outvars": [
+         "CONC",
+         "CONC_ERR"
+      ]
+   }
 ]
