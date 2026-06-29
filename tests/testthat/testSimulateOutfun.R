@@ -54,31 +54,31 @@ test_that("Use argument 'outfun' with PIOutfun", {
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=Outfuns() %>% add(c(fun1, fun2)), seed=seed))
   test <- expression(
     expect_true(is.list(results) && !is.data.frame(results)),
-    expect_equal(names(results), c("PI_CP_Y_90%", "PI_CP_Y_80%")),
+    expect_equal(names(results), c("pi_CP_Y_90%", "pi_CP_Y_80%")),
 
     expect_equal(
-      results[["PI_CP_Y_90%"]] %>% filter(metric == "med") %>% pull("value"),
-      results[["PI_CP_Y_80%"]] %>% filter(metric == "med") %>% pull("value")
+      results[["pi_CP_Y_90%"]] %>% filter(metric == "med") %>% pull("value"),
+      results[["pi_CP_Y_80%"]] %>% filter(metric == "med") %>% pull("value")
     ),
 
     expect_true(all(
-      results[["PI_CP_Y_90%"]] %>%
+      results[["pi_CP_Y_90%"]] %>%
         filter(metric == "low" & value != 0) %>%
         pull("value") <
-        results[["PI_CP_Y_80%"]] %>%
+        results[["pi_CP_Y_80%"]] %>%
           filter(metric == "low" & value != 0) %>%
           pull("value")
     )),
     expect_true(all(
-      results[["PI_CP_Y_90%"]] %>%
+      results[["pi_CP_Y_90%"]] %>%
         filter(metric == "up" & value != 0) %>%
         pull("value") >
-        results[["PI_CP_Y_80%"]] %>%
+        results[["pi_CP_Y_80%"]] %>%
           filter(metric == "up" & value != 0) %>%
           pull("value")
     )),
-    expect_true(all(c("pi_campsis_tbl", "campsis_tbl") %in% class(results[["PI_CP_Y_90%"]]))),
-    expect_true(all(c("pi_campsis_tbl", "campsis_tbl") %in% class(results[["PI_CP_Y_80%"]])))
+    expect_true(all(c("pi_campsis_tbl", "campsis_tbl") %in% class(results[["pi_CP_Y_90%"]]))),
+    expect_true(all(c("pi_campsis_tbl", "campsis_tbl") %in% class(results[["pi_CP_Y_80%"]])))
   )
   campsisTest(simulation, test, env=environment())
 })

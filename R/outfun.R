@@ -290,3 +290,71 @@ setMethod("loadFromJSON", signature = c("stats_outfun", "json_element"), definit
     return(object)
   }
 )
+
+
+#_______________________________________________________________________________
+#----                          nca_table_outfun class                       ----
+#_______________________________________________________________________________
+
+nca_table_wrapper <- function(x, obj, ...) {
+  table <- obj@table
+  eval_str <- paste0("table %>% campsisnca::calculate(x=x) %>% campsisnca::export(dest='dataframe', type='%s')", obj@export_type)
+  export_df <- eval(parse(text = eval_str))
+  return(export_df)
+}
+
+#'
+#' NCA table output function class.
+#'
+#' @slot table Campsisnca table object
+#' @slot export_type type of export, 'summary', 'summary_wide', 'summary_pretty', 'individual' or 'individual_wide'
+#' @export
+setClass(
+  "nca_table_outfun",
+  representation(
+    table = "ANY",
+    export_type = "character"
+  ),
+  contains = "outfun",
+  prototype = prototype(
+    fun = nca_table_wrapper,
+    name = "default_nca_table",
+    cls = c("nca_table_campsis_tbl", "campsis_tbl"),
+    packages = c("campsisnca", "gtsummary"),
+    outfun_as_arg = TRUE
+  )
+)
+
+open_nca_table <- function(json) {
+  table <- json
+  eval_table_str <- "campsisnca::NCATable(json=table)"
+  return(eval(parse(text = eval_table_str)))
+}
+
+#'
+#' Create a NCA table output function
+#'
+#' @param table NCA table from campsisnca, object, path to JSON, or JSON element
+#' @param export_type type of export, 'summary', 'summary_wide', 'summary_pretty', 'individual' or 'individual_wide'
+#' @param name name of the output function. Default is 'default_nca_table'.
+#' @importFrom assertthat assert_that
+#' @return a stats_outfun object
+#' @export
+NCATableOutfun <- function(table, export_type = "summary", name = "default_nca_table") {
+  table <- open_nca_table(json=table)
+  return(new(
+    "nca_table_outfun",
+    name = name,
+    table = table,
+    export_type = export_type
+  ))
+}
+
+setMethod("loadFromJSON", signature = c("nca_table_outfun", "json_element"), definition = function(object, json) {
+    table <- open_nca_table(json=json@data$table)
+    json@data$table <- NULL
+    object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+    object@table <- table
+    return(object)
+}
+)
