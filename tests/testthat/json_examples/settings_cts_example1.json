@@ -10,6 +10,12 @@
            "variable": "CONC",
            "name": "PI 90%",
            "pi_level": 0.9
+        },
+        {
+           "type": "stats_outfun",
+           "variable": "CONC",
+           "name": "STATS CONC",
+           "stats": ["median", "p5", "p95"]
         }
      ],
      "outvars": ["CONC", "CONC_ERR"]

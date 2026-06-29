@@ -42,6 +42,9 @@
             "oneOf": [
               {
                 "$ref": "#/$defs/pi_outfun"
+              },
+              {
+                "$ref": "#/$defs/stats_outfun"
               }
             ]
           }
@@ -70,7 +73,7 @@
         },
         "name": {
           "type": "string",
-          "description": "Name of the output function (used for labeling the Campsis output)"
+          "description": "Name of the output function (used for labeling the Campsis output). This name is optional. If not provided, the default name will be 'pi_<variable>_<pi_level>'"
         },
         "variable": {
           "type": "string",
@@ -83,9 +86,37 @@
       },
       "required": [
         "type",
-        "name",
         "variable",
         "pi_level"
+      ],
+      "additionalProperties": false
+    },
+    "stats_outfun": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "stats_outfun"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the output function (used for labeling the Campsis output). This name is optional. If not provided, the default name will be 'stats_<variable>'"
+        },
+        "variable": {
+          "type": "string",
+          "description": "Variable for which the prediction interval is computed"
+        },
+        "stats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "statistics to compute. Supported: 'median', 'mean', or percentiles like 'p5', 'p95'."
+        }
+      },
+      "required": [
+        "type",
+        "variable",
+        "stats"
       ],
       "additionalProperties": false
     }
