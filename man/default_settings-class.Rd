@@ -14,7 +14,11 @@ Default settings class.
 
 \item{\code{seed}}{random seed number, integer}
 
+\item{\code{replicates}}{number of replicates, integer}
+
 \item{\code{outvars}}{output variables, character vector}
+
+\item{\code{outfuns}}{output functions, outfuns object}
 
 \item{\code{disabled_variabilities}}{variabilities to disable in the simulation, character vector}
 

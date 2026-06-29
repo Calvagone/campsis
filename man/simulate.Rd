@@ -20,7 +20,7 @@ simulate(
   outvars = NULL,
   outfun = NULL,
   seed = NULL,
-  replicates = 1,
+  replicates = NULL,
   dosing = FALSE,
   settings = NULL
 )
@@ -35,7 +35,7 @@ simulate(
   outvars = NULL,
   outfun = NULL,
   seed = NULL,
-  replicates = 1,
+  replicates = NULL,
   dosing = FALSE,
   settings = NULL
 )
@@ -50,7 +50,7 @@ simulate(
   outvars = NULL,
   outfun = NULL,
   seed = NULL,
-  replicates = 1,
+  replicates = NULL,
   dosing = FALSE,
   settings = NULL
 )
@@ -65,7 +65,7 @@ simulate(
   outvars = NULL,
   outfun = NULL,
   seed = NULL,
-  replicates = 1,
+  replicates = NULL,
   dosing = FALSE,
   settings = NULL
 )
@@ -80,7 +80,7 @@ simulate(
   outvars = NULL,
   outfun = NULL,
   seed = NULL,
-  replicates = 1,
+  replicates = NULL,
   dosing = FALSE,
   settings = NULL
 )
@@ -95,7 +95,7 @@ simulate(
   outvars = NULL,
   outfun = NULL,
   seed = NULL,
-  replicates = 1,
+  replicates = NULL,
   dosing = FALSE,
   settings = NULL
 )
@@ -110,7 +110,7 @@ simulate(
   outvars = NULL,
   outfun = NULL,
   seed = NULL,
-  replicates = 1,
+  replicates = NULL,
   dosing = FALSE,
   settings = NULL
 )

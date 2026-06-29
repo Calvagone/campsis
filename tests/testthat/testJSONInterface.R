@@ -148,6 +148,18 @@ test_that("Import Campsis settings in JSON format", {
   expect_equal(settings_cts1, exp_settings_cts1)
 })
 
+test_that("Import Campsis settings with replicates from JSON", {
+
+  # replicates field present → loaded and stored correctly
+  settings_rep <- Settings(json=file.path(testFolder, "json_examples", "settings_example_replicates.json"))
+  exp_settings_rep <- Settings(DefaultSettings(engine="rxode2", seed=42, replicates=100L))
+  expect_equal(settings_rep, exp_settings_rep)
+
+  # replicates field absent → defaults to 1L
+  settings_no_rep <- Settings(json=file.path(testFolder, "json_examples", "settings_example1b.json"))
+  expect_equal(settings_no_rep@default@replicates, 1L)
+})
+
 test_that("Import Campsis scenarios in JSON format", {
   
   # 1A

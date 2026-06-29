@@ -30,6 +30,11 @@
         "seed": {
           "type": "integer"
         },
+        "replicates": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of replicates. Optional, defaults to 1."
+        },
         "outvars": {
           "type": "array",
           "items": {

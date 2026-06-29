@@ -19,11 +19,11 @@
 #' @return dataframe with all results
 #' @export
 #' @rdname simulate
-simulate <- function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, dosing=FALSE, settings=NULL) {
+simulate <- function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=NULL, dosing=FALSE, settings=NULL) {
   no_default_function_provided_debug(mget(names(formals()), envir = environment()), "simulate")
 }
 
-setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=1, dosing=FALSE, settings=NULL) {
+setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenarios=NULL, tablefun=NULL, outvars=NULL, outfun=NULL, seed=NULL, replicates=NULL, dosing=FALSE, settings=NULL) {
 
   if (is.null(settings)) {
     settings <- Settings()
@@ -36,6 +36,9 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
   }
   if (is.null(seed)) {
     seed <- defaultSettings@seed
+  }
+  if (is.null(replicates)) {
+    replicates <- defaultSettings@replicates
   }
   if (is.null(outvars)) {
     outvars <- defaultSettings@outvars

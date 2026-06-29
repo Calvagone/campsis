@@ -7,6 +7,7 @@
 DefaultSettings(
   engine = "rxode2",
   seed = NULL,
+  replicates = 1L,
   outvars = character(),
   outfuns = Outfuns(),
   disabled_variabilities = character(),
@@ -17,6 +18,8 @@ DefaultSettings(
 \item{engine}{simulation engine, character}
 
 \item{seed}{random seed number, integer (or NULL for auto-generated seed)}
+
+\item{replicates}{number of replicates, integer. Default is 1.}
 
 \item{outvars}{output variables, character vector}
 
