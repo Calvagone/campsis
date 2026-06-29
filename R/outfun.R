@@ -298,7 +298,7 @@ setMethod("loadFromJSON", signature = c("stats_outfun", "json_element"), definit
 
 nca_table_wrapper <- function(x, obj, ...) {
   table <- obj@table
-  eval_str <- paste0("table %>% campsisnca::calculate(x=x) %>% campsisnca::export(dest='dataframe', type='%s')", obj@export_type)
+  eval_str <- sprintf("table |> campsisnca::calculate(x=x) |> export(dest='dataframe', type='%s')", obj@export_type)
   export_df <- eval(parse(text = eval_str))
   return(export_df)
 }
