@@ -74,16 +74,21 @@ setMethod("show", signature=c("default_settings"), definition=function(object) {
   if (identical(object, DefaultSettings())) {
     cat("Default arguments: default")    
   } else {
-    # Collect outfun names
-    outfun_names <- character(0)
+    # Prepare outfuns string for display
+    outfuns_str <- ""
     if (length(object@outfuns) > 0) {
-      outfun_names <- vapply(object@outfuns@list, function(x) x@name, character(1))
+      outfun_names <- object@outfuns@list %>% purrr::map_chr(~.x@name)
+      outfuns_str <- paste0(paste0("'", outfun_names, "'"), collapse=", ")
     }
-    outfuns_str <- paste0(paste0("'", outfun_names, "'"), collapse=", ")
+    # Prepare disabled_variabilities string for display
+    disabled_variabilities_str <- ""
+    if (length(object@disabled_variabilities) > 0) {
+      disabled_variabilities_str <- paste0(paste0("'", object@disabled_variabilities, "'"), collapse=", ")
+    }
     
     cat(sprintf("Default arguments: engine='%s', seed=%s, outvars=[%s], outfuns=[%s], disabled_variabilities=[%s], dosing=%s",
         object@engine, as.character(object@seed), paste0(paste0("'", object@outvars, "'"), collapse=", "),
-        outfuns_str, paste0(paste0("'", object@disabled_variabilities, "'"), collapse=", "), object@dosing)) 
+        outfuns_str, disabled_variabilities_str, object@dosing)) 
   }
   cat("\n")
 })

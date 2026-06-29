@@ -146,7 +146,6 @@ test_that("Import Campsis settings in JSON format", {
     add(StatsOutfun(variable="CONC", name="Statistics on CONC", stats=c("median", "p5", "p95")))
   exp_settings_cts1 <- Settings(DefaultSettings(engine="mrgsolve", seed=1, outvars=c("CONC", "CONC_ERR"), outfuns=exp_outfuns_cts1))
   expect_equal(settings_cts1, exp_settings_cts1)
-
 })
 
 test_that("Import Campsis scenarios in JSON format", {
