@@ -44,3 +44,13 @@
   }
   invisible(NULL)
 }
+
+#' Does the data contain more than one replicate?
+#' 
+#' @return \code{TRUE} if the data contains a \code{replicate} column with more than one distinct value, \code{FALSE} otherwise
+#' @param x a data frame (typically \code{std_campsis_tbl})
+#' @importFrom dplyr n_distinct
+#' @keywords internal
+.is_replicated <- function(x) {
+  return("replicate" %in% colnames(x) && dplyr::n_distinct(x$replicate) > 1)
+}

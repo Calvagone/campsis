@@ -71,7 +71,8 @@ getColumn <- function(.data, colname) {
 #' @export
 spaghettiPlot <- function(x, variable, colour=NULL) {
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", colour), colname=group)
+  strat_extra <- if (.is_replicated(x)) "replicate" else NULL
+  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", strat_extra, colour), colname=group)
   
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
@@ -107,7 +108,8 @@ shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, a
   } else {
     colourColumn <- NULL
   }
-  strata_names <- c(colour, strat_extra, colourColumn)
+  strat_extra <- c(if (.is_replicated(x)) "replicate" else NULL, strat_extra)
+  strata_names <- unique(c(colour, strat_extra, colourColumn))
   strata <- if (is.null(strata_names)) NULL else setNames(rep(allStrataLevels(), length(strata_names)), strata_names)
 
   x_ <- compute_pi(x=x, variable=variable, strata=strata, level=level) |>
@@ -137,8 +139,9 @@ shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, a
 #' @importFrom ggplot2 aes ggplot geom_point
 #' @export
 scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
+  strat_extra <- if (.is_replicated(x)) "replicate" else NULL
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", colour), colname=group)
+  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", strat_extra, colour), colname=group)
   
   if (is.null(time)) {
     time <- min(x$TIME)
