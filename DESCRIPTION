@@ -129,4 +129,5 @@ Collate:
     'spaghetti_plot.R'
     'shaded_plot.R'
     'scatter_plot.R'
+    'vpc_plot.R'
     'deprecated_methods.R'
