@@ -46,6 +46,10 @@ vpc_plot <- function(x, ...) {
 #' @param level confidence interval level for the ribbons around each
 #'   percentile. Default is \code{0.90} (90\% CI).
 #' @param alpha transparency of the ribbons. Default is \code{0.15}.
+#' @param facet how the stratification variable is displayed when present.
+#'   \code{TRUE} (default) draws one panel per stratum; \code{FALSE} overlays
+#'   the strata in a single panel and maps the stratum to the ribbon fill
+#'   colour. Forwarded to \code{\link{vpcPlot}}.
 #' @param ... additional arguments (currently unused, reserved for future use)
 #' @return a ggplot object
 #' @seealso \code{\link{vpcPlot}}, \code{\link{PIOutfun}}
@@ -53,6 +57,7 @@ vpc_plot <- function(x, ...) {
 vpc_plot.pi_campsis_tbl <- function(x, strata = "auto",
                                     level = 0.90,
                                     alpha = 0.15,
+                                    facet = TRUE,
                                     ...) {
   if (!.is_replicated(x)) {
     stop(
@@ -66,7 +71,7 @@ vpc_plot.pi_campsis_tbl <- function(x, strata = "auto",
     strata <- .auto_strata(x)
   }
 
-  vpcPlot(x, strata = strata, level = level, alpha = alpha)
+  vpcPlot(x, strata = strata, level = level, alpha = alpha, facet = facet)
 }
 
 #_______________________________________________________________________________
@@ -107,6 +112,10 @@ vpc_plot.pi_campsis_tbl <- function(x, strata = "auto",
 #' @param ci_level confidence interval level for the ribbons around each
 #'   percentile across replicates. Default is \code{0.90} (90\% CI).
 #' @param alpha transparency of the ribbons. Default is \code{0.15}.
+#' @param facet how the stratification variable is displayed when present.
+#'   \code{TRUE} (default) draws one panel per stratum; \code{FALSE} overlays
+#'   the strata in a single panel and maps the stratum to the ribbon fill
+#'   colour. Forwarded to \code{\link{vpcPlot}}.
 #' @param ... additional arguments (currently unused, reserved for future use)
 #' @return a ggplot object
 #' @seealso \code{\link{vpcPlot}}, \code{\link{vpc_plot.pi_campsis_tbl}}
@@ -116,6 +125,7 @@ vpc_plot.std_campsis_tbl <- function(x, variable = "CONC",
                                      pi_level = 0.90,
                                      ci_level = 0.90,
                                      alpha = 0.15,
+                                     facet = TRUE,
                                      ...) {
   if (!.is_replicated(x)) {
     stop(
@@ -142,7 +152,7 @@ vpc_plot.std_campsis_tbl <- function(x, variable = "CONC",
     level = pi_level
   )
 
-  vpcPlot(pi, strata = strata, level = ci_level, alpha = alpha)
+  vpcPlot(pi, strata = strata, level = ci_level, alpha = alpha, facet = facet)
 }
 
 #' Detect VPC stratification variable automatically.

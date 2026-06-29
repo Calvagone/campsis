@@ -11,6 +11,7 @@
   pi_level = 0.9,
   ci_level = 0.9,
   alpha = 0.15,
+  facet = TRUE,
   ...
 )
 }
@@ -31,6 +32,11 @@ computed within each replicate. Default is \code{0.90} (90\% PI, i.e. the
 percentile across replicates. Default is \code{0.90} (90\% CI).}
 
 \item{alpha}{transparency of the ribbons. Default is \code{0.15}.}
+
+\item{facet}{how the stratification variable is displayed when present.
+\code{TRUE} (default) draws one panel per stratum; \code{FALSE} overlays
+the strata in a single panel and maps the stratum to the ribbon fill
+colour. Forwarded to \code{\link{vpcPlot}}.}
 
 \item{...}{additional arguments (currently unused, reserved for future use)}
 }

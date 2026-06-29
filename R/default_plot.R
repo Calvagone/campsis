@@ -180,18 +180,38 @@ scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
 #' @return a ggplot object
-#' @importFrom ggplot2 aes ggplot ylab
+#' @param facet how the stratification variable is displayed. \code{TRUE}
+#'   (default) draws one panel per stratum with \code{facet_wrap()}, keeping the
+#'   median band red and the outer bands blue. \code{FALSE} overlays the strata
+#'   in a single panel, mapping the stratum to the ribbon fill colour (the
+#'   median band is drawn more opaque than the outer bands). Ignored when no
+#'   stratification is requested.
+#' @importFrom ggplot2 aes ggplot facet_wrap labs vars ylab
 #' @export
-vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15) {
+vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15, facet=TRUE) {
   if (length(strata) > 1) {
     stop("Currently max 1 stratification variable is allowed")
   }
   summary <- VPC(x=x, strata=strata, level=level)
-  if (length(strata) > 0) {
+  stratified <- length(strata) > 0
+  if (stratified) {
     group <- "GROUP_GGPLOT"
     summary <- uniteColumns(x=summary, columns=names(strata), colname=group)
   } else {
     group <- NULL
+  }
+
+  if (stratified && !facet) {
+    # Colour mode: distinguish strata by fill; the median band stays more opaque
+    # than the outer bands so the percentile structure remains readable.
+    return(
+      ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=.data[[group]])) +
+        ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$med_low, ymax=.data$med_up, fill=.data[[group]]), alpha=alpha, color=NA) +
+        ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low_low, ymax=.data$low_up, fill=.data[[group]]), alpha=alpha/2, color=NA) +
+        ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$up_low, ymax=.data$up_up, fill=.data[[group]]), alpha=alpha/2, color=NA) +
+        ggplot2::labs(fill=paste0(names(strata), collapse=" / ")) +
+        ggplot2::ylab("")
+    )
   }
 
   plot <- ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=getColumn(.data, group))) +
@@ -199,6 +219,9 @@ vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15) {
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low_low, ymax=.data$low_up), alpha=alpha, color=NA, fill="blue") +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$up_low, ymax=.data$up_up), alpha=alpha, color=NA, fill="blue") +
     ggplot2::ylab("")
+  if (stratified) {
+    plot <- plot + ggplot2::facet_wrap(ggplot2::vars(.data[[group]]))
+  }
   
   return(plot)
 }

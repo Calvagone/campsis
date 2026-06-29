@@ -129,9 +129,9 @@ test_that("vpc_plot renders a full VPC from multi-replicate pi_campsis_tbl data"
   }
 })
 
-test_that("vpc_plot renders a stratified VPC from multi-ARM pi_campsis_tbl data", {
+test_that("vpc_plot facets a stratified VPC by ARM (multi-ARM pi_campsis_tbl)", {
   # Two arms -> strata = 'auto' resolves to c(ARM = 'all') and the VPC is
-  # stratified by ARM.
+  # stratified by ARM. facet = TRUE (default) draws one panel per arm.
   data <- make_vpc_data(n_replicates = 5, arms = c("100 mg", "200 mg"))
   tbl  <- make_pi_campsis_tbl(data, dataset = two_arm_dataset)
 
@@ -144,8 +144,29 @@ test_that("vpc_plot renders a stratified VPC from multi-ARM pi_campsis_tbl data"
   expect_s3_class(plot, "ggplot")
   # Three ribbons: CI around the median, lower and upper percentiles.
   expect_length(plot$layers, 3)
+  # The plot is facetted (one panel per arm).
+  expect_s3_class(plot$facet, "FacetWrap")
 
   if (!skipVdiffrTests()) {
-    vdiffr::expect_doppelganger("vpc_plot / pi_campsis_tbl / strata: ARM", plot)
+    vdiffr::expect_doppelganger("vpc_plot / pi_campsis_tbl / strata: ARM / facet", plot)
+  }
+})
+
+test_that("vpc_plot colours a stratified VPC by ARM when facet = FALSE", {
+  # facet = FALSE overlays the arms in a single panel, mapping ARM to fill.
+  data <- make_vpc_data(n_replicates = 5, arms = c("100 mg", "200 mg"))
+  tbl  <- make_pi_campsis_tbl(data, dataset = two_arm_dataset)
+
+  plot <- vpc_plot(tbl, facet = FALSE)
+
+  expect_s3_class(plot, "ggplot")
+  expect_length(plot$layers, 3)
+  # A single panel (no faceting).
+  expect_s3_class(plot$facet, "FacetNull")
+  # A fill legend is present, titled by the stratification variable.
+  expect_identical(plot$labels$fill, "ARM")
+
+  if (!skipVdiffrTests()) {
+    vdiffr::expect_doppelganger("vpc_plot / pi_campsis_tbl / strata: ARM / colour", plot)
   }
 })

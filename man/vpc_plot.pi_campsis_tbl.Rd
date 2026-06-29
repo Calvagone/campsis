@@ -4,7 +4,7 @@
 \alias{vpc_plot.pi_campsis_tbl}
 \title{VPC plot for prediction-interval CAMPSIS output.}
 \usage{
-\method{vpc_plot}{pi_campsis_tbl}(x, strata = "auto", level = 0.9, alpha = 0.15, ...)
+\method{vpc_plot}{pi_campsis_tbl}(x, strata = "auto", level = 0.9, alpha = 0.15, facet = TRUE, ...)
 }
 \arguments{
 \item{x}{a \code{pi_campsis_tbl} object with a \code{replicate} column}
@@ -16,6 +16,11 @@
 percentile. Default is \code{0.90} (90\% CI).}
 
 \item{alpha}{transparency of the ribbons. Default is \code{0.15}.}
+
+\item{facet}{how the stratification variable is displayed when present.
+\code{TRUE} (default) draws one panel per stratum; \code{FALSE} overlays
+the strata in a single panel and maps the stratum to the ribbon fill
+colour. Forwarded to \code{\link{vpcPlot}}.}
 
 \item{...}{additional arguments (currently unused, reserved for future use)}
 }
