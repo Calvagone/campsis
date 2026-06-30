@@ -9,11 +9,11 @@ scatterPlot(x, variable, colour = NULL, time = NULL)
 \arguments{
 \item{x}{data frame}
 
+\item{variable}{the 2 variables to show, character vector}
+
 \item{colour}{variable(s) to colour}
 
 \item{time}{the time to look at those 2 variables, if NULL, min time is used (usually 0)}
-
-\item{output}{the 2 variables to show, character vector}
 }
 \value{
 a ggplot object

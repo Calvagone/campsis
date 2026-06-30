@@ -131,7 +131,7 @@ shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, a
 #' Scatter plot (or X vs Y plot).
 #' 
 #' @param x data frame
-#' @param output the 2 variables to show, character vector
+#' @param variable the 2 variables to show, character vector
 #' @param colour variable(s) to colour
 #' @param time the time to look at those 2 variables, if NULL, min time is used (usually 0)
 #' @return a ggplot object

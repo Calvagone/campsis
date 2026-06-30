@@ -30,6 +30,7 @@ new_campsis_tbl <- function(x = tibble(), metadata) {
 #'
 #' @return A restored `campsis_tbl` object with appropriate metadata and classes.
 #' @export
+#' @importFrom vctrs vec_restore
 #' @method vec_restore campsis_tbl
 #' @keywords internal
 vec_restore.campsis_tbl <- function(x, to, ...) {
