@@ -192,7 +192,7 @@ vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15, facet=TRUE) {
   if (length(strata) > 1) {
     stop("Currently max 1 stratification variable is allowed")
   }
-  summary <- VPC(x=x, strata=strata, level=level)
+  summary <- make_vpc_summary(x=x, strata=strata, level=level)
   stratified <- length(strata) > 0
   if (stratified) {
     group <- "GROUP_GGPLOT"

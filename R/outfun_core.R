@@ -160,7 +160,7 @@ compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
   return(res)
 }
 
-#' Compute the VPC summary. Input data frame must contain the following columns:
+#' Make the VPC summary. Input data frame must contain the following columns:
 #' - replicate: replicate number
 #' - low: low percentile value in replicate (and in scenario if present)
 #' - med: median value in replicate (and in scenario if present)
@@ -174,11 +174,11 @@ compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
 #' @importFrom dplyr rename
 #' @importFrom tidyr pivot_wider
 #' @return VPC summary with columns TIME, stratification variables and all combinations of 
-#' low, med, up (i.e. low_low, low_med, low_up, etc.) 
-#' @export
-VPC <- function(x, strata=NULL, level=0.90) {
+#' low, med, up (i.e. low_low, low_med, low_up, etc.)
+#' @keywords internal
+make_vpc_summary <- function(x, strata=NULL, level=0.90) {
   x <- x |>
-    dplyr::rename(original_metric=metric)
+    dplyr::rename(original_metric="metric")
   retValue <- compute_pi(x=x, variable="value", strata=c(original_metric=allStrataLevels(), strata), level=level) |>
     metrics_pivot_wider()
 
