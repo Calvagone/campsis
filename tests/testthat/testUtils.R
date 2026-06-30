@@ -176,3 +176,25 @@ skipVdiffrTests <- function() {
   # FALSE otherwise
   return(getCampsisOption(name="SKIP_VDIFFR_TESTS", default=ifelse(isMacOs(), TRUE, FALSE)))
 }
+
+convertCampsisTest <- function(env = parent.frame(), debug_engine = "mrgsolve") {
+  if (!exists("simulation", envir = env) || !exists("test", envir = env)) {
+    stop("Could not find 'simulation' or 'test' expressions in the provided environment.")
+  }
+  
+  # Get the expressions from the specified environment
+  sim_expr <- get("simulation", envir = env)
+  test_expr <- get("test", envir = env)
+  
+  # Modify the simulation call
+  sim_call <- sim_expr[[1]]
+  sim_call$dest <- debug_engine
+  sim_text <- paste0("results <- ", deparse1(sim_call))
+  
+  # Extract all lines from the test expression
+  test_text_lines <- vapply(as.list(test_expr), deparse1, character(1))
+  
+  # Combine and return
+  final_script <- c(sim_text, test_text_lines)
+  cat(paste(final_script, collapse = "\n"))
+}
