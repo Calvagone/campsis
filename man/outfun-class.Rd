@@ -12,6 +12,8 @@ Output function class.
 \describe{
 \item{\code{fun}}{function or purrr-style lambda formula, first argument 'x' must be the results}
 
+\item{\code{name}}{name of the output function}
+
 \item{\code{args}}{extra arguments, named list}
 
 \item{\code{packages}}{packages that must be loaded to execute the given function, character vector}
@@ -19,5 +21,7 @@ Output function class.
 \item{\code{level}}{either 'scenario' or 'replicate'. Default is 'scenario'.}
 
 \item{\code{cls}}{resulting S3 class(es) of the Campsis output}
+
+\item{\code{outfun_as_arg}}{logical, whether to pass the outfun object as an argument to the function}
 }}
 

@@ -6,10 +6,12 @@
 #' Output function class.
 #'
 #' @slot fun function or purrr-style lambda formula, first argument 'x' must be the results
+#' @slot name name of the output function
 #' @slot args extra arguments, named list
 #' @slot packages packages that must be loaded to execute the given function, character vector
 #' @slot level either 'scenario' or 'replicate'. Default is 'scenario'.
 #' @slot cls resulting S3 class(es) of the Campsis output
+#' @slot outfun_as_arg logical, whether to pass the outfun object as an argument to the function
 #' @export
 setClass(
   "outfun",
@@ -159,7 +161,7 @@ pi_wrapper <- function(x, obj, ...) {
 #'
 #' @slot variable variable(s) used to compute the prediction interval, character vector
 #' @slot strata named vector with the strata to use
-#' @slot level PI level, default is 0.9 (90\% PI)
+#' @slot pi_level PI level, default is 0.9 (90\% PI)
 #' @export
 setClass(
   "pi_outfun",
