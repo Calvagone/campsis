@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with events")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Clear central compartment events"), {
+test_that("Clear central compartment events", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "clear_central_event"
@@ -29,7 +29,7 @@ test_that(getTestName("Clear central compartment events"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Give daily dose in absortion"), {
+test_that("Give daily dose in absortion", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "event_daily_dose"
@@ -52,7 +52,7 @@ test_that(getTestName("Give daily dose in absortion"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Daily dose in dataset + daily dose through events"), {
+test_that("Daily dose in dataset + daily dose through events", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "event_daily_dose"
@@ -76,7 +76,7 @@ test_that(getTestName("Daily dose in dataset + daily dose through events"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Body weight as an event covariate"), {
+test_that("Body weight as an event covariate", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan2_trans2
   equation <- model %>% find(Equation("CL"))
@@ -109,7 +109,7 @@ test_that(getTestName("Body weight as an event covariate"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Dose adaptation based on Ctrough"), {
+test_that("Dose adaptation based on Ctrough", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan2_trans2
   regFilename <- "dose_adaptation_ctrough"

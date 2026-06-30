@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with IOV")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simulate 1000mg QD with IOV on KA (1)"), {
+test_that("Simulate 1000mg QD with IOV on KA (1)", {
   if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iov_ka_1"
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -44,7 +44,7 @@ test_that(getTestName("Simulate 1000mg QD with IOV on KA (1)"), {
   }
 })
 
-test_that(getTestName("Simulate 1000mg QD with IOV on KA (2)"), {
+test_that("Simulate 1000mg QD with IOV on KA (2)", {
   # This test could sometimes fail with RxODE version > 1.0.5 & < 1.1.0
   if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iov_ka_2"
@@ -76,7 +76,7 @@ test_that(getTestName("Simulate 1000mg QD with IOV on KA (2)"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate IOV on F1"), {
+test_that("Simulate IOV on F1", {
   # This test always failed with RxODE version > 1.0.5 & < 1.1.0
   if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iiv_iov_f1"
@@ -126,7 +126,7 @@ test_that(getTestName("Simulate IOV on F1"), {
 })
 
 
-test_that(getTestName("Simulate IOV on ALAG1"), {
+test_that("Simulate IOV on ALAG1", {
   # This test always failed with RxODE version > 1.0.5 & < 1.1.0
   if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iiv_iov_alag1"
@@ -190,7 +190,7 @@ test_that(getTestName("Simulate IOV on ALAG1"), {
   }
 })
 
-test_that(getTestName("Simulate IOV on D1"), {
+test_that("Simulate IOV on D1", {
   if (skipLongTests()) return(TRUE)
   regFilename <- "3_infusions_iiv_iov_d1"
 
@@ -238,7 +238,7 @@ test_that(getTestName("Simulate IOV on D1"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate IOV on F1"), {
+test_that("Simulate IOV on F1", {
   if (skipLongTests()) return(TRUE)
   regFilename <- "3_bolus_iov_on_f1"
 

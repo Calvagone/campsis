@@ -1,7 +1,7 @@
 Type: Package
 Package: campsis
 Title: Generic PK/PD Simulation Platform Campsis
-Version: 1.8.2
+Version: 1.9.0
 Authors@R:
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
 Description: A generic, easy-to-use and intuitive
@@ -45,7 +45,8 @@ Imports:
     rlang,
     stats,
     tibble,
-    tidyr
+    tidyr,
+    vctrs
 Suggests:
     bookdown,
     devtools,
@@ -106,7 +107,9 @@ Collate:
     'scenarios.R'
     'event_logic.R'
     'dataset_summary.R'
+    'outfun_core.R'
     'outfun.R'
+    'outfuns.R'
     'default_settings.R'
     'hardware_settings.R'
     'simulation_progress.R'
@@ -116,9 +119,15 @@ Collate:
     'progress_settings.R'
     'internal_settings.R'
     'simulation_settings.R'
+    'campsis_metadata.R'
     'plan_setup.R'
     'json_interface.R'
     'simulate_preprocess.R'
     'simulate.R'
-    'results_processing.R'
     'default_plot.R'
+    'campsis_plot_helpers.R'
+    'spaghetti_plot.R'
+    'shaded_plot.R'
+    'scatter_plot.R'
+    'vpc_plot.R'
+    'deprecated_methods.R'

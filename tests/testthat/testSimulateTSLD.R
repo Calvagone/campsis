@@ -3,11 +3,11 @@ library(testthat)
 context("Simulate models that depend on TSLD or TDOS")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Weibull model simulation works as expected"), {
+test_that("Weibull model simulation works as expected", {
   regFilename <- "weibull_model"
-  model <- suppressWarnings(read.campsis(paste0(testFolder, "models/", regFilename)))
+  model <- suppressWarnings(read.campsis(file.path(getwd(), test_path(), "models/", regFilename)))
   config <- DatasetConfig(exportTDOS=TRUE)
   
   ds <- Dataset(3) %>%

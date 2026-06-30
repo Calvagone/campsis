@@ -45,3 +45,5 @@ docs/
 /README_files/
 /doc/
 /Meta/
+
+.posit/assistant/settings.json

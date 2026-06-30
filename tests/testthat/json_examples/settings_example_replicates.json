@@ -1,0 +1,8 @@
+[
+   {
+      "type": "default_settings",
+      "engine": "rxode2",
+      "seed": 42,
+      "replicates": 100
+   }
+]

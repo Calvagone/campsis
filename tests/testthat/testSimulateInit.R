@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with initial conditions")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simulate initial conditions, observations starting at 0"), {
+test_that("Simulate initial conditions, observations starting at 0", {
   model <- model_suite$testing$nonmem$advan3_trans4
   model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
 
@@ -21,7 +21,7 @@ test_that(getTestName("Simulate initial conditions, observations starting at 0")
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate initial conditions, observations starting at 5"), {
+test_that("Simulate initial conditions, observations starting at 5", {
   model <- model_suite$testing$nonmem$advan3_trans4
   model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
 

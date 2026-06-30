@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with tabular datasets")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simulate a bolus using the tabular dataset"), {
+test_that("Simulate a bolus using the tabular dataset", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "simple_bolus"
   

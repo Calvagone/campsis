@@ -81,21 +81,25 @@ preprocessTablefun <- function(fun) {
 
 #' Pre-process outfun argument.
 #'
-#' @param outfun function, lambda formula or output function object
-#' @return an output function
+#' @param outfun function, lambda formula, output_function or output_functions object
+#' @return an output_functions object in any case
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
 preprocessOutfun <- function(outfun) {
+  fun <- NULL
   if (is.null(outfun)) {
-    return(Outfun())
+    fun <- DefaultOutfun()
   } else if (is.function(outfun) || rlang::is_formula(outfun)) {
-    # Backwards compatibility
-    return(Outfun(fun=outfun, level="scenario"))
-  } else {
-    assertthat::assert_that(is(outfun, "output_function"), msg="outfun is not an output function. Type ?Outfun for more info.")
+      fun <- Outfun(fun=outfun)
+  } else if (is(outfun, "outfun")) {
+    fun <- outfun
+  } else if (is(outfun, "outfuns")) {
     return(outfun)
+  } else {
+    stop("outfun must be a function, formula, Outfun() or Outfuns() object.")
   }
+  return(Outfuns() %>% add(fun))
 }
 
 #' Preprocess 'outvars' argument. 'Outvars' is a character vector which tells

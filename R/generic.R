@@ -1,3 +1,20 @@
+
+no_default_function_provided_debug <- function(args_list, fun_name) {
+  # Get the class of each argument as a string (fixed CHARACTER to character)
+  arg_classes <- vapply(args_list, function(x) {
+    if (is.null(x)) "NULL" else paste(class(x), collapse = "/")
+  }, character(1))
+  
+  # Format into a readable string: "arg1 (class), arg2 (class), ..."
+  formatted_args <- sprintf("%s (%s)", names(arg_classes), arg_classes)
+  error_details <- paste(formatted_args, collapse = "\n  ")
+  
+  stop(paste0(
+    "Generic '", fun_name, "' function cannot be called directly.\n",
+    "Received arguments:\n  ", error_details
+  ), call. = FALSE)
+}
+
 #_______________________________________________________________________________
 #----                            applyAction                                ----
 #_______________________________________________________________________________

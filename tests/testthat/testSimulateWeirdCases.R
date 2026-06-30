@@ -3,10 +3,10 @@ library(testthat)
 context("Test that simulations with weird cases work as expected")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 # options(campsis.options=list(SKIP_VERY_LONG_TESTS=FALSE))
 
-test_that(getTestName("Simulate a bolus without observation"), {
+test_that("Simulate a bolus without observation", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   dataset <- Dataset() %>%
@@ -20,7 +20,7 @@ test_that(getTestName("Simulate a bolus without observation"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate a bolus with single observation at time 0"), {
+test_that("Simulate a bolus with single observation at time 0", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   dataset <- Dataset() %>%
@@ -29,13 +29,14 @@ test_that(getTestName("Simulate a bolus with single observation at time 0"), {
 
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed))
   test <- expression(
+    results <- results %>% stripMetadata(),
     expect_equal(nrow(results), 1),
     expect_equal(results[c("ID", "TIME", "CP")], tibble::tibble(ID=1, TIME=0, CP=0))
   )
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate a model which is not valid"), {
+test_that("Simulate a model which is not valid", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   # Corrupt name slot of parameter KA
@@ -53,7 +54,7 @@ test_that(getTestName("Simulate a model which is not valid"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate a dataset which is not valid"), {
+test_that("Simulate a dataset which is not valid", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   dataset <- Dataset() %>%
@@ -71,7 +72,7 @@ test_that(getTestName("Simulate a dataset which is not valid"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Covariates must be trimmed by campsis to avoid issues"), {
+test_that("Covariates must be trimmed by campsis to avoid issues", {
 
   regFilename <- "trim_covariate"
 
@@ -97,7 +98,7 @@ test_that(getTestName("Covariates must be trimmed by campsis to avoid issues"), 
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Arm label mapping must first verify the ARM column exists"), {
+test_that("Arm label mapping must first verify the ARM column exists", {
 
   arm1 <- Arm(subjects=1, label="Arm 1") %>%
     add(Bolus(time=0, amount=1, compartment=1)) %>%
@@ -109,7 +110,7 @@ test_that(getTestName("Arm label mapping must first verify the ARM column exists
   model <- model_suite$testing$nonmem$advan4_trans4
 
   # Explicitely remove ARM column
-  outfun <- Outfun(level="scenario", fun=~.x %>% dplyr::select(-dplyr::all_of("ARM")))
+  outfun <- Outfun(fun=~.x %>% dplyr::select(-dplyr::all_of("ARM")))
 
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, outfun=outfun))
   test <- expression(
@@ -119,7 +120,7 @@ test_that(getTestName("Arm label mapping must first verify the ARM column exists
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Model advan1_trans1 must compile properly with mrgsolve v1.5.2 on Windows"), {
+test_that("Model advan1_trans1 must compile properly with mrgsolve v1.5.2 on Windows", {
   model <- model_suite$nonmem$advan1_trans1
   regFilename <- "advan1_trans1"
   # See issue #160
@@ -136,7 +137,7 @@ test_that(getTestName("Model advan1_trans1 must compile properly with mrgsolve v
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("No need to adapt 'future.globals.maxSize' option anymore when dataset is large."), {
+test_that("No need to adapt 'future.globals.maxSize' option anymore when dataset is large.", {
   # See original issue #166
   
   # Load Campsis model

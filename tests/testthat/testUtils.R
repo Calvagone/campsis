@@ -1,11 +1,5 @@
 
-# setwd("C:/prj/campsis/")
-# roxygen2::roxygenise()
-# setwd("C:/prj/campsis/tests/")
-# testFolder <- "C:/prj/campsis/tests/testthat/"
-
 overwriteNonRegressionFiles <- FALSE
-testFolder <- ""
 testEngines <- c("rxode2", "mrgsolve")
 
 datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, dest) {
@@ -24,6 +18,16 @@ datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, 
   return(table)
 }
 
+stripMetadata <- function(x) {
+  # Revert class back to standard tibble components
+  class(x) <- c("tbl_df", "tbl", "data.frame")
+  
+  # Delete the attribute
+  attr(x, "metadata") <- NULL
+  
+  return(x)
+}
+
 #' Test there is no regression in the exported dataset.
 #' 
 #' @param dataset newly generated CAMPSIS dataset
@@ -38,7 +42,7 @@ datasetRegressionTest <- function(dataset, model=NULL, seed, doseOnly=TRUE, file
   dataset1 <- datasetInMemory(dataset=dataset, model=model, seed=seed, doseOnly=doseOnly, settings=settings, dest=dest)
   dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6)
   
-  file <- paste0(testFolder, "non_regression/", paste0(filename, ".csv"))
+  file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, ".csv"))
   
   if (overwriteNonRegressionFiles) {
     write.table(dataset1, file=file, sep=",", row.names=FALSE)
@@ -66,10 +70,13 @@ datasetRegressionTest <- function(dataset, model=NULL, seed, doseOnly=TRUE, file
 #' @export
 outputRegressionTest <- function(results, output, filename, times=NULL) {
   selectedColumns <- unique(c("ID", "TIME", output))
-  results1 <- results %>% dplyr::select(dplyr::all_of(selectedColumns)) %>% dplyr::mutate_if(is.numeric, round, digits=2)
+  results1 <- results %>%
+    stripMetadata() %>%
+    dplyr::select(dplyr::all_of(selectedColumns)) %>%
+    dplyr::mutate_if(is.numeric, round, digits=2)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
-  file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
+  file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, "_", suffix, ".csv"))
   
   if (overwriteNonRegressionFiles) {
     write.table(results1, file=file, sep=",", row.names=FALSE)
@@ -77,7 +84,8 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 
   results2 <- read.csv(file=file) %>% tibble::as_tibble()
   if (!is.null(times)) {
-    results2 <- results2 %>% dplyr::filter(TIME %in% times)
+    results2 <- results2 %>%
+      dplyr::filter(TIME %in% times)
   }
   expect_equal(results1, results2)
 }
@@ -89,13 +97,9 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 #' @param filename reference file (output will be appended automatically)
 #' @export
 vpcOutputRegressionTest <- function(results, output, filename) {
-  selectedColumns <- unique(c("replicate", "TIME", "metric", "value"))
-  if ("output" %in% colnames(results)) {
-    results <- results %>%
-      dplyr::rename(output2="output") %>%
-      dplyr::filter(output2 %in% output) %>%
-      dplyr::select(-output2)
-  }
+  results <- results %>%
+    stripMetadata() %>%
+      dplyr::filter(.data$variable %in% output)
   
   results1 <- results %>%
     dplyr::ungroup() %>%
@@ -103,7 +107,7 @@ vpcOutputRegressionTest <- function(results, output, filename) {
     dplyr::arrange(replicate, TIME, metric)
   suffix <- paste0(output, collapse="_") %>% tolower()
   
-  file <- paste0(testFolder, "non_regression/", paste0(filename, "_", suffix, ".csv"))
+  file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, "_", suffix, ".csv"))
   
   if (overwriteNonRegressionFiles) {
     write.table(results1, file=file, sep=",", row.names=FALSE)
@@ -147,6 +151,10 @@ getTestName <- function(name) {
   return(paste0(name, " (", paste0(testEngines, collapse="/"), ")"))
 }
 
+getContext <- function(name) {
+  return(paste0(name, " (", paste0(testEngines, collapse="/"), ")"))
+}
+
 skipLongTests <- function() {
   # On CRAN, default value is TRUE
   # FALSE otherwise
@@ -169,5 +177,24 @@ skipVdiffrTests <- function() {
   return(getCampsisOption(name="SKIP_VDIFFR_TESTS", default=ifelse(isMacOs(), TRUE, FALSE)))
 }
 
-
-
+convertCampsisTest <- function(env = parent.frame(), debug_engine = "mrgsolve") {
+  if (!exists("simulation", envir = env) || !exists("test", envir = env)) {
+    stop("Could not find 'simulation' or 'test' expressions in the provided environment.")
+  }
+  
+  # Get the expressions from the specified environment
+  sim_expr <- get("simulation", envir = env)
+  test_expr <- get("test", envir = env)
+  
+  # Modify the simulation call
+  sim_call <- sim_expr[[1]]
+  sim_call$dest <- debug_engine
+  sim_text <- paste0("results <- ", deparse1(sim_call))
+  
+  # Extract all lines from the test expression
+  test_text_lines <- vapply(as.list(test_expr), deparse1, character(1))
+  
+  # Combine and return
+  final_script <- c(sim_text, test_text_lines)
+  cat(paste(final_script, collapse = "\n"))
+}

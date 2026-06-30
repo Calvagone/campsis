@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with timevarying covariates")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Body weight as a true time varying covariate"), {
+test_that("Body weight as a true time varying covariate", {
   model <- model_suite$testing$nonmem$advan2_trans2
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))
@@ -24,7 +24,7 @@ test_that(getTestName("Body weight as a true time varying covariate"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Body weight as a true time varying covariate, 2 arms, individual body weights"), {
+test_that("Body weight as a true time varying covariate, 2 arms, individual body weights", {
   model <- model_suite$testing$nonmem$advan2_trans2
   equation <- model %>% find(Equation("CL"))
   model <- model %>% replace(Equation("CL", paste0(equation@rhs, "*pow(BW/70, 0.75)")))

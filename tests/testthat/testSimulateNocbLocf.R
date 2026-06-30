@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with the NOCB/LOCF switch")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Weight as a time-varying covariate, NOCB vs LOCF"), {
+test_that("Weight as a time-varying covariate, NOCB vs LOCF", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   equation <- model %>% find(Equation("CL"))
@@ -46,7 +46,7 @@ test_that(getTestName("Weight as a time-varying covariate, NOCB vs LOCF"), {
 })
 
 
-test_that(getTestName("NOCB/LOCF should not have any effect on treatment occasion"), {
+test_that("NOCB/LOCF should not have any effect on treatment occasion", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4 %>%
     delete(Equation("KA")) %>%
@@ -86,7 +86,7 @@ test_that(getTestName("NOCB/LOCF should not have any effect on treatment occasio
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("NOCB/LOCF should not have any effect on IOV, e.g. on clearance"), {
+test_that("NOCB/LOCF should not have any effect on IOV, e.g. on clearance", {
   if (skipLongTests()) return(TRUE)
   regFilename <- "3_boluses_iov_cl"
   model <- model_suite$testing$nonmem$advan4_trans4

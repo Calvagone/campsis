@@ -3,7 +3,7 @@ library(testthat)
 context("Test all methods from the dataset class")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
 test_that("Set subjects works as expected", {
   dataset <- Dataset() %>% setSubjects(3)
@@ -714,7 +714,7 @@ test_that("Method 'updateRepeat' works as expected", {
   expect_error(datasetB@arms@list[[1]]@protocol@treatment@list[[3]]@rep) # Slot does not exist!
 })
 
-test_that(getTestName("Assertion in method 'getCompartmentMapping' should properly work"), {
+test_that("Assertion in method 'getCompartmentMapping' should properly work", {
   model <- model_suite$tmdd$`1cpt_fo_tmdd_full`
 
   arm1 <- Arm(subjects=10, label="1000 mg") %>%

@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with scenarios")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simulate scenarios - make few changes on dataset"), {
+test_that("Simulate scenarios - make few changes on dataset", {
 
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "scenarios_few_changes_on_dataset"
@@ -44,7 +44,7 @@ test_that(getTestName("Simulate scenarios - make few changes on dataset"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate scenarios - make few changes on model"), {
+test_that("Simulate scenarios - make few changes on model", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "scenarios_few_changes_on_model"
   
@@ -82,7 +82,7 @@ test_that(getTestName("Simulate scenarios - make few changes on model"), {
   setupPlanSequential()
 })
 
-test_that(getTestName("Export 'SCENARIO' column as soon as 1 scenario is specified."), {
+test_that("Export 'SCENARIO' column as soon as 1 scenario is specified.", {
 
   model <- model_suite$testing$nonmem$advan4_trans4
 

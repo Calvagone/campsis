@@ -5,9 +5,9 @@ library(ggplot2)
 context("Study can be replicated using argument 'replicates'")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("VPC on CP, using predicate"), {
+test_that("VPC on CP, using predicate", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$other$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
@@ -17,7 +17,7 @@ test_that(getTestName("VPC on CP, using predicate"), {
     add(Infusion(time=0, amount=1000, compartment=1, ii=24, addl=2)) %>%
     add(Observations(times=seq(0, 3*24, by=4)))
 
-  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5, outfun=~PI(.x, output="CP"), seed=seed))
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5, outfun=PIOutfun(variable="CP"), seed=seed))
   test <- expression(
     vpcOutputRegressionTest(results, output="CP", filename=regFilename)
   )
@@ -31,38 +31,33 @@ test_that(getTestName("VPC on CP, using predicate"), {
   model1 <- repModel %>% export(dest=CampsisModel(), index=1)
   expect_equal(model1@parameters@varcov, matrix(numeric(0), nrow=0, ncol=0)) # Variance-covariance not preserved
 
-  simulation <- expression(simulate(model=repModel, dataset=ds, dest=destEngine, outfun=~PI(.x, output="CP"), seed=seed))
+  simulation <- expression(simulate(model=repModel, dataset=ds, dest=destEngine, outfun=PIOutfun(variable="CP"), seed=seed))
   test <- expression(
     vpcOutputRegressionTest(results, output="CP", filename=regFilename)
   )
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("VPC on both CP and Y, using function"), {
+test_that("VPC on both CP and Y, using function", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$other$my_model1
   model <- model %>% disable(c("VARCOV_OMEGA", "VARCOV_SIGMA"))
   regFilename <- "full_uncertainty"
 
-  fun <- function(x) {
-    return(dplyr::bind_rows(
-            PI(x=x, output="CP", level=0.90, gather=TRUE) %>% dplyr::mutate(output="CP"),
-            PI(x=x, output="Y", level=0.90, gather=TRUE) %>% dplyr::mutate(output="Y")))
-  }
-
   ds <- Dataset(100) %>%
     add(Infusion(time=0, amount=1000, compartment=1, ii=24, addl=2)) %>%
     add(Observations(times=seq(0, 3*24, by=4)))
 
-  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5, outfun=fun, seed=seed))
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
+     outfun=PIOutfun(variable=c("CP", "Y")), seed=seed))
   test <- expression(
-    vpcPlot(results, scenarios="output") + facet_wrap(~output),
+    vpcPlot(results %>% dplyr::rename(output=variable), strata=c(output="all")) + facet_wrap(~output),
     vpcOutputRegressionTest(results, output="CP", filename=regFilename)
   )
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Study replication also works with scenarios"), {
+test_that("Study replication also works with scenarios", {
   if (skipLongTests()) return(TRUE)
 
   model <- model_suite$testing$nonmem$advan2_trans1
@@ -76,25 +71,25 @@ test_that(getTestName("Study replication also works with scenarios"), {
 
   # Outfun executed at the level of the scenario (backwards compatibility)
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
-                                    outfun=~PI(.x, output="CP"), seed=seed, scenarios=scenarios))
+                                    outfun=PIOutfun(variable="CP"), seed=seed, scenarios=scenarios))
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
     expect_true(all(results$SCENARIO %>% unique()==c("Base model", "Increased KA"))),
     if (!skipVdiffrTests()) {
-      vdiffr::expect_doppelganger(sprintf("VPC / specified outfun / %s (A)", destEngine), vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO))
+      vdiffr::expect_doppelganger(sprintf("VPC / specified outfun / %s (A)", destEngine), vpcPlot(results, strata=c(SCENARIO="all")) + facet_wrap(~SCENARIO))
     }
   )
   campsisTest(simulation, test, env=environment())
 
   # Outfun executed at the level of the replicate (possible since Campsis v1.5.3)
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
-                                    outfun=Outfun(~PI(.x, output="CP", scenarios="SCENARIO"), level="replicate"),
+                                    outfun=PIOutfun(variable="CP"),
                                     seed=seed, scenarios=scenarios))
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
     expect_true(all(results$SCENARIO %>% unique()==c("Base model", "Increased KA"))),
     if (!skipVdiffrTests()) {
-      vdiffr::expect_doppelganger(sprintf("VPC / specified outfun / %s (B)", destEngine), vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO))
+      vdiffr::expect_doppelganger(sprintf("VPC / specified outfun / %s (B)", destEngine), vpcPlot(results, strata=c(SCENARIO="all")) + facet_wrap(~SCENARIO))
     }
   )
   campsisTest(simulation, test, env=environment())
@@ -103,19 +98,19 @@ test_that(getTestName("Study replication also works with scenarios"), {
   # This is particularly useful when parallelisation on replicates is enabled since
   # the function written in a lambda will not be detected as part of the environment by the 'future' package
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, replicates=5,
-                                    outfun=Outfun(PI, args=list(output="CP", scenarios="SCENARIO"), level="replicate"),
+                                    outfun=Outfun(compute_pi, args=list(variable="CP"), level="replicate"),
                                     seed=seed, scenarios=scenarios))
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
     expect_true(all(results$SCENARIO %>% unique()==c("Base model", "Increased KA"))),
     if (!skipVdiffrTests()) {
-      vdiffr::expect_doppelganger(sprintf("VPC / specified outfun / %s (C)", destEngine), vpcPlot(results, scenarios="SCENARIO") + facet_wrap(~SCENARIO))
+      vdiffr::expect_doppelganger(sprintf("VPC / specified outfun / %s (C)", destEngine), vpcPlot(results, strata=c(SCENARIO="all")) + facet_wrap(~SCENARIO))
     }
   )
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Try/catch works as expected if one replicate fails"), {
+test_that("Try/catch works as expected if one replicate fails", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan2_trans2
 
@@ -151,7 +146,7 @@ test_that(getTestName("Try/catch works as expected if one replicate fails"), {
   campsisTest(expression(), test, env=environment())
 })
 
-test_that(getTestName("Replicates can be simulated in parallel"), {
+test_that("Replicates can be simulated in parallel", {
   if (skipLongTests()) return(TRUE)
   # progressr::handlers(global=TRUE)
   # progressr::handlers(campsis_handler())
@@ -186,7 +181,7 @@ test_that(getTestName("Replicates can be simulated in parallel"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("SIGMAs are correctly updated from replicate to replicate"), {
+test_that("SIGMAs are correctly updated from replicate to replicate", {
   if (skipLongTests()) return(TRUE)
   
   # Add another SIGMA in the model, to test the SIGMA matrix

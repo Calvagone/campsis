@@ -7,10 +7,10 @@
 preprocessOutfun(outfun)
 }
 \arguments{
-\item{outfun}{function, lambda formula or output function object}
+\item{outfun}{function, lambda formula, output_function or output_functions object}
 }
 \value{
-an output function
+an output_functions object in any case
 }
 \description{
 Pre-process outfun argument.

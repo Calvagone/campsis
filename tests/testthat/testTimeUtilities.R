@@ -3,9 +3,9 @@ library(testthat)
 context("Test the time utility functions")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Time can be converted properly"), {
+test_that("Time can be converted properly", {
   expect_equal(convertTime(1, from="week", to="week"), 1)
   expect_equal(convertTime(1, from="week", to="day"), 7)
   expect_equal(convertTime(1, from="week", to="minute"), 7*24*60)
@@ -16,7 +16,7 @@ test_that(getTestName("Time can be converted properly"), {
   expect_equal(convertTime(c(1, 12, 24), from="hour", to="day"), c(1/24, 0.5, 1))
 })
 
-test_that(getTestName("Time related columns in dataset are properly converted when needed"), {
+test_that("Time related columns in dataset are properly converted when needed", {
   datasetA <- Dataset(5) %>%
     add(Bolus(time=0, amount=1000, ii=days(1), addl=13)) %>%
     add(Observations(days(seq(0, 14, by=0.5))))

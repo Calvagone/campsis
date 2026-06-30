@@ -3,9 +3,9 @@ library(testthat)
 context("Test the events/interruption logic")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simple interrutpions - No events"), {
+test_that("Simple interrutpions - No events", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "simple_bolus" # Existing non-regression file (see testSimulateBolus.R)
@@ -38,7 +38,7 @@ test_that(getTestName("Simple interrutpions - No events"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Interruptions at doses times - BW covariate - No events"), {
+test_that("Interruptions at doses times - BW covariate - No events", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   equation <- model %>% find(Equation("CL"))
@@ -76,7 +76,7 @@ test_that(getTestName("Interruptions at doses times - BW covariate - No events")
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Interruptions at doses times - BW covariate - IOV on KA - No events"), {
+test_that("Interruptions at doses times - BW covariate - IOV on KA - No events", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   equation <- model %>% find(Equation("CL"))
@@ -122,7 +122,7 @@ test_that(getTestName("Interruptions at doses times - BW covariate - IOV on KA -
 })
 
 
-test_that(getTestName("Simulate initial conditions + events"), {
+test_that("Simulate initial conditions + events", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan3_trans4
   model <- model %>% add(InitialCondition(compartment=1, rhs="1000"))
@@ -145,7 +145,7 @@ test_that(getTestName("Simulate initial conditions + events"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate multiple arms + events"), {
+test_that("Simulate multiple arms + events", {
   if (skipLongTests()) return(TRUE)
   model <- model_suite$testing$nonmem$advan4_trans4
   

@@ -48,7 +48,7 @@ Sequential run:
 
 ```{r, message=F}
 tic()
-results <- simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, outfun=~PI(.x, output="CONC"), replicates=100)
+results <- simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, outfun=PIOutfun(variable="CONC"), replicates=100)
 toc()
 ```
 
@@ -60,7 +60,7 @@ settings <- Settings(Hardware(cpu=6, replicate_parallel=TRUE))
 
 ```{r, message=F}
 tic()
-results <- simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, outfun=~PI(.x, output="CONC"), replicates=10, settings=settings)
+results <- simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, outfun=PIOutfun(variable="CONC"), replicates=10, settings=settings)
 toc()
 ```
 

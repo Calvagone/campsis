@@ -3,9 +3,9 @@ library(testthat)
 context("Test simple dose adaptations (based on a covariate present in dataset)")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Dose adaptations based on weight work well"), {
+test_that("Dose adaptations based on weight work well", {
   model <- model_suite$testing$nonmem$advan4_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw"
 
@@ -24,7 +24,7 @@ test_that(getTestName("Dose adaptations based on weight work well"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Dose adaptations preserve specified infusion duration"), {
+test_that("Dose adaptations preserve specified infusion duration", {
   model <- model_suite$testing$nonmem$advan3_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw_infusion"
 
@@ -43,7 +43,7 @@ test_that(getTestName("Dose adaptations preserve specified infusion duration"), 
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Dose adaptations preserve specified infusion rate"), {
+test_that("Dose adaptations preserve specified infusion rate", {
   model <- model_suite$testing$nonmem$advan3_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw_infusion"
 
@@ -68,7 +68,7 @@ test_that(getTestName("Dose adaptations preserve specified infusion rate"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Dose adaptations based on weight work well, check argument compartments works as expected"), {
+test_that("Dose adaptations based on weight work well, check argument compartments works as expected", {
   model <- model_suite$testing$nonmem$advan4_trans4 %>% disable("IIV")
   regFilename <- "dose_adaptation_by_bw"
   

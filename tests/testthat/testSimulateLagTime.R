@@ -3,9 +3,9 @@ library(testthat)
 context("Test the simulate method with lag times")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Simulate a bolus with fixed lag time in dataset"), {
+test_that("Simulate a bolus with fixed lag time in dataset", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "bolus_fixed_lag_time"
   
@@ -23,7 +23,7 @@ test_that(getTestName("Simulate a bolus with fixed lag time in dataset"), {
   campsisTest(simulation, test, env=environment())
 })
 
-test_that(getTestName("Simulate a bolus with fixed lag time in model"), {
+test_that("Simulate a bolus with fixed lag time in model", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "bolus_fixed_lag_time"
   

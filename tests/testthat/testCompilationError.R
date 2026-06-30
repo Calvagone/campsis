@@ -4,9 +4,9 @@ library(ggplot2)
 context("Check compilation error messages appear well in console")
 
 seed <- 1
-source(paste0("", "testUtils.R"))
+source(file.path(getwd(), test_path(), "testUtils.R"))
 
-test_that(getTestName("Incorrect Campsis model does not compile and a clear error message is shown"), {
+test_that("Incorrect Campsis model does not compile and a clear error message is shown", {
   model <- model_suite$testing$nonmem$advan2_trans2 %>%
     replace(Equation("V", "THETA_V*exp(ETA_V)*BW/70"))
   

@@ -138,6 +138,27 @@ test_that("Import Campsis settings in JSON format", {
   expSettings1b <- Settings(DefaultSettings(engine="mrgsolve", seed=1, outvars=c("CONC", "CONC_ERR")))
   
   expect_equal(settings1b, expSettings1b)
+
+  # CTS settings (example 1)
+  settings_cts1 <- Settings(json=file.path(testFolder, "json_examples", "settings_cts_example1.json"))
+  exp_outfuns_cts1 <- Outfuns() %>%
+    add(DefaultOutfun()) %>%
+    add(PIOutfun(variable="CONC", name="PI 90%", level=0.9)) %>%
+    add(StatsOutfun(variable="CONC", name="Statistics on CONC", stats=c("median", "p5", "p95")))
+  exp_settings_cts1 <- Settings(DefaultSettings(engine="mrgsolve", seed=1, outvars=c("CONC", "CONC_ERR"), outfuns=exp_outfuns_cts1))
+  expect_equal(settings_cts1, exp_settings_cts1)
+})
+
+test_that("Import Campsis settings with replicates from JSON", {
+
+  # replicates field present → loaded and stored correctly
+  settings_rep <- Settings(json=file.path(testFolder, "json_examples", "settings_example_replicates.json"))
+  exp_settings_rep <- Settings(DefaultSettings(engine="rxode2", seed=42, replicates=100L))
+  expect_equal(settings_rep, exp_settings_rep)
+
+  # replicates field absent → defaults to 1L
+  settings_no_rep <- Settings(json=file.path(testFolder, "json_examples", "settings_example1b.json"))
+  expect_equal(settings_no_rep@default@replicates, 1L)
 })
 
 test_that("Import Campsis scenarios in JSON format", {

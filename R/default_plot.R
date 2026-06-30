@@ -1,24 +1,4 @@
 
-#' Factor scenarios columns if not done yet.
-#' 
-#' @param x data frame
-#' @param scenarios scenarios
-#' @importFrom dplyr mutate_at
-#' @keywords internal
-factorScenarios <- function(x, scenarios=NULL) {
-  if (length(scenarios) > 0) {
-    return(x %>% dplyr::mutate_at(.vars=scenarios, .funs=function(col){
-      if (!is.factor(col)) {
-        return(factor(col))
-      } else {
-        return(col)
-      }
-    }))
-  } else {
-    return(x)
-  }
-}
-
 #' Filter CAMPSIS output on observation rows.
 #' 
 #' @param x data frame, CAMPSIS output
@@ -84,14 +64,15 @@ getColumn <- function(.data, colname) {
 #' Spaghetti plot.
 #' 
 #' @param x data frame
-#' @param output variable to show
+#' @param variable variable to show
 #' @param colour variable(s) to colour
 #' @return plot
 #' @importFrom ggplot2 aes ggplot geom_line
 #' @export
-spaghettiPlot <- function(x, output, colour=NULL) {
+spaghettiPlot <- function(x, variable, colour=NULL) {
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", colour), colname=group)
+  strat_extra <- if (.is_replicated(x)) "replicate" else NULL
+  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", strat_extra, colour), colname=group)
   
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
@@ -99,7 +80,7 @@ spaghettiPlot <- function(x, output, colour=NULL) {
   } else {
     colourColumn <- NULL
   }
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[output]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[variable]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_line()
   
   if (length(colour) > 0) {
@@ -112,7 +93,7 @@ spaghettiPlot <- function(x, output, colour=NULL) {
 #' Shaded plot (or prediction interval plot).
 #' 
 #' @param x data frame
-#' @param output variable to show
+#' @param variable variable to show
 #' @param colour variable(s) to colour
 #' @param strat_extra variable(s) to stratify, but not to colour (useful for use with facet_wrap)
 #' @param level PI level, default is 0.9 (90\% PI)
@@ -120,19 +101,24 @@ spaghettiPlot <- function(x, output, colour=NULL) {
 #' @return a ggplot object
 #' @importFrom ggplot2 aes ggplot geom_line geom_ribbon ylab
 #' @export
-shadedPlot <- function(x, output, colour=NULL, strat_extra=NULL, level=0.90, alpha=0.25) {
+shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, alpha=0.25) {
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
     x <- uniteColumns(x=x %>% obsOnly(), columns=colour, colname=colourColumn)
   } else {
     colourColumn <- NULL
   }
-  x <- PI(x=x, output=output, scenarios=c(colour, strat_extra, colourColumn), level=level, gather=FALSE)
+  strat_extra <- c(if (.is_replicated(x)) "replicate" else NULL, strat_extra)
+  strata_names <- unique(c(colour, strat_extra, colourColumn))
+  strata <- if (is.null(strata_names)) NULL else setNames(rep(allStrataLevels(), length(strata_names)), strata_names)
 
-  plot <- ggplot2::ggplot(data=x, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colourColumn))) +
+  x_ <- compute_pi(x=x, variable=variable, strata=strata, level=level) |>
+    metrics_pivot_wider()
+
+  plot <- ggplot2::ggplot(data=x_, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=getColumn(.data, colourColumn), fill=getColumn(.data, colourColumn)), colour=NA, alpha=alpha) +
-    ggplot2::ylab(output)
+    ggplot2::ylab(variable)
   
   if (length(colour) > 0) {
     plot <- plot + ggplot2::labs(colour=paste0(colour, collapse = " / "),
@@ -152,20 +138,21 @@ shadedPlot <- function(x, output, colour=NULL, strat_extra=NULL, level=0.90, alp
 #' @importFrom dplyr filter
 #' @importFrom ggplot2 aes ggplot geom_point
 #' @export
-scatterPlot <- function (x, output, colour=NULL, time=NULL) {
+scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
+  strat_extra <- if (.is_replicated(x)) "replicate" else NULL
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", colour), colname=group)
+  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", strat_extra, colour), colname=group)
   
   if (is.null(time)) {
     time <- min(x$TIME)
   }
   x <- x %>% dplyr::filter(.data$TIME %in% time)
   
-  if (output %>% length() == 1) {
-    x$MY_OUTPUT_2 <- 0
-    output <- c(output, "MY_OUTPUT_2")
-  } else if (output %>% length() > 2) {
-    stop("Please provide 2 outputs at most !")
+  if (variable %>% length() == 1) {
+    x$MY_VARIABLE_2 <- 0
+    variable <- c(variable, "MY_VARIABLE_2")
+  } else if (variable %>% length() > 2) {
+    stop("Please provide 2 variables at most !")
   }
 
   if (length(colour) > 0) {
@@ -175,7 +162,7 @@ scatterPlot <- function (x, output, colour=NULL, time=NULL) {
     colourColumn <- NULL
   }
   
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[output[1]]], y=.data[[output[2]]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[variable[1]]], y=.data[[variable[2]]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
     ggplot2::geom_point()
   
   if (length(colour) > 0) {
@@ -188,22 +175,43 @@ scatterPlot <- function (x, output, colour=NULL, time=NULL) {
 #' VPC plot.
 #' 
 #' @param x data frame, output of CAMPSIS with replicates
-#' @param scenarios scenarios, character vector, NULL is default
+#' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
+#'   Only columns that are actually present in \code{x} are used.
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @param alpha alpha parameter (transparency) given to geom_ribbon
 #' @return a ggplot object
-#' @importFrom ggplot2 aes ggplot ylab
+#' @param facet how the stratification variable is displayed. \code{TRUE}
+#'   (default) draws one panel per stratum with \code{facet_wrap()}, keeping the
+#'   median band red and the outer bands blue. \code{FALSE} overlays the strata
+#'   in a single panel, mapping the stratum to the ribbon fill colour (the
+#'   median band is drawn more opaque than the outer bands). Ignored when no
+#'   stratification is requested.
+#' @importFrom ggplot2 aes ggplot facet_wrap labs vars ylab
 #' @export
-vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
-  if (length(scenarios) > 1) {
-    stop("Currently max 1 scenario allowed")
+vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15, facet=TRUE) {
+  if (length(strata) > 1) {
+    stop("Currently max 1 stratification variable is allowed")
   }
-  summary <- VPC(x=x, scenarios=scenarios, level=level)
-  if (length(scenarios) > 0) {
+  summary <- VPC(x=x, strata=strata, level=level)
+  stratified <- length(strata) > 0
+  if (stratified) {
     group <- "GROUP_GGPLOT"
-    summary <- uniteColumns(x=summary, columns=scenarios, colname=group)
+    summary <- uniteColumns(x=summary, columns=names(strata), colname=group)
   } else {
     group <- NULL
+  }
+
+  if (stratified && !facet) {
+    # Colour mode: distinguish strata by fill; the median band stays more opaque
+    # than the outer bands so the percentile structure remains readable.
+    return(
+      ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=.data[[group]])) +
+        ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$med_low, ymax=.data$med_up, fill=.data[[group]]), alpha=alpha, color=NA) +
+        ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low_low, ymax=.data$low_up, fill=.data[[group]]), alpha=alpha/2, color=NA) +
+        ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$up_low, ymax=.data$up_up, fill=.data[[group]]), alpha=alpha/2, color=NA) +
+        ggplot2::labs(fill=paste0(names(strata), collapse=" / ")) +
+        ggplot2::ylab("")
+    )
   }
 
   plot <- ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=getColumn(.data, group))) +
@@ -211,6 +219,9 @@ vpcPlot <- function(x, scenarios=NULL, level=0.90, alpha=0.15) {
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low_low, ymax=.data$low_up), alpha=alpha, color=NA, fill="blue") +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$up_low, ymax=.data$up_up), alpha=alpha, color=NA, fill="blue") +
     ggplot2::ylab("")
+  if (stratified) {
+    plot <- plot + ggplot2::facet_wrap(ggplot2::vars(.data[[group]]))
+  }
   
   return(plot)
 }
