@@ -14,6 +14,6 @@ Prediction interval output function class.
 
 \item{\code{strata}}{named vector with the strata to use}
 
-\item{\code{level}}{PI level, default is 0.9 (90\% PI)}
+\item{\code{pi_level}}{PI level, default is 0.9 (90\% PI)}
 }}
 

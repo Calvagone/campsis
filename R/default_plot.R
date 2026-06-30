@@ -131,7 +131,7 @@ shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, a
 #' Scatter plot (or X vs Y plot).
 #' 
 #' @param x data frame
-#' @param output the 2 variables to show, character vector
+#' @param variable the 2 variables to show, character vector
 #' @param colour variable(s) to colour
 #' @param time the time to look at those 2 variables, if NULL, min time is used (usually 0)
 #' @return a ggplot object
@@ -192,7 +192,7 @@ vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15, facet=TRUE) {
   if (length(strata) > 1) {
     stop("Currently max 1 stratification variable is allowed")
   }
-  summary <- VPC(x=x, strata=strata, level=level)
+  summary <- make_vpc_summary(x=x, strata=strata, level=level)
   stratified <- length(strata) > 0
   if (stratified) {
     group <- "GROUP_GGPLOT"
