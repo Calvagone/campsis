@@ -1,0 +1,20 @@
+[
+   {
+      "type": "default_settings",
+      "engine": "mrgsolve",
+      "seed": 1,
+      "replicates": 10,
+      "outvars": [
+         "CP"
+      ],
+      "outfuns": [
+         {
+            "type": "pi_outfun",
+            "name": "pi_90%",
+            "variable": "CP",
+            "pi_level": 0.9
+         }
+      ],
+      "disabled_variabilities": []
+   }
+]

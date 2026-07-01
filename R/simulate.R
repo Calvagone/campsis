@@ -46,6 +46,9 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
   if (is.null(dosing)) {
     dosing <- defaultSettings@dosing
   }
+  if (is.null(outfun)) {
+    outfun <- defaultSettings@outfuns
+  }
   
   dest <- preprocessDest(dest)
   events <- preprocessEvents(events)

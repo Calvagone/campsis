@@ -139,3 +139,31 @@ test_that("Use argument 'outfun' with single StatsOutfun returns data frame", {
   )
   campsisTest(simulation, test, env=environment())
 })
+
+test_that("Simulate CTS settings in JSON format that include an output function", {
+  if (skipLongTests()) return(TRUE)
+
+  model <- model_suite$testing$nonmem$advan2_trans2
+
+  ds <- Dataset(10) %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
+
+  settings_cts <- Settings(json=file.path(getwd(), test_path(), "json_examples", "settings_cts_example2.json"))
+
+  results <- simulate(model=model, dataset=ds, settings=settings_cts)
+
+  expect_equal(unique(results$variable), "CP")
+  expect_true(all(c("replicate", "TIME", "variable", "metric", "value") %in% colnames(results)))
+  expect_true(is(results, "pi_campsis_tbl"))
+  expect_equal(unique(results$replicate), 1:10)
+
+  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, settings=settings_cts))
+  test <- expression(
+    expect_equal(unique(results$variable), "CP"),
+    expect_true(all(c("replicate", "TIME", "variable", "metric", "value") %in% colnames(results))),
+    expect_true(is(results, "pi_campsis_tbl")),
+    expect_equal(unique(results$replicate), 1:10)
+  )
+  campsisTest(simulation, test, env=environment())
+})
