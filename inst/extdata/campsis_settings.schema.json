@@ -19,7 +19,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "default_settings"
+          "const": "default_settings",
+          "default": "default_settings"
         },
         "engine": {
           "enum": [
@@ -54,7 +55,10 @@
               {
                 "$ref": "#/$defs/default_outfun"
               }
-            ]
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
           }
         },
         "disabled_variabilities": {
@@ -68,6 +72,7 @@
         }
       },
       "required": [
+        "type",
         "engine",
         "seed"
       ],
@@ -77,7 +82,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "pi_outfun"
+          "const": "pi_outfun",
+          "default": "pi_outfun"
         },
         "name": {
           "type": "string",
@@ -107,7 +113,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "stats_outfun"
+          "const": "stats_outfun",
+          "default": "stats_outfun"
         },
         "name": {
           "type": "string",
@@ -148,7 +155,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "default_outfun"
+          "const": "default_outfun",
+          "default": "default_outfun"
         }
       },
       "required": [
