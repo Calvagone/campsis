@@ -95,6 +95,9 @@ preprocessOutfun <- function(outfun) {
   } else if (is(outfun, "outfun")) {
     fun <- outfun
   } else if (is(outfun, "outfuns")) {
+    if (length(outfun) == 0) {
+      outfun <- outfun %>% add(DefaultOutfun())
+    }
     return(outfun)
   } else {
     stop("outfun must be a function, formula, Outfun() or Outfuns() object.")
