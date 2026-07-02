@@ -69,6 +69,7 @@ Language: en-US
 LazyData: true
 RoxygenNote: 7.3.3
 Collate:
+    'all_classes.R'
     'global.R'
     'utilities.R'
     'time_utilities.R'

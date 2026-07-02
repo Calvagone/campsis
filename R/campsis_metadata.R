@@ -1,3 +1,13 @@
+#' 
+#' Campsis metadata class.
+#' 
+#' @slot dataset Campsis dataset object
+#' @slot dest destination simulation engine
+#' @slot scenarios Campsis scenarios object
+#' @slot outvars character vector of output variable names
+#' @slot outfun collection of output functions
+#' @slot replicates number of replicates
+#' @export
 setClass(
   "campsis_metadata",
   representation(
