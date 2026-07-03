@@ -79,6 +79,7 @@ Outfun <- function(fun = function(x, ...) {x}, args = list(), packages = NULL, l
   ))
 }
 
+#' @rdname apply_outfun
 setMethod("apply_outfun", signature = c(outfun = "outfun"), definition = function(x, outfun, level, ...) {
   if (level == outfun@level) {
     # Retrieve all formal arguments of the user-given function

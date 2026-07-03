@@ -39,20 +39,34 @@ setMethod("add", signature=c("outfuns", "outfun"), definition=function(object, x
 #_______________________________________________________________________________
 
 #' @importFrom stats setNames
-#' @importFrom tibble as_tibble
+#' @rdname apply_outfun
 setMethod("apply_outfun", signature = c(outfun = "outfuns"), definition = function(x, outfun, level, ...) {
-  # Apply each output function of the collection
-  inner_list <- outfun@list %>%
-    purrr::map(function(fun) {
-      apply_outfun(x = x, outfun = fun, level = level, ...)
-    }) %>%
-    stats::setNames(outfun@list %>% purrr::map_chr(~ .x@name))
+  hasReplicate <- "replicate" %in% colnames(x)
 
-  # Wrap each result as a list-column so tidyr::unnest() downstream works
-  # regardless of whether different output functions produce different row counts
-  inner_list %>%
-    purrr::map(~ list(.x)) %>%
-    tibble::as_tibble()
+  # Apply a single output function, per replicate when a 'replicate' column is present
+  applyOne <- function(fun) {
+    if (hasReplicate) {
+      x %>%
+        dplyr::group_by(dplyr::across(dplyr::all_of("replicate"))) %>%
+        dplyr::group_split() %>%
+        purrr::map_dfr(function(sub) {
+          replicate_i <- sub$replicate[1]
+          apply_outfun(
+            x = sub %>% dplyr::select(-dplyr::all_of("replicate")),
+            outfun = fun, level = level, replicate = replicate_i, ...
+          ) %>%
+            dplyr::mutate(replicate = replicate_i) %>%
+            dplyr::relocate(dplyr::all_of("replicate"))
+        })
+    } else {
+      apply_outfun(x = x, outfun = fun, level = level, ...)
+    }
+  }
+
+  # Return a named list of results (one entry per output function)
+  outfun@list %>%
+    purrr::map(applyOne) %>%
+    stats::setNames(outfun@list %>% purrr::map_chr(~ .x@name))
 })
 
 #_______________________________________________________________________________

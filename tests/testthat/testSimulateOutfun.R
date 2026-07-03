@@ -49,28 +49,27 @@ test_that("apply_outfun on a single-replicate std_campsis_tbl with an Outfuns co
     add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
 
   outfuns <- Outfuns() %>%
-    add(Outfun(~compute_pi(.x, variable="CP"), name="cp")) %>%
-    add(Outfun(~compute_pi(.x, variable="Y"), name="y"))
+    add(PIOutfun(variable=c("CP"), name="cp")) %>%
+    add(PIOutfun(variable=c("Y"), name="y"))
 
   # Simulate a standard (single-replicate) output, then apply the collection directly
   simulation <- expression({
     std <- simulate(model=model, dataset=ds, dest=destEngine, seed=seed)
-    apply_outfun(x=std, outfun=outfuns, level="replicate")
+    apply_outfun(x=std, outfun=outfuns)
   })
   test <- expression(
     expect_false("replicate" %in% colnames(std)),
 
-    # One list-column per output function, wrapped in a single-row tibble
-    expect_true(tibble::is_tibble(results)),
-    expect_equal(nrow(results), 1),
+    # apply_outfun returns a named list, one entry per output function
+    expect_true(is.list(results) && !is.data.frame(results)),
     expect_equal(names(results), c("cp", "y")),
-    expect_true(is.list(results$cp) && is.list(results$y)),
 
-    # Each list-column holds one data frame with the expected columns
-    expect_true(is.data.frame(results$cp[[1]])),
-    expect_true(is.data.frame(results$y[[1]])),
-    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$cp[[1]]))),
-    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$y[[1]])))
+    # Each entry is a data frame with the expected columns and no replicate column
+    expect_true(is.data.frame(results$cp)),
+    expect_true(is.data.frame(results$y)),
+    expect_false("replicate" %in% colnames(results$cp)),
+    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$cp))),
+    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$y)))
   )
   campsisTest(simulation, test, env=environment())
 })
@@ -85,28 +84,31 @@ test_that("apply_outfun on a multiple-replicate std_campsis_tbl with an Outfuns 
     add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
 
   outfuns <- Outfuns() %>%
-    add(Outfun(~compute_pi(.x, variable="CP"), name="cp")) %>%
-    add(Outfun(~compute_pi(.x, variable="Y"), name="y"))
+    add(PIOutfun(variable=c("CP"), name="cp")) %>%
+    add(PIOutfun(variable=c("Y"), name="y"))
 
   # Simulate a multiple-replicate output, then apply the collection directly
   simulation <- expression({
     std <- simulate(model=model, dataset=ds, dest=destEngine, seed=seed, replicates=3)
-    apply_outfun(x=std, outfun=outfuns, level="replicate")
+    apply_outfun(x=std, outfun=outfuns)
   })
   test <- expression(
     expect_true("replicate" %in% colnames(std)),
     expect_equal(unique(std$replicate), 1:3),
 
-    # Same nested structure as the single-replicate case
-    expect_true(tibble::is_tibble(results)),
-    expect_equal(nrow(results), 1),
+    # apply_outfun returns a named list, one entry per output function
+    expect_true(is.list(results) && !is.data.frame(results)),
     expect_equal(names(results), c("cp", "y")),
-    expect_true(is.list(results$cp) && is.list(results$y)),
 
-    expect_true(is.data.frame(results$cp[[1]])),
-    expect_true(is.data.frame(results$y[[1]])),
-    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$cp[[1]]))),
-    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$y[[1]])))
+    # Output functions are applied per-replicate, so the replicate column is preserved
+    expect_true(is.data.frame(results$cp)),
+    expect_true(is.data.frame(results$y)),
+    expect_true("replicate" %in% colnames(results$cp)),
+    expect_true("replicate" %in% colnames(results$y)),
+    expect_equal(base::sort(unique(results$cp$replicate)), 1:3),
+    expect_equal(base::sort(unique(results$y$replicate)), 1:3),
+    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$cp))),
+    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$y)))
   )
   campsisTest(simulation, test, env=environment())
 })
