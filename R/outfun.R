@@ -79,9 +79,7 @@ Outfun <- function(fun = function(x, ...) {x}, args = list(), packages = NULL, l
   ))
 }
 
-applyOutfun <- function(x, outfun, level, ...) {
-  assertthat::assert_that(is(outfun, "outfun"), msg = "x is not an output function")
-
+setMethod("apply_outfun", signature = c(outfun = "outfun"), definition = function(x, outfun, level, ...) {
   if (level == outfun@level) {
     # Retrieve all formal arguments of the user-given function
     formalArgs_ <- formalArgs(outfun@fun)
@@ -109,7 +107,7 @@ applyOutfun <- function(x, outfun, level, ...) {
     x <- do.call(outfun@fun, args = args)
   }
   return(x)
-}
+})
 
 #_______________________________________________________________________________
 #----                         default_outfun class                          ----

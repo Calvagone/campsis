@@ -35,6 +35,27 @@ setGeneric("applyAction", function(object, action) {
 })
 
 #_______________________________________________________________________________
+#----                            apply_outfun                               ----
+#_______________________________________________________________________________
+
+#' Apply output function(s) on the given Campsis results.
+#' 
+#' @param x Campsis simulation results
+#' @param outfun output function(s), an `outfun` or `outfuns` object
+#' @param level level at which the output function is applied, e.g. 'replicate'
+#' @param ... extra arguments transmitted automatically by Campsis (e.g. `replicate`, `scenario`)
+#' @return the updated Campsis results
+#' @export
+#' @rdname apply_outfun
+apply_outfun <- function(x, outfun, level, ...) {
+  stop("No default function is provided")
+}
+
+setGeneric("apply_outfun", function(x, outfun, level, ...) {
+  standardGeneric("apply_outfun")
+}, signature = "outfun")
+
+#_______________________________________________________________________________
 #----                           getCovariates                               ----
 #_______________________________________________________________________________
 

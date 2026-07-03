@@ -39,6 +39,78 @@ test_that("Simulate with Outfuns returns a named list; single Outfun still retur
   campsisTest(simulation, test, env=environment())
 })
 
+test_that("apply_outfun on a single-replicate std_campsis_tbl with an Outfuns collection", {
+  if (skipLongTests()) return(TRUE)
+
+  model <- model_suite$testing$nonmem$advan2_trans2
+
+  ds <- Dataset(10) %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
+
+  outfuns <- Outfuns() %>%
+    add(Outfun(~compute_pi(.x, variable="CP"), name="cp")) %>%
+    add(Outfun(~compute_pi(.x, variable="Y"), name="y"))
+
+  # Simulate a standard (single-replicate) output, then apply the collection directly
+  simulation <- expression({
+    std <- simulate(model=model, dataset=ds, dest=destEngine, seed=seed)
+    apply_outfun(x=std, outfun=outfuns, level="replicate")
+  })
+  test <- expression(
+    expect_false("replicate" %in% colnames(std)),
+
+    # One list-column per output function, wrapped in a single-row tibble
+    expect_true(tibble::is_tibble(results)),
+    expect_equal(nrow(results), 1),
+    expect_equal(names(results), c("cp", "y")),
+    expect_true(is.list(results$cp) && is.list(results$y)),
+
+    # Each list-column holds one data frame with the expected columns
+    expect_true(is.data.frame(results$cp[[1]])),
+    expect_true(is.data.frame(results$y[[1]])),
+    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$cp[[1]]))),
+    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$y[[1]])))
+  )
+  campsisTest(simulation, test, env=environment())
+})
+
+test_that("apply_outfun on a multiple-replicate std_campsis_tbl with an Outfuns collection", {
+  if (skipLongTests()) return(TRUE)
+
+  model <- model_suite$testing$nonmem$advan2_trans2
+
+  ds <- Dataset(10) %>%
+    add(Bolus(time=0, amount=1000)) %>%
+    add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
+
+  outfuns <- Outfuns() %>%
+    add(Outfun(~compute_pi(.x, variable="CP"), name="cp")) %>%
+    add(Outfun(~compute_pi(.x, variable="Y"), name="y"))
+
+  # Simulate a multiple-replicate output, then apply the collection directly
+  simulation <- expression({
+    std <- simulate(model=model, dataset=ds, dest=destEngine, seed=seed, replicates=3)
+    apply_outfun(x=std, outfun=outfuns, level="replicate")
+  })
+  test <- expression(
+    expect_true("replicate" %in% colnames(std)),
+    expect_equal(unique(std$replicate), 1:3),
+
+    # Same nested structure as the single-replicate case
+    expect_true(tibble::is_tibble(results)),
+    expect_equal(nrow(results), 1),
+    expect_equal(names(results), c("cp", "y")),
+    expect_true(is.list(results$cp) && is.list(results$y)),
+
+    expect_true(is.data.frame(results$cp[[1]])),
+    expect_true(is.data.frame(results$y[[1]])),
+    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$cp[[1]]))),
+    expect_true(all(c("TIME", "metric", "value") %in% colnames(results$y[[1]])))
+  )
+  campsisTest(simulation, test, env=environment())
+})
+
 test_that("Use argument 'outfun' with PIOutfun", {
   if (skipLongTests()) return(TRUE)
 

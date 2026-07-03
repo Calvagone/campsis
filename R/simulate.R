@@ -345,13 +345,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
                                    tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
                                    dosing=dosing, settings=settings)
         # Apply potential output functions
-        inner_list <- outfun@list %>% purrr::map(function(x) {
-          applyOutfun(x=inner, outfun=x, level="replicate", replicate=replicate)
-        }) %>% setNames(outfun@list %>% purrr::map_chr(~.x@name))
-
-        # Wrap each result as a list-column so tidyr::unnest() downstream works
-        # regardless of whether different output functions produce different row counts
-        inner_list %>% purrr::map(~list(.x)) %>% tibble::as_tibble()
+        apply_outfun(x=inner, outfun=outfun, level="replicate", replicate=replicate)
       },
       error=function(cond) {
         if (replicates==1) {
