@@ -18,7 +18,7 @@ compute_stats(
 
 \item{strata}{named vector with the strata to use, default is c(SCENARIO="all", ARM="all").}
 
-\item{stats}{character vector of statistics to compute. Supported: "median", "mean", or percentiles like "p5", "p95".}
+\item{stats}{character vector of statistics to compute. Supported: "median", "mean", or percentiles like "p5", "p95", "p2.5", "p97.5".}
 }
 \value{
 a summary table in long format

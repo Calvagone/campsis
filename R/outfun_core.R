@@ -49,7 +49,7 @@ metrics_pivot_wider <- function(x) {
 #' @param x data frame
 #' @param variable variable(s) used to compute the statistics, character vector.
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
-#' @param stats character vector of statistics to compute. Supported: "median", "mean", or percentiles like "p5", "p95".
+#' @param stats character vector of statistics to compute. Supported: "median", "mean", or percentiles like "p5", "p95", "p2.5", "p97.5".
 #' @return a summary table in long format
 #' @importFrom assertthat assert_that
 #' @importFrom purrr map
@@ -91,8 +91,8 @@ compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p
       rlang::expr(stats::median(.data$value, na.rm = TRUE))
     } else if (stat == "mean") {
       rlang::expr(mean(.data$value, na.rm = TRUE))
-    } else if (grepl("^p\\d+$", stat)) {
-      # Extract digits for percentile (e.g., "p95" -> 0.95)
+    } else if (grepl("^p[0-9]+(\\.[0-9]+)?$", stat)) {
+      # Extract digits for percentile (e.g., "p95" -> 0.95, "p2.5" -> 0.025)
       prob <- as.numeric(sub("p", "", stat)) / 100
       rlang::expr(stats::quantile(.data$value, !!prob, names = FALSE, na.rm = TRUE))
     } else {

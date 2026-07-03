@@ -127,7 +127,7 @@ test_that("Use argument 'outfun' with single StatsOutfun returns data frame", {
     add(Bolus(time=0, amount=1000)) %>%
     add(Observations(times=c(0, 1, 2, 4, 8, 12, 24)))
 
-  fun <- StatsOutfun(variable="CP", stats=c("p5", "median", "p95"))
+  fun <- StatsOutfun(variable="CP", stats=c("p2.5", "p5", "median", "p95", "p97.5"))
   expect_equal(fun@name, "stats_CP")
 
   simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, outfun=fun, seed=seed))
@@ -135,7 +135,7 @@ test_that("Use argument 'outfun' with single StatsOutfun returns data frame", {
     expect_true(is.data.frame(results)),
     expect_true(all(c("TIME", "variable", "metric", "value") %in% colnames(results))),
     expect_equal(unique(results$variable), "CP"),
-    expect_true(all(unique(results$metric) %in% c("p5", "median", "p95")))
+    expect_true(all(unique(results$metric) %in% c("p2.5", "p5", "median", "p95", "p97.5")))
   )
   campsisTest(simulation, test, env=environment())
 })
