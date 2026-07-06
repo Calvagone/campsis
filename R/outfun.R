@@ -317,6 +317,7 @@ nca_table_wrapper <- function(x, obj, ...) {
   table_ <- eval(parse(text = eval_str1))
   eval_str2 <- sprintf("table_ |> campsismod::export(dest='dataframe', type='%s')", obj@export_type)
   export_df <- eval(parse(text = eval_str2))
+  class(export_df) <- c(sprintf("%s_campsisnca_tbl", obj@export_type), "campsisnca_tbl", "campsis_tbl", class(export_df))
   return(export_df)
 }
 
@@ -336,7 +337,7 @@ setClass(
   prototype = prototype(
     fun = nca_table_wrapper,
     name = "default_nca_table",
-    cls = c("nca_table_campsis_tbl", "campsis_tbl"),
+    cls = c("campsisnca_tbl"), 
     packages = c("campsisnca", "gtsummary"),
     outfun_as_arg = TRUE
   )
@@ -365,7 +366,8 @@ NCATableOutfun <- function(table, export_type = "summary", name = "default_nca_t
     "nca_table_outfun",
     name = name,
     table = table,
-    export_type = export_type
+    export_type = export_type,
+    cls = c(sprintf("%s_campsisnca_tbl", export_type), "campsisnca_tbl")
   ))
 }
 

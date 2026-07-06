@@ -44,9 +44,15 @@ new_campsis_tbl <- function(x = tibble(), metadata) {
 #' @method vec_restore campsis_tbl
 #' @keywords internal
 vec_restore.campsis_tbl <- function(x, to, ...) {
-  # Copy the S4 object safely over to the sliced tibble
-  attr(x, "metadata") <- attr(to, "metadata")
-  outfun <- attr(to, "metadata")@outfun
-  class(x) <- c(outfun@cls, class(tibble::tibble()))
-  x
+  metadata <- attr(to, "metadata")
+  # Check if metadata exists on the 'to' template object
+  if (!is.null(metadata)) {
+    attr(x, "metadata") <- metadata
+    outfun <- metadata@outfun
+    class(x) <- c(outfun@cls, class(tibble::tibble()))
+  } else {
+    # Fallback to standard tibble if metadata was stripped upstream
+    class(x) <- class(tibble::tibble())
+  }
+  return(x)
 }
