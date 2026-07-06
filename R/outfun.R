@@ -313,8 +313,10 @@ setMethod("loadFromJSON", signature = c("stats_outfun", "json_element"), definit
 
 nca_table_wrapper <- function(x, obj, ...) {
   table <- obj@table
-  eval_str <- sprintf("table |> campsisnca::calculate(x=x) |> export(dest='dataframe', type='%s')", obj@export_type)
-  export_df <- eval(parse(text = eval_str))
+  eval_str1 <- "campsisnca::calculate(object=table, x=x)"
+  table_ <- eval(parse(text = eval_str1))
+  eval_str2 <- sprintf("table_ |> campsismod::export(dest='dataframe', type='%s')", obj@export_type)
+  export_df <- eval(parse(text = eval_str2))
   return(export_df)
 }
 
@@ -356,7 +358,9 @@ open_nca_table <- function(json) {
 #' @return a stats_outfun object
 #' @export
 NCATableOutfun <- function(table, export_type = "summary", name = "default_nca_table") {
-  table <- open_nca_table(json=table)
+  if (!isS4(table)) {
+    table <- open_nca_table(json = table)
+  }
   return(new(
     "nca_table_outfun",
     name = name,
