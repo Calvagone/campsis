@@ -90,8 +90,11 @@
           "description": "Name of the output function (used for labeling the Campsis output). This name is optional. If not provided, the default name will be 'pi_<variable>_<pi_level>'"
         },
         "variable": {
-          "type": "string",
-          "description": "Variable for which the prediction interval is computed"
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Variable(s) for which the prediction interval is computed"
         },
         "strata": {
           "$ref": "#/$defs/outfun_strata",
@@ -121,8 +124,11 @@
           "description": "Name of the output function (used for labeling the Campsis output). This name is optional. If not provided, the default name will be 'stats_<variable>'"
         },
         "variable": {
-          "type": "string",
-          "description": "Variable for which the prediction interval is computed"
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Variable(s) for which the statistics are computed"
         },
         "strata": {
           "$ref": "#/$defs/outfun_strata",

@@ -11,7 +11,9 @@
          {
             "type": "pi_outfun",
             "name": "pi_90%",
-            "variable": "CP",
+            "variable": [
+               "CP"
+            ],
             "pi_level": 0.9
          }
       ],

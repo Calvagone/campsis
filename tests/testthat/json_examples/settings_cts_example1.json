@@ -10,7 +10,9 @@
          },
          {
             "type": "pi_outfun",
-            "variable": "CONC",
+            "variable": [
+               "CONC"
+            ],
             "strata": {
                "SCENARIO": "all",
                "ARM": "all"
@@ -20,7 +22,9 @@
          },
          {
             "type": "stats_outfun",
-            "variable": "CONC",
+            "variable": [
+               "CONC"
+            ],
             "strata": {
                "SCENARIO": "all",
                "ARM": "all"
