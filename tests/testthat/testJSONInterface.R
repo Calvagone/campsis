@@ -149,6 +149,26 @@ test_that("Import Campsis settings in JSON format", {
   expect_equal(settings_cts1, exp_settings_cts1)
 })
 
+test_that("Import Campsis settings that include a NCA table outfun from JSON", {
+  skip_if_not_installed("campsisnca")
+  library(campsisnca)
+
+  settings_cts3 <- Settings(json=file.path(testFolder, "json_examples", "settings_cts_example3.json"))
+
+  # NCA table, as passed to the 'table' property of a 'nca_table_outfun' (JSON-encoded string)
+  nca_table_json <- paste0(
+    '{"nca_analyses":[{"name":"Default","variable":"CONC",',
+    '"window":{"start":0,"end":"last"},',
+    '"metrics":[{"type":"auc_metric","name":"AUC"}]}]}'
+  )
+
+  exp_outfun_cts3 <- NCATableOutfun(name="nca_default", table=nca_table_json, export_type="summary")
+  exp_settings_cts3 <- Settings(DefaultSettings(engine="mrgsolve", seed=1, outvars="CONC",
+                                                 outfuns=Outfuns() %>% add(exp_outfun_cts3)))
+
+  expect_equal(settings_cts3, exp_settings_cts3)
+})
+
 test_that("Import Campsis settings with replicates from JSON", {
 
   # replicates field present → loaded and stored correctly

@@ -53,6 +53,9 @@
                 "$ref": "#/$defs/stats_outfun"
               },
               {
+                "$ref": "#/$defs/nca_table_outfun"
+              },
+              {
                 "$ref": "#/$defs/default_outfun"
               }
             ],
@@ -167,6 +170,38 @@
       },
       "required": [
         "type"
+      ],
+      "additionalProperties": false
+    },
+    "nca_table_outfun": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "nca_table_outfun",
+          "default": "nca_table_outfun"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the output function (used for labeling the Campsis output). This name is optional."
+        },
+        "table": {
+          "type": "string",
+          "description": "NCA table (see campsisnca package) in JSON format"
+        },
+        "export_type": {
+          "enum": [
+            "summary",
+            "summary_wide",
+            "summary_pretty",
+            "individual",
+            "individual_wide"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "table",
+        "export_type"
       ],
       "additionalProperties": false
     }

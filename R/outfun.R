@@ -376,6 +376,7 @@ setMethod("loadFromJSON", signature = c("nca_table_outfun", "json_element"), def
     json@data$table <- NULL
     object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
     object@table <- table
+    object@cls <- c(sprintf("%s_campsisnca_tbl", object@export_type), "campsisnca_tbl") # Cls constructed similarly as in NCATableOutfun constructor
     return(object)
 }
 )
