@@ -1,0 +1,13 @@
+[
+   {
+      "type": "default_settings",
+      "engine": "rxode2",
+      "seed": 42,
+      "replicates": 100
+   },
+   {
+      "type": "hardware_settings",
+      "cpu": 4,
+      "replicate_parallel": true
+   }
+]

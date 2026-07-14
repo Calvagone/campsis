@@ -11,6 +11,9 @@
         "oneOf": [
           {
             "$ref": "#/$defs/default_settings"
+          },
+          {
+            "$ref": "#/$defs/hardware_settings"
           }
         ]
       }
@@ -78,6 +81,29 @@
         "type",
         "engine",
         "seed"
+      ],
+      "additionalProperties": false
+    },
+    "hardware_settings": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "hardware_settings",
+          "default": "hardware_settings"
+        },
+        "cpu": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of CPU cores."
+        },
+        "replicate_parallel": {
+          "type": "boolean",
+          "description": "Should replicates be simulated in parallel?"
+        }
+      },
+      "required": [
+        "cpu",
+        "replicate_parallel"
       ],
       "additionalProperties": false
     },

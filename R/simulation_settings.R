@@ -112,6 +112,11 @@ setMethod("add", signature = c("simulation_settings", "default_settings"), defin
   return(object)
 })
 
+setMethod("add", signature = c("simulation_settings", "hardware_settings"), definition = function(object, x) {
+  object@hardware <- x
+  return(object)
+})
+
 #_______________________________________________________________________________
 #----                           loadFromJSON                                ----
 #_______________________________________________________________________________
