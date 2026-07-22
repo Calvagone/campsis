@@ -31,12 +31,12 @@ PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
 #' @export
 #' @rdname setLabel
 setLabel <- function(object, x) {
-  lifecycle::deprecate_warn("1.4.0", "setLabel()", "set_label()")
+  lifecycle::deprecate_warn("1.9.0", "setLabel()", "set_label()")
   set_label(object = object, x = x)
 }
 
 setGeneric("setLabel", function(object, x) {
-  lifecycle::deprecate_warn("1.4.0", "setLabel()", "set_label()")
+  lifecycle::deprecate_warn("1.9.0", "setLabel()", "set_label()")
   set_label(object = object, x = x)
 })
 
@@ -52,12 +52,11 @@ setGeneric("setLabel", function(object, x) {
 #' @export
 #' @rdname setSubjects
 setSubjects <- function(object, x) {
-  lifecycle::deprecate_warn("1.4.0", "setSubjects()", "set_subjects()")
+  lifecycle::deprecate_warn("1.9.0", "setSubjects()", "set_subjects()")
   set_subjects(object = object, x = x)
 }
 
 setGeneric("setSubjects", function(object, x) {
-  lifecycle::deprecate_warn("1.4.0", "setSubjects()", "set_subjects()")
+  lifecycle::deprecate_warn("1.9.0", "setSubjects()", "set_subjects()")
   set_subjects(object = object, x = x)
 })
-

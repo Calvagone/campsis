@@ -35,7 +35,7 @@ setMethod("show", signature=c("protocol"), definition=function(object) {
   cat("Protocol:")
   cat("\n")
   
-  doseTimes <- getTimes(object@treatment)
+  doseTimes <- get_times(object@treatment)
   object@observations@list <- object@observations@list %>%
     purrr::map(.f=function(x) {
       if (is(x@rep, "dosing_schedule")) {

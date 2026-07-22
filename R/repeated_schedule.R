@@ -148,11 +148,11 @@ setMethod("load_from_json", signature=c("cyclic_schedule", "json_element"), defi
 })
 
 #_______________________________________________________________________________
-#----                           repeatSchedule                               ----
+#----                           repeat_schedule                               ----
 #_______________________________________________________________________________
 
-#' @rdname repeatSchedule
-setMethod("repeatSchedule", signature=c("numeric", "cyclic_schedule"), definition=function(x, schedule) {
+#' @rdname repeat_schedule
+setMethod("repeat_schedule", signature=c("numeric", "cyclic_schedule"), definition=function(x, schedule) {
   # +1 since repetitions do not count the base pattern
   times <- seq_len(length(schedule) + 1) %>%
     purrr::map(~x + (.x-1) * schedule@duration) %>%
@@ -160,15 +160,15 @@ setMethod("repeatSchedule", signature=c("numeric", "cyclic_schedule"), definitio
   return(times)
 })
 
-#' @rdname repeatSchedule
-setMethod("repeatSchedule", signature=c("numeric", "repeat_at_schedule"), definition=function(x, schedule) {
+#' @rdname repeat_schedule
+setMethod("repeat_schedule", signature=c("numeric", "repeat_at_schedule"), definition=function(x, schedule) {
   times <- seq_len(length(schedule)) %>%
     purrr::map(~x + schedule@times[.x]) %>%
     purrr::list_c()
   return(times)
 })
 
-#' @rdname repeatSchedule
-setMethod("repeatSchedule", signature=c("numeric", "undefined_schedule"), definition=function(x, schedule) {
+#' @rdname repeat_schedule
+setMethod("repeat_schedule", signature=c("numeric", "undefined_schedule"), definition=function(x, schedule) {
   return(x)
 })

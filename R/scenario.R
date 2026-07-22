@@ -138,7 +138,7 @@ applyScenario <- function(x, scenario) {
   
   for (action in scenario@actions@list) {
     retValue <- retValue %>%
-      applyAction(action=action)
+      apply_action(action=action)
   }
   
   return(retValue)

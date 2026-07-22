@@ -93,12 +93,12 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, se
 
   if (is(dataset, "dataset")) {
     # Retrieve event times (same for all arms)
-    eventTimes <- c(0, events %>% getTimes()) %>% unique()
+    eventTimes <- c(0, events %>% get_times()) %>% unique()
     
     # Add all 'event-related' times in each arm
     for (armIndex in seq_len(dataset@arms %>% length())) {
       arm <- dataset@arms@list[[armIndex]]
-      obsTimes <- arm %>% getTimes()
+      obsTimes <- arm %>% get_times()
       if (obsTimes %>% length()==0) {
         stop(paste0("Arm ", arm@id , " does not contain any observation."))
       }
@@ -508,7 +508,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
     # Set ETA's as extra parameters in mrgsolve
     etaNames <- (model@parameters %>% select("omega"))@list %>%
       purrr::keep(~isDiag(.x)) %>%
-      purrr::map_chr(~get_nameInModel(.x))
+      purrr::map_chr(~get_name_in_model(.x))
     
     # Extra care to additional outputs which need to be explicitly declared with mrgsolve 
     outvars_ <- outvars[!(outvars %in% dropOthers())]
@@ -709,7 +709,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   # Retrieve THETA's
   thetas <- model@parameters %>% select("theta")
   thetaParams <- thetas@list %>%
-    purrr::set_names(thetas@list %>% purrr::map_chr(~.x %>% get_nameInModel)) %>%
+    purrr::set_names(thetas@list %>% purrr::map_chr(~.x %>% get_name_in_model)) %>%
     purrr::map(~.x@value)
   
   # Apply simulation settings

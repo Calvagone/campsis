@@ -140,15 +140,15 @@ setMethod("assignDoseNumber", signature = c("treatment"), definition = function(
 })
 
 #_______________________________________________________________________________
-#----                             getTimes                                  ----
+#----                             get_times                                 ----
 #_______________________________________________________________________________
 
 #' @param unwrap unwrap treatment before accessing the times, default value is TRUE
-#' @rdname getTimes
-setMethod("getTimes", signature = c("treatment"), definition = function(object, unwrap=TRUE) {
+#' @rdname get_times
+setMethod("get_times", signature = c("treatment"), definition = function(object, unwrap=TRUE) {
   if (unwrap) {
     # unwrap can be FALSE on demand (see dataset export where the treatment is first unwrapped)
-    object <- unwrapTreatment(object)
+    object <- unwrap_treatment(object)
   }
   times <- object@list %>%
     purrr::map(~.x@time) %>%
@@ -195,7 +195,7 @@ setMethod("show", signature=c("treatment"), definition=function(object) {
   
   # Unwrap treatment and sort
   object <- object %>%
-    unwrapTreatment() %>%
+    unwrap_treatment() %>%
     sort()
   
   adminTypes <- object@list %>% purrr::map_df(.f=function(x){
@@ -214,58 +214,58 @@ setMethod("show", signature=c("treatment"), definition=function(object) {
 })
 
 #_______________________________________________________________________________
-#----                          unwrapTreatment                              ----
+#----                          unwrap_treatment                             ----
 #_______________________________________________________________________________
 
-#' @rdname unwrapTreatment
-setMethod("unwrapTreatment", signature = c("treatment"), definition = function(object) {
+#' @rdname unwrap_treatment
+setMethod("unwrap_treatment", signature = c("treatment"), definition = function(object) {
   if (length(object@list)==0) {
     # Do nothing
   } else {
     object@list <- object@list %>%
-      purrr::map(~unwrapTreatment(.x)) %>%
+      purrr::map(~unwrap_treatment(.x)) %>%
       unlist() # Return NULL if input is empty list
   }
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                            updateAmount                               ----
+#----                            update_amount                              ----
 #_______________________________________________________________________________
 
-#' @rdname updateAmount
-setMethod("updateAmount", signature = c("treatment", "numeric", "character"), definition = function(object, amount, ref) {
-  object@list <- object@list %>% purrr::map(~updateAmount(.x, amount, ref))
+#' @rdname update_amount
+setMethod("update_amount", signature = c("treatment", "numeric", "character"), definition = function(object, amount, ref) {
+  object@list <- object@list %>% purrr::map(~update_amount(.x, amount, ref))
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                              updateII                                 ----
+#----                              update_ii                                ----
 #_______________________________________________________________________________
 
-#' @rdname updateII
-setMethod("updateII", signature = c("treatment", "numeric", "character"), definition = function(object, ii, ref) {
-  object@list <- object@list %>% purrr::map(~updateII(.x, ii, ref))
+#' @rdname update_ii
+setMethod("update_ii", signature = c("treatment", "numeric", "character"), definition = function(object, ii, ref) {
+  object@list <- object@list %>% purrr::map(~update_ii(.x, ii, ref))
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                             updateADDL                                ----
+#----                             update_addl                               ----
 #_______________________________________________________________________________
 
-#' @rdname updateADDL
-setMethod("updateADDL", signature = c("treatment", "integer", "character"), definition = function(object, addl, ref) {
-  object@list <- object@list %>% purrr::map(~updateADDL(.x, addl, ref))
+#' @rdname update_addl
+setMethod("update_addl", signature = c("treatment", "integer", "character"), definition = function(object, addl, ref) {
+  object@list <- object@list %>% purrr::map(~update_addl(.x, addl, ref))
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                             updateRepeat                              ----
+#----                             update_repeat                              ----
 #_______________________________________________________________________________
 
-#' @rdname updateRepeat
-setMethod("updateRepeat", signature = c("treatment", "repeated_schedule", "character"), definition = function(object, rep, ref) {
-  object@list <- object@list %>% purrr::map(~updateRepeat(.x, rep, ref))
+#' @rdname update_repeat
+setMethod("update_repeat", signature = c("treatment", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  object@list <- object@list %>% purrr::map(~update_repeat(.x, rep, ref))
   return(object)
 })
 

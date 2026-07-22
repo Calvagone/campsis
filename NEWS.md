@@ -23,8 +23,8 @@
 * Bolus/Infusion: accept a vector of compartment names (1 or several) #176
 * Bolus/Infusion: store arguments 'as is' in wrapper objects #177
 * Bolus/Infusions: vectorize compartment properties #178
-* Implement method 'updateAmount' #179
-* Implement methods 'updateII' and 'updateADDL' #180
+* Implement method 'update_amount' #179
+* Implement methods 'update_ii' and 'update_addl' #180
 * Repeat the initial dosing schedule based on cycle duration #181
 * Update pkgdown website before release #182
 

@@ -93,7 +93,7 @@ Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, add
   if (wrap) {
     return(wrapper)
   } else {
-    return(unwrapTreatmentBase(object=wrapper, type="bolus", wrap=wrap)) 
+    return(unwrap_treatmentBase(object=wrapper, type="bolus", wrap=wrap)) 
   }
 }
 
@@ -182,7 +182,7 @@ Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=
   if (wrap) {
     return(wrapper)
   } else {
-    return(unwrapTreatmentBase(object=wrapper, type="infusion", wrap=wrap))  
+    return(unwrap_treatmentBase(object=wrapper, type="infusion", wrap=wrap))  
   }
 }
 
@@ -405,10 +405,10 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
 })
 
 #_______________________________________________________________________________
-#----                          unwrapTreatment                              ----
+#----                          unwrap_treatment                             ----
 #_______________________________________________________________________________
 
-unwrapTreatmentDelegate <- function(object, type) {
+unwrap_treatment_delegate <- function(object, type) {
   time <- object@time
   ii <- object@ii
   addl <- object@addl
@@ -435,13 +435,13 @@ unwrapTreatmentDelegate <- function(object, type) {
   return(retValue)
 }
 
-unwrapTreatmentBase <- function(object, type, wrap) {
+unwrap_treatmentBase <- function(object, type, wrap) {
   times <- object@time %>%
-    repeatSchedule(object@rep)
+    repeat_schedule(object@rep)
   retValue <- times %>%
     purrr::map(.f=function(time) {
       object@time <- time
-      return(unwrapTreatmentDelegate(object, type=type))
+      return(unwrap_treatment_delegate(object, type=type))
     }) %>% unlist()
   if (!wrap && length(retValue)==1) {
     return(retValue[[1]])
@@ -449,147 +449,147 @@ unwrapTreatmentBase <- function(object, type, wrap) {
   return(retValue)
 }
 
-#' @rdname unwrapTreatment
-setMethod("unwrapTreatment", signature = c("bolus"), definition = function(object) {
+#' @rdname unwrap_treatment
+setMethod("unwrap_treatment", signature = c("bolus"), definition = function(object) {
   return(object)
 })
 
-#' @rdname unwrapTreatment
-setMethod("unwrapTreatment", signature = c("infusion"), definition = function(object) {
+#' @rdname unwrap_treatment
+setMethod("unwrap_treatment", signature = c("infusion"), definition = function(object) {
   return(object)
 })
 
-#' @rdname unwrapTreatment
-setMethod("unwrapTreatment", signature = c("bolus_wrapper"), definition = function(object) {
-  return(unwrapTreatmentBase(object=object, type="bolus", wrap=TRUE))
+#' @rdname unwrap_treatment
+setMethod("unwrap_treatment", signature = c("bolus_wrapper"), definition = function(object) {
+  return(unwrap_treatmentBase(object=object, type="bolus", wrap=TRUE))
 })
 
-#' @rdname unwrapTreatment
-setMethod("unwrapTreatment", signature = c("infusion_wrapper"), definition = function(object) {
-  return(unwrapTreatmentBase(object=object, type="infusion", wrap=TRUE))
+#' @rdname unwrap_treatment
+setMethod("unwrap_treatment", signature = c("infusion_wrapper"), definition = function(object) {
+  return(unwrap_treatmentBase(object=object, type="infusion", wrap=TRUE))
 })
 
 #_______________________________________________________________________________
-#----                            updateAmount                               ----
+#----                            update_amount                              ----
 #_______________________________________________________________________________
 
-updateAmountDelegate <- function(object, amount, ref) {
+update_amountDelegate <- function(object, amount, ref) {
   if (is.na(ref) || ref==object@ref) {
     object@amount <- amount
   }
   return(object)
 }
 
-#' @rdname updateAmount
-setMethod("updateAmount", signature = c("bolus", "numeric", "character"), definition = function(object, amount, ref) {
-  return(updateAmountDelegate(object, amount, ref))
+#' @rdname update_amount
+setMethod("update_amount", signature = c("bolus", "numeric", "character"), definition = function(object, amount, ref) {
+  return(update_amountDelegate(object, amount, ref))
 })
 
-#' @rdname updateAmount
-setMethod("updateAmount", signature = c("infusion", "numeric", "character"), definition = function(object, amount, ref) {
-  return(updateAmountDelegate(object, amount, ref))
+#' @rdname update_amount
+setMethod("update_amount", signature = c("infusion", "numeric", "character"), definition = function(object, amount, ref) {
+  return(update_amountDelegate(object, amount, ref))
 })
 
-#' @rdname updateAmount
-setMethod("updateAmount", signature = c("bolus_wrapper", "numeric", "character"), definition = function(object, amount, ref) {
-  return(updateAmountDelegate(object, amount, ref))
+#' @rdname update_amount
+setMethod("update_amount", signature = c("bolus_wrapper", "numeric", "character"), definition = function(object, amount, ref) {
+  return(update_amountDelegate(object, amount, ref))
 })
 
-#' @rdname updateAmount
-setMethod("updateAmount", signature = c("infusion_wrapper", "numeric", "character"), definition = function(object, amount, ref) {
-  return(updateAmountDelegate(object, amount, ref))
+#' @rdname update_amount
+setMethod("update_amount", signature = c("infusion_wrapper", "numeric", "character"), definition = function(object, amount, ref) {
+  return(update_amountDelegate(object, amount, ref))
 })
 
 #_______________________________________________________________________________
-#----                              updateII                                 ----
+#----                              update_ii                                ----
 #_______________________________________________________________________________
 
-updateIIDelegate <- function(object, ii, ref) {
+update_iiDelegate <- function(object, ii, ref) {
   if (is.na(ref) || ref==object@ref) {
     object@ii <- ii
   }
   return(object)
 }
 
-#' @rdname updateII
-setMethod("updateII", signature = c("bolus_wrapper", "numeric", "character"), definition = function(object, ii, ref) {
-  return(updateIIDelegate(object, ii, ref))
+#' @rdname update_ii
+setMethod("update_ii", signature = c("bolus_wrapper", "numeric", "character"), definition = function(object, ii, ref) {
+  return(update_iiDelegate(object, ii, ref))
 })
 
-#' @rdname updateII
-setMethod("updateII", signature = c("infusion_wrapper", "numeric", "character"), definition = function(object, ii, ref) {
-  return(updateIIDelegate(object, ii, ref))
+#' @rdname update_ii
+setMethod("update_ii", signature = c("infusion_wrapper", "numeric", "character"), definition = function(object, ii, ref) {
+  return(update_iiDelegate(object, ii, ref))
 })
 
-#' @rdname updateII
-setMethod("updateII", signature = c("bolus", "numeric", "character"), definition = function(object, ii, ref) {
+#' @rdname update_ii
+setMethod("update_ii", signature = c("bolus", "numeric", "character"), definition = function(object, ii, ref) {
   return(object) # Do nothing
 })
 
-#' @rdname updateII
-setMethod("updateII", signature = c("infusion", "numeric", "character"), definition = function(object, ii, ref) {
+#' @rdname update_ii
+setMethod("update_ii", signature = c("infusion", "numeric", "character"), definition = function(object, ii, ref) {
   return(object) # Do nothing
 })
 
 #_______________________________________________________________________________
-#----                             updateADDL                                ----
+#----                             update_addl                               ----
 #_______________________________________________________________________________
 
-updateADDLDelegate <- function(object, addl, ref) {
+update_addlDelegate <- function(object, addl, ref) {
   if (is.na(ref) || ref==object@ref) {
     object@addl <- addl
   }
   return(object)
 }
 
-#' @rdname updateADDL
-setMethod("updateADDL", signature = c("bolus_wrapper", "integer", "character"), definition = function(object, addl, ref) {
-  return(updateADDLDelegate(object, addl, ref))
+#' @rdname update_addl
+setMethod("update_addl", signature = c("bolus_wrapper", "integer", "character"), definition = function(object, addl, ref) {
+  return(update_addlDelegate(object, addl, ref))
 })
 
-#' @rdname updateADDL
-setMethod("updateADDL", signature = c("infusion_wrapper", "integer", "character"), definition = function(object, addl, ref) {
-  return(updateADDLDelegate(object, addl, ref))
+#' @rdname update_addl
+setMethod("update_addl", signature = c("infusion_wrapper", "integer", "character"), definition = function(object, addl, ref) {
+  return(update_addlDelegate(object, addl, ref))
 })
 
-#' @rdname updateADDL
-setMethod("updateADDL", signature = c("bolus", "integer", "character"), definition = function(object, addl, ref) {
+#' @rdname update_addl
+setMethod("update_addl", signature = c("bolus", "integer", "character"), definition = function(object, addl, ref) {
   return(object) # Do nothing
 })
 
-#' @rdname updateADDL
-setMethod("updateADDL", signature = c("infusion", "integer", "character"), definition = function(object, addl, ref) {
+#' @rdname update_addl
+setMethod("update_addl", signature = c("infusion", "integer", "character"), definition = function(object, addl, ref) {
   return(object) # Do nothing
 })
 
 #_______________________________________________________________________________
-#----                             updateRepeat                              ----
+#----                             update_repeat                              ----
 #_______________________________________________________________________________
 
-updateRepeatDelegate <- function(object, rep, ref) {
+update_repeatDelegate <- function(object, rep, ref) {
   if (is.na(ref) || ref==object@ref) {
     object@rep <- rep
   }
   return(object)
 }
 
-#' @rdname updateRepeat
-setMethod("updateRepeat", signature = c("bolus_wrapper", "repeated_schedule", "character"), definition = function(object, rep, ref) {
-  return(updateRepeatDelegate(object, rep, ref))
+#' @rdname update_repeat
+setMethod("update_repeat", signature = c("bolus_wrapper", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  return(update_repeatDelegate(object, rep, ref))
 })
 
-#' @rdname updateRepeat
-setMethod("updateRepeat", signature = c("infusion_wrapper", "repeated_schedule", "character"), definition = function(object, rep, ref) {
-  return(updateRepeatDelegate(object, rep, ref))
+#' @rdname update_repeat
+setMethod("update_repeat", signature = c("infusion_wrapper", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  return(update_repeatDelegate(object, rep, ref))
 })
 
-#' @rdname updateRepeat
-setMethod("updateRepeat", signature = c("bolus", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+#' @rdname update_repeat
+setMethod("update_repeat", signature = c("bolus", "repeated_schedule", "character"), definition = function(object, rep, ref) {
   return(object) # Do nothing
 })
 
-#' @rdname updateRepeat
-setMethod("updateRepeat", signature = c("infusion", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+#' @rdname update_repeat
+setMethod("update_repeat", signature = c("infusion", "repeated_schedule", "character"), definition = function(object, rep, ref) {
   return(object) # Do nothing
 })
 

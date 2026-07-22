@@ -16,7 +16,7 @@ no_default_function_provided_debug <- function(args_list, fun_name) {
 }
 
 #_______________________________________________________________________________
-#----                            applyAction                                ----
+#----                            apply_action                               ----
 #_______________________________________________________________________________
 
 #' Apply some action on the given object.
@@ -25,13 +25,13 @@ no_default_function_provided_debug <- function(args_list, fun_name) {
 #' @param action action to apply
 #' @return updated object
 #' @export
-#' @rdname applyAction
-applyAction <- function(object, action) {
+#' @rdname apply_action
+apply_action <- function(object, action) {
   stop("No default function is provided")
 }
 
-setGeneric("applyAction", function(object, action) {
-  standardGeneric("applyAction")
+setGeneric("apply_action", function(object, action) {
+  standardGeneric("apply_action")
 })
 
 #_______________________________________________________________________________
@@ -59,7 +59,7 @@ setGeneric("apply_outfun", function(x, outfun, level=NULL, ...) {
 }, signature = "outfun")
 
 #_______________________________________________________________________________
-#----                           getCovariates                               ----
+#----                           get_covariates                              ----
 #_______________________________________________________________________________
 
 #' Get all covariates (fixed / time-varying / event covariates).
@@ -67,17 +67,17 @@ setGeneric("apply_outfun", function(x, outfun, level=NULL, ...) {
 #' @param object any object
 #' @return all covariates from object
 #' @export
-#' @rdname getCovariates
-getCovariates <- function(object) {
+#' @rdname get_covariates
+get_covariates <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getCovariates", function(object) {
-  standardGeneric("getCovariates")
+setGeneric("get_covariates", function(object) {
+  standardGeneric("get_covariates")
 })
 
 #_______________________________________________________________________________
-#----                         getEventCovariates                            ----
+#----                        get_event_covariates                            ----
 #_______________________________________________________________________________
 
 #' Get all event-related covariates.
@@ -85,17 +85,17 @@ setGeneric("getCovariates", function(object) {
 #' @param object any object
 #' @return all event-related covariates from object
 #' @export
-#' @rdname getEventCovariates
-getEventCovariates <- function(object) {
+#' @rdname get_event_covariates
+get_event_covariates <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getEventCovariates", function(object) {
-  standardGeneric("getEventCovariates")
+setGeneric("get_event_covariates", function(object) {
+  standardGeneric("get_event_covariates")
 })
 
 #_______________________________________________________________________________
-#----                         getFixedCovariates                            ----
+#----                        get_fixed_covariates                           ----
 #_______________________________________________________________________________
 
 #' Get all fixed covariates.
@@ -103,17 +103,17 @@ setGeneric("getEventCovariates", function(object) {
 #' @param object any object
 #' @return all fixed covariates from object
 #' @export
-#' @rdname getFixedCovariates
-getFixedCovariates <- function(object) {
+#' @rdname get_fixed_covariates
+get_fixed_covariates <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getFixedCovariates", function(object) {
-  standardGeneric("getFixedCovariates")
+setGeneric("get_fixed_covariates", function(object) {
+  standardGeneric("get_fixed_covariates")
 })
 
 #_______________________________________________________________________________
-#----                       getTimeVaryingCovariates                        ----
+#----                     get_time_varying_covariates                       ----
 #_______________________________________________________________________________
 
 #' Get all time-varying covariates.
@@ -121,17 +121,17 @@ setGeneric("getFixedCovariates", function(object) {
 #' @param object any object
 #' @return all time-varying covariates from object
 #' @export
-#' @rdname getTimeVaryingCovariates
-getTimeVaryingCovariates <- function(object) {
+#' @rdname get_time_varying_covariates
+get_time_varying_covariates <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getTimeVaryingCovariates", function(object) {
-  standardGeneric("getTimeVaryingCovariates")
+setGeneric("get_time_varying_covariates", function(object) {
+  standardGeneric("get_time_varying_covariates")
 })
 
 #_______________________________________________________________________________
-#----                              getIOVs                                  ----
+#----                             get_iovs                                  ----
 #_______________________________________________________________________________
 
 #' Get all IOV objects.
@@ -139,17 +139,17 @@ setGeneric("getTimeVaryingCovariates", function(object) {
 #' @param object any object
 #' @return all IOV's from object
 #' @export
-#' @rdname getIOVs
-getIOVs <- function(object) {
+#' @rdname get_iovs
+get_iovs <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getIOVs", function(object) {
-  standardGeneric("getIOVs")
+setGeneric("get_iovs", function(object) {
+  standardGeneric("get_iovs")
 })
 
 #_______________________________________________________________________________
-#----                            getOccasions                               ----
+#----                            get_occasions                              ----
 #_______________________________________________________________________________
 
 #' Get all occasions.
@@ -157,17 +157,17 @@ setGeneric("getIOVs", function(object) {
 #' @param object any object
 #' @return all occasions from object
 #' @export
-#' @rdname getOccasions
-getOccasions <- function(object) {
+#' @rdname get_occasions
+get_occasions <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("getOccasions", function(object) {
-  standardGeneric("getOccasions")
+setGeneric("get_occasions", function(object) {
+  standardGeneric("get_occasions")
 })
 
 #_______________________________________________________________________________
-#----                             getTimes                                  ----
+#----                             get_times                                 ----
 #_______________________________________________________________________________
 
 #' Get all distinct times for the specified object.
@@ -176,17 +176,17 @@ setGeneric("getOccasions", function(object) {
 #' @param ... extra arguments like `doseTimes` in observations or `unwrap` in treatment
 #' @return numeric vector with all unique times, sorted
 #' @export
-#' @rdname getTimes
-getTimes <- function(object, ...) {
+#' @rdname get_times
+get_times <- function(object, ...) {
   stop(sprintf("No default function is provided for 'object': %s", class(object)))
 }
 
-setGeneric("getTimes", function(object, ...) {
-  standardGeneric("getTimes")
+setGeneric("get_times", function(object, ...) {
+  standardGeneric("get_times")
 })
 
 #_______________________________________________________________________________
-#----                           repeatSchedule                              ----
+#----                           repeat_schedule                             ----
 #_______________________________________________________________________________
 
 #' Repeat schedule.
@@ -195,13 +195,13 @@ setGeneric("getTimes", function(object, ...) {
 #' @param schedule initial times vector
 #' @return resulting times vector
 #' @export
-#' @rdname repeatSchedule
-repeatSchedule <- function(x, schedule) {
+#' @rdname repeat_schedule
+repeat_schedule <- function(x, schedule) {
   stop("No default function is provided")
 }
 
-setGeneric("repeatSchedule", function(x, schedule) {
-  standardGeneric("repeatSchedule")
+setGeneric("repeat_schedule", function(x, schedule) {
+  standardGeneric("repeat_schedule")
 })
 
 #_______________________________________________________________________________
@@ -266,7 +266,7 @@ setGeneric("set_subjects", function(object, x) {
 })
 
 #_______________________________________________________________________________
-#----                          unwrapTreatment                              ----
+#----                          unwrap_treatment                             ----
 #_______________________________________________________________________________
 
 #' Unwrap treatment.
@@ -274,17 +274,17 @@ setGeneric("set_subjects", function(object, x) {
 #' @param object any object
 #' @return updated object
 #' @export
-#' @rdname unwrapTreatment
-unwrapTreatment <- function(object) {
+#' @rdname unwrap_treatment
+unwrap_treatment <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("unwrapTreatment", function(object) {
-  standardGeneric("unwrapTreatment")
+setGeneric("unwrap_treatment", function(object) {
+  standardGeneric("unwrap_treatment")
 })
 
 #_______________________________________________________________________________
-#----                            updateAmount                               ----
+#----                            update_amount                              ----
 #_______________________________________________________________________________
 
 #' Update amount.
@@ -294,20 +294,20 @@ setGeneric("unwrapTreatment", function(object) {
 #' @param ref reference treatment name
 #' @return updated object
 #' @export
-#' @rdname updateAmount
-updateAmount <- function(object, amount, ref) {
+#' @rdname update_amount
+update_amount <- function(object, amount, ref) {
   stop("No default function is provided")
 }
 
-setGeneric("updateAmount", function(object, amount, ref) {
+setGeneric("update_amount", function(object, amount, ref) {
   if (is.null(ref)) {
     ref <- as.character(NA)
   }
-  standardGeneric("updateAmount")
+  standardGeneric("update_amount")
 })
 
 #_______________________________________________________________________________
-#----                              updateII                                 ----
+#----                              update_ii                                ----
 #_______________________________________________________________________________
 
 #' Update the inter-dose interval (II).
@@ -317,20 +317,20 @@ setGeneric("updateAmount", function(object, amount, ref) {
 #' @param ref reference treatment name
 #' @return updated object
 #' @export
-#' @rdname updateII
-updateII <- function(object, ii, ref) {
+#' @rdname update_ii
+update_ii <- function(object, ii, ref) {
   stop("No default function is provided")
 }
 
-setGeneric("updateII", function(object, ii, ref=NULL) {
+setGeneric("update_ii", function(object, ii, ref=NULL) {
   if (is.null(ref)) {
     ref <- as.character(NA)
   }
-  standardGeneric("updateII")
+  standardGeneric("update_ii")
 })
 
 #_______________________________________________________________________________
-#----                             updateADDL                                ----
+#----                             update_addl                               ----
 #_______________________________________________________________________________
 
 #' Update the number of additional doses (ADDL).
@@ -340,21 +340,21 @@ setGeneric("updateII", function(object, ii, ref=NULL) {
 #' @param ref reference treatment name
 #' @return updated object
 #' @export
-#' @rdname updateADDL
-updateADDL <- function(object, addl, ref) {
+#' @rdname update_addl
+update_addl <- function(object, addl, ref) {
   stop("No default function is provided")
 }
 
-setGeneric("updateADDL", function(object, addl, ref=NULL) {
+setGeneric("update_addl", function(object, addl, ref=NULL) {
   if (is.null(ref)) {
     ref <- as.character(NA)
   }
   addl <- as.integer(addl)
-  standardGeneric("updateADDL")
+  standardGeneric("update_addl")
 })
 
 #_______________________________________________________________________________
-#----                            updateRepeat                               ----
+#----                            update_repeat                              ----
 #_______________________________________________________________________________
 
 #' Update the repeat field (argument 'rep' in Bolus and Infusion constructors).
@@ -364,15 +364,15 @@ setGeneric("updateADDL", function(object, addl, ref=NULL) {
 #' @param ref reference treatment name
 #' @return updated object
 #' @export
-#' @rdname updateRepeat
-updateRepeat <- function(object, rep, ref) {
+#' @rdname update_repeat
+update_repeat <- function(object, rep, ref) {
   stop("No default function is provided")
 }
 
-setGeneric("updateRepeat", function(object, rep, ref=NULL) {
+setGeneric("update_repeat", function(object, rep, ref=NULL) {
   if (is.null(ref)) {
     ref <- as.character(NA)
   }
-  standardGeneric("updateRepeat")
+  standardGeneric("update_repeat")
 })
 

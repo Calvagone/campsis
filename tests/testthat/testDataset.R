@@ -24,7 +24,7 @@ test_that("Set subjects works as expected", {
   expect_equal(dataset %>% length(), 30)
 })
 
-test_that("Add entry, order, filter, getTimes (simple example)", {
+test_that("Add entry, order, filter, get_times (simple example)", {
 
   dataset <- Dataset()
 
@@ -37,7 +37,7 @@ test_that("Add entry, order, filter, getTimes (simple example)", {
   dataset <- dataset %>% add(Observations(times=seq(0, 48, by=4)))
 
   # Get times
-  expect_equal(dataset %>% getTimes(), seq(0, 48, by=4))
+  expect_equal(dataset %>% get_times(), seq(0, 48, by=4))
 
   # Export to RxODE
   table1 <- dataset %>% export(dest="RxODE")
@@ -125,8 +125,8 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   dataset <- dataset %>% add(Covariate(name="HT", 180))
   dataset <- dataset %>% add(EventCovariate(name="DOSE", 100))
 
-  expect_equal(dataset %>% getCovariates() %>% get_names(), c("WT", "HT", "DOSE"))
-  expect_equal(dataset %>% getEventCovariates() %>% get_names(), c("DOSE"))
+  expect_equal(dataset %>% get_covariates() %>% get_names(), c("WT", "HT", "DOSE"))
+  expect_equal(dataset %>% get_event_covariates() %>% get_names(), c("DOSE"))
 
   # Add observations
   dataset <- dataset %>% add(Observations(times=seq(0, 48, by=10)))
@@ -636,7 +636,7 @@ test_that("Compartment properties can be vectorised", {
                         filename=regFilename)
 })
 
-test_that("Method 'updateAmount' works as expected", {
+test_that("Method 'update_amount' works as expected", {
   
   infusion <- Infusion(time=0, amount=100, compartment=c("CENTRAL1", "CENTRAL2"), ii=24, addl=2, duration=1, ref="Admin1")
   bolus <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=2, f=c(0.7, 0.3), ref="Admin1")
@@ -647,19 +647,19 @@ test_that("Method 'updateAmount' works as expected", {
   
   # Check method update amount is not doing anything if the reference is wrong
   datasetA <- dataset %>%
-    updateAmount(amount=200, ref="Wrong ref")
+    update_amount(amount=200, ref="Wrong ref")
   
   expect_equal(datasetA, dataset)
   
   # Check method update amount works
   datasetB <- dataset %>%
-    updateAmount(amount=200, ref="Admin1")
+    update_amount(amount=200, ref="Admin1")
   
   expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[1]]@amount, 200)
   expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[2]]@amount, 200)
 })
 
-test_that("Methods 'updateII' and 'updateADDL' work as expected", {
+test_that("Methods 'update_ii' and 'update_addl' work as expected", {
   
   infusion <- Infusion(time=0, amount=100, compartment=c("CENTRAL1", "CENTRAL2"), ii=24, addl=2, duration=1, ref="Admin1")
   bolus <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=2, f=c(0.7, 0.3), ref="Admin1")
@@ -671,14 +671,14 @@ test_that("Methods 'updateII' and 'updateADDL' work as expected", {
   
   # Check method is not doing anything if the reference is wrong
   datasetA <- dataset %>%
-    updateII(12, ref="Wrong ref")
+    update_ii(12, ref="Wrong ref")
   
   expect_equal(datasetA, dataset)
   
   # Check both methods work as expected
   datasetB <- dataset %>%
-    updateII(12, ref="Admin1") %>%
-    updateADDL(5, ref="Admin1")
+    update_ii(12, ref="Admin1") %>%
+    update_addl(5, ref="Admin1")
   
   expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[1]]@ii, 12)
   expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[2]]@ii, 12)
@@ -689,7 +689,7 @@ test_that("Methods 'updateII' and 'updateADDL' work as expected", {
   expect_false(is(datasetB@arms@list[[1]]@protocol@treatment@list[[3]], "bolus_wrapper")) # FALSE, because the wrapper is not used
 })
 
-test_that("Method 'updateRepeat' works as expected", {
+test_that("Method 'update_repeat' works as expected", {
   
   bolus <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=2, rep=CyclicSchedule(24*7, 1), ref="Admin1")
   infusion <- Infusion(time=0, amount=100, compartment=c("DEPOT3"), ii=24, addl=2, rep=CyclicSchedule(24*7, 1), ref="Admin1")
@@ -701,13 +701,13 @@ test_that("Method 'updateRepeat' works as expected", {
   
   # Check method is not doing anything if the reference is wrong
   datasetA <- dataset %>%
-    updateRepeat(CyclicSchedule(24*7, 2), ref="Wrong ref")
+    update_repeat(CyclicSchedule(24*7, 2), ref="Wrong ref")
   
   expect_equal(datasetA, dataset)
   
   # Check both methods work as expected
   datasetB <- dataset %>%
-    updateRepeat(CyclicSchedule(24*7, 2), ref="Admin1")
+    update_repeat(CyclicSchedule(24*7, 2), ref="Admin1")
   
   expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[1]]@rep, CyclicSchedule(24*7, 2))
   expect_equal(datasetB@arms@list[[1]]@protocol@treatment@list[[2]]@rep, CyclicSchedule(24*7, 2))

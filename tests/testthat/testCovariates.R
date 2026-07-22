@@ -44,32 +44,32 @@ test_that("Selecting specific covariates works as expected", {
   expect_equal(covariates %>% get_names(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
   
   # Strictly equal to:
-  expect_equal(covariates %>% getCovariates() %>% get_names(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
+  expect_equal(covariates %>% get_covariates() %>% get_names(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
   
   # Fixed covariates only
-  expect_equal(covariates %>% getFixedCovariates() %>% get_names(), c("WT", "AGE"))
+  expect_equal(covariates %>% get_fixed_covariates() %>% get_names(), c("WT", "AGE"))
   
   # Event covariates only
-  expect_equal(covariates %>% getEventCovariates() %>% get_names(), c("DOSE", "STATE"))
+  expect_equal(covariates %>% get_event_covariates() %>% get_names(), c("DOSE", "STATE"))
   
   # Time-varying covariates only
-  expect_equal(covariates %>% getTimeVaryingCovariates() %>% get_names(), c("TEMPERATURE"))
+  expect_equal(covariates %>% get_time_varying_covariates() %>% get_names(), c("TEMPERATURE"))
   
   
   # Add covariates to a dataset object
   dataset <- Dataset()
-  expect_equal(dataset %>% getCovariates() %>% get_names(), character(0))
+  expect_equal(dataset %>% get_covariates() %>% get_names(), character(0))
   dataset <- dataset %>% addCovariates()
 
   # Retrieve all names
-  expect_equal(dataset %>% getCovariates() %>% get_names(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
+  expect_equal(dataset %>% get_covariates() %>% get_names(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
   
   # Fixed covariates only
-  expect_equal(dataset %>% getFixedCovariates() %>% get_names(), c("WT", "AGE"))
+  expect_equal(dataset %>% get_fixed_covariates() %>% get_names(), c("WT", "AGE"))
   
   # Event covariates only
-  expect_equal(dataset %>% getEventCovariates() %>% get_names(), c("DOSE", "STATE"))
+  expect_equal(dataset %>% get_event_covariates() %>% get_names(), c("DOSE", "STATE"))
   
   # Time-varying covariates only
-  expect_equal(dataset %>% getTimeVaryingCovariates() %>% get_names(), c("TEMPERATURE"))
+  expect_equal(dataset %>% get_time_varying_covariates() %>% get_names(), c("TEMPERATURE"))
 })

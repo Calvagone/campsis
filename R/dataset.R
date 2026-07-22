@@ -123,66 +123,66 @@ setMethod("find", signature = c("dataset", "arm"), definition = function(object,
 })
 
 #_______________________________________________________________________________
-#----                           getCovariates                               ----
+#----                           get_covariates                              ----
 #_______________________________________________________________________________
 
-#' @rdname getCovariates
-setMethod("getCovariates", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getCovariates())
+#' @rdname get_covariates
+setMethod("get_covariates", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% get_covariates())
 })
 
 #_______________________________________________________________________________
-#----                         getEventCovariates                            ----
+#----                        get_event_covariates                            ----
 #_______________________________________________________________________________
 
-#' @rdname getEventCovariates
-setMethod("getEventCovariates", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getEventCovariates())
+#' @rdname get_event_covariates
+setMethod("get_event_covariates", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% get_event_covariates())
 })
 
 #_______________________________________________________________________________
-#----                         getFixedCovariates                            ----
+#----                        get_fixed_covariates                           ----
 #_______________________________________________________________________________
 
-#' @rdname getFixedCovariates
-setMethod("getFixedCovariates", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getFixedCovariates())
+#' @rdname get_fixed_covariates
+setMethod("get_fixed_covariates", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% get_fixed_covariates())
 })
 
 #_______________________________________________________________________________
-#----                       getTimeVaryingCovariates                        ----
+#----                     get_time_varying_covariates                       ----
 #_______________________________________________________________________________
 
-#' @rdname getTimeVaryingCovariates
-setMethod("getTimeVaryingCovariates", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getTimeVaryingCovariates())
+#' @rdname get_time_varying_covariates
+setMethod("get_time_varying_covariates", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% get_time_varying_covariates())
 })
 
 #_______________________________________________________________________________
-#----                              getIOVs                                  ----
+#----                             get_iovs                                  ----
 #_______________________________________________________________________________
 
-#' @rdname getIOVs
-setMethod("getIOVs", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getIOVs())
+#' @rdname get_iovs
+setMethod("get_iovs", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% get_iovs())
 })
 
 #_______________________________________________________________________________
-#----                            getOccasions                               ----
+#----                            get_occasions                              ----
 #_______________________________________________________________________________
 
-#' @rdname getOccasions
-setMethod("getOccasions", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getOccasions())
+#' @rdname get_occasions
+setMethod("get_occasions", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% get_occasions())
 })
 
 #_______________________________________________________________________________
-#----                             getTimes                                  ----
+#----                             get_times                                 ----
 #_______________________________________________________________________________
 
-#' @rdname getTimes
-setMethod("getTimes", signature = c("dataset"), definition = function(object) {
-  return(object@arms %>% getTimes())
+#' @rdname get_times
+setMethod("get_times", signature = c("dataset"), definition = function(object) {
+  return(object@arms %>% get_times())
 })
 
 #_______________________________________________________________________________
@@ -467,9 +467,9 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
     
     # Unwrap treatment and assign dose number
     treatment <- protocol@treatment %>%
-      unwrapTreatment() %>%
+      unwrap_treatment() %>%
       assignDoseNumber()
-    doseTimes <- getTimes(treatment, unwrap=FALSE)
+    doseTimes <- get_times(treatment, unwrap=FALSE)
     
     if (treatment %>% length() > 0) {
       maxDoseNumber <- (treatment@list[[treatment %>% length()]])@dose_number
@@ -674,9 +674,9 @@ counterBalanceLocfMode <- function(table, columnNames) {
 #'
 getTimeVaryingVariables <- function(object) {
   config <- object@config
-  retValue <- c(object %>% getIOVs() %>% get_names(),
-                object %>% getOccasions() %>% get_names(),
-                object %>% getTimeVaryingCovariates() %>% get_names())
+  retValue <- c(object %>% get_iovs() %>% get_names(),
+                object %>% get_occasions() %>% get_names(),
+                object %>% get_time_varying_covariates() %>% get_names())
   if (config@export_tsld || config@export_tdos) {
     retValue <- retValue %>% append("TDOS")
   }
@@ -963,51 +963,51 @@ setMethod("show", signature=c("dataset"), definition=function(object) {
 })
 
 #_______________________________________________________________________________
-#----                          unwrapTreatment                              ----
+#----                          unwrap_treatment                             ----
 #_______________________________________________________________________________
 
-#' @rdname unwrapTreatment
-setMethod("unwrapTreatment", signature=c("dataset"), definition = function(object) {
-  object@arms <- object@arms %>% unwrapTreatment()
+#' @rdname unwrap_treatment
+setMethod("unwrap_treatment", signature=c("dataset"), definition = function(object) {
+  object@arms <- object@arms %>% unwrap_treatment()
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                            updateAmount                               ----
+#----                            update_amount                              ----
 #_______________________________________________________________________________
 
-#' @rdname updateAmount
-setMethod("updateAmount", signature = c("dataset", "numeric", "character"), definition = function(object, amount, ref) {
-  object@arms <- object@arms %>% updateAmount(amount, ref)
+#' @rdname update_amount
+setMethod("update_amount", signature = c("dataset", "numeric", "character"), definition = function(object, amount, ref) {
+  object@arms <- object@arms %>% update_amount(amount, ref)
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                              updateII                                 ----
+#----                              update_ii                                ----
 #_______________________________________________________________________________
 
-#' @rdname updateII
-setMethod("updateII", signature = c("dataset", "numeric", "character"), definition = function(object, ii, ref) {
-  object@arms <- object@arms %>% updateII(ii, ref)
+#' @rdname update_ii
+setMethod("update_ii", signature = c("dataset", "numeric", "character"), definition = function(object, ii, ref) {
+  object@arms <- object@arms %>% update_ii(ii, ref)
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                             updateADDL                                ----
+#----                             update_addl                               ----
 #_______________________________________________________________________________
 
-#' @rdname updateADDL
-setMethod("updateADDL", signature = c("dataset", "integer", "character"), definition = function(object, addl, ref) {
-  object@arms <- object@arms %>% updateADDL(addl, ref)
+#' @rdname update_addl
+setMethod("update_addl", signature = c("dataset", "integer", "character"), definition = function(object, addl, ref) {
+  object@arms <- object@arms %>% update_addl(addl, ref)
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                             updateRepeat                              ----
+#----                             update_repeat                              ----
 #_______________________________________________________________________________
 
-#' @rdname updateRepeat
-setMethod("updateRepeat", signature = c("dataset", "repeated_schedule", "character"), definition = function(object, rep, ref) {
-  object@arms <- object@arms %>% updateRepeat(rep, ref)
+#' @rdname update_repeat
+setMethod("update_repeat", signature = c("dataset", "repeated_schedule", "character"), definition = function(object, rep, ref) {
+  object@arms <- object@arms %>% update_repeat(rep, ref)
   return(object)
 })

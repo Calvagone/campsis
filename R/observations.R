@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkObservations <- function(object) {
-  times <- getTimes(object)
+  times <- get_times(object)
   check1 <- expectOne(object, "compartment")
   check2 <- character()
   if (object@dv %>% length() > 0 && object@dv %>% length() != length(times)) {
@@ -60,7 +60,7 @@ Observations <- function(times, compartment=NA, rep=NULL) {
 }
 
 setMethod("get_name", signature = c("observations"), definition = function(x) {
-  return(paste0("OBS [", "TIMES=c(", paste0(getTimes(x), collapse=","), "), ", "CMT=", x@compartment, "]"))
+  return(paste0("OBS [", "TIMES=c(", paste0(get_times(x), collapse=","), "), ", "CMT=", x@compartment, "]"))
 })
 
 #_______________________________________________________________________________
@@ -87,19 +87,19 @@ EventRelatedObservations <- function(times, compartment=NA) {
 }
 
 #_______________________________________________________________________________
-#----                             getTimes                                  ----
+#----                             get_times                                 ----
 #_______________________________________________________________________________
 
 #' @param doseTimes times of the doses, only needed if a [DosingSchedule()] is referred to
-#' @rdname getTimes
-setMethod("getTimes", signature = c("observations"), definition = function(object, doseTimes=NULL) {
+#' @rdname get_times
+setMethod("get_times", signature = c("observations"), definition = function(object, doseTimes=NULL) {
   times <- as.numeric(object@times)
   rep <- object@rep
   if (is(rep, "dosing_schedule")) {
     rep <- RepeatAtSchedule(doseTimes)
   }
   times_ <- times %>%
-    repeatSchedule(rep)
+    repeat_schedule(rep)
   
   return(base::sort(unique(times_)))
 })
@@ -153,7 +153,7 @@ setMethod("sample", signature = c("observations", "integer"), definition = funct
     obsCmt <- object@compartment
   }
   isEventRelated <- is(object, "event_related_observations")
-  times <- getTimes(object, doseTimes=doseTimes)
+  times <- get_times(object, doseTimes=doseTimes)
   
   retValue <- tibble::tibble(
     ID=rep(ids, each=length(times)), ARM=as.integer(armID), TIME=rep(times, n),

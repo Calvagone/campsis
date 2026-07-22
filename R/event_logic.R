@@ -45,7 +45,7 @@ getEventIterations <- function(events, dataset) {
   if (is(dataset, "dataset")) {
     maxTime <- convertTime(maxTime, from=dataset@config@time_unit_dataset, to=dataset@config@time_unit_export)
   }
-  userEventTimes <- events %>% getTimes()
+  userEventTimes <- events %>% get_times()
   eventTimes <- userEventTimes %>% append(c(0, maxTime)) %>% unique() %>% base::sort()
   if (0 %in% userEventTimes || maxTime==0) {
     # Add 'second' zero at the beginning of time vector
@@ -109,7 +109,7 @@ cutTableForEvent <- function(table, iteration, summary) {
 #' 
 getDatasetMaxTime <- function(dataset) {
   if (is(dataset, "dataset")) {
-    times <- dataset %>% getTimes()
+    times <- dataset %>% get_times()
   } else {
     times <- dataset$TIME
   }

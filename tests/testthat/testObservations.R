@@ -23,13 +23,13 @@ test_that("Observations set is working as expected", {
   obs2 <- Observations(times=c(3,4,5,6))
   set <- new("observations_set")
   set <- set %>% add(c(obs1, obs2))
-  expect_equal(set %>% getTimes(), c(0,1,2,3,4,5,6))
+  expect_equal(set %>% get_times(), c(0,1,2,3,4,5,6))
 })
 
-test_that("Method getTimes in observations works as expected", {
+test_that("Method get_times in observations works as expected", {
   obs <- Observations(times=c(0,1,2,4,8,12,24))
-  expect_equal(obs %>% getTimes(), c(0,1,2,4,8,12,24))
+  expect_equal(obs %>% get_times(), c(0,1,2,4,8,12,24))
   
   obs <- Observations(times=c(0,1,2,4,8,12,24), rep=DosingSchedule())
-  expect_equal(obs %>% getTimes(doseTimes=c(0,24,48)), unique(c(c(0,1,2,4,8,12,24), c(0,1,2,4,8,12,24)+24, c(0,1,2,4,8,12,24)+48)))
+  expect_equal(obs %>% get_times(doseTimes=c(0,24,48)), unique(c(c(0,1,2,4,8,12,24), c(0,1,2,4,8,12,24)+24, c(0,1,2,4,8,12,24)+48)))
 })

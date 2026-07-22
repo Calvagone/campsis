@@ -20,7 +20,7 @@ test_that("Add, length, contains, getByName methods work as expected", {
   expect_equal(events %>% length(), 2)
   
   # Retrieve event times
-  times <- events %>% getTimes()
+  times <- events %>% get_times()
   expect_equal(times, c(5,10))
 })
 
@@ -29,6 +29,6 @@ test_that("Empty events list", {
   expect_equal(events %>% length(), 0)
   
   # Retrieve event times
-  times <- events %>% getTimes()
+  times <- events %>% get_times()
   expect_equal(times, numeric(0))
 })

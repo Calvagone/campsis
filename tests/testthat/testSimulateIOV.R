@@ -21,7 +21,7 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
       add(Observations(times=obsTimes)) %>%
       add(IOV(colname="IOV_KA", distribution=FunctionDistribution(fun="rnorm", args=list(mean=0, sd=0.2))))
     
-    expect_equal(dataset %>% getIOVs() %>% get_names(), "IOV_KA")
+    expect_equal(dataset %>% get_iovs() %>% get_names(), "IOV_KA")
     
     #table_rxode <- dataset %>% export(dest="RxODE", model=model, seed=seed, nocb=TRUE)
     #table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed, nocb=TRUE)

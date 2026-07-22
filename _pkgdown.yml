@@ -64,10 +64,10 @@ reference:
   contents:
   - set_label
   - set_subjects
-  - updateADDL
-  - updateAmount
-  - updateII
-  - updateRepeat
+  - update_addl
+  - update_amount
+  - update_ii
+  - update_repeat
   
 - title: "Create events"
   contents:
@@ -134,30 +134,30 @@ reference:
   contents:
   - as.numeric,time_sequence-method
   - as.numeric,time_vector-method
-  - applyAction
+  - apply_action
   - applyCompartmentCharacteristics
   - dosingOnly
   - generateIIV
   - generateIIV_
   - getCampsisOption
-  - getCovariates
-  - getEventCovariates
-  - getFixedCovariates
-  - getIOVs
-  - getOccasions
+  - get_covariates
+  - get_event_covariates
+  - get_fixed_covariates
+  - get_iovs
+  - get_occasions
   - getSplittingConfiguration
-  - getTimes
-  - getTimeVaryingCovariates
+  - get_times
+  - get_time_varying_covariates
   - length,arm-method
   - length,cyclic_schedule-method
   - length,dataset-method
   - length,repeat_at_schedule-method
   - nhanes
   - obsOnly
-  - repeatSchedule
+  - repeat_schedule
   - ReplaceAction
   - retrieveParameterValue
-  - unwrapTreatment
+  - unwrap_treatment
 
 - title: "Exported classes"
   contents:

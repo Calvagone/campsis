@@ -8,7 +8,7 @@ test_that("Argument 'rep' can just be an integer", {
   
   # In fact, strictly equal to the following (when unwrapped):
   bolus2 <- Bolus(time=0, amount=100, ii=24, addl=20)
-  expect_equal(bolus1 %>% unwrapTreatment(), bolus2 %>% unwrapTreatment())
+  expect_equal(bolus1 %>% unwrap_treatment(), bolus2 %>% unwrap_treatment())
 })
 
 test_that("Cyclic schedule can be used to repeat the original base schedule", {
@@ -16,10 +16,10 @@ test_that("Cyclic schedule can be used to repeat the original base schedule", {
   expect_equal(schedule@duration, 24*7)
   expect_equal(schedule@repetitions, 2)
   expected <- c(0,24,48,168,192,216,336,360,384)
-  expect_equal(c(0,24,48) %>% repeatSchedule(schedule), expected)
+  expect_equal(c(0,24,48) %>% repeat_schedule(schedule), expected)
   
   times <- Bolus(time=0, amount=100, ii=24, addl=2, rep=schedule) %>%
-    unwrapTreatment() %>%
+    unwrap_treatment() %>%
     purrr::map_dbl(~.x@time)
   expect_equal(times, expected)
 })
@@ -28,10 +28,10 @@ test_that("'Repeat-at' schedule can be used to repeat the original base schedule
   schedule <- RepeatAtSchedule(times=c(168, 336))
   expect_equal(schedule@times, c(0, 168, 336))
   expected <- c(0,24,48,168,192,216,336,360,384)
-  expect_equal(c(0,24,48) %>% repeatSchedule(schedule), expected)
+  expect_equal(c(0,24,48) %>% repeat_schedule(schedule), expected)
   
   times <- Infusion(time=0, amount=100, ii=24, addl=2, rep=schedule) %>%
-    unwrapTreatment() %>%
+    unwrap_treatment() %>%
     purrr::map_dbl(~.x@time)
   expect_equal(times, expected)
 })

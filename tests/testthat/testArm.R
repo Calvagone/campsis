@@ -20,13 +20,13 @@ test_that("Covariate names can be accessed easily", {
   arm <- Arm()
   arm <- arm %>% add(Covariate("WT", ConstantDistribution(70)))
   arm <- arm %>% add(Covariate("WT2", ConstantDistribution(70)))
-  expect_equal(arm %>% getCovariates() %>% get_names(), c("WT", "WT2"))
+  expect_equal(arm %>% get_covariates() %>% get_names(), c("WT", "WT2"))
 })
 
 test_that("IOV names can be accessed easily", {
   arm <- Arm()
   arm <- arm %>% add(IOV(colname="IOV_KA", distribution=NormalDistribution(mean=0, sd=0.1)))
-  expect_equal(arm %>% getIOVs() %>% get_names(), c("IOV_KA"))
+  expect_equal(arm %>% get_iovs() %>% get_names(), c("IOV_KA"))
 })
 
 test_that("Set subjects works as expected", {

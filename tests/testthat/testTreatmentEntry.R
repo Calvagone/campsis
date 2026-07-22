@@ -116,9 +116,9 @@ test_that("Bolus or infusion wrappers", {
   
   # After unwrap
   dataset_ <- dataset %>%
-    unwrapTreatment()
+    unwrap_treatment()
   
-  # updateAmount, updateDosingInterval, updateAddl
+  # update_amount, updateDosingInterval, update_addl
   
   entries <- length(dataset_@arms@list[[1]]@protocol@treatment@list)
   expect_equal(entries, 14)
