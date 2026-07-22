@@ -97,11 +97,11 @@ Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, add
   }
 }
 
-setMethod("getName", signature = c("bolus"), definition = function(x) {
+setMethod("get_name", signature = c("bolus"), definition = function(x) {
   return(sprintf("BOLUS [TIME=%s, CMT=%s]", as.character(x@time), getTreatmentEntryCmtString(x)))
 })
 
-setMethod("getName", signature = c("bolus_wrapper"), definition = function(x) {
+setMethod("get_name", signature = c("bolus_wrapper"), definition = function(x) {
   return(sprintf("BOLUS WRAPPER [REF=%s]", as.character(x@ref)))
 })
 
@@ -186,11 +186,11 @@ Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=
   }
 }
 
-setMethod("getName", signature = c("infusion"), definition = function(x) {
+setMethod("get_name", signature = c("infusion"), definition = function(x) {
   return(sprintf("INFUSION [TIME=%s, CMT=%s]", as.character(x@time), getTreatmentEntryCmtString(x)))
 })
 
-setMethod("getName", signature = c("infusion_wrapper"), definition = function(x) {
+setMethod("get_name", signature = c("infusion_wrapper"), definition = function(x) {
   return(sprintf("INFUSION WRAPPER [REF=%s]", as.character(x@ref)))
 })
 
@@ -251,7 +251,7 @@ processRefArg <- function(ref) {
 }
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
 bolusInfFromJSON <- function(object, json) {
@@ -269,18 +269,18 @@ bolusInfFromJSON <- function(object, json) {
     json@data$rep$duration_unit <- NULL
   }
   object@rep = new("undefined_schedule") # Default, no cycles
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
   object@f <- toExplicitDistributionList(NULL, cmtNo=length(object@compartment))
   object@lag <- toExplicitDistributionList(NULL, cmtNo=length(object@compartment))
   object@ref <- processRefArg(NULL)
   return(object)
 }
 
-setMethod("loadFromJSON", signature=c("bolus_wrapper", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("bolus_wrapper", "json_element"), definition=function(object, json) {
   return(bolusInfFromJSON(object=object, json=json))
 })
 
-setMethod("loadFromJSON", signature=c("infusion_wrapper", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("infusion_wrapper", "json_element"), definition=function(object, json) {
   # Duration unit pre-processing
   if (!is.null(json@data$duration) && !is.null(json@data$duration_unit)) {
     json@data$duration <- convertTime(json@data$duration, from=json@data$duration_unit, to="hour")

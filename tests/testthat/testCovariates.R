@@ -3,7 +3,7 @@ library(campsismod)
 
 context("Test all methods from the covariates class")
 
-test_that("Add, length, getNames methods work well", {
+test_that("Add, length, get_names methods work well", {
   
   covariates <- new("covariates")
   
@@ -22,7 +22,7 @@ test_that("Add, length, getNames methods work well", {
   expect_equal(covariates %>% length(), 2)
   
   # Get names test
-  expect_equal(covariates %>% getNames(), c("WT", "BW"))
+  expect_equal(covariates %>% get_names(), c("WT", "BW"))
 })
 
 test_that("Selecting specific covariates works as expected", {
@@ -41,35 +41,35 @@ test_that("Selecting specific covariates works as expected", {
   covariates <- covariates %>% addCovariates()
 
   # Retrieve all names
-  expect_equal(covariates %>% getNames(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
+  expect_equal(covariates %>% get_names(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
   
   # Strictly equal to:
-  expect_equal(covariates %>% getCovariates() %>% getNames(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
+  expect_equal(covariates %>% getCovariates() %>% get_names(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
   
   # Fixed covariates only
-  expect_equal(covariates %>% getFixedCovariates() %>% getNames(), c("WT", "AGE"))
+  expect_equal(covariates %>% getFixedCovariates() %>% get_names(), c("WT", "AGE"))
   
   # Event covariates only
-  expect_equal(covariates %>% getEventCovariates() %>% getNames(), c("DOSE", "STATE"))
+  expect_equal(covariates %>% getEventCovariates() %>% get_names(), c("DOSE", "STATE"))
   
   # Time-varying covariates only
-  expect_equal(covariates %>% getTimeVaryingCovariates() %>% getNames(), c("TEMPERATURE"))
+  expect_equal(covariates %>% getTimeVaryingCovariates() %>% get_names(), c("TEMPERATURE"))
   
   
   # Add covariates to a dataset object
   dataset <- Dataset()
-  expect_equal(dataset %>% getCovariates() %>% getNames(), character(0))
+  expect_equal(dataset %>% getCovariates() %>% get_names(), character(0))
   dataset <- dataset %>% addCovariates()
 
   # Retrieve all names
-  expect_equal(dataset %>% getCovariates() %>% getNames(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
+  expect_equal(dataset %>% getCovariates() %>% get_names(), c("WT", "AGE", "DOSE", "STATE", "TEMPERATURE"))
   
   # Fixed covariates only
-  expect_equal(dataset %>% getFixedCovariates() %>% getNames(), c("WT", "AGE"))
+  expect_equal(dataset %>% getFixedCovariates() %>% get_names(), c("WT", "AGE"))
   
   # Event covariates only
-  expect_equal(dataset %>% getEventCovariates() %>% getNames(), c("DOSE", "STATE"))
+  expect_equal(dataset %>% getEventCovariates() %>% get_names(), c("DOSE", "STATE"))
   
   # Time-varying covariates only
-  expect_equal(dataset %>% getTimeVaryingCovariates() %>% getNames(), c("TEMPERATURE"))
+  expect_equal(dataset %>% getTimeVaryingCovariates() %>% get_names(), c("TEMPERATURE"))
 })

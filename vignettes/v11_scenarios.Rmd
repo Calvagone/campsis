@@ -54,9 +54,9 @@ dataset <- Dataset() %>%
     add(Observations(times=seq(0, 24, by=0.1)))
 
 scenarios <- Scenarios() %>% 
-  add(Scenario("1000 mg SD", dataset=~.x %>% setSubjects(3) %>% add(Bolus(time=0, 1000)))) %>%
-  add(Scenario("1500 mg SD", dataset=~.x %>% setSubjects(5) %>% add(Bolus(time=0, 1500)))) %>%
-  add(Scenario("2000 mg SD", dataset=~.x %>% setSubjects(10) %>% add(Bolus(time=0, 2000))))
+  add(Scenario("1000 mg SD", dataset=~.x %>% set_subjects(3) %>% add(Bolus(time=0, 1000)))) %>%
+  add(Scenario("1500 mg SD", dataset=~.x %>% set_subjects(5) %>% add(Bolus(time=0, 1500)))) %>%
+  add(Scenario("2000 mg SD", dataset=~.x %>% set_subjects(10) %>% add(Bolus(time=0, 2000))))
 
 results <- model %>% simulate(dataset=dataset, scenarios=scenarios, seed=1)
 spaghettiPlot(results, "CONC", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO)

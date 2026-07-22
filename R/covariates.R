@@ -52,10 +52,10 @@ setMethod("getTimeVaryingCovariates", signature = c("covariates"), definition = 
 })
 
 #_______________________________________________________________________________
-#----                            getNames                                   ----
+#----                            get_names                                   ----
 #_______________________________________________________________________________
 
-setMethod("getNames", signature=c("covariates"), definition=function(object) {
+setMethod("get_names", signature=c("covariates"), definition=function(object) {
   return(object@list %>% purrr::map_chr(.f=~.x@name))
 })
 
@@ -85,17 +85,17 @@ setMethod("show", signature=c("covariates"), definition=function(object) {
   } else {
     fixedCovariates <- object %>% campsismod::select("fixed_covariate")
     if (fixedCovariates %>% length() > 0) {
-      cat("Covariates:", paste0(fixedCovariates %>% getNames(), collapse=","))
+      cat("Covariates:", paste0(fixedCovariates %>% get_names(), collapse=","))
       cat("\n")
     }
     timeVaryingCovariates <- object %>% campsismod::select("time_varying_covariate")
     if (timeVaryingCovariates %>% length() > 0) {
-      cat("Time-varying covariates:", paste0(timeVaryingCovariates %>% getNames(), collapse=","))
+      cat("Time-varying covariates:", paste0(timeVaryingCovariates %>% get_names(), collapse=","))
       cat("\n")
     }
     eventCovariates <- object %>% campsismod::select("event_covariate")
     if (eventCovariates %>% length() > 0) {
-      cat("Event-related covariates:", paste0(eventCovariates %>% getNames(), collapse=","))
+      cat("Event-related covariates:", paste0(eventCovariates %>% get_names(), collapse=","))
       cat("\n")
     }
   }

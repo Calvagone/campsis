@@ -140,7 +140,7 @@ Let's illustrate this feature using a dataset that contains a lot of subjects an
 
 ```{r}
 dataset_ <- dataset %>%
-  setSubjects(24000) %>%
+  set_subjects(24000) %>%
   add(IOV("IOV_KA", distribution=NormalDistribution(mean=0, sd=0.1))) # This step is costly
 ```
 

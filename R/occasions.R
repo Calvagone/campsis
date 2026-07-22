@@ -16,10 +16,10 @@ setClass(
 )
 
 #_______________________________________________________________________________
-#----                            getNames                                   ----
+#----                            get_names                                   ----
 #_______________________________________________________________________________
 
-setMethod("getNames", signature=c("occasions"), definition=function(object) {
+setMethod("get_names", signature=c("occasions"), definition=function(object) {
   return(object@list %>% purrr::map_chr(.f=~.x@colname))
 })
 
@@ -29,7 +29,7 @@ setMethod("getNames", signature=c("occasions"), definition=function(object) {
 
 setMethod("show", signature=c("occasions"), definition=function(object) {
   if (object %>% length() > 0) {
-    cat("-> Treatment occasions:", paste0(object %>% getNames(), collapse=","))
+    cat("-> Treatment occasions:", paste0(object %>% get_names(), collapse=","))
 	  cat("\n")
   }
 })

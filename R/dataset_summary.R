@@ -29,14 +29,14 @@ DatasetSummary <- function() {
 #' @keywords internal
 toDatasetSummary <- function(dataset) {
   summary <- DatasetSummary()
-  summary@iov_names <- dataset %>% getIOVs() %>% getNames()
+  summary@iov_names <- dataset %>% getIOVs() %>% get_names()
   
   arm <- dataset@arms %>% default()
   bootstrap <- arm@bootstrap
   
-  summary@covariate_names <- c(dataset %>% getCovariates() %>% getNames(), bootstrap %>% getNames())
-  summary@event_covariate_names <- dataset %>% getEventCovariates() %>% getNames()
-  summary@occ_names <- dataset %>% getOccasions() %>% getNames()
+  summary@covariate_names <- c(dataset %>% getCovariates() %>% get_names(), bootstrap %>% get_names())
+  summary@event_covariate_names <- dataset %>% getEventCovariates() %>% get_names()
+  summary@occ_names <- dataset %>% getOccasions() %>% get_names()
   
   config <- dataset@config
   if (config@export_tsld) {

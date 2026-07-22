@@ -373,7 +373,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   all_rep_nested <- seqReplicates %>% mapFun()
   
   # Nested dataframe to list
-  outfun_names <- outfun %>% getNames()
+  outfun_names <- outfun %>% get_names()
   all_rep_list <- outfun_names %>% 
     purrr::set_names() %>%
     purrr::map(function(name) {
@@ -508,7 +508,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
     # Set ETA's as extra parameters in mrgsolve
     etaNames <- (model@parameters %>% select("omega"))@list %>%
       purrr::keep(~isDiag(.x)) %>%
-      purrr::map_chr(~getNameInModel(.x))
+      purrr::map_chr(~get_nameInModel(.x))
     
     # Extra care to additional outputs which need to be explicitly declared with mrgsolve 
     outvars_ <- outvars[!(outvars %in% dropOthers())]
@@ -709,7 +709,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   # Retrieve THETA's
   thetas <- model@parameters %>% select("theta")
   thetaParams <- thetas@list %>%
-    purrr::set_names(thetas@list %>% purrr::map_chr(~.x %>% getNameInModel)) %>%
+    purrr::set_names(thetas@list %>% purrr::map_chr(~.x %>% get_nameInModel)) %>%
     purrr::map(~.x@value)
   
   # Apply simulation settings

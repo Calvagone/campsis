@@ -13,7 +13,7 @@ toCampsisElement <- function(json) {
   }
   
   object <- new(type)
-  object <- loadFromJSON(object, JSONElement(json))
+  object <- load_from_json(object, JSONElement(json))
   return(object)
 }
 

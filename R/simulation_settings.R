@@ -41,7 +41,7 @@ setClass(
 Settings <- function(..., json=NULL) {
   if (!is.null(json)) {
     schema <- system.file("extdata", "campsis_settings.schema.json", package="campsis")
-    return(loadFromJSON(new("simulation_settings"), openJSON(json=json, schema=schema)))
+    return(load_from_json(new("simulation_settings"), openJSON(json=json, schema=schema)))
   }
   args <- list(...)
   
@@ -118,17 +118,17 @@ setMethod("add", signature = c("simulation_settings", "hardware_settings"), defi
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("simulation_settings", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("simulation_settings", "json_element"), definition=function(object, json) {
   object <- jsonToCampsisSettings(object, json)
   return(object)
 })
 
-setMethod("loadFromJSON", signature=c("simulation_settings", "character"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("simulation_settings", "character"), definition=function(object, json) {
   schema <- system.file("extdata", "campsis_settings.schema.json", package="campsis")
-  return(loadFromJSON(object=object, json=openJSON(json=json, schema=schema)))
+  return(load_from_json(object=object, json=openJSON(json=json, schema=schema)))
 })
 
 #_______________________________________________________________________________

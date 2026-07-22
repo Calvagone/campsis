@@ -13,7 +13,7 @@ setClass(
   contains="pmx_element"
 )
 
-setMethod("getName", signature = c("scenario_action"), definition = function(x) {
+setMethod("get_name", signature = c("scenario_action"), definition = function(x) {
   return(as.character(NA))
 })
 
@@ -44,10 +44,10 @@ ReplaceAction <- function(object) {
 }
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("replace_action", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("replace_action", "json_element"), definition=function(object, json) {
   replacementObject <- json@data$object
   replacementType <- replacementObject$type
   if (replacementType %in% c("theta", "omega", "sigma")) {

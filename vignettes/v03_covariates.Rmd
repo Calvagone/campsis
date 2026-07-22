@@ -55,7 +55,7 @@ model <- model %>% disable("IIV")
 Let's define a constant covariate into the dataset. This is done as follows.
 
 ```{r}
-ds <- dataset %>% setSubjects(5) %>%
+ds <- dataset %>% set_subjects(5) %>%
   add(Covariate("BW", 70))
 ```
 
@@ -71,7 +71,7 @@ spaghettiPlot(results, "CONC")
 Let's now define 1 body weight per subject. This is done as follows.
 
 ```{r}
-ds <- dataset %>% setSubjects(5) %>%
+ds <- dataset %>% set_subjects(5) %>%
   add(Covariate("BW", c(50,60,70,80,90)))
 ```
 
@@ -87,7 +87,7 @@ spaghettiPlot(results, "CONC")
 Let's say now that the body weight is a uniform distribution. This can be implemented as follows:
 
 ```{r}
-ds <- dataset %>% setSubjects(40) %>%
+ds <- dataset %>% set_subjects(40) %>%
   add(Covariate("BW", UniformDistribution(min=50, max=90)))
 ```
 
@@ -103,7 +103,7 @@ gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CO
 Let's say now that the body weight is a normal distribution. This can be implemented as follows:
 
 ```{r}
-ds <- dataset %>% setSubjects(40) %>%
+ds <- dataset %>% set_subjects(40) %>%
   add(Covariate("BW", NormalDistribution(mean=70, sd=10)))
 ```
 
@@ -119,7 +119,7 @@ gridExtra::grid.arrange(spaghettiPlot(results, "BW"), spaghettiPlot(results, "CO
 Say now that the body weight is a log-normal distribution. This can be implemented as follows:
 
 ```{r}
-ds <- dataset %>% setSubjects(40) %>%
+ds <- dataset %>% set_subjects(40) %>%
   add(Covariate("BW", LogNormalDistribution(meanlog=log(70), sdlog=0.2)))
 ```
 
@@ -140,7 +140,7 @@ bootstrap <- data.frame(ID=c(1,2,3,4,5), BW=c(89,54,60,75,77))
 ```
 
 ```{r}
-ds <- dataset %>% setSubjects(10) %>%
+ds <- dataset %>% set_subjects(10) %>%
   add(Covariate("BW", BootstrapDistribution(data=bootstrap$BW, replacement=TRUE, random=TRUE)))
 ```
 

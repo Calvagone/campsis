@@ -104,10 +104,10 @@ setMethod("getOccasions", signature = c("arm"), definition = function(object) {
 })
 
 #_______________________________________________________________________________
-#----                           getName                                     ----
+#----                           get_name                                     ----
 #_______________________________________________________________________________
 
-setMethod("getName", signature = c("arm"), definition = function(x) {
+setMethod("get_name", signature = c("arm"), definition = function(x) {
   return(paste("ARM", x@id))
 })
 
@@ -284,24 +284,24 @@ setMethod("replace", signature = c("arm", "covariate"), definition = function(ob
 })
 
 #_______________________________________________________________________________
-#----                             setLabel                                  ----
+#----                             set_label                                  ----
 #_______________________________________________________________________________
 
-#' @rdname setLabel
+#' @rdname set_label
 #' @importFrom methods validObject
-setMethod("setLabel", signature = c("arm", "character"), definition = function(object, x) {
+setMethod("set_label", signature = c("arm", "character"), definition = function(object, x) {
   object@label <- x
   methods::validObject(object)
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                           setSubjects                                 ----
+#----                           set_subjects                                ----
 #_______________________________________________________________________________
 
-#' @rdname setSubjects
+#' @rdname set_subjects
 #' @importFrom methods validObject
-setMethod("setSubjects", signature = c("arm", "integer"), definition = function(object, x) {
+setMethod("set_subjects", signature = c("arm", "integer"), definition = function(object, x) {
   object@subjects <- x
   methods::validObject(object)
   return(object)

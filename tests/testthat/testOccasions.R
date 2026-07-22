@@ -3,7 +3,7 @@ library(campsismod)
 
 context("Test all methods from the occasions class")
 
-test_that("Add, length, getNames methods", {
+test_that("Add, length, get_names methods", {
   
   occasions <- new("occasions")
   
@@ -18,6 +18,6 @@ test_that("Add, length, getNames methods", {
   expect_equal(occasions %>% length(), 2)
   
   # Get names test
-  expect_equal(occasions %>% getNames(), c("OCC1", "OCC2"))
+  expect_equal(occasions %>% get_names(), c("OCC1", "OCC2"))
   
 })

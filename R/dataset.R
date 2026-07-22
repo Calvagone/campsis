@@ -41,7 +41,7 @@ Dataset <- function(subjects=NULL, label=as.character(NA), json=NULL) {
   }
   else {
     schema <- system.file("extdata", "campsis.schema.json", package="campsis")
-    dataset <- loadFromJSON(new("dataset"), openJSON(json=json, schema=schema))
+    dataset <- load_from_json(new("dataset"), openJSON(json=json, schema=schema))
   }
   return(dataset)
 }
@@ -199,17 +199,17 @@ setMethod("length", signature=c("dataset"), definition=function(x) {
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("dataset", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("dataset", "json_element"), definition=function(object, json) {
   object <- jsonToCampsisDataset(object=object, json=json)
   return(object)
 })
 
-setMethod("loadFromJSON", signature=c("dataset", "character"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("dataset", "character"), definition=function(object, json) {
   schema <- system.file("extdata", "campsis.schema.json", package="campsis")
-  return(loadFromJSON(object=object, json=openJSON(json=json, schema=schema)))
+  return(load_from_json(object=object, json=openJSON(json=json, schema=schema)))
 })
 
 #_______________________________________________________________________________
@@ -227,18 +227,18 @@ setMethod("replace", signature = c("dataset", "pmx_element"), definition = funct
 })
 
 #_______________________________________________________________________________
-#----                           setSubjects                                 ----
+#----                           set_subjects                                ----
 #_______________________________________________________________________________
 
-#' @rdname setSubjects
+#' @rdname set_subjects
 #' @importFrom methods validObject
-setMethod("setSubjects", signature = c("dataset", "integer"), definition = function(object, x) {
+setMethod("set_subjects", signature = c("dataset", "integer"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   numberOfArms <- object@arms %>% length()
   assertthat::assert_that(length(x)==numberOfArms, msg="x must be the same length as the number of arms in dataset")
   for (armIndex in seq_len(numberOfArms)) {
     arm <- object@arms@list[[armIndex]]
-    arm <- arm %>% setSubjects(x[armIndex])
+    arm <- arm %>% set_subjects(x[armIndex])
     object <- object %>% replace(arm)
   }
   methods::validObject(object)
@@ -246,15 +246,15 @@ setMethod("setSubjects", signature = c("dataset", "integer"), definition = funct
 })
 
 #_______________________________________________________________________________
-#----                             setLabel                                  ----
+#----                             set_label                                  ----
 #_______________________________________________________________________________
 
-#' @rdname setLabel
+#' @rdname set_label
 #' @importFrom methods validObject
-setMethod("setLabel", signature = c("dataset", "character"), definition = function(object, x) {
+setMethod("set_label", signature = c("dataset", "character"), definition = function(object, x) {
   object <- object %>% createDefaultArmIfNotExists()
   object@arms@list[[1]] <- object@arms@list[[1]] %>%
-    setLabel(x)
+    set_label(x)
   return(object)
 })
 
@@ -509,7 +509,7 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
       table <- table %>% dplyr::left_join(cov, by="ID")
 
       # Retrieve time-varying covariate names
-      timeVaryingCovariateNames <- timeVaryingCovariates %>% getNames()
+      timeVaryingCovariateNames <- timeVaryingCovariates %>% get_names()
       
       # Merge time-varying covariate names
       if (timeVaryingCovariateNames %>% length() > 0) {
@@ -674,9 +674,9 @@ counterBalanceLocfMode <- function(table, columnNames) {
 #'
 getTimeVaryingVariables <- function(object) {
   config <- object@config
-  retValue <- c(object %>% getIOVs() %>% getNames(),
-                object %>% getOccasions() %>% getNames(),
-                object %>% getTimeVaryingCovariates() %>% getNames())
+  retValue <- c(object %>% getIOVs() %>% get_names(),
+                object %>% getOccasions() %>% get_names(),
+                object %>% getTimeVaryingCovariates() %>% get_names())
   if (config@export_tsld || config@export_tdos) {
     retValue <- retValue %>% append("TDOS")
   }
@@ -824,7 +824,7 @@ getSplittingConfiguration <- function(dataset, hardware) {
 #'
 splitDataset <- function(dataset, config) {
   if (is.list(config)) {
-    arm <- dataset@arms@list[[config$arm_index]] %>% setSubjects(config$subjects)
+    arm <- dataset@arms@list[[config$arm_index]] %>% set_subjects(config$subjects)
     dataset@arms@list <- list(arm) # Only put previous arm into dataset
   }
   return(dataset)

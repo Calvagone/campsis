@@ -73,11 +73,11 @@ Hardware <- function(cpu=1, replicate_parallel=FALSE, scenario_parallel=FALSE,
 }
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("hardware_settings", "json_element"), definition=function(object, json) {
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+setMethod("load_from_json", signature=c("hardware_settings", "json_element"), definition=function(object, json) {
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
   object@auto_setup_plan <- ifelse(object@cpu > 1, TRUE, FALSE)
   return(object)
 })

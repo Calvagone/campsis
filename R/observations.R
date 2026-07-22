@@ -59,7 +59,7 @@ Observations <- function(times, compartment=NA, rep=NULL) {
   return(new("observations", times=times, compartment=as.character(compartment), rep=rep))
 }
 
-setMethod("getName", signature = c("observations"), definition = function(x) {
+setMethod("get_name", signature = c("observations"), definition = function(x) {
   return(paste0("OBS [", "TIMES=c(", paste0(getTimes(x), collapse=","), "), ", "CMT=", x@compartment, "]"))
 })
 
@@ -105,10 +105,10 @@ setMethod("getTimes", signature = c("observations"), definition = function(objec
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("observations", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("observations", "json_element"), definition=function(object, json) {
   if (is.numeric(unlist(json@data$times))) {
     object@times <- TimeVector(unlist(json@data$times))
     json@data$times <- NULL
@@ -119,7 +119,7 @@ setMethod("loadFromJSON", signature=c("observations", "json_element"), definitio
     unit <- json@data$unit
     json@data$unit <- NULL
   }
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
   
   # Handling time unit
   if (is(object@times, "time_sequence")) {

@@ -6,7 +6,7 @@ test_that("Observations are working well", {
   
   observations <- Observations(times=c(5,6,1,2,3,4,2)) 
   expect_equal(observations@times, TimeVector(c(1,2,3,4,5,6)))
-  expect_equal(observations %>% getName(), "OBS [TIMES=c(1,2,3,4,5,6), CMT=NA]")
+  expect_equal(observations %>% get_name(), "OBS [TIMES=c(1,2,3,4,5,6), CMT=NA]")
 })
 
 test_that("Observations exceptions are working well", {

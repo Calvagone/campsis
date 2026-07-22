@@ -50,9 +50,9 @@ Event <- function(name=NULL, times, fun, debug=FALSE) {
 }
 
 #_______________________________________________________________________________
-#----                           getName                                     ----
+#----                           get_name                                     ----
 #_______________________________________________________________________________
 
-setMethod("getName", signature = c("event"), definition = function(x) {
+setMethod("get_name", signature = c("event"), definition = function(x) {
   return(paste0("EVENT (", x@name, ")"))
 })

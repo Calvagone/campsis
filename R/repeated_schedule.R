@@ -140,11 +140,11 @@ setMethod("length", signature=c("repeat_at_schedule"), definition=function(x) {
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("cyclic_schedule", "json_element"), definition=function(object, json) {
-  return(campsismod::mapJSONPropertiesToS4Slots(object, json))
+setMethod("load_from_json", signature=c("cyclic_schedule", "json_element"), definition=function(object, json) {
+  return(campsismod::map_json_properties_to_s4_slots(object, json))
 })
 
 #_______________________________________________________________________________

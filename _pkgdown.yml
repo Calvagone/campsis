@@ -62,8 +62,8 @@ reference:
   
 - title: "Dataset shortcuts"
   contents:
-  - setLabel
-  - setSubjects
+  - set_label
+  - set_subjects
   - updateADDL
   - updateAmount
   - updateII

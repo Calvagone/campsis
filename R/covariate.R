@@ -23,7 +23,7 @@ setClass(
   validity=checkCovariate
 )
 
-setMethod("getName", signature = c("covariate"), definition = function(x) {
+setMethod("get_name", signature = c("covariate"), definition = function(x) {
   return(x@name)
 })
 
@@ -206,12 +206,12 @@ sampleTimeVaryingCovariates <- function(object, armID, needsDV) {
 }
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("fixed_covariate", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("fixed_covariate", "json_element"), definition=function(object, json) {
   object@name <- json@data$name
-  object@distribution <- loadFromJSON(new(json@data$distribution$type), 
+  object@distribution <- load_from_json(new(json@data$distribution$type), 
                                       JSONElement(json@data$distribution))
   return(object)
 })

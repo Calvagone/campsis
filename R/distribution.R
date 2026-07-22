@@ -511,35 +511,35 @@ setMethod("sample", signature = c("bootstrap_distribution", "integer"), definiti
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("constant_distribution", "json_element"), definition=function(object, json) {
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+setMethod("load_from_json", signature=c("constant_distribution", "json_element"), definition=function(object, json) {
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
   return(object)
 })
 
-setMethod("loadFromJSON", signature=c("fixed_distribution", "json_element"), definition=function(object, json) {
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+setMethod("load_from_json", signature=c("fixed_distribution", "json_element"), definition=function(object, json) {
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
   return(object)
 })
 
-setMethod("loadFromJSON", signature=c("uniform_distribution", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("uniform_distribution", "json_element"), definition=function(object, json) {
   object <- UniformDistribution(min=json@data$min, max=json@data$max)
   return(object)
 })
 
-setMethod("loadFromJSON", signature=c("normal_distribution", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("normal_distribution", "json_element"), definition=function(object, json) {
   object <- NormalDistribution(mean=json@data$mean, sd=json@data$sd)
   return(object)
 })
 
-setMethod("loadFromJSON", signature=c("lognormal_distribution", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("lognormal_distribution", "json_element"), definition=function(object, json) {
   object <- LogNormalDistribution(meanlog=json@data$meanlog, sdlog=json@data$sdlog)
   return(object)
 })
 
-setMethod("loadFromJSON", signature=c("discrete_distribution", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("discrete_distribution", "json_element"), definition=function(object, json) {
   items <- json@data$items
   values <- NULL
   prob <- NULL

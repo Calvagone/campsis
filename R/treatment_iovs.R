@@ -21,7 +21,7 @@ setClass(
 
 setMethod("show", signature=c("treatment_iovs"), definition=function(object) {
   if (object %>% length() > 0) {
-    cat("-> Treatment IOV:", paste0(object %>% getNames(), collapse=","))
+    cat("-> Treatment IOV:", paste0(object %>% get_names(), collapse=","))
     cat("\n")
   }
 })

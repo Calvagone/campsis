@@ -14,9 +14,9 @@ test_that("Simulate scenarios - make few changes on dataset", {
     add(Observations(times=seq(0, 24, by=3)))
 
   scenarios <- Scenarios() %>%
-    add(Scenario("1000 mg SD", dataset=~.x %>% setSubjects(2) %>% add(Bolus(time=0, 1000)))) %>%
-    add(Scenario("1500 mg SD", dataset=~.x %>% setSubjects(2) %>% add(Bolus(time=0, 1500)))) %>%
-    add(Scenario("2000 mg SD", dataset=~.x %>% setSubjects(4) %>% add(Bolus(time=0, 2000))))
+    add(Scenario("1000 mg SD", dataset=~.x %>% set_subjects(2) %>% add(Bolus(time=0, 1000)))) %>%
+    add(Scenario("1500 mg SD", dataset=~.x %>% set_subjects(2) %>% add(Bolus(time=0, 1500)))) %>%
+    add(Scenario("2000 mg SD", dataset=~.x %>% set_subjects(4) %>% add(Bolus(time=0, 2000))))
 
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, scenarios=scenarios, seed=seed, outvars="KA"))
   test <- expression(

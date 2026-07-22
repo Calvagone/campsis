@@ -26,7 +26,7 @@ setClass(
   validity=checkDoseAdaptation
 )
 
-setMethod("getName", signature = c("dose_adaptation"), definition = function(x) {
+setMethod("get_name", signature = c("dose_adaptation"), definition = function(x) {
   return(sprintf("DOSE ADAPTATION [CMT=%s]", getDoseAdaptationCmtString(x, vector=TRUE)))
 })
 
@@ -43,11 +43,11 @@ DoseAdaptation <- function(formula, compartments=NULL) {
 }
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("dose_adaptation", "json_element"), definition=function(object, json) {
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+setMethod("load_from_json", signature=c("dose_adaptation", "json_element"), definition=function(object, json) {
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
   return(object)
 })
 

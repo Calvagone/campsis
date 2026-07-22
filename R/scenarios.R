@@ -26,7 +26,7 @@ Scenarios <- function(json=NULL) {
     scenarios <- new("scenarios")
   } else {
     schema <- system.file("extdata", "no_sub_schemas", "campsis_scenarios.schema.json", package="campsis") 
-    scenarios <- loadFromJSON(new("scenarios"), openJSON(json=json, schema=schema))
+    scenarios <- load_from_json(new("scenarios"), openJSON(json=json, schema=schema))
   }
   return(scenarios)
 }
@@ -45,21 +45,21 @@ setMethod("add", signature = c("scenarios", "scenario"), definition = function(o
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("scenarios", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("scenarios", "json_element"), definition=function(object, json) {
   for (jsonScenario in json@data) {
-    scenario <- loadFromJSON(object=Scenario(), json=JSONElement(jsonScenario))
+    scenario <- load_from_json(object=Scenario(), json=JSONElement(jsonScenario))
     object <- object %>%
       add(scenario)
   }
   return(object)
 })
 
-setMethod("loadFromJSON", signature=c("scenarios", "character"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("scenarios", "character"), definition=function(object, json) {
   schema <- system.file("extdata", "no_sub_schemas", "campsis_scenarios.schema.json", package="campsis")
-  return(loadFromJSON(object=object, json=openJSON(json=json, schema=schema)))
+  return(load_from_json(object=object, json=openJSON(json=json, schema=schema)))
 })
 
 #_______________________________________________________________________________

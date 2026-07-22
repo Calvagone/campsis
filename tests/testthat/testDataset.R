@@ -6,19 +6,19 @@ seed <- 1
 source(file.path(getwd(), test_path(), "testUtils.R"))
 
 test_that("Set subjects works as expected", {
-  dataset <- Dataset() %>% setSubjects(3)
+  dataset <- Dataset() %>% set_subjects(3)
   expect_equal(dataset %>% length(), 3)
   expect_equal(dataset@arms %>% length(), 1)
 
-  dataset <- Dataset(2) %>% setSubjects(5)
+  dataset <- Dataset(2) %>% set_subjects(5)
   expect_equal(dataset %>% length(), 5)
   expect_equal(dataset@arms %>% length(), 1)
 
-  expect_error(Dataset() %>% setSubjects(c(10,20)), regexp="x must be the same length as the number of arms in dataset")
+  expect_error(Dataset() %>% set_subjects(c(10,20)), regexp="x must be the same length as the number of arms in dataset")
   dataset <- Dataset() %>%
     add(c(Arm(subjects=5), Arm(subjects=5)))
   dataset <- dataset %>%
-    setSubjects(c(10,20))
+    set_subjects(c(10,20))
   expect_equal(dataset@arms@list[[1]] %>% length(), 10)
   expect_equal(dataset@arms@list[[2]] %>% length(), 20)
   expect_equal(dataset %>% length(), 30)
@@ -125,8 +125,8 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   dataset <- dataset %>% add(Covariate(name="HT", 180))
   dataset <- dataset %>% add(EventCovariate(name="DOSE", 100))
 
-  expect_equal(dataset %>% getCovariates() %>% getNames(), c("WT", "HT", "DOSE"))
-  expect_equal(dataset %>% getEventCovariates() %>% getNames(), c("DOSE"))
+  expect_equal(dataset %>% getCovariates() %>% get_names(), c("WT", "HT", "DOSE"))
+  expect_equal(dataset %>% getEventCovariates() %>% get_names(), c("DOSE"))
 
   # Add observations
   dataset <- dataset %>% add(Observations(times=seq(0, 48, by=10)))
@@ -526,7 +526,7 @@ test_that("Any layer added to the multiple-arm dataset apply to each arm.", {
     add(c(arm1, arm2))
 
   dataset <- dataset %>%
-    setSubjects(c(4,8))
+    set_subjects(c(4,8))
 
   expect_equal(length(dataset), 12)
 

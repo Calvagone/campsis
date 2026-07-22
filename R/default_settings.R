@@ -56,13 +56,13 @@ DefaultSettings <- function(engine = "rxode2", seed = NULL, replicates = 1L,
 }
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("default_settings", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("default_settings", "json_element"), definition=function(object, json) {
   json_outfuns <- json@data$outfuns
   json@data$outfuns <- NULL
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
 
   # replicates is optional in JSON; coerce to integer (JSON numbers are numeric)
   object@replicates <- as.integer(object@replicates)
@@ -70,7 +70,7 @@ setMethod("loadFromJSON", signature=c("default_settings", "json_element"), defin
   if (is.null(json_outfuns)) {
     object@outfuns <- Outfuns()
   } else {
-    object@outfuns <- loadFromJSON(Outfuns(), JSONElement(json_outfuns))
+    object@outfuns <- load_from_json(Outfuns(), JSONElement(json_outfuns))
   }
   
   return(object)

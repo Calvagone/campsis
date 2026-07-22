@@ -47,9 +47,9 @@ Occasion <- function(colname, values, doseNumbers) {
 }
 
 #_______________________________________________________________________________
-#----                             getName                                   ----
+#----                             get_name                                  ----
 #_______________________________________________________________________________
 
-setMethod("getName", signature = c("occasion"), definition = function(x) {
+setMethod("get_name", signature = c("occasion"), definition = function(x) {
   return(x@colname)
 })

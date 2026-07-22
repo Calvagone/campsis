@@ -85,14 +85,14 @@ setMethod("show", signature=c("outfuns"), definition=function(object) {
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("outfuns", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("outfuns", "json_element"), definition=function(object, json) {
   json_outfuns <- json@data
   
   object@list <- json_outfuns %>% purrr::map(.f=function(json_outfun) {
-    outfun <- loadFromJSON(object=new(json_outfun$type), json=JSONElement(json_outfun))
+    outfun <- load_from_json(object=new(json_outfun$type), json=JSONElement(json_outfun))
     return(outfun)
   })
   

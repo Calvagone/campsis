@@ -84,21 +84,21 @@ setMethod("add", signature = c("scenario", "scenario_action"), definition = func
 })
 
 #_______________________________________________________________________________
-#----                           getName                                     ----
+#----                           get_name                                     ----
 #_______________________________________________________________________________
 
-setMethod("getName", signature = c("scenario"), definition = function(x) {
+setMethod("get_name", signature = c("scenario"), definition = function(x) {
   return(paste0("SCENARIO (", x@name, ")"))
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("scenario", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("scenario", "json_element"), definition=function(object, json) {
   jsonScenario <- json@data
   scenario <- Scenario(name=jsonScenario$name)
-  scenario@actions <- loadFromJSON(new("scenario_actions"), JSONElement(jsonScenario$actions)) 
+  scenario@actions <- load_from_json(new("scenario_actions"), JSONElement(jsonScenario$actions)) 
   return(scenario)
 })
 

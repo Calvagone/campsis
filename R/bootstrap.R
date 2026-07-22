@@ -47,7 +47,7 @@ setClass(
     
     # Check covariable columns
     check2 <- NULL
-    covariableNames <- object %>% getNames()
+    covariableNames <- object %>% get_names()
     covariableNames <- covariableNames[!(covariableNames %in% "BS_ID")]
     check2_lgl <- !covariableNames %>% purrr::map_lgl(.f=~object@data %>% dplyr::pull(.x) %>% is.numeric())
     if (any(check2_lgl)) {
@@ -61,7 +61,7 @@ setClass(
   }
 )
 
-setMethod("getName", signature = c("bootstrap"), definition = function(x) {
+setMethod("get_name", signature = c("bootstrap"), definition = function(x) {
   return("BOOTSTRAP")
 })
 
@@ -108,10 +108,10 @@ isEmptyBootstrap <- function(object) {
 }
 
 #_______________________________________________________________________________
-#----                            getNames                                   ----
+#----                            get_names                                   ----
 #_______________________________________________________________________________
 
-setMethod("getNames", signature=c("bootstrap"), definition=function(object) {
+setMethod("get_names", signature=c("bootstrap"), definition=function(object) {
   data <- object@data
   covariableNames <- colnames(data)
   export_id <- object@export_id
@@ -122,10 +122,10 @@ setMethod("getNames", signature=c("bootstrap"), definition=function(object) {
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("bootstrap", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature=c("bootstrap", "json_element"), definition=function(object, json) {
   data <- json@data
   dataBs <- data$data %>%
     purrr::map_df(~.x) %>%
@@ -165,7 +165,7 @@ setMethod("sample", signature = c("bootstrap", "integer"), definition = function
     # Case random=FALSE, replacement=FALSE
     # Do nothing
   }
-  return(object %>% getNames() %>%
+  return(object %>% get_names() %>%
            purrr::map(~Covariate(name=.x, distribution=FixedDistribution(data %>% dplyr::pull(.x)))))
 })
 

@@ -205,7 +205,7 @@ setGeneric("repeatSchedule", function(x, schedule) {
 })
 
 #_______________________________________________________________________________
-#----                             setLabel                                  ----
+#----                             set_label                                  ----
 #_______________________________________________________________________________
 
 #' Set the label.
@@ -214,13 +214,13 @@ setGeneric("repeatSchedule", function(x, schedule) {
 #' @param x the new label
 #' @return the updated object
 #' @export
-#' @rdname setLabel
-setLabel <- function(object, x) {
+#' @rdname set_label
+set_label <- function(object, x) {
   stop("No default function is provided")
 }
 
-setGeneric("setLabel", function(object, x) {
-  standardGeneric("setLabel")
+setGeneric("set_label", function(object, x) {
+  standardGeneric("set_label")
 })
 
 #_______________________________________________________________________________
@@ -244,7 +244,7 @@ setGeneric("sample", function(object, n, ...) {
 })
 
 #_______________________________________________________________________________
-#----                           setSubjects                                 ----
+#----                           set_subjects                                ----
 #_______________________________________________________________________________
 
 #' Set the number of subjects.
@@ -253,16 +253,16 @@ setGeneric("sample", function(object, n, ...) {
 #' @param x the new number of subjects
 #' @return the updated object
 #' @export
-#' @rdname setSubjects
-setSubjects <- function(object, x) {
+#' @rdname set_subjects
+set_subjects <- function(object, x) {
   stop("No default function is provided")
 }
 
-setGeneric("setSubjects", function(object, x) {
+setGeneric("set_subjects", function(object, x) {
   if (is.numeric(x)) {
     x <- as.integer(x)
   }
-  standardGeneric("setSubjects")
+  standardGeneric("set_subjects")
 })
 
 #_______________________________________________________________________________

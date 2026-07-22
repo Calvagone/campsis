@@ -15,3 +15,49 @@ PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
   return(compute_pi(x=x, variable=variable, strata=strata, level=level))  
 }
 
+#_______________________________________________________________________________
+#----                           generic.R                                   ----
+#_______________________________________________________________________________
+
+#' Set the label.
+#' 
+#' `setLabel()` is deprecated in favor of `set_label()`.
+#' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
+#' @inheritParams set_label
+#' @return the updated object
+#' @export
+#' @rdname setLabel
+setLabel <- function(object, x) {
+  lifecycle::deprecate_warn("1.4.0", "setLabel()", "set_label()")
+  set_label(object = object, x = x)
+}
+
+setGeneric("setLabel", function(object, x) {
+  lifecycle::deprecate_warn("1.4.0", "setLabel()", "set_label()")
+  set_label(object = object, x = x)
+})
+
+#' Set the number of subjects.
+#' 
+#' `setSubjects()` is deprecated in favor of `set_subjects()`.
+#' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
+#' @inheritParams set_subjects
+#' @return the updated object
+#' @export
+#' @rdname setSubjects
+setSubjects <- function(object, x) {
+  lifecycle::deprecate_warn("1.4.0", "setSubjects()", "set_subjects()")
+  set_subjects(object = object, x = x)
+}
+
+setGeneric("setSubjects", function(object, x) {
+  lifecycle::deprecate_warn("1.4.0", "setSubjects()", "set_subjects()")
+  set_subjects(object = object, x = x)
+})
+

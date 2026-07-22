@@ -36,7 +36,7 @@ setClass(
   )
 )
 
-setMethod("getName", signature = c("outfun"), definition = function(x) {
+setMethod("get_name", signature = c("outfun"), definition = function(x) {
   return(x@name)
 })
 
@@ -137,7 +137,7 @@ DefaultOutfun <- function() {
   return(new("default_outfun"))
 }
 
-setMethod("loadFromJSON", signature = c("default_outfun", "json_element"), definition = function(object, json) {
+setMethod("load_from_json", signature = c("default_outfun", "json_element"), definition = function(object, json) {
     return(object) # Nothing to do
   }
 )
@@ -218,8 +218,8 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
   ))
 }
 
-setMethod("loadFromJSON", signature = c("pi_outfun", "json_element"), definition = function(object, json) {
-    object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+setMethod("load_from_json", signature = c("pi_outfun", "json_element"), definition = function(object, json) {
+    object <- campsismod::map_json_properties_to_s4_slots(object, json)
     return(object)
   }
 )
@@ -300,8 +300,8 @@ StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "
   ))
 }
 
-setMethod("loadFromJSON", signature = c("stats_outfun", "json_element"), definition = function(object, json) {
-    object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+setMethod("load_from_json", signature = c("stats_outfun", "json_element"), definition = function(object, json) {
+    object <- campsismod::map_json_properties_to_s4_slots(object, json)
     return(object)
   }
 )
@@ -371,10 +371,10 @@ NCATableOutfun <- function(table, export_type = "summary", name = "default_nca_t
   ))
 }
 
-setMethod("loadFromJSON", signature = c("nca_table_outfun", "json_element"), definition = function(object, json) {
+setMethod("load_from_json", signature = c("nca_table_outfun", "json_element"), definition = function(object, json) {
     table <- open_nca_table(json=json@data$table)
     json@data$table <- NULL
-    object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+    object <- campsismod::map_json_properties_to_s4_slots(object, json)
     object@table <- table
     object@cls <- c(sprintf("%s_campsisnca_tbl", object@export_type), "campsisnca_tbl") # Cls constructed similarly as in NCATableOutfun constructor
     return(object)

@@ -6,7 +6,7 @@ test_that("Bolus is working correctly", {
   bolus <- Bolus(time=0, amount=1000, wrap=F) 
   expect_equal(bolus@time, 0)
   expect_equal(bolus@amount, 1000)
-  expect_equal(bolus %>% getName(), "BOLUS [TIME=0, CMT=DEFAULT]")
+  expect_equal(bolus %>% get_name(), "BOLUS [TIME=0, CMT=DEFAULT]")
 })
 
 test_that("Infusion is working correctly", {
@@ -14,7 +14,7 @@ test_that("Infusion is working correctly", {
   infusion <- Infusion(time=0, amount=1000, wrap=F) 
   expect_equal(infusion@time, 0)
   expect_equal(infusion@amount, 1000)
-  expect_equal(infusion %>% getName(), "INFUSION [TIME=0, CMT=DEFAULT]")
+  expect_equal(infusion %>% get_name(), "INFUSION [TIME=0, CMT=DEFAULT]")
 })
 
 test_that("Infusion errors", {
@@ -95,14 +95,14 @@ test_that("assertions on 'ii' and 'addl' work well", {
 test_that("Bolus or infusion wrappers", {
   infusion <- Infusion(time=0, amount=100, compartment="CENTRAL", ii=24, addl=6, duration=2, ref="Admin1")
   expect_equal(as.character(class(infusion)), "infusion_wrapper")
-  expect_equal(infusion %>% getName(), "INFUSION WRAPPER [REF=Admin1]")
+  expect_equal(infusion %>% get_name(), "INFUSION WRAPPER [REF=Admin1]")
   expect_equal(infusion@ii, 24)
   expect_equal(infusion@addl, 6)
   expect_equal(length(infusion@duration), 1)
   
   bolus <- Bolus(time=0, amount=100, compartment=c("DEPOT1", "DEPOT2"), ii=24, addl=6, f=c(0.7, 0.3), ref="Admin1")
   expect_equal(as.character(class(bolus)), "bolus_wrapper")
-  expect_equal(bolus %>% getName(), "BOLUS WRAPPER [REF=Admin1]")
+  expect_equal(bolus %>% get_name(), "BOLUS WRAPPER [REF=Admin1]")
   expect_equal(bolus@ii, 24)
   expect_equal(bolus@addl, 6)
   expect_equal(length(bolus@f), 2)
