@@ -9,7 +9,7 @@
 #' @return nothing
 #' @importFrom future multisession plan sequential tweak
 #' @export
-setupPlanDefault <- function(object) {
+setup_plan_default <- function(object) {
   if (is(object, "hardware_settings")) {
     hardware <- object
   } else if (is(object, "simulation_settings")) {
@@ -54,7 +54,7 @@ setupPlanDefault <- function(object) {
 #' @return nothing
 #' @importFrom future plan sequential
 #' @export
-setupPlanSequential <- function() {
+setup_plan_sequential <- function() {
   # Use sequential
   future::plan(future::sequential)
 }

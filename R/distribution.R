@@ -312,10 +312,10 @@ BinomialDistribution <- function(trials, prob) {
 #' @return the standardized parameter value or the given default value if not found
 #' @importFrom assertthat assert_that
 #' @export
-retrieveParameterValue <- function(model, paramName, default=NULL, mandatory=FALSE) {
+retrieve_parameter_value <- function(model, paramName, default=NULL, mandatory=FALSE) {
   assertthat::assert_that(is.character(paramName) && length(paramName)==1,
                           msg="paramName must be a single character value")
-  parameter <- model@parameters %>% getByName(paramName)
+  parameter <- model@parameters %>% get_by_name(paramName)
   
   if (parameter %>% length() == 0) {
     if (is.null(default) && mandatory) {
@@ -340,11 +340,11 @@ retrieveParameterValue <- function(model, paramName, default=NULL, mandatory=FAL
 #' @return a parameter distribution  
 #' @export
 ParameterDistribution <- function(model, theta, omega=NULL) {
-  thetaValue <- retrieveParameterValue(model, paramName=paste0("THETA_", theta), mandatory=TRUE)
+  thetaValue <- retrieve_parameter_value(model, paramName=paste0("THETA_", theta), mandatory=TRUE)
   if (is.null(omega)) {
     omegaValue <- 0
   } else {
-    omegaValue <- retrieveParameterValue(model, paramName=paste0("OMEGA_", omega), mandatory=TRUE)
+    omegaValue <- retrieve_parameter_value(model, paramName=paste0("OMEGA_", omega), mandatory=TRUE)
   }
   fun <- FunctionDistribution(fun="rlnorm", args=list(meanlog=log(thetaValue), sdlog=sqrt(omegaValue)))
   return(fun)
@@ -359,7 +359,7 @@ ParameterDistribution <- function(model, theta, omega=NULL) {
 #' @return an ETA distribution
 #' @export
 EtaDistribution <- function(model, omega) {
-  omegaValue <- retrieveParameterValue(model, paramName=paste0("OMEGA_", omega), mandatory=TRUE)
+  omegaValue <- retrieve_parameter_value(model, paramName=paste0("OMEGA_", omega), mandatory=TRUE)
   return(NormalDistribution(mean=0, sd=sqrt(omegaValue)))
 }
 

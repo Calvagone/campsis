@@ -247,11 +247,11 @@ For `rxode2`, which works with a much smaller slice size of 6 subjects, parallel
 
 As you may have seen in the examples above, the argument `auto_setup_plan` is `TRUE` by default. This means, that Campsis, will setup your hardware plan every time you call the `simulate` method. This comes at a high cost since the setup phase can take some time.
 
-For repeated simulations, it may be useful to setup your plan manually once for all. To do so, you can call `setupPlanDefault` on your settings or hardware object:
+For repeated simulations, it may be useful to setup your plan manually once for all. To do so, you can call `setup_plan_default` on your settings or hardware object:
 
 ```{r}
 settings <- Settings(Hardware(cpu=2, replicate_parallel=TRUE, auto_setup_plan=FALSE))
-setupPlanDefault(settings)
+setup_plan_default(settings)
 ```
 
 If you do so, please don't forget to set the argument `auto_setup_plan` to FALSE, when you give these settings to the `simulate` method, otherwise your plan is setup again...
@@ -259,7 +259,7 @@ If you do so, please don't forget to set the argument `auto_setup_plan` to FALSE
 For going back to the sequential execution (1 CPU core), you can call:
 
 ```{r}
-setupPlanSequential()
+setup_plan_sequential()
 ```
 
 ### Run Campsis in parallel within the pipeline tool targets

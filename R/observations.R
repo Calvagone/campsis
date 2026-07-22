@@ -123,11 +123,11 @@ setMethod("load_from_json", signature=c("observations", "json_element"), definit
   
   # Handling time unit
   if (is(object@times, "time_sequence")) {
-    object@times@start <- convertTime(object@times@start, from=unit, to="hour")
-    object@times@end <- convertTime(object@times@end, from=unit, to="hour")
-    object@times@by <- convertTime(object@times@by, from=unit, to="hour")
+    object@times@start <- convert_time(object@times@start, from=unit, to="hour")
+    object@times@end <- convert_time(object@times@end, from=unit, to="hour")
+    object@times@by <- convert_time(object@times@by, from=unit, to="hour")
   } else if (is(object@times, "time_vector")) {
-      object@times@.Data <- convertTime(object@times@.Data, from=unit, to="hour")
+      object@times@.Data <- convert_time(object@times@.Data, from=unit, to="hour")
   } else {
     stop("Either a 'time_vector' or a 'time_sequence'")
   }

@@ -103,7 +103,7 @@ ds2 <- Dataset(50) %>%
 Let's have a look at the dataset, in its table form, and if we look at the doses only:
 
 ```{r}
-ds2 %>% export(dest="RxODE") %>% dosingOnly() %>% head()
+ds2 %>% export(dest="RxODE") %>% dosing_only() %>% head()
 ```
 
 Finally, we can simulate the original model using this new dataset.

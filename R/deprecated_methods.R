@@ -60,3 +60,66 @@ setGeneric("setSubjects", function(object, x) {
   lifecycle::deprecate_warn("1.9.0", "setSubjects()", "set_subjects()")
   set_subjects(object = object, x = x)
 })
+
+#_______________________________________________________________________________
+#----                        time_utilities.R                               ----
+#_______________________________________________________________________________
+
+#' Convert numeric time vector based on the provided units.
+#' 
+#' `convertTime()` is deprecated in favor of `convert_time()`.
+#' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
+#' @inheritParams convert_time
+#' @return numeric vector with the converted times
+#' @export
+#' @rdname convertTime
+convertTime <- function(x, from, to) {
+  lifecycle::deprecate_warn("1.9.0", "convertTime()", "convert_time()")
+  convert_time(x = x, from = from, to = to)
+}
+
+setGeneric("convertTime", function(x, from, to) {
+  lifecycle::deprecate_warn("1.9.0", "convertTime()", "convert_time()")
+  convert_time(x = x, from = from, to = to)
+})
+
+#_______________________________________________________________________________
+#----                           plan_setup.R                                ----
+#_______________________________________________________________________________
+
+#' Setup default plan for the given simulation or hardware settings.
+#' This plan will prioritise the distribution of workers in the following order:
+#' 1) Replicates (if 'replicate_parallel' is enabled)
+#' 2) Scenarios (if 'scenario_parallel' is enabled)
+#' 3) Dataset export / slices (if 'dataset_export' or 'slice_parallel' is enabled)  
+#' 
+#' `setupPlanDefault()` is deprecated in favor of `setup_plan_default()`.
+#' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
+#' @inheritParams setup_plan_default
+#' @return nothing
+#' @export
+setupPlanDefault <- function(object) {
+  lifecycle::deprecate_warn("1.9.0", "setupPlanDefault()", "setup_plan_default()")
+  setup_plan_default(object)
+}
+
+#' Setup plan as sequential (i.e. no parallelisation).
+#' 
+#' `setupPlanSequential()` is deprecated in favor of `setup_plan_sequential()`.
+#' 
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#' 
+#' @return nothing
+#' @export
+setupPlanSequential <- function() {
+  lifecycle::deprecate_warn("1.9.0", "setupPlanSequential()", "setup_plan_sequential()")
+  setup_plan_sequential()
+}
+

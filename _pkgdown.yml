@@ -98,9 +98,9 @@ reference:
 
 - title: "Seed utilities"
   contents:
-  - getSeedForDatasetExport
-  - getSeedForIteration
-  - getSeedForParametersSampling
+  - get_seed_for_dataset_export
+  - get_seed_for_iteration
+  - get_seed_for_parameters_sampling
   
 - title: "Simulation settings"
   contents:
@@ -111,22 +111,22 @@ reference:
   - NOCB
   - Outfun
   - Progress
-  - setupPlanDefault
-  - setupPlanSequential
+  - setup_plan_default
+  - setup_plan_sequential
   - Settings
   - Solver
   - SimulationProgress
   
 - title: "Time conversion utilities"
   contents:
-  - convertTime
+  - convert_time
   - days
-  - getAvailableTimeUnits
+  - get_available_time_units
   - hours
   - minutes
   - months
   - seconds
-  - standardiseTime
+  - standardise_time
   - weeks
   - years
 
@@ -135,17 +135,17 @@ reference:
   - as.numeric,time_sequence-method
   - as.numeric,time_vector-method
   - apply_action
-  - applyCompartmentCharacteristics
-  - dosingOnly
-  - generateIIV
-  - generateIIV_
+  - apply_compartment_characteristics
+  - dosing_only
+  - generate_iiv
+  - generate_iiv_
   - getCampsisOption
   - get_covariates
   - get_event_covariates
   - get_fixed_covariates
   - get_iovs
   - get_occasions
-  - getSplittingConfiguration
+  - get_splitting_configuration
   - get_times
   - get_time_varying_covariates
   - length,arm-method
@@ -153,10 +153,10 @@ reference:
   - length,dataset-method
   - length,repeat_at_schedule-method
   - nhanes
-  - obsOnly
+  - obs_only
   - repeat_schedule
   - ReplaceAction
-  - retrieveParameterValue
+  - retrieve_parameter_value
   - unwrap_treatment
 
 - title: "Exported classes"

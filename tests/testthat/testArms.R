@@ -2,7 +2,7 @@ library(testthat)
 
 context("Test all methods from the arms class")
 
-test_that("Add, length, contains, getByName methods work as expected", {
+test_that("Add, length, contains, get_by_name methods work as expected", {
   
   arms <- new("arms") 
   expect_true(is(arms, "pmx_list"))
@@ -19,8 +19,8 @@ test_that("Add, length, contains, getByName methods work as expected", {
   # Contains method
   expect_true(arms %>% contains(arm1))
   
-  # GetByName method
-  expect_equal(arms %>% getByName("ARM 1") %>% length(), 1)
+  # get_by_name method
+  expect_equal(arms %>% get_by_name("ARM 1") %>% length(), 1)
 })
 
 test_that("Default, replace method work as expected", {

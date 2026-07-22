@@ -55,7 +55,7 @@ spaghettiPlot(results, "CONC", "ID")
 Let's now have a look at the dosing information which is returned.
 
 ```{r}
-results %>% dosingOnly()
+results %>% dosing_only()
 ```
 
 This looks great! The respective amounts that were given are indeed 20, 30, 40 and 50 mg!

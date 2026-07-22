@@ -132,7 +132,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
   progress <- settings@internal@progress
   iterations <- settings@internal@iterations
   
-  tableSeed <- getSeedForDatasetExport(seed=seed, progress=progress)
+  tableSeed <- get_seed_for_dataset_export(seed=seed, progress=progress)
   table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, settings=settings)
 
   inits <- data.frame()
@@ -158,7 +158,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     inits <- results_ %>% dplyr::group_by(dplyr::across("ID")) %>% dplyr::slice(which.max(.data$TIME))
     
     # Set seed for next simulation
-    iterationSeed <- getSeedForIteration(seed=seed, progress=progress)
+    iterationSeed <- get_seed_for_iteration(seed=seed, progress=progress)
     setSeed(iterationSeed)
 
     # Calling events
@@ -294,7 +294,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
 
   # Setup plan automatically if parallel computing is required
   if (settings@hardware@auto_setup_plan) {
-    setupPlanDefault(settings@hardware)
+    setup_plan_default(settings@hardware)
   }
   
   # Create progressor
@@ -309,7 +309,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   if (is(model, "replicated_campsis_model")) {
     replicatedModel <- model
   } else if (is(model, "campsis_model")) {
-    setSeed(getSeedForParametersSampling(seed=seed))
+    setSeed(get_seed_for_parameters_sampling(seed=seed))
     if (replicates > 1) {
       replicatedModel <- model %>%
         replicate(n=replicates, settings=settings@replication)
@@ -391,7 +391,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
         dest = dest,
         scenarios = scenarios,
         outvars = outvars,
-        outfun = outfun %>% getByName(name),
+        outfun = outfun %>% get_by_name(name),
         replicates = replicates
       )
       return(new_campsis_tbl(x=tmp, metadata=metadata))

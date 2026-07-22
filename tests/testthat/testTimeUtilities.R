@@ -6,14 +6,14 @@ seed <- 1
 source(file.path(getwd(), test_path(), "testUtils.R"))
 
 test_that("Time can be converted properly", {
-  expect_equal(convertTime(1, from="week", to="week"), 1)
-  expect_equal(convertTime(1, from="week", to="day"), 7)
-  expect_equal(convertTime(1, from="week", to="minute"), 7*24*60)
-  expect_equal(convertTime(1, from="month", to="day"), 28)
-  expect_equal(convertTime(1, from="year", to="day"), 12*28)
-  expect_equal(convertTime(1, from="year", to="hour"), 12*28*24)
-  expect_equal(convertTime(c(1, 2), from="minute", to="second"), c(60, 120))
-  expect_equal(convertTime(c(1, 12, 24), from="hour", to="day"), c(1/24, 0.5, 1))
+  expect_equal(convert_time(1, from="week", to="week"), 1)
+  expect_equal(convert_time(1, from="week", to="day"), 7)
+  expect_equal(convert_time(1, from="week", to="minute"), 7*24*60)
+  expect_equal(convert_time(1, from="month", to="day"), 28)
+  expect_equal(convert_time(1, from="year", to="day"), 12*28)
+  expect_equal(convert_time(1, from="year", to="hour"), 12*28*24)
+  expect_equal(convert_time(c(1, 2), from="minute", to="second"), c(60, 120))
+  expect_equal(convert_time(c(1, 12, 24), from="hour", to="day"), c(1/24, 0.5, 1))
 })
 
 test_that("Time related columns in dataset are properly converted when needed", {

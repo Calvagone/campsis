@@ -5,7 +5,7 @@
 #' @return a data frame with the observation rows
 #' @importFrom dplyr filter
 #' @export
-obsOnly <- function(x) {
+obs_only <- function(x) {
   if ("EVID" %in% colnames(x)) {
     return(x %>% dplyr::filter(.data$EVID==0))
   } else {
@@ -19,7 +19,7 @@ obsOnly <- function(x) {
 #' @return a data frame with the dosing rows
 #' @importFrom dplyr filter
 #' @export
-dosingOnly <- function(x) {
+dosing_only <- function(x) {
   if ("EVID" %in% colnames(x)) {
     return(x %>% dplyr::filter(.data$EVID==1))
   } else {
@@ -72,7 +72,7 @@ getColumn <- function(.data, colname) {
 spaghettiPlot <- function(x, variable, colour=NULL) {
   group <- "GROUP_GGPLOT"
   strat_extra <- if (.is_replicated(x)) "replicate" else NULL
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", strat_extra, colour), colname=group)
+  x <- uniteColumns(x=x %>% obs_only(), columns=c("ID", strat_extra, colour), colname=group)
   
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
@@ -104,7 +104,7 @@ spaghettiPlot <- function(x, variable, colour=NULL) {
 shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, alpha=0.25) {
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x %>% obsOnly(), columns=colour, colname=colourColumn)
+    x <- uniteColumns(x=x %>% obs_only(), columns=colour, colname=colourColumn)
   } else {
     colourColumn <- NULL
   }
@@ -141,7 +141,7 @@ shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, a
 scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
   strat_extra <- if (.is_replicated(x)) "replicate" else NULL
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", strat_extra, colour), colname=group)
+  x <- uniteColumns(x=x %>% obs_only(), columns=c("ID", strat_extra, colour), colname=group)
   
   if (is.null(time)) {
     time <- min(x$TIME)

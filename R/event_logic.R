@@ -43,7 +43,7 @@ EventIteration <- function(index, start, end, inits=data.frame(), maxIndex) {
 getEventIterations <- function(events, dataset) {
   maxTime <- getDatasetMaxTime(dataset)
   if (is(dataset, "dataset")) {
-    maxTime <- convertTime(maxTime, from=dataset@config@time_unit_dataset, to=dataset@config@time_unit_export)
+    maxTime <- convert_time(maxTime, from=dataset@config@time_unit_dataset, to=dataset@config@time_unit_export)
   }
   userEventTimes <- events %>% get_times()
   eventTimes <- userEventTimes %>% append(c(0, maxTime)) %>% unique() %>% base::sort()

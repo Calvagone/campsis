@@ -30,7 +30,7 @@ getSeed <- function(seed=NULL) {
 #' @return the seed value used to sample parameter uncertainty
 #' @export
 #' 
-getSeedForParametersSampling <- function(seed) {
+get_seed_for_parameters_sampling <- function(seed) {
   return(seed - 1)
 }
 
@@ -41,7 +41,7 @@ getSeedForParametersSampling <- function(seed) {
 #' @return the seed value used to export the dataset
 #' @export
 #' 
-getSeedForDatasetExport <- function(seed, progress) {
+get_seed_for_dataset_export <- function(seed, progress) {
   return(as.integer(seed + (progress@replicate - 1)*(progress@iterations + 1)))
 }
 
@@ -52,8 +52,8 @@ getSeedForDatasetExport <- function(seed, progress) {
 #' @return the seed value to be used for the given replicate number and iteration
 #' @export
 #' 
-getSeedForIteration <- function(seed, progress) {
-  return(getSeedForDatasetExport(seed=seed, progress=progress) + progress@iteration)
+get_seed_for_iteration <- function(seed, progress) {
+  return(get_seed_for_dataset_export(seed=seed, progress=progress) + progress@iteration)
 }
 
 #' Set the seed. The goal of this method is to centralize all calls to

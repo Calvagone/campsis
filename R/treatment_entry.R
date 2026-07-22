@@ -257,15 +257,15 @@ processRefArg <- function(ref) {
 bolusInfFromJSON <- function(object, json) {
   # Time unit pre-processing
   if (!is.null(json@data$time) && !is.null(json@data$time_unit)) {
-    json@data$time <- convertTime(json@data$time, from=json@data$time_unit, to="hour")
+    json@data$time <- convert_time(json@data$time, from=json@data$time_unit, to="hour")
     json@data$time_unit <- NULL
   }
   if (!is.null(json@data$ii) && !is.null(json@data$ii_unit)) {
-    json@data$ii <- convertTime(json@data$ii, from=json@data$ii_unit, to="hour")
+    json@data$ii <- convert_time(json@data$ii, from=json@data$ii_unit, to="hour")
     json@data$ii_unit <- NULL
   }
   if (!is.null(json@data$rep) && !is.null(json@data$rep$duration_unit)) {
-    json@data$rep$duration <- convertTime(json@data$rep$duration, from=json@data$rep$duration_unit, to="hour")
+    json@data$rep$duration <- convert_time(json@data$rep$duration, from=json@data$rep$duration_unit, to="hour")
     json@data$rep$duration_unit <- NULL
   }
   object@rep = new("undefined_schedule") # Default, no cycles
@@ -283,7 +283,7 @@ setMethod("load_from_json", signature=c("bolus_wrapper", "json_element"), defini
 setMethod("load_from_json", signature=c("infusion_wrapper", "json_element"), definition=function(object, json) {
   # Duration unit pre-processing
   if (!is.null(json@data$duration) && !is.null(json@data$duration_unit)) {
-    json@data$duration <- convertTime(json@data$duration, from=json@data$duration_unit, to="hour")
+    json@data$duration <- convert_time(json@data$duration, from=json@data$duration_unit, to="hour")
     json@data$duration_unit <- NULL
   }
   # Process duration manually
@@ -382,7 +382,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   #   0: bolus (see above)
   #  -1: rate via dataset
   #  -2: duration via dataset
-  # -99: rate/duration specified by -1 or -2 in RATE (see method applyCompartmentCharacteristics)
+  # -99: rate/duration specified by -1 or -2 in RATE (see method apply_compartment_characteristics)
   infusionType <- ifelse(!is.na(duration), -2, NA)
   infusionType <- ifelse(!is.na(rate), -1, infusionType)
   infusionType <- ifelse(is.na(infusionType), -99, infusionType)

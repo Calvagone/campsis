@@ -268,7 +268,7 @@ setMethod("set_label", signature = c("dataset", "character"), definition = funct
 #' @param n number of subjects
 #' @return IIV data frame
 #' @export
-generateIIV_ <- function(omega, n) {
+generate_iiv_ <- function(omega, n) {
   if (nrow(omega)==0) {
     return(data.frame())
   }
@@ -287,13 +287,13 @@ generateIIV_ <- function(omega, n) {
 #' @param offset if specified, resulting ID will be ID + offset
 #' @return IIV data frame with ID column
 #' @export
-generateIIV <- function(model, n, offset=0) {
+generate_iiv <- function(model, n, offset=0) {
   # Generate IIV only if model is provided
   if (is.null(model)) {
     iiv <- data.frame()
   } else {
     rxmod <- model %>% export(dest="RxODE")
-    iiv <- generateIIV_(omega=rxmod@omega, n=n)
+    iiv <- generate_iiv_(omega=rxmod@omega, n=n)
     if (nrow(iiv) > 0) {
       iiv <- iiv %>% tibble::add_column(ID=seq_len(n) + offset, .before=1)
     }
@@ -357,7 +357,7 @@ sampleDistributionAsTibble <- function(distribution, n, colname) {
 #' @return updated dataset
 #' @importFrom dplyr mutate
 #' 
-applyCompartmentCharacteristics <- function(table, properties) {
+apply_compartment_characteristics <- function(table, properties) {
   for (property in properties@list) {
     isInfusion <- is(property, "compartment_infusion_duration")
     isRate <- is(property, "compartment_infusion_rate")
@@ -586,7 +586,7 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
   
   # Apply compartment properties coming from the model
   if (!is.null(model)) {
-    retValue <- applyCompartmentCharacteristics(retValue, model@compartments@properties)
+    retValue <- apply_compartment_characteristics(retValue, model@compartments@properties)
   }
   
   # Remove INFUSION_TYPE column
@@ -733,18 +733,18 @@ processAllTimeColumns <- function(table, config) {
   
   # TIME conversion according to specified units
   table <- table %>%
-    dplyr::mutate(TIME=convertTime(x=.data$TIME, from=unitFrom, to=unitTo))
+    dplyr::mutate(TIME=convert_time(x=.data$TIME, from=unitFrom, to=unitTo))
   
   # TDOS conversion according to specified units
   if (config@export_tdos || config@export_tsld) {
     table <- table %>%
-      dplyr::mutate(TDOS=convertTime(x=.data$TDOS, from=unitFrom, to=unitTo))
+      dplyr::mutate(TDOS=convert_time(x=.data$TDOS, from=unitFrom, to=unitTo))
   }
   
   # TIME_TSLD conversion according to specified units
   if (config@export_tsld) {
     table <- table %>%
-      dplyr::mutate(TIME_TSLD=convertTime(x=.data$TIME_TSLD, from=unitFrom, to=unitTo))
+      dplyr::mutate(TIME_TSLD=convert_time(x=.data$TIME_TSLD, from=unitFrom, to=unitTo))
   }
   
   # Compute TSLD
@@ -769,7 +769,7 @@ processAllTimeColumns <- function(table, config) {
 #'  NA (if 'dataset_parallel' disabled or if the length of the dataset is less than the dataset export slice size)
 #' @export
 #'
-getSplittingConfiguration <- function(dataset, hardware) {
+get_splitting_configuration <- function(dataset, hardware) {
   
   sliceSize <- hardware@dataset_slice_size
   
@@ -842,10 +842,10 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   setSeed(getSeed(seed))
   
   # Generate IIV
-  iiv <- generateIIV(model=model, n=length(object))
+  iiv <- generate_iiv(model=model, n=length(object))
   
   # Retrieve splitting configuration
-  configList <- getSplittingConfiguration(dataset=object, hardware=settings@hardware)
+  configList <- get_splitting_configuration(dataset=object, hardware=settings@hardware)
   furrrSeed <- if (is.list(configList)) {TRUE} else {NULL}
   
   exportFun <- function(config) {
@@ -902,10 +902,10 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   setSeed(getSeed(seed))
   
   # Generate IIV
-  iiv <- generateIIV(model=model, n=length(object))
+  iiv <- generate_iiv(model=model, n=length(object))
 
   # Retrieve splitting configuration
-  configList <- getSplittingConfiguration(dataset=object, hardware=settings@hardware)
+  configList <- get_splitting_configuration(dataset=object, hardware=settings@hardware)
   furrrSeed <- if (is.list(configList)) {TRUE} else {NULL}
   
   exportFun <- function(config) {

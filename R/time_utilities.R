@@ -74,7 +74,7 @@ years <- function(x) {
 #'
 #' @return character vector
 #' @export
-getAvailableTimeUnits <- function() {
+get_available_time_units <- function() {
   return(c("second", "minute", "hour", "day", "week", "month", "year"))
 }
 
@@ -86,10 +86,10 @@ getAvailableTimeUnits <- function() {
 #' @param to destination unit, single character value
 #' @return numeric vector with the converted times
 #' @export
-convertTime <- function(x, from, to) {
+convert_time <- function(x, from, to) {
   assertthat::assert_that(is.numeric(x), msg="x is not numeric")
-  from_ <- standardiseTime(x=1, unit=from)
-  to_ <- standardiseTime(x=1, unit=to)
+  from_ <- standardise_time(x=1, unit=from)
+  to_ <- standardise_time(x=1, unit=to)
   return(x*from_/to_)
 }
 
@@ -100,11 +100,11 @@ convertTime <- function(x, from, to) {
 #' @param unit unit of x, single character value
 #' @return numeric vector with the times converted to hours
 #' @export
-standardiseTime <- function(x, unit) {
+standardise_time <- function(x, unit) {
   assertthat::assert_that(length(unit)==1, msg="argument 'unit' must be length 1")
-  assertthat::assert_that(unit %in% getAvailableTimeUnits(),
+  assertthat::assert_that(unit %in% get_available_time_units(),
                           msg=sprintf("argument 'unit' is incorrect, unit must be one of: %s",
-                                      paste0(getAvailableTimeUnits(), collapse=", ")))
+                                      paste0(get_available_time_units(), collapse=", ")))
   if (unit=="second") {
     return(seconds(x))
     

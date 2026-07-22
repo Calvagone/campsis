@@ -103,7 +103,7 @@ ds2 <- Dataset(50) %>%
 Here is an overview of the dataset in its table form if we filter on the doses:
 
 ```{r}
-ds2 %>% export(dest="RxODE") %>% dosingOnly() %>% head()
+ds2 %>% export(dest="RxODE") %>% dosing_only() %>% head()
 ```
 
 Let's now simulate this dataset using the original model.

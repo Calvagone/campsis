@@ -29,7 +29,7 @@ test_that("Dose adaptations can be checked in CAMPSIS output if dosing is TRUE",
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, seed=seed, dosing=TRUE))
   test <- expression(
     expect_equal(results %>% nrow(), expectedLength),
-    expect_equal(results %>% dosingOnly() %>% dplyr::pull(AMT), c(rep(50,7), rep(25,7))),
+    expect_equal(results %>% dosing_only() %>% dplyr::pull(AMT), c(rep(50,7), rep(25,7))),
     spaghettiPlot(results, "A_DEPOT"), # RxODE always puts dose before the observation for same time
     shadedPlot(results, "A_DEPOT")
   )

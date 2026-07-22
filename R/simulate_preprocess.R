@@ -229,12 +229,12 @@ preprocessIds <- function(dataset) {
 #' 
 preprocessArmColumn <- function(dataset, model) {
   if ("ARM" %in% colnames(dataset)) {
-    pkRecord <- model@model %>% getByName("MAIN")
+    pkRecord <- model@model %>% get_by_name("MAIN")
     pkRecord <- pkRecord %>% add(Equation("ARM", "ARM"))
     model@model <- model@model %>% replace(pkRecord)
   }
   if ("EVENT_RELATED" %in% colnames(dataset)) {
-    pkRecord <- model@model %>% getByName("MAIN")
+    pkRecord <- model@model %>% get_by_name("MAIN")
     pkRecord <- pkRecord %>% add(Equation("EVENT_RELATED", "EVENT_RELATED"))
     model@model <- model@model %>% replace(pkRecord)
   }

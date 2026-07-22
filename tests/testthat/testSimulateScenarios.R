@@ -58,7 +58,7 @@ test_that("Simulate scenarios - make few changes on model", {
     add(Scenario("THETA_KA=6") %>% add(ReplaceAction(Theta(name="KA", value=6))))
   
   # Running scenarios sequentially with only 1 CPU
-  setupPlanSequential()
+  setup_plan_sequential()
   settings <- Settings()
   
   simulation <- expression(simulate(model=model, dataset=dataset, dest=destEngine, scenarios=scenarios, seed=seed, settings=settings))
@@ -79,7 +79,7 @@ test_that("Simulate scenarios - make few changes on model", {
   campsisTest(simulation, test, env=environment())
 
   # Back to sequential
-  setupPlanSequential()
+  setup_plan_sequential()
 })
 
 test_that("Export 'SCENARIO' column as soon as 1 scenario is specified.", {
