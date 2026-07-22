@@ -67,7 +67,6 @@ VignetteBuilder:
 Encoding: UTF-8
 Language: en-US
 LazyData: true
-RoxygenNote: 7.3.3
 Collate:
     'all_classes.R'
     'global.R'
@@ -132,3 +131,6 @@ Collate:
     'scatter_plot.R'
     'vpc_plot.R'
     'deprecated_methods.R'
+Remotes:
+  Calvagone/campsismod@snake_case
+Config/roxygen2/version: 8.0.0
