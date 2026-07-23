@@ -38,6 +38,7 @@ Imports:
     ggplot2,
     jsonlite,
     jsonvalidate,
+    lifecycle,
     MASS,
     methods,
     progressr,
