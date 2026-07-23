@@ -331,10 +331,10 @@ sampleTrtDistributions <- function(distributions, n, default, compartmentNo) {
 #' @rdname sample
 setMethod("sample", signature = c("bolus", "integer"), definition = function(object, n, ...) {
   args <- list(...)
-  config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
-  ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
-  armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
-  needsDV <- processExtraArg(args, name="needsDV", mandatory=TRUE, default=FALSE)
+  config <- process_extra_arg(args, name="config", mandatory=TRUE, default=DatasetConfig())
+  ids <- process_extra_arg(args, name="ids", mandatory=TRUE, default=seq_len(n))
+  armID <- process_extra_arg(args, name="armID", mandatory=TRUE, default=as.integer(0))
+  needsDV <- process_extra_arg(args, name="needsDV", mandatory=TRUE, default=FALSE)
   
   if (length(object@compartment)==0) {
     depotCmt <- as.character(config@def_depot_cmt)
@@ -360,10 +360,10 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
 #' @rdname sample
 setMethod("sample", signature = c("infusion", "integer"), definition = function(object, n, ...) {
   args <- list(...)
-  config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
-  ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
-  armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
-  needsDV <- processExtraArg(args, name="needsDV", mandatory=TRUE, default=FALSE)
+  config <- process_extra_arg(args, name="config", mandatory=TRUE, default=DatasetConfig())
+  ids <- process_extra_arg(args, name="ids", mandatory=TRUE, default=seq_len(n))
+  armID <- process_extra_arg(args, name="armID", mandatory=TRUE, default=as.integer(0))
+  needsDV <- process_extra_arg(args, name="needsDV", mandatory=TRUE, default=FALSE)
 
   if (length(object@compartment)==0) {
     depotCmt <- as.character(config@def_depot_cmt)

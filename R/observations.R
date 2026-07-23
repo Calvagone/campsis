@@ -141,11 +141,11 @@ setMethod("load_from_json", signature=c("observations", "json_element"), definit
 #' @rdname sample
 setMethod("sample", signature = c("observations", "integer"), definition = function(object, n, ...) {
   args <- list(...)
-  config <- processExtraArg(args, name="config", mandatory=TRUE, default=DatasetConfig())
-  ids <- processExtraArg(args, name="ids", mandatory=TRUE, default=seq_len(n))
-  armID <- processExtraArg(args, name="armID", mandatory=TRUE, default=as.integer(0))
-  needsDV <- processExtraArg(args, name="needsDV", mandatory=TRUE, default=FALSE)
-  doseTimes <- processExtraArg(args, name="doseTimes", mandatory=TRUE, default=NULL)
+  config <- process_extra_arg(args, name="config", mandatory=TRUE, default=DatasetConfig())
+  ids <- process_extra_arg(args, name="ids", mandatory=TRUE, default=seq_len(n))
+  armID <- process_extra_arg(args, name="armID", mandatory=TRUE, default=as.integer(0))
+  needsDV <- process_extra_arg(args, name="needsDV", mandatory=TRUE, default=FALSE)
+  doseTimes <- process_extra_arg(args, name="doseTimes", mandatory=TRUE, default=NULL)
   
   if (is.na(object@compartment)) {
     obsCmt <- as.character(config@def_obs_cmt)

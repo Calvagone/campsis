@@ -489,7 +489,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
   }
   
   # Compartment names
-  cmtNames <- model@compartments@list %>% purrr::map_chr(~.x %>% toString())
+  cmtNames <- model@compartments@list %>% purrr::map_chr(~.x %>% to_string())
 
   # Export to RxODE / rxode2
   if (is(dest, "rxode_engine")) {
@@ -507,7 +507,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
     
     # Set ETA's as extra parameters in mrgsolve
     etaNames <- (model@parameters %>% select("omega"))@list %>%
-      purrr::keep(~isDiag(.x)) %>%
+      purrr::keep(~is_diag(.x)) %>%
       purrr::map_chr(~get_name_in_model(.x))
     
     # Extra care to additional outputs which need to be explicitly declared with mrgsolve 
@@ -700,7 +700,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   # Retrieve mrgsolve model
   mrgmod <- config$engineModel
   
-  mrgmodCode <- mrgmod %>% toString()
+  mrgmodCode <- mrgmod %>% to_string()
   mrgmodHash <- digest::sha1(mrgmodCode)
   
   # Instantiate mrgsolve model
@@ -728,7 +728,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   }
   
   # Inject SIGMA's into model (RUV managed by mrgsolve)
-  sigma <- campsismod::rxodeMatrix(model=model, type="sigma")
+  sigma <- campsismod::rxode_matrix(model=model, type="sigma")
   if (nrow(sigma) > 0) {
     mod <- mod %>% mrgsolve::update(sigma=sigma)
   }
