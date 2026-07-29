@@ -120,15 +120,19 @@ arm2 <- Arm(subjects=3)
 Let's create 2 different treatments:
 
 ```{r}
-arm1 <- arm1 %>% add(Bolus(time=0, amount=1000))
-arm2 <- arm2 %>% add(Bolus(time=0, amount=2000))
+arm1 <- arm1 %>%
+  add(Bolus(time=0, amount=1000))
+arm2 <- arm2 %>%
+  add(Bolus(time=0, amount=2000))
 ```
 
 Observations may also differ:
 
 ```{r}
-arm1 <- arm1 %>% add(Observations(times=c(0.5, 1)))
-arm2 <- arm2 %>% add(Observations(times=c(1, 1.5)))
+arm1 <- arm1 %>%
+  add(Observations(times=c(0.5, 1)))
+arm2 <- arm2 %>% 
+  add(Observations(times=c(1, 1.5)))
 ```
 
 Let's now add these 2 arms into a fresh dataset:

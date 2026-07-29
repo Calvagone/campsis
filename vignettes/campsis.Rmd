@@ -40,7 +40,7 @@ dataset <- Dataset(10) %>%
 Simulate this very simple protocol:
 
 ```{r, message=F}
-results <- model %>% simulate(dataset, seed=1)
+results <-  simulate(model=model, dataset=dataset, seed=1)
 head(results)
 ```
 
@@ -49,13 +49,13 @@ head(results)
 Plot these results:
 
 ```{r get_started_spaguetti_plot, fig.align='center', fig.height=4, fig.width=8}
-spaghettiPlot(results, "CONC")
+spaghetti_plot(results)
 ```
 
 A shaded plot may also be used:
 
 ```{r get_started_shaded_plot, fig.align='center', fig.height=4, fig.width=8}
-shadedPlot(results, "CONC")
+shaded_plot(results)
 ```
 
 ### Simulate 2 arms
@@ -75,8 +75,8 @@ arm2 <- Arm(subjects=50, label="2000 mg QD") %>%
 
 dataset <- Dataset() %>% add(c(arm1, arm2))
 
-results <- model %>% simulate(dataset, seed=1)
-shadedPlot(results, "CONC", colour="ARM")
+results <- simulate(model=model, dataset=dataset, seed=1)
+shaded_plot(results)
 ```
 
 ### Going further

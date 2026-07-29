@@ -2,46 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "📄 Document",
-      "type": "process",
-      "command": "Rscript",
-      "args": ["-e", "devtools::document()"],
-      "group": "build",
-      "problemMatcher": []
-    },
-    {
-      "label": "📦 Load all",
-      "type": "process",
-      "command": "Rscript",
-      "args": ["-e", "devtools::load_all()"],
-      "group": "build",
-      "problemMatcher": []
-    },
-    {
-      "label": "🧪 Test package",
-      "type": "process",
-      "command": "Rscript",
-      "args": ["-e", "devtools::test()"],
-      "group": "test",
-      "problemMatcher": []
-    },
-    {
-      "label": "🔍 Check package",
-      "type": "process",
-      "command": "Rscript",
-      "args": ["-e", "devtools::check()"],
-      "group": "test",
-      "problemMatcher": []
-    },
-    {
-      "label": "📦 Build source",
-      "type": "process",
-      "command": "Rscript",
-      "args": ["-e", "devtools::build()"],
-      "group": "build",
-      "problemMatcher": []
-    },
-    {
       "label": "📦 Install package from sources",
       "type": "process",
       "command": "Rscript",
@@ -54,6 +14,27 @@
       "type": "process",
       "command": "Rscript",
       "args": ["-e", "roxygen2::roxygenise()"],
+      "group": "build",
+      "problemMatcher": []
+    },
+	{
+      "label": "🧪 Check package (R CMD Check)",
+      "type": "process",
+      "command": "Rscript",
+      "args": ["-e", "devtools::check(cran = TRUE)"],
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "🌐 Build pkgdown site",
+      "type": "process",
+      "command": "Rscript",
+      "args": ["-e", "pkgdown::build_site()"],
+      "options": {
+        "env": {
+          "NOT_CRAN": "true"
+        }
+      },
       "group": "build",
       "problemMatcher": []
     }
