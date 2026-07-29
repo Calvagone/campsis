@@ -21,6 +21,6 @@ list(
   ),
   tar_target(
     results,
-    runSimulation(model = model, dataset = dataset, replicates = 3)
+    run_simulation(model = model, dataset = dataset, replicates = 3)
   )
 )
