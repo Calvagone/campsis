@@ -1,3 +1,13 @@
+# campsis 1.9.0
+
+* Extend JSON interface for study replication #199
+* Standardise tests in package #200
+* Refactor result processing logic and plotting functions #201
+* Allow multiple output functions to be applied to simulation results #202
+* NCA table output function #204
+* Apply collection of output functions (outfuns) on simulated output #207
+* Migrate campsis to snake_case #208
+* Update pkgdown documentation #209
 
 # campsis 1.8.2
 
