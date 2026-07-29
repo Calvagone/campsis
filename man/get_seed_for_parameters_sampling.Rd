@@ -15,3 +15,4 @@ the seed value used to sample parameter uncertainty
 \description{
 Get seed for parameter uncertainty sampling.
 }
+\keyword{internal}

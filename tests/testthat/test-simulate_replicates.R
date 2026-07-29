@@ -25,7 +25,7 @@ test_that("VPC on CP, using predicate", {
 
   # Same but using the replicated Campsis model object
   # Please note that 'replicates' is omitted from the simulate function
-  set.seed(get_seed_for_parameters_sampling(seed=seed)) # Seed is manually set here
+  set.seed(campsis:::get_seed_for_parameters_sampling(seed=seed)) # Seed is manually set here
   repModel <- model %>% replicate(5)
   expect_equal(nrow(repModel@replicated_parameters), 5)
   model1 <- repModel %>% export(dest=CampsisModel(), index=1)

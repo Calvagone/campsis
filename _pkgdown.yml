@@ -78,6 +78,7 @@ reference:
   contents:
   - Scenario
   - Scenarios
+  - ReplaceAction
   
 - title: "Sample distributions"
   contents:
@@ -96,26 +97,21 @@ reference:
   contents:
   - simulate
 
-- title: "Seed utilities"
-  contents:
-  - get_seed_for_dataset_export
-  - get_seed_for_iteration
-  - get_seed_for_parameters_sampling
-  
 - title: "Simulation settings"
   contents:
-  - campsis_handler
   - DefaultSettings
   - Declare
   - Hardware
   - NOCB
   - Outfun
   - Progress
-  - setup_plan_default
-  - setup_plan_sequential
   - Settings
   - Solver
   - SimulationProgress
+  - campsis_handler
+  - setup_plan_default
+  - setup_plan_sequential
+  
   
 - title: "Time conversion utilities"
   contents:
@@ -155,7 +151,6 @@ reference:
   - nhanes
   - obs_only
   - repeat_schedule
-  - ReplaceAction
   - retrieve_parameter_value
   - unwrap_treatment
 

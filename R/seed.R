@@ -28,7 +28,7 @@ get_seed <- function(seed=NULL) {
 #' 
 #' @param seed original seed
 #' @return the seed value used to sample parameter uncertainty
-#' @export
+#' @keywords internal
 #' 
 get_seed_for_parameters_sampling <- function(seed) {
   return(seed - 1)
@@ -39,7 +39,7 @@ get_seed_for_parameters_sampling <- function(seed) {
 #' @param seed original seed
 #' @param progress simulation progress
 #' @return the seed value used to export the dataset
-#' @export
+#' @keywords internal
 #' 
 get_seed_for_dataset_export <- function(seed, progress) {
   return(as.integer(seed + (progress@replicate - 1)*(progress@iterations + 1)))
@@ -50,7 +50,7 @@ get_seed_for_dataset_export <- function(seed, progress) {
 #' @param seed original seed
 #' @param progress simulation progress
 #' @return the seed value to be used for the given replicate number and iteration
-#' @export
+#' @keywords internal
 #' 
 get_seed_for_iteration <- function(seed, progress) {
   return(get_seed_for_dataset_export(seed=seed, progress=progress) + progress@iteration)

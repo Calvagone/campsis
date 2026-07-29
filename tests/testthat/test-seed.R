@@ -5,16 +5,16 @@ context("Test all getSeedFor methods")
 getAllSeedValues <- function(seed, replicates, iterations) {
   retValue <- NULL
   progress <- SimulationProgress(replicates=replicates)
-  retValue <- retValue %>% append(get_seed_for_parameters_sampling(seed=seed))
+  retValue <- retValue %>% append(campsis:::get_seed_for_parameters_sampling(seed=seed))
   for (replicate in seq_len(replicates)) {
     progress@replicate <- replicate
     progress@iterations <- as.integer(iterations)
-    retValue <- retValue %>% append(get_seed_for_dataset_export(seed=seed, progress=progress))
+    retValue <- retValue %>% append(campsis:::get_seed_for_dataset_export(seed=seed, progress=progress))
     #cat(retValue)
     #cat("\n")
     for (iteration in seq_len(iterations)) {
       progress@iteration <- iteration
-      retValue <- retValue %>% append(get_seed_for_iteration(seed=seed, progress=progress))
+      retValue <- retValue %>% append(campsis:::get_seed_for_iteration(seed=seed, progress=progress))
     }
     #cat(retValue)
     #cat("\n")

@@ -17,3 +17,4 @@ the seed value to be used for the given replicate number and iteration
 \description{
 Get seed for iteration.
 }
+\keyword{internal}
