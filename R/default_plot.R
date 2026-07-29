@@ -37,7 +37,7 @@ dosing_only <- function(x) {
 #' @importFrom dplyr all_of
 #' @importFrom tidyr unite
 #' @keywords internal
-uniteColumns <- function(x, columns, colname, factor=TRUE) {
+unite_columns <- function(x, columns, colname, factor=TRUE) {
   x <- x %>%
     tidyr::unite(!!colname, dplyr::all_of(columns), remove=FALSE, sep=" / ")
   if (factor) {
@@ -53,7 +53,7 @@ uniteColumns <- function(x, columns, colname, factor=TRUE) {
 #' @param colname column name
 #' @return a vector
 #' @keywords internal
-getColumn <- function(.data, colname) {
+get_column <- function(.data, colname) {
   if (is.null(colname)) {
     return(NULL)
   } else {
@@ -72,15 +72,15 @@ getColumn <- function(.data, colname) {
 spaghettiPlot <- function(x, variable, colour=NULL) {
   group <- "GROUP_GGPLOT"
   strat_extra <- if (.is_replicated(x)) "replicate" else NULL
-  x <- uniteColumns(x=x %>% obs_only(), columns=c("ID", strat_extra, colour), colname=group)
+  x <- unite_columns(x=x %>% obs_only(), columns=c("ID", strat_extra, colour), colname=group)
   
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x, columns=colour, colname=colourColumn)
+    x <- unite_columns(x=x, columns=colour, colname=colourColumn)
   } else {
     colourColumn <- NULL
   }
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[variable]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[variable]], group=.data[[group]], colour=get_column(.data, colourColumn))) +
     ggplot2::geom_line()
   
   if (length(colour) > 0) {
@@ -104,20 +104,20 @@ spaghettiPlot <- function(x, variable, colour=NULL) {
 shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, alpha=0.25) {
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x %>% obs_only(), columns=colour, colname=colourColumn)
+    x <- unite_columns(x=x %>% obs_only(), columns=colour, colname=colourColumn)
   } else {
     colourColumn <- NULL
   }
   strat_extra <- c(if (.is_replicated(x)) "replicate" else NULL, strat_extra)
   strata_names <- unique(c(colour, strat_extra, colourColumn))
-  strata <- if (is.null(strata_names)) NULL else setNames(rep(allStrataLevels(), length(strata_names)), strata_names)
+  strata <- if (is.null(strata_names)) NULL else setNames(rep(all_strata_levels(), length(strata_names)), strata_names)
 
   x_ <- compute_pi(x=x, variable=variable, strata=strata, level=level) |>
     metrics_pivot_wider()
 
-  plot <- ggplot2::ggplot(data=x_, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colourColumn))) +
+  plot <- ggplot2::ggplot(data=x_, mapping=ggplot2::aes(x=.data$TIME, colour=get_column(.data, colourColumn))) +
     ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=getColumn(.data, colourColumn), fill=getColumn(.data, colourColumn)), colour=NA, alpha=alpha) +
+    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=get_column(.data, colourColumn), fill=get_column(.data, colourColumn)), colour=NA, alpha=alpha) +
     ggplot2::ylab(variable)
   
   if (length(colour) > 0) {
@@ -141,7 +141,7 @@ shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, a
 scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
   strat_extra <- if (.is_replicated(x)) "replicate" else NULL
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x %>% obs_only(), columns=c("ID", strat_extra, colour), colname=group)
+  x <- unite_columns(x=x %>% obs_only(), columns=c("ID", strat_extra, colour), colname=group)
   
   if (is.null(time)) {
     time <- min(x$TIME)
@@ -157,12 +157,12 @@ scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
 
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x, columns=colour, colname=colourColumn)
+    x <- unite_columns(x=x, columns=colour, colname=colourColumn)
   } else {
     colourColumn <- NULL
   }
   
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[variable[1]]], y=.data[[variable[2]]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
+  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[variable[1]]], y=.data[[variable[2]]], group=.data[[group]], colour=get_column(.data, colourColumn))) +
     ggplot2::geom_point()
   
   if (length(colour) > 0) {
@@ -196,7 +196,7 @@ vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15, facet=TRUE) {
   stratified <- length(strata) > 0
   if (stratified) {
     group <- "GROUP_GGPLOT"
-    summary <- uniteColumns(x=summary, columns=names(strata), colname=group)
+    summary <- unite_columns(x=summary, columns=names(strata), colname=group)
   } else {
     group <- NULL
   }
@@ -214,7 +214,7 @@ vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15, facet=TRUE) {
     )
   }
 
-  plot <- ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=getColumn(.data, group))) +
+  plot <- ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=get_column(.data, group))) +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$med_low, ymax=.data$med_up), alpha=alpha, color=NA, fill="red") +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low_low, ymax=.data$low_up), alpha=alpha, color=NA, fill="blue") +
     ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$up_low, ymax=.data$up_up), alpha=alpha, color=NA, fill="blue") +

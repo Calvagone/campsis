@@ -167,7 +167,7 @@ getAdminString <- function(object, type) {
 
   admins <- object@list %>% purrr::keep(.p=function(x){
     comp1 <- clz == (class(x) %>% as.character())
-    comp2 <- cmt == getTreatmentEntryCmtString(x)
+    comp2 <- cmt == get_treatment_entry_cmt_string(x)
     return(comp1 && comp2)
   })
 
@@ -200,7 +200,7 @@ setMethod("show", signature=c("treatment"), definition=function(object) {
   
   adminTypes <- object@list %>% purrr::map_df(.f=function(x){
     return(tibble::tibble(type=class(x) %>% as.character(),
-                          cmt=getTreatmentEntryCmtString(x),
+                          cmt=get_treatment_entry_cmt_string(x),
                           cmtSize=length(x@compartment)))
   }) %>% dplyr::distinct()
   

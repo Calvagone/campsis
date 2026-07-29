@@ -1,17 +1,17 @@
 #' @importFrom rlang expr
-allStrataLevels <- function() {
+all_strata_levels <- function() {
   return("all")
 }
 
-getDefaultStrata <- function() {
-  return(c(SCENARIO=allStrataLevels(), ARM=allStrataLevels()))
+get_default_strata <- function() {
+  return(c(SCENARIO=all_strata_levels(), ARM=all_strata_levels()))
 }
 
 #' @importFrom purrr reduce
 #' @importFrom dplyr filter
-filterOutputOnStrata <- function(x, strata) {
+filter_output_on_strata <- function(x, strata) {
   # Detect the specific strata
-  specific_strata <- strata[strata != allStrataLevels()]
+  specific_strata <- strata[strata != all_strata_levels()]
   
   # Filter input data frame to specific strata
   x_reduced <- purrr::reduce(
@@ -58,7 +58,7 @@ metrics_pivot_wider <- function(x) {
 #' @importFrom dplyr all_of group_by across summarise relocate
 #' @importFrom tidyr pivot_longer
 #' @export
-compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p5", "median", "p95")) {
+compute_stats <- function(x, variable, strata = get_default_strata(), stats = c("p5", "median", "p95")) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
@@ -82,7 +82,7 @@ compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p
   )
   
   # Filter data
-  x_filtered <- filterOutputOnStrata(x = x, strata = strata)
+  x_filtered <- filter_output_on_strata(x = x, strata = strata)
 
   # Map string shortcuts to an expression list for summarize()
   # This dynamically builds the calls for mean, median, or any pXX quantile
@@ -132,7 +132,7 @@ compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p
 #' @return a summary table
 #' @importFrom dplyr mutate case_when
 #' @export
-compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
+compute_pi <- function(x, variable, strata = get_default_strata(), level = 0.90) {
   # Map PI level to requested percentile strings
   prob_low <- (1 - level) / 2
   prob_up  <- 1 - prob_low
@@ -179,7 +179,7 @@ compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
 make_vpc_summary <- function(x, strata=NULL, level=0.90) {
   x <- x |>
     dplyr::rename(original_metric="metric")
-  retValue <- compute_pi(x=x, variable="value", strata=c(original_metric=allStrataLevels(), strata), level=level) |>
+  retValue <- compute_pi(x=x, variable="value", strata=c(original_metric=all_strata_levels(), strata), level=level) |>
     metrics_pivot_wider()
 
   retValue_ <- retValue |>

@@ -3,7 +3,7 @@
 #' 
 #' @return random seed value generated based on time
 #' @keywords internal
-getRandomSeedValue <- function() {
+get_random_seed_value <- function() {
   seed <- as.integer(Sys.time())
   return(seed)
 }
@@ -14,9 +14,9 @@ getRandomSeedValue <- function() {
 #' @return a seed value, integer
 #' @keywords internal
 #' 
-getSeed <- function(seed=NULL) {
+get_seed <- function(seed=NULL) {
   if (is.null(seed) || is.na(seed)) {
-    retValue <- getRandomSeedValue()
+    retValue <- get_random_seed_value()
   } else {
     assertthat::assert_that(is.numeric(seed) && seed%%1==0, msg="seed is not integer")
     retValue <- as.integer(seed)
@@ -62,7 +62,7 @@ get_seed_for_iteration <- function(seed, progress) {
 #' @param seed seed value, not NULL
 #' @keywords internal
 #' 
-setSeed <- function(seed) {
+set_seed <- function(seed) {
   assertthat::assert_that(is.numeric(seed), msg="seed not numeric")
   set.seed(seed)
   #cat(paste0("SEED CHANGED TO: ", seed, "\n"))

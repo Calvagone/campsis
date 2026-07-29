@@ -173,7 +173,7 @@ setClass(
   prototype = prototype(
     fun = pi_wrapper,
     variable = character(0),
-    strata = getDefaultStrata(),
+    strata = get_default_strata(),
     pi_level = 0.90,
     name = "default_pi",
     cls = c("pi_campsis_tbl", "campsis_tbl"),
@@ -191,7 +191,7 @@ setClass(
 #' @importFrom assertthat assert_that
 #' @return a pi_outfun object
 #' @export
-PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
+PIOutfun <- function(variable, strata = get_default_strata(), level = 0.9,
   name = sprintf("pi_%s_%i%%", paste0(variable, collapse = "_"), round(level * 100))) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
@@ -255,7 +255,7 @@ setClass(
   prototype = prototype(
     fun = stats_wrapper,
     variable = character(0),
-    strata = getDefaultStrata(),
+    strata = get_default_strata(),
     stats = c("p5", "median", "p95"),
     name = "default_stats",
     cls = c("stats_campsis_tbl", "campsis_tbl"),
@@ -273,7 +273,7 @@ setClass(
 #' @importFrom assertthat assert_that
 #' @return a stats_outfun object
 #' @export
-StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "median", "p95"),
+StatsOutfun <- function(variable, strata = get_default_strata(), stats = c("p5", "median", "p95"),
   name = sprintf("stats_%s", paste0(variable, collapse = "_"))) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,

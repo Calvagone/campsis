@@ -3,7 +3,7 @@
 #----                        dose_adaptation class                          ----
 #_______________________________________________________________________________
 
-checkDoseAdaptation <- function(object) {
+check_dose_adaptation <- function(object) {
   check1 <- expect_one(object, "formula")
   check2 <- expect_zero_or_more(object, "compartments")
   check3 <- expect_positive_values(object, "compartments")
@@ -23,7 +23,7 @@ setClass(
     compartments = "character"
   ),
   contains="pmx_element",
-  validity=checkDoseAdaptation
+  validity=check_dose_adaptation
 )
 
 setMethod("get_name", signature = c("dose_adaptation"), definition = function(x) {

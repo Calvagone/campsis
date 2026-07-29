@@ -3,10 +3,10 @@
 #----                         scenario class                                ----
 #_______________________________________________________________________________
 
-checkScenario <- function(object) {
+check_scenario <- function(object) {
   checkName <- expect_one(object, "name")
-  checkModel <- expectAppropriateModelArg(object@model)
-  checkDataset <- expectAppropriateDatasetArg(object@dataset)
+  checkModel <- expect_appropriate_model_arg(object@model)
+  checkDataset <- expect_appropriate_dataset_arg(object@dataset)
   return(c(checkName, checkModel, checkDataset))
 }
 
@@ -27,7 +27,7 @@ setClass(
     actions = "scenario_actions"
   ),
   contains="pmx_element",
-  validity=checkScenario
+  validity=check_scenario
 )
 
 #' 
@@ -45,19 +45,19 @@ Scenario <- function(name=NULL, model=NULL, dataset=NULL) {
   if (is.null(model)) {
     model <- ~.x
   } else {
-    checkModel <- expectAppropriateModelArg(model)
+    checkModel <- expect_appropriate_model_arg(model)
     assertthat::assert_that(length(checkModel)==0, msg=checkModel)
   }
   if (is.null(dataset)) {
     dataset <- ~.x
   } else {
-    checkDataset <- expectAppropriateDatasetArg(dataset)
+    checkDataset <- expect_appropriate_dataset_arg(dataset)
     assertthat::assert_that(length(checkDataset)==0, msg=checkDataset)
   }
   return(new("scenario", name=name, model=model, dataset=dataset))
 }
 
-expectAppropriateModelArg <- function(model) {
+expect_appropriate_model_arg <- function(model) {
   if (is(model, "campsis_model") || is.function(model) || rlang::is_formula(model)) {
     return(character(0))
   } else {
@@ -65,7 +65,7 @@ expectAppropriateModelArg <- function(model) {
   }
 }
 
-expectAppropriateDatasetArg <- function(dataset) {
+expect_appropriate_dataset_arg <- function(dataset) {
   if (is(dataset, "dataset") || is.function(dataset) || rlang::is_formula(dataset)) {
     return(character(0))
   } else {
@@ -103,7 +103,7 @@ setMethod("load_from_json", signature=c("scenario", "json_element"), definition=
 })
 
 #_______________________________________________________________________________
-#----                        applyScenario                                  ----
+#----                        apply_scenario                                  ----
 #_______________________________________________________________________________
 
 #' 
@@ -116,7 +116,7 @@ setMethod("load_from_json", signature=c("scenario", "json_element"), definition=
 #' @importFrom rlang as_function is_formula
 #' @export
 #' @keywords internal
-applyScenario <- function(x, scenario) {
+apply_scenario <- function(x, scenario) {
   assertthat::assert_that(is(scenario, "scenario"),
                           msg="scenario must be a scenario")
   if (is(x, "campsis_model")) {

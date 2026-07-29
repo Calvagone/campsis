@@ -6,7 +6,7 @@
 #' @keywords internal
 #' @return always TRUE
 #' 
-importCampsismodToNamespace <- function() {
+import_campsismod_to_namespace <- function() {
   return(TRUE)
 }
 
@@ -22,7 +22,7 @@ importCampsismodToNamespace <- function() {
 #' @return a distribution object
 #' @keywords internal
 #' 
-toExplicitDistribution <- function(distribution) {
+to_explicit_distribution <- function(distribution) {
   if (is.null(distribution)) {
     return(new("undefined_distribution"))
   } else if (is.numeric(distribution)) {
@@ -38,19 +38,19 @@ toExplicitDistribution <- function(distribution) {
   }
 }
 
-toExplicitDistributionList <- function(distribution, cmtNo) {
+to_explicit_distribution_list <- function(distribution, cmtNo) {
   if (is.null(distribution)) {
     retValue <- list(new("undefined_distribution"))
   }
   if (is.numeric(distribution)) {
     # E.g. f=c(0.5, 1)
-    retValue <- distribution %>% purrr::map(toExplicitDistribution)
+    retValue <- distribution %>% purrr::map(to_explicit_distribution)
     
   } else if (is.list(distribution)) {
     # E.g. f=list(0.5, 1)
-    retValue <- distribution %>% purrr::map(toExplicitDistribution)
+    retValue <- distribution %>% purrr::map(to_explicit_distribution)
   } else {
-    retValue <- list(toExplicitDistribution(distribution))
+    retValue <- list(to_explicit_distribution(distribution))
   }
   size <- length(retValue)
   if (size==cmtNo) {
@@ -62,7 +62,7 @@ toExplicitDistributionList <- function(distribution, cmtNo) {
   }
 }
 
-envVarIsTrue <- function(x) {
+env_var_is_true <- function(x) {
   return(isTRUE(as.logical(Sys.getenv(x, "false"))))
 }
 
@@ -73,9 +73,9 @@ envVarIsTrue <- function(x) {
 #' @return logical value TRUE/FALSE
 #' @export
 #' @keywords internal
-onCran <- function() {
+on_cran <- function() {
   # Copied from testthat:::on_cran() 
-  return(!interactive() && !envVarIsTrue("NOT_CRAN"))
+  return(!interactive() && !env_var_is_true("NOT_CRAN"))
 }
 
 #'
@@ -84,9 +84,9 @@ onCran <- function() {
 #' @return logical value TRUE/FALSE
 #' @export
 #' @keywords internal
-onCI <- function() {
+on_ci <- function() {
   # Copied from testthat:::on_ci() 
-  return(envVarIsTrue("CI"))
+  return(env_var_is_true("CI"))
 }
 
 #'
@@ -95,7 +95,7 @@ onCI <- function() {
 #' @return global options for Campsis
 #' @export
 #' @keywords internal
-getCampsisOptions <- function() {
+get_campsis_options <- function() {
   return(getOption("campsis.options"))
 }
 
@@ -106,8 +106,8 @@ getCampsisOptions <- function() {
 #' @param default default value if option not found
 #' @return option value
 #' @export
-getCampsisOption <- function(name, default) {
-  option <- getCampsisOptions()
+get_campsis_option <- function(name, default) {
+  option <- get_campsis_options()
   if (is.null(option)) {
     return(default)
   } else {

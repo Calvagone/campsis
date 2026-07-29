@@ -2,7 +2,7 @@
 #----                       event_iteration class                           ----
 #_______________________________________________________________________________
 
-checkEventIteration <- function(object) {
+check_event_iteration <- function(object) {
   return(expect_one_for_all(object, c("start", "end", "index", "maxIndex")))
 }
 
@@ -16,7 +16,7 @@ setClass(
     maxIndex = "integer"
   ),
   prototype=prototype(inits=data.frame()),
-  validity=checkEventIteration
+  validity=check_event_iteration
 )
 
 #' 

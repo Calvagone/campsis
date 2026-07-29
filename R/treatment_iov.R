@@ -2,7 +2,7 @@
 #----                        treatment_iov class                            ----
 #_______________________________________________________________________________
 
-validateTreatmentIOV <- function(object) {
+validate_treatment_iov <- function(object) {
   check1 <- expect_one_for_all(object, c("colname", "distribution"))
   check2 <- expect_zero_or_more(object, "dose_numbers")
   return(c(check1, check2))
@@ -23,7 +23,7 @@ setClass(
     dose_numbers = "integer"
   ),
   contains="pmx_element",
-  validity=validateTreatmentIOV 
+  validity=validate_treatment_iov 
 )
 
 #'
@@ -40,7 +40,7 @@ IOV <- function(colname, distribution, doseNumbers=NULL) {
   if (is.null(doseNumbers)) {
     doseNumbers <- integer(0)
   }
-  return(new("treatment_iov", colname=trimws(colname), distribution=toExplicitDistribution(distribution),
+  return(new("treatment_iov", colname=trimws(colname), distribution=to_explicit_distribution(distribution),
              dose_numbers=as.integer(doseNumbers) %>% unique() %>% base::sort()))
 }
 

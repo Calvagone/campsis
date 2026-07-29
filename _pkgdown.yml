@@ -139,7 +139,7 @@ reference:
   - dosing_only
   - generate_iiv
   - generate_iiv_
-  - getCampsisOption
+  - get_campsis_option
   - get_covariates
   - get_event_covariates
   - get_fixed_covariates

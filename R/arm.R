@@ -3,11 +3,7 @@
 #----                            arm class                                  ----
 #_______________________________________________________________________________
 
-checkArm <- function(object) {
-  return(expect_one_for_all(object, c("id", "subjects", "label")))
-}
-
-getEmptyBootstrap <- function() {
+get_empty_bootstrap <- function() {
   return(Bootstrap(data=data.frame(BS_ID=integer())))
 }
 
@@ -34,7 +30,7 @@ setClass(
   contains="pmx_element",
   prototype=prototype(id=as.integer(NA), subjects=as.integer(1), label=as.character(NA),
                       protocol=new("protocol"), covariates=new("covariates"),
-                      bootstrap=getEmptyBootstrap())
+                      bootstrap=get_empty_bootstrap())
 )
 
 #'
@@ -323,7 +319,7 @@ setMethod("show", signature=c("arm"), definition=function(object) {
   }
   show(object@protocol)
   cat("\n")
-  hasBootstrap <- !isTRUE(all.equal(object@bootstrap, getEmptyBootstrap()))
+  hasBootstrap <- !isTRUE(all.equal(object@bootstrap, get_empty_bootstrap()))
   hasCovariates <- length(object@covariates@list) > 0
   if (hasBootstrap) {
     if (hasCovariates) {

@@ -3,7 +3,7 @@
 #----                     observations class                                ----
 #_______________________________________________________________________________
 
-checkObservations <- function(object) {
+check_observations <- function(object) {
   times <- get_times(object)
   check1 <- expect_one(object, "compartment")
   check2 <- character()
@@ -35,7 +35,7 @@ setClass(
   ),
   contains = "pmx_element",
   prototype = prototype(compartment=as.character(NA), dv=numeric(0), rep=new("undefined_schedule")),
-  validity = checkObservations
+  validity = check_observations
 )
 
 #'

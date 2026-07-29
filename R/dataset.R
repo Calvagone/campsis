@@ -41,7 +41,7 @@ Dataset <- function(subjects=NULL, label=as.character(NA), json=NULL) {
   }
   else {
     schema <- system.file("extdata", "campsis.schema.json", package="campsis")
-    dataset <- load_from_json(new("dataset"), openJSON(json=json, schema=schema))
+    dataset <- load_from_json(new("dataset"), open_json(json=json, schema=schema))
   }
   return(dataset)
 }
@@ -203,13 +203,13 @@ setMethod("length", signature=c("dataset"), definition=function(x) {
 #_______________________________________________________________________________
 
 setMethod("load_from_json", signature=c("dataset", "json_element"), definition=function(object, json) {
-  object <- jsonToCampsisDataset(object=object, json=json)
+  object <- json_to_campsis_dataset(object=object, json=json)
   return(object)
 })
 
 setMethod("load_from_json", signature=c("dataset", "character"), definition=function(object, json) {
   schema <- system.file("extdata", "campsis.schema.json", package="campsis")
-  return(load_from_json(object=object, json=openJSON(json=json, schema=schema)))
+  return(load_from_json(object=object, json=open_json(json=json, schema=schema)))
 })
 
 #_______________________________________________________________________________
@@ -307,7 +307,7 @@ generate_iiv <- function(model, n, offset=0) {
 #' @param iiv IIV matrix
 #' @return updated table with IIV matrix
 #' @keywords internal
-leftJoinIIV <- function(table, iiv) {
+left_join_iiv <- function(table, iiv) {
   if (nrow(iiv) > 0) {
     table <- table %>% dplyr::left_join(iiv, by="ID")
   }
@@ -322,7 +322,7 @@ leftJoinIIV <- function(table, iiv) {
 #' @return a dataframe of n rows, 1 column per covariate
 #' @keywords internal
 #' 
-sampleCovariatesList <- function(covariates, ids_within_arm, subset) {
+sample_covariates_list <- function(covariates, ids_within_arm, subset) {
   n <- length(ids_within_arm)
   retValue <- covariates@list %>% purrr::map_dfc(.f=function(covariate) {
     distribution <- covariate@distribution
@@ -332,7 +332,7 @@ sampleCovariatesList <- function(covariates, ids_within_arm, subset) {
       assertthat::assert_that(!any(is.na(distribution@values)),
                               msg=paste0("NA's detected in covariate '", covariate@name, "'"))
     }
-    sampleDistributionAsTibble(distribution, n=n, colname=covariate@name)
+    sample_distribution_as_tibble(distribution, n=n, colname=covariate@name)
   })
   return(retValue)
 }
@@ -345,7 +345,7 @@ sampleCovariatesList <- function(covariates, ids_within_arm, subset) {
 #' @return a tibble of n rows and 1 column
 #' @keywords internal
 #'
-sampleDistributionAsTibble <- function(distribution, n, colname) {
+sample_distribution_as_tibble <- function(distribution, n, colname) {
   return(tibble::tibble(!!colname := (distribution %>% sample(n=n))@sampled_values))
 }
 
@@ -381,7 +381,7 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
   if (is.null(settings)) {
     settings <- Settings()
   }
-  settings <- preprocessSettings(settings, dest)
+  settings <- preprocess_settings(settings, dest)
   table <- object %>% export(dest=destinationEngine, seed=seed, model=model, settings=settings)
   if (!event_related_column) {
     table <- table %>% dplyr::select(-dplyr::all_of("EVENT_RELATED"))
@@ -399,11 +399,11 @@ setMethod("export", signature=c("dataset", "character"), definition=function(obj
 #' @importFrom purrr map_dfr
 #' @importFrom assertthat assert_that
 #' 
-getCompartmentMapping <- function(compartments) {
+get_compartment_mapping <- function(compartments) {
   if (length(compartments)==0) {
     return(tibble::tibble(INDEX=as.integer(0), NAME=as.character(0)))
   }
-  compartmentMapping <- compartments@list %>%
+  compartment_mapping <- compartments@list %>%
     purrr::map_dfr(.f=function(cmt) {
       if (is.na(cmt@name)) {
         return(tibble::tibble(INDEX=cmt@index, NAME=as.character(cmt@index)))
@@ -415,7 +415,7 @@ getCompartmentMapping <- function(compartments) {
         return(tibble::tibble(INDEX=c(cmt@index, cmt@index), NAME=c(cmt@name, as.character(cmt@index))))
       }
     })
-  return(compartmentMapping)
+  return(compartment_mapping)
 }
 
 #' Export delegate method. This method is common to RxODE and mrgsolve.
@@ -436,7 +436,7 @@ getCompartmentMapping <- function(compartments) {
 #' @importFrom rlang parse_expr
 #' @keywords internal
 #' 
-exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_arm=0) {
+export_delegate <- function(object, dest, model, arm_offset=NULL, offset_within_arm=0) {
 
   # Retrieve dataset configuration
   config <- object@config
@@ -456,7 +456,7 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
   # Get compartment mapping
   compartmentMapping <- NULL
   if (!is.null(model)) {
-    compartmentMapping <- getCompartmentMapping(model@compartments)
+    compartmentMapping <- get_compartment_mapping(model@compartments)
   }
   
   retValue <- purrr::map2_df(arms@list, maxIDPerArm, .f=function(arm, maxID) {
@@ -498,7 +498,7 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
     table <- table %>% dplyr::arrange(dplyr::across(c("ID","TIME","EVID")))
 
     # Sampling covariates
-    cov <- sampleCovariatesList(covariates, ids_within_arm=ids_within_arm, subset=subsetCovariates)
+    cov <- sample_covariates_list(covariates, ids_within_arm=ids_within_arm, subset=subsetCovariates)
     
     if (nrow(cov) > 0) {
       # Retrieve all covariate names (including time-varying ones)
@@ -541,7 +541,7 @@ exportDelegate <- function(object, dest, model, arm_offset=NULL, offset_within_a
     for (treatmentIov in treatmentIovs@list) {
       doseNumbers <- treatmentIov@dose_numbers
       doseNumbers <- if (doseNumbers %>% length()==0) {seq_len(maxDoseNumber)} else {doseNumbers}
-      iov <- sampleDistributionAsTibble(treatmentIov@distribution, n=length(ids)*length(doseNumbers), colname=treatmentIov@colname)
+      iov <- sample_distribution_as_tibble(treatmentIov@distribution, n=length(ids)*length(doseNumbers), colname=treatmentIov@colname)
       iov <- iov %>% dplyr::mutate(ID=rep(ids, each=length(doseNumbers)), DOSENO=rep(doseNumbers, length(ids)))
       table <- table %>% dplyr::left_join(iov, by=c("ID","DOSENO"))
     }
@@ -839,7 +839,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   nocbvars <- preprocessNocbvars(settings@nocb@variables)
   
   # Set seed value
-  setSeed(getSeed(seed))
+  set_seed(get_seed(seed))
   
   # Generate IIV
   iiv <- generate_iiv(model=model, n=length(object))
@@ -852,7 +852,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
     # Export table
     arm_offset <- if (is.list(config)) {config$arm_offset} else {NULL}
     offset_within_arm <- if (is.list(config)) {config$offset_within_arm} else {0}
-    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model,
+    table <- export_delegate(object=splitDataset(object, config), dest=dest, model=model,
                             arm_offset=arm_offset, offset_within_arm=offset_within_arm)
     
     # TSLD/TDOS pre-processing
@@ -885,7 +885,7 @@ setMethod("export", signature=c("dataset", "rxode_engine"), definition=function(
   }
 
   # Left-join IIV matrix
-  retValue <- leftJoinIIV(table=configList %>% mapFun(), iiv=iiv)
+  retValue <- left_join_iiv(table=configList %>% mapFun(), iiv=iiv)
   
   return(retValue)
 })
@@ -899,7 +899,7 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   nocbvars <- preprocessNocbvars(settings@nocb@variables)
   
   # Set seed value
-  setSeed(getSeed(seed))
+  set_seed(get_seed(seed))
   
   # Generate IIV
   iiv <- generate_iiv(model=model, n=length(object))
@@ -912,7 +912,7 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
     # Export table
     arm_offset <- if (is.list(config)) {config$arm_offset} else {NULL}
     offset_within_arm <- if (is.list(config)) {config$offset_within_arm} else {0}
-    table <- exportDelegate(object=splitDataset(object, config), dest=dest, model=model,
+    table <- export_delegate(object=splitDataset(object, config), dest=dest, model=model,
                             arm_offset=arm_offset, offset_within_arm=offset_within_arm)
     
     # TSLD/TDOS pre-processing
@@ -945,7 +945,7 @@ setMethod("export", signature=c("dataset", "mrgsolve_engine"), definition=functi
   }
 
   # Left-join IIV matrix
-  retValue <- leftJoinIIV(table=configList %>% mapFun(), iiv=iiv)
+  retValue <- left_join_iiv(table=configList %>% mapFun(), iiv=iiv)
 
   return(retValue)
 })

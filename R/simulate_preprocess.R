@@ -6,7 +6,7 @@
 #' @return 'rxode2', 'RxODE' or 'mrgsolve'
 #' @keywords internal
 #' 
-preprocessDest <- function(dest) {
+preprocess_dest <- function(dest) {
   if (is.null(dest)) {
     if (find.package("rxode2", quiet=TRUE) %>% length() > 0) {
       dest <- "rxode2" # Default package
@@ -35,7 +35,7 @@ preprocessDest <- function(dest) {
 #' @param events interruption events
 #' @keywords internal
 #' 
-preprocessEvents <- function(events) {
+preprocess_events <- function(events) {
   if (is.null(events)) {
     return(Events())
   } else {
@@ -48,7 +48,7 @@ preprocessEvents <- function(events) {
 #' @param scenarios scenarios
 #' @keywords internal
 #' 
-preprocessScenarios <- function(scenarios) {
+preprocess_scenarios <- function(scenarios) {
   if (is.null(scenarios)) {
     return(Scenarios())
   } else {
@@ -64,7 +64,7 @@ preprocessScenarios <- function(scenarios) {
 #' @importFrom rlang as_function is_formula
 #' @keywords internal
 #' 
-preprocessTablefun <- function(fun) {
+preprocess_tablefun <- function(fun) {
   if (is.null(fun)) {
     fun <- function(x){x}
     return(fun)
@@ -86,7 +86,7 @@ preprocessTablefun <- function(fun) {
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessOutfun <- function(outfun) {
+preprocess_outfun <- function(outfun) {
   fun <- NULL
   if (is.null(outfun)) {
     fun <- DefaultOutfun()
@@ -113,7 +113,7 @@ preprocessOutfun <- function(outfun) {
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessOutvars <- function(outvars) {
+preprocess_outvars <- function(outvars) {
   if (is.null(outvars)) {
     return(character(0))
   } else {
@@ -134,7 +134,7 @@ preprocessOutvars <- function(outvars) {
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessReplicates <- function(replicates, model) {
+preprocess_replicates <- function(replicates, model) {
   assertthat::assert_that(is.numeric(replicates) && replicates%%1==0 && replicates > 0,
                           msg="replicates not a positive integer")
   replicates <- as.integer(replicates)
@@ -161,7 +161,7 @@ preprocessReplicates <- function(replicates, model) {
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessSettings <- function(settings, dest) {
+preprocess_settings <- function(settings, dest) {
   # Check if NOCB is specified
   enable <- settings@nocb@enable
   if (is.na(enable)) {
@@ -196,7 +196,7 @@ preprocessSettings <- function(settings, dest) {
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessDosing <- function(dosing) {
+preprocess_dosing <- function(dosing) {
   if (is.null(dosing)) {
     dosing <- FALSE
   }
@@ -212,7 +212,7 @@ preprocessDosing <- function(dosing) {
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessIds <- function(dataset) {
+preprocess_ids <- function(dataset) {
   ids <- unique(dataset$ID)
   maxID <- max(ids)
   assertthat::assert_that(all(ids==seq_len(maxID)), msg="ID's must be consecutive numbers, starting at 1")
@@ -227,7 +227,7 @@ preprocessIds <- function(dataset) {
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessArmColumn <- function(dataset, model) {
+preprocess_arm_column <- function(dataset, model) {
   if ("ARM" %in% colnames(dataset)) {
     pkRecord <- model@model %>% get_by_name("MAIN")
     pkRecord <- pkRecord %>% add(Equation("ARM", "ARM"))
@@ -248,7 +248,7 @@ preprocessArmColumn <- function(dataset, model) {
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 
-preprocessSlices <- function(slices, maxID) {
+preprocess_slices <- function(slices, maxID) {
   if (is.null(slices)) {
     return(maxID)
   } else {
@@ -264,7 +264,7 @@ preprocessSlices <- function(slices, maxID) {
 #' @return a character value
 #' @keywords internal
 #' 
-dropOthers <- function() {
+drop_others <- function() {
   return("DROP_OTHERS")
 }
 
@@ -272,15 +272,15 @@ dropOthers <- function() {
 #'
 #' @param x the current data frame
 #' @param outvars variables to keep
-#' @param dropOthers logical value
+#' @param drop_others logical value
 #' @return processed data frame
 #' @keywords internal
 #' 
-processDropOthers <- function(x, outvars=character(0), dropOthers) {
-  if (!dropOthers) {
+process_drop_others <- function(x, outvars=character(0), drop_others) {
+  if (!drop_others) {
     return(x)
   }
-  outvars_ <- outvars[!(outvars %in% dropOthers())]
+  outvars_ <- outvars[!(outvars %in% drop_others())]
   out <- c("ID", "TIME", "ARM", "EVENT_RELATED", outvars_)
   names <- colnames(x)
   return(x[, names[names %in% out]])

@@ -3,7 +3,7 @@
 #----                     treatment_entry class                             ----
 #_______________________________________________________________________________
 
-checkTreatmentEntry <- function(object) {
+check_treatment_entry <- function(object) {
   return(c(expect_one_for_all(object, c("amount", "dose_number", "ref")),
            expect_one_or_more(object, c("f", "lag")),
            expect_zero_or_more(object, "compartment")))
@@ -21,14 +21,14 @@ setClass(
   ),
   contains = "time_entry",
   prototype=prototype(compartment=as.character(NA), dose_number=as.integer(NA)),
-  validity=checkTreatmentEntry
+  validity=check_treatment_entry
 )
 
 #_______________________________________________________________________________
 #----                           bolus class                                 ----
 #_______________________________________________________________________________
 
-checkBolus <- function(object) {
+check_bolus <- function(object) {
   return(expect_one_or_more(object, "time"))
 }
 
@@ -41,14 +41,14 @@ setClass(
   representation(
   ),
   contains = "treatment_entry",
-  validity=checkBolus
+  validity=check_bolus
 )
 
 #_______________________________________________________________________________
 #----                       bolus_wrapper class                             ----
 #_______________________________________________________________________________
 
-checkBolusWrapper <- function(object) {
+check_bolus_wrapper <- function(object) {
   return(c(expect_one_for_all(object, c("ii", "addl"))))
 }
 
@@ -64,7 +64,7 @@ setClass(
     rep = "repeated_schedule"
   ),
   contains="bolus",
-  validity=checkBolusWrapper
+  validity=check_bolus_wrapper
 )
 
 #'
@@ -84,12 +84,12 @@ setClass(
 #' @return a single bolus or a list of boluses
 #' @export
 Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL, rep=NULL) {
-  iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
+  iiAddl <- check_ii_and_addl(time=time, ii=ii, addl=addl)
   cmtNo <- ifelse(length(compartment)==0, 1, length(compartment))
 
   wrapper <- new("bolus_wrapper", time=time, amount=amount, compartment=as.character(compartment),
-                 f=toExplicitDistributionList(f, cmtNo=cmtNo), lag=toExplicitDistributionList(lag, cmtNo=cmtNo),
-                 ii=iiAddl$ii, addl=iiAddl$addl, ref=processRefArg(ref), rep=processRepeatArg(rep, iiAddl))
+                 f=to_explicit_distribution_list(f, cmtNo=cmtNo), lag=to_explicit_distribution_list(lag, cmtNo=cmtNo),
+                 ii=iiAddl$ii, addl=iiAddl$addl, ref=process_ref_arg(ref), rep=process_repeat_arg(rep, iiAddl))
   if (wrap) {
     return(wrapper)
   } else {
@@ -98,7 +98,7 @@ Bolus <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, ii=NULL, add
 }
 
 setMethod("get_name", signature = c("bolus"), definition = function(x) {
-  return(sprintf("BOLUS [TIME=%s, CMT=%s]", as.character(x@time), getTreatmentEntryCmtString(x)))
+  return(sprintf("BOLUS [TIME=%s, CMT=%s]", as.character(x@time), get_treatment_entry_cmt_string(x)))
 })
 
 setMethod("get_name", signature = c("bolus_wrapper"), definition = function(x) {
@@ -109,7 +109,7 @@ setMethod("get_name", signature = c("bolus_wrapper"), definition = function(x) {
 #----                        infusion class                                 ----
 #_______________________________________________________________________________
 
-validateInfusion <- function(object) {
+validate_infusion <- function(object) {
   return(c(expect_one_or_more(object, "time"),
            expect_one_or_more(object, c("duration", "rate"))))
 }
@@ -127,14 +127,14 @@ setClass(
     rate = "list" # Distribution list
   ),
   contains = "treatment_entry",
-  validity=validateInfusion
+  validity=validate_infusion
 )
 
 #_______________________________________________________________________________
 #----                       infusion_wrapper class                          ----
 #_______________________________________________________________________________
 
-checkInfusionWrapper <- function(object) {
+check_infusion_wrapper <- function(object) {
   return(c(expect_one_for_all(object, c("ii", "addl"))))
 }
 
@@ -150,7 +150,7 @@ setClass(
     rep = "repeated_schedule"
   ),
   contains="infusion",
-  validity=checkInfusionWrapper
+  validity=check_infusion_wrapper
 )
 
 #'
@@ -172,13 +172,13 @@ setClass(
 #' @return a single infusion or a list of infusions.
 #' @export
 Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=NULL, rate=NULL, ii=NULL, addl=NULL, wrap=TRUE, ref=NULL, rep=NULL) {
-  iiAddl <- checkIIandADDL(time=time, ii=ii, addl=addl)
+  iiAddl <- check_ii_and_addl(time=time, ii=ii, addl=addl)
   cmtNo <- ifelse(length(compartment)==0, 1, length(compartment))
 
   wrapper <- new("infusion_wrapper", time=time, amount=amount, compartment=as.character(compartment),
-                 f=toExplicitDistributionList(f, cmtNo=cmtNo), lag=toExplicitDistributionList(lag, cmtNo=cmtNo),
-                 duration=toExplicitDistributionList(duration, cmtNo=cmtNo), rate=toExplicitDistributionList(rate, cmtNo=cmtNo),
-                 ii=iiAddl$ii, addl=iiAddl$addl, ref=processRefArg(ref), rep=processRepeatArg(rep, iiAddl))
+                 f=to_explicit_distribution_list(f, cmtNo=cmtNo), lag=to_explicit_distribution_list(lag, cmtNo=cmtNo),
+                 duration=to_explicit_distribution_list(duration, cmtNo=cmtNo), rate=to_explicit_distribution_list(rate, cmtNo=cmtNo),
+                 ii=iiAddl$ii, addl=iiAddl$addl, ref=process_ref_arg(ref), rep=process_repeat_arg(rep, iiAddl))
   if (wrap) {
     return(wrapper)
   } else {
@@ -187,7 +187,7 @@ Infusion <- function(time, amount, compartment=NULL, f=NULL, lag=NULL, duration=
 }
 
 setMethod("get_name", signature = c("infusion"), definition = function(x) {
-  return(sprintf("INFUSION [TIME=%s, CMT=%s]", as.character(x@time), getTreatmentEntryCmtString(x)))
+  return(sprintf("INFUSION [TIME=%s, CMT=%s]", as.character(x@time), get_treatment_entry_cmt_string(x)))
 })
 
 setMethod("get_name", signature = c("infusion_wrapper"), definition = function(x) {
@@ -208,7 +208,7 @@ setMethod("get_name", signature = c("infusion_wrapper"), definition = function(x
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #'
-checkIIandADDL <- function(time, ii, addl) {
+check_ii_and_addl <- function(time, ii, addl) {
   if (is.null(ii) && is.null(addl)) {
     # Don't need to check anything
     return(list(ii=as.numeric(NA), addl=as.integer(NA)))
@@ -227,7 +227,7 @@ checkIIandADDL <- function(time, ii, addl) {
   }
 }
 
-getTreatmentEntryCmtString <- function(object, vector=FALSE) {
+get_treatment_entry_cmt_string <- function(object, vector=FALSE) {
   if (object@compartment %>% length() == 0) {
     str <- "DEFAULT"
   } else {
@@ -237,7 +237,7 @@ getTreatmentEntryCmtString <- function(object, vector=FALSE) {
   return(str)
 }
 
-processRepeatArg <- function(rep, iiAddl) {
+process_repeat_arg <- function(rep, iiAddl) {
   if (is.null(rep)) rep <- new("undefined_schedule")
   if (is.numeric(rep) && !is.na(iiAddl$ii)) {
     rep <- CyclicSchedule(duration=iiAddl$ii*(iiAddl$addl + 1), repetitions=rep)
@@ -245,7 +245,7 @@ processRepeatArg <- function(rep, iiAddl) {
   return(rep)
 }
 
-processRefArg <- function(ref) {
+process_ref_arg <- function(ref) {
   ref <- ifelse(is.null(ref), as.character(NA), as.character(ref))
   return(ref)
 }
@@ -254,7 +254,7 @@ processRefArg <- function(ref) {
 #----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-bolusInfFromJSON <- function(object, json) {
+bolus_inf_from_json <- function(object, json) {
   # Time unit pre-processing
   if (!is.null(json@data$time) && !is.null(json@data$time_unit)) {
     json@data$time <- convert_time(json@data$time, from=json@data$time_unit, to="hour")
@@ -270,14 +270,14 @@ bolusInfFromJSON <- function(object, json) {
   }
   object@rep = new("undefined_schedule") # Default, no cycles
   object <- campsismod::map_json_properties_to_s4_slots(object, json)
-  object@f <- toExplicitDistributionList(NULL, cmtNo=length(object@compartment))
-  object@lag <- toExplicitDistributionList(NULL, cmtNo=length(object@compartment))
-  object@ref <- processRefArg(NULL)
+  object@f <- to_explicit_distribution_list(NULL, cmtNo=length(object@compartment))
+  object@lag <- to_explicit_distribution_list(NULL, cmtNo=length(object@compartment))
+  object@ref <- process_ref_arg(NULL)
   return(object)
 }
 
 setMethod("load_from_json", signature=c("bolus_wrapper", "json_element"), definition=function(object, json) {
-  return(bolusInfFromJSON(object=object, json=json))
+  return(bolus_inf_from_json(object=object, json=json))
 })
 
 setMethod("load_from_json", signature=c("infusion_wrapper", "json_element"), definition=function(object, json) {
@@ -292,9 +292,9 @@ setMethod("load_from_json", signature=c("infusion_wrapper", "json_element"), def
     duration <- json@data$duration
     json@data$duration <- NULL
   }
-  object <- bolusInfFromJSON(object=object, json=json)
-  object@duration <- toExplicitDistributionList(duration, cmtNo=length(object@compartment))
-  object@rate <- toExplicitDistributionList(NULL, cmtNo=length(object@compartment))
+  object <- bolus_inf_from_json(object=object, json=json)
+  object@duration <- to_explicit_distribution_list(duration, cmtNo=length(object@compartment))
+  object@rate <- to_explicit_distribution_list(NULL, cmtNo=length(object@compartment))
   return(object)
 })
 
@@ -302,7 +302,7 @@ setMethod("load_from_json", signature=c("infusion_wrapper", "json_element"), def
 #----                             sample                                    ----
 #_______________________________________________________________________________
 
-sampleTrtDistribution <- function(distribution, n, default) {
+sample_trt_distribution <- function(distribution, n, default) {
   if (is(distribution, "undefined_distribution")) {
     return(rep(default, n)) # Single value returned
   } else {
@@ -314,13 +314,13 @@ sampleTrtDistribution <- function(distribution, n, default) {
   }
 }
 
-sampleTrtDistributions <- function(distributions, n, default, compartmentNo) {
+sample_trt_distributions <- function(distributions, n, default, compartmentNo) {
   if (length(distributions)==1) {
     tmp <- seq_len(compartmentNo) %>%
-      purrr::map(~sampleTrtDistribution(distribution=distributions[[1]], n=n, default=default))
+      purrr::map(~sample_trt_distribution(distribution=distributions[[1]], n=n, default=default))
   } else if (length(distributions)==compartmentNo) {
     tmp <- distributions %>%
-      purrr::map(~sampleTrtDistribution(distribution=.x, n=n, default=default))
+      purrr::map(~sample_trt_distribution(distribution=.x, n=n, default=default))
   } else {
     stop("Number of distributions must be 1 or equal to the number of compartments")
   }
@@ -343,8 +343,8 @@ setMethod("sample", signature = c("bolus", "integer"), definition = function(obj
   }
   compartmentNo <- length(depotCmt)
   
-  f <- sampleTrtDistributions(distributions=object@f, n=n, default=1, compartmentNo=compartmentNo)
-  lag <- sampleTrtDistributions(distributions=object@lag, n=n, default=0, compartmentNo=compartmentNo)
+  f <- sample_trt_distributions(distributions=object@f, n=n, default=1, compartmentNo=compartmentNo)
+  lag <- sample_trt_distributions(distributions=object@lag, n=n, default=0, compartmentNo=compartmentNo)
 
   retValue <- tibble::tibble(
     ID=rep(as.integer(ids), each=length(depotCmt)), ARM=as.integer(armID), TIME=object@time+lag, 
@@ -373,10 +373,10 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   
   compartmentNo <- length(depotCmt)
   
-  f <- sampleTrtDistributions(distributions=object@f, n=n, default=1, compartmentNo=compartmentNo)
-  lag <- sampleTrtDistributions(distributions=object@lag, n=n, default=0, compartmentNo=compartmentNo)
-  rate <- sampleTrtDistributions(distributions=object@rate, n=n, default=as.numeric(NA), compartmentNo=compartmentNo)
-  duration <- sampleTrtDistributions(distributions=object@duration, n=n, default=as.numeric(NA), compartmentNo=compartmentNo)
+  f <- sample_trt_distributions(distributions=object@f, n=n, default=1, compartmentNo=compartmentNo)
+  lag <- sample_trt_distributions(distributions=object@lag, n=n, default=0, compartmentNo=compartmentNo)
+  rate <- sample_trt_distributions(distributions=object@rate, n=n, default=as.numeric(NA), compartmentNo=compartmentNo)
+  duration <- sample_trt_distributions(distributions=object@duration, n=n, default=as.numeric(NA), compartmentNo=compartmentNo)
   
   # Default infusion type:
   #   0: bolus (see above)
@@ -424,7 +424,7 @@ unwrap_treatment_delegate <- function(object, type) {
     retValue <- time %>% 
       purrr::map(~do.call("new", c(type, list(time=.x), args)))
   } else {
-    # When addl is NA, ii is also NA (see checkIIandADDL method)
+    # When addl is NA, ii is also NA (see check_ii_and_addl method)
     if (is.na(addl)) {
       addl <- 0
       ii <- 0
@@ -535,7 +535,7 @@ setMethod("update_ii", signature = c("infusion", "numeric", "character"), defini
 #----                             update_addl                               ----
 #_______________________________________________________________________________
 
-update_addlDelegate <- function(object, addl, ref) {
+update_addl_delegate <- function(object, addl, ref) {
   if (is.na(ref) || ref==object@ref) {
     object@addl <- addl
   }
@@ -544,12 +544,12 @@ update_addlDelegate <- function(object, addl, ref) {
 
 #' @rdname update_addl
 setMethod("update_addl", signature = c("bolus_wrapper", "integer", "character"), definition = function(object, addl, ref) {
-  return(update_addlDelegate(object, addl, ref))
+  return(update_addl_delegate(object, addl, ref))
 })
 
 #' @rdname update_addl
 setMethod("update_addl", signature = c("infusion_wrapper", "integer", "character"), definition = function(object, addl, ref) {
-  return(update_addlDelegate(object, addl, ref))
+  return(update_addl_delegate(object, addl, ref))
 })
 
 #' @rdname update_addl
@@ -566,7 +566,7 @@ setMethod("update_addl", signature = c("infusion", "integer", "character"), defi
 #----                             update_repeat                              ----
 #_______________________________________________________________________________
 
-update_repeatDelegate <- function(object, rep, ref) {
+update_repeat_delegate <- function(object, rep, ref) {
   if (is.na(ref) || ref==object@ref) {
     object@rep <- rep
   }
@@ -575,12 +575,12 @@ update_repeatDelegate <- function(object, rep, ref) {
 
 #' @rdname update_repeat
 setMethod("update_repeat", signature = c("bolus_wrapper", "repeated_schedule", "character"), definition = function(object, rep, ref) {
-  return(update_repeatDelegate(object, rep, ref))
+  return(update_repeat_delegate(object, rep, ref))
 })
 
 #' @rdname update_repeat
 setMethod("update_repeat", signature = c("infusion_wrapper", "repeated_schedule", "character"), definition = function(object, rep, ref) {
-  return(update_repeatDelegate(object, rep, ref))
+  return(update_repeat_delegate(object, rep, ref))
 })
 
 #' @rdname update_repeat

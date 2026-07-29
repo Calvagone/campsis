@@ -100,7 +100,7 @@ Bootstrap <- function(data, id="BS_ID", replacement=FALSE, random=FALSE, export_
 #' @return logical value TRUE/FALSE
 #' @importFrom assertthat assert_that
 #' @keywords internal
-isEmptyBootstrap <- function(object) {
+is_empty_bootstrap <- function(object) {
   assertthat::assert_that(is(object, "bootstrap"), msg="Not a bootstrap object")
   data <- object@data
   nData <- nrow(data)
@@ -151,7 +151,7 @@ setMethod("sample", signature = c("bootstrap", "integer"), definition = function
   random <- object@random
   nData <- nrow(data)
   
-  if (isEmptyBootstrap(object)) {
+  if (is_empty_bootstrap(object)) {
     return(list())
   }
   

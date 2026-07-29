@@ -4,10 +4,10 @@
 \name{undefined_distribution-class}
 \alias{undefined_distribution-class}
 \title{Undefined distribution class. This type of object is automatically created
-in method toExplicitDistribution() when the user does not provide a concrete
+in method to_explicit_distribution() when the user does not provide a concrete
 distribution. This is because S4 objects do not accept NULL values.}
 \description{
 Undefined distribution class. This type of object is automatically created
-in method toExplicitDistribution() when the user does not provide a concrete
+in method to_explicit_distribution() when the user does not provide a concrete
 distribution. This is because S4 objects do not accept NULL values.
 }

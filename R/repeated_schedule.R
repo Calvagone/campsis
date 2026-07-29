@@ -56,7 +56,7 @@ DosingSchedule <- function() {
 #----                         cyclic_schedule class                         ----
 #_______________________________________________________________________________
 
-validateCyclicSchedule <- function(object) {
+validate_cyclic_schedule <- function(object) {
   return(expect_one_for_all(object, c("duration", "repetitions")))
 }
 
@@ -73,7 +73,7 @@ setClass(
     repetitions = "integer"
   ),
   contains="repeated_schedule",
-  validity=validateCyclicSchedule
+  validity=validate_cyclic_schedule
 )
 
 #' Cyclic schedule constructor.

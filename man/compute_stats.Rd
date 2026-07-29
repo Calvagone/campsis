@@ -7,7 +7,7 @@
 compute_stats(
   x,
   variable,
-  strata = getDefaultStrata(),
+  strata = get_default_strata(),
   stats = c("p5", "median", "p95")
 )
 }

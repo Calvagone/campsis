@@ -10,7 +10,7 @@
 #' @return a summary table
 #' @export
 #' @keywords internal
-PI <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
+PI <- function(x, variable, strata = get_default_strata(), level = 0.90) {
   .Deprecated("compute_pi")
   return(compute_pi(x=x, variable=variable, strata=strata, level=level))  
 }

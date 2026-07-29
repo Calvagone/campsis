@@ -29,7 +29,7 @@ test_that("output_function extends pmx_element and output_functions extends pmx_
 
 test_that("No level other than 'replicate' is allowed since Campsis v1.9.0", {
   expect_error(
-    preprocessOutfun(Outfuns() %>%
+    preprocess_outfun(Outfuns() %>%
       add(Outfun(level="scenario", name="a")) %>%
       add(Outfun(level="replicate", name="b"))),
     regexp="No level other than 'replicate' is allowed"

@@ -19,11 +19,11 @@ test_that("Example of scenario list works as expected", {
   modelRef <- model_suite$testing$nonmem$advan2_trans2
   
   scenario1 <- scenarios %>% getByIndex(1)
-  model <- modelRef %>% applyScenario(scenario1)
+  model <- modelRef %>% apply_scenario(scenario1)
   expect_equal(model, modelRef)
   
   scenario4 <- scenarios %>% getByIndex(4)
-  model <- modelRef %>% applyScenario(scenario4)
+  model <- modelRef %>% apply_scenario(scenario4)
   thetaKa <- model %>% find(Theta("KA"))
   expect_equal(thetaKa@value, 3)
 })

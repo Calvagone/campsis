@@ -714,7 +714,7 @@ test_that("Method 'update_repeat' works as expected", {
   expect_error(datasetB@arms@list[[1]]@protocol@treatment@list[[3]]@rep) # Slot does not exist!
 })
 
-test_that("Assertion in method 'getCompartmentMapping' should properly work", {
+test_that("Assertion in method 'get_compartment_mapping' should properly work", {
   model <- model_suite$tmdd$`1cpt_fo_tmdd_full`
 
   arm1 <- Arm(subjects=10, label="1000 mg") %>%

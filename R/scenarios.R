@@ -26,7 +26,7 @@ Scenarios <- function(json=NULL) {
     scenarios <- new("scenarios")
   } else {
     schema <- system.file("extdata", "no_sub_schemas", "campsis_scenarios.schema.json", package="campsis") 
-    scenarios <- load_from_json(new("scenarios"), openJSON(json=json, schema=schema))
+    scenarios <- load_from_json(new("scenarios"), open_json(json=json, schema=schema))
   }
   return(scenarios)
 }
@@ -59,7 +59,7 @@ setMethod("load_from_json", signature=c("scenarios", "json_element"), definition
 
 setMethod("load_from_json", signature=c("scenarios", "character"), definition=function(object, json) {
   schema <- system.file("extdata", "no_sub_schemas", "campsis_scenarios.schema.json", package="campsis")
-  return(load_from_json(object=object, json=openJSON(json=json, schema=schema)))
+  return(load_from_json(object=object, json=open_json(json=json, schema=schema)))
 })
 
 #_______________________________________________________________________________

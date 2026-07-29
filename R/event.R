@@ -3,7 +3,7 @@
 #----                           event class                                 ----
 #_______________________________________________________________________________
 
-checkEvent <- function(object) {
+check_event <- function(object) {
   checkName <- expect_one(object, "name")
   checkTimes <- expect_one_or_more(object, "times")
   checkTimesPositive <- expect_positive_values(object, "times")
@@ -30,7 +30,7 @@ setClass(
   ),
   contains="pmx_element",
   prototype=prototype(name="", debug=FALSE),
-  validity=checkEvent
+  validity=check_event
 )
 
 #' 

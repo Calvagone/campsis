@@ -50,16 +50,16 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
     outfun <- defaultSettings@outfuns
   }
   
-  dest <- preprocessDest(dest)
-  events <- preprocessEvents(events)
-  scenarios <- preprocessScenarios(scenarios)
-  tablefun <- preprocessTablefun(tablefun)
-  outvars <- preprocessOutvars(outvars)
-  outfun <- preprocessOutfun(outfun)
-  seed <- getSeed(seed)
-  replicates <- preprocessReplicates(replicates, model)
-  dosing <- preprocessDosing(dosing)
-  settings <- preprocessSettings(settings, dest)
+  dest <- preprocess_dest(dest)
+  events <- preprocess_events(events)
+  scenarios <- preprocess_scenarios(scenarios)
+  tablefun <- preprocess_tablefun(tablefun)
+  outvars <- preprocess_outvars(outvars)
+  outfun <- preprocess_outfun(outfun)
+  seed <- get_seed(seed)
+  replicates <- preprocess_replicates(replicates, model)
+  dosing <- preprocess_dosing(dosing)
+  settings <- preprocess_settings(settings, dest)
 
   return(standardGeneric("simulate"))
 })
@@ -159,7 +159,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
     
     # Set seed for next simulation
     iterationSeed <- get_seed_for_iteration(seed=seed, progress=progress)
-    setSeed(iterationSeed)
+    set_seed(iterationSeed)
 
     # Calling events
     for (event in events@list) {
@@ -223,8 +223,8 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
   }
   
   scenarioFun <- function(scenario, scenarioIndex) {
-    model <- model %>% applyScenario(scenario)
-    dataset <- dataset %>% applyScenario(scenario)
+    model <- model %>% apply_scenario(scenario)
+    dataset <- dataset %>% apply_scenario(scenario)
     
     # Validate CAMPSIS model in depth
     methods::validObject(model, complete=TRUE)
@@ -309,7 +309,7 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
   if (is(model, "replicated_campsis_model")) {
     replicatedModel <- model
   } else if (is(model, "campsis_model")) {
-    setSeed(get_seed_for_parameters_sampling(seed=seed))
+    set_seed(get_seed_for_parameters_sampling(seed=seed))
     if (replicates > 1) {
       replicatedModel <- model %>%
         replicate(n=replicates, settings=settings@replication)
@@ -463,7 +463,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
   iteration <- settings@internal@iterations[[settings@internal@progress@iteration]]
 
   # IDs
-  ids <- preprocessIds(dataset)
+  ids <- preprocess_ids(dataset)
   maxID <- max(ids)
   
   # Events do no support multiple individuals per slice -> always 1
@@ -471,11 +471,11 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
   if (iteration@maxIndex > 1) {
     slices <- 1
   } else {
-    slices <- preprocessSlices(settings@hardware@slice_size, maxID=maxID)
+    slices <- preprocess_slices(settings@hardware@slice_size, maxID=maxID)
   }
   
   # Drop others 'argument'
-  dropOthers <- dropOthers() %in% outvars
+  drop_others <- drop_others() %in% outvars
 
   # Extra argument declare (for mrgsolve only)
   user_declare <- settings@declare@variables
@@ -511,7 +511,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
       purrr::map_chr(~get_name_in_model(.x))
     
     # Extra care to additional outputs which need to be explicitly declared with mrgsolve 
-    outvars_ <- outvars[!(outvars %in% dropOthers())]
+    outvars_ <- outvars[!(outvars %in% drop_others())]
     outvars_ <- outvars_[!outvars_ %in% cmtNames] # Exclude compartment names
     outvars_ <- unique(c(outvars_, "ARM", "EVENT_RELATED"))
     if (dosing) {
@@ -534,7 +534,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
   })
 
   return(list(declare=declare, engineModel=engineModel, subdatasets=subdatasets,
-              dropOthers=dropOthers, iteration=iteration, cmtNames=cmtNames))
+              drop_others=drop_others, iteration=iteration, cmtNames=cmtNames))
 }
 
 #' Get initial conditions at simulation start-up.
@@ -584,7 +584,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   
   # Add ARM equation in model
-  model <- preprocessArmColumn(dataset, model)
+  model <- preprocess_arm_column(dataset, model)
   summary <- settings@internal@dataset_summary
   
   # Retrieve simulation config
@@ -664,7 +664,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
       tmp <- tmp %>% dplyr::rename(EVID="evid", CMT="cmt", AMT="amt")
     }
     
-    return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
+    return(process_drop_others(tmp, outvars=outvars, drop_others=config$drop_others))
   }
   
   # Use 'future' only when required
@@ -752,7 +752,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
       progress <- progress %>% tick(tick_slice=tick_slice)
     }
     
-    return(processDropOthers(tmp, outvars=outvars, dropOthers=config$dropOthers))
+    return(process_drop_others(tmp, outvars=outvars, drop_others=config$drop_others))
   }
   
   # Use 'future' only when required

@@ -158,11 +158,11 @@ getContext <- function(name) {
 skipLongTests <- function() {
   # On CRAN, default value is TRUE
   # FALSE otherwise
-  return(getCampsisOption(name="SKIP_LONG_TESTS", default=onCran()))
+  return(get_campsis_option(name="SKIP_LONG_TESTS", default=on_cran()))
 }
 
 skipVeryLongTests <- function() {
-  return(getCampsisOption(name="SKIP_VERY_LONG_TESTS", default=TRUE))
+  return(get_campsis_option(name="SKIP_VERY_LONG_TESTS", default=TRUE))
 }
 
 isMacOs <- function() {
@@ -174,7 +174,7 @@ isMacOs <- function() {
 skipVdiffrTests <- function() {
   # On mac, default value is TRUE (problems in vdiffr tests, see CI)
   # FALSE otherwise
-  return(getCampsisOption(name="SKIP_VDIFFR_TESTS", default=ifelse(isMacOs(), TRUE, FALSE)))
+  return(get_campsis_option(name="SKIP_VDIFFR_TESTS", default=ifelse(isMacOs(), TRUE, FALSE)))
 }
 
 convertCampsisTest <- function(env = parent.frame(), debug_engine = "mrgsolve") {

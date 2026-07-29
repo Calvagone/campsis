@@ -148,7 +148,7 @@ vpc_plot.std_campsis_tbl <- function(x, variable = "CONC",
   pi <- compute_pi(
     x = x,
     variable = variable,
-    strata = c(replicate = allStrataLevels(), strata),
+    strata = c(replicate = all_strata_levels(), strata),
     level = pi_level
   )
 

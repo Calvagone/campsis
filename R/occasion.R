@@ -2,7 +2,7 @@
 #----                           occasion class                              ----
 #_______________________________________________________________________________
 
-validateOccasion <- function(object) {
+validate_occasion <- function(object) {
   check1 <- expect_one(object, "colname")
   check2 <- expect_one_or_more(object, "values")
   check3 <- expect_one_or_more(object, "dose_numbers")
@@ -30,7 +30,7 @@ setClass(
     dose_numbers = "integer"
   ),
   contains="pmx_element",
-  validity=validateOccasion 
+  validity=validate_occasion 
 )
 
 #'

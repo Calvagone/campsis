@@ -10,14 +10,14 @@ editor_options:
 ---
 
 ```{r, results='asis', echo=F, message=F, warning=F}
-if (campsis::onCran()) {
+if (campsis::on_cran()) {
   cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v17_run_simulation_in_parallel.html).")
   knitr::knit_exit()
 }
 ```
 
 ```{r, results='asis', echo=F, message=F, warning=F}
-if (campsis::onCI()) {
+if (campsis::on_ci()) {
   cat("This vignette takes time to build and is excluded from the CI.")
   knitr::knit_exit()
 }

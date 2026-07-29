@@ -4,7 +4,7 @@
 \alias{PI}
 \title{Compute the prediction interval summary over time (deprecated).}
 \usage{
-PI(x, variable, strata = getDefaultStrata(), level = 0.9)
+PI(x, variable, strata = get_default_strata(), level = 0.9)
 }
 \arguments{
 \item{x}{data frame}

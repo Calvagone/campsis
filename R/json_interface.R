@@ -1,5 +1,5 @@
 
-toCampsisElement <- function(json) {
+to_campsis_element <- function(json) {
   type <- json$type
   
   if (type=="bolus" || type=="infusion") {
@@ -25,7 +25,7 @@ toCampsisElement <- function(json) {
 #' @importFrom jsonlite parse_json
 #' @keywords internal
 #' 
-jsonToCampsisDataset <- function(object, json) {
+json_to_campsis_dataset <- function(object, json) {
   json <- json@data
   dataset <- object
   
@@ -49,7 +49,7 @@ jsonToCampsisDataset <- function(object, json) {
       purrr::keep(~!(.x$type %in% c("arm_attributes")))
     
     for (x in armElems) {
-      elem <- toCampsisElement(x)
+      elem <- to_campsis_element(x)
       currentArm <- currentArm %>%
         campsismod::add(elem)
     }
@@ -62,7 +62,7 @@ jsonToCampsisDataset <- function(object, json) {
     purrr::keep(~!(.x$type %in% c("arm")))
   
   for (x in datasetElems) {
-    elem <- toCampsisElement(x)
+    elem <- to_campsis_element(x)
     dataset <- dataset %>%
       campsismod::add(elem)
   }
@@ -78,7 +78,7 @@ jsonToCampsisDataset <- function(object, json) {
 #' @importFrom jsonlite parse_json
 #' @keywords internal
 #' 
-jsonToCampsisSettings <- function(object, json) {
+json_to_campsis_settings <- function(object, json) {
   allSettings <- json@data
   settings <- object
   
@@ -88,7 +88,7 @@ jsonToCampsisSettings <- function(object, json) {
 
   # Iterating over settings list
   for (currentSettings in allSettings) {
-    elem <- toCampsisElement(json=currentSettings)
+    elem <- to_campsis_element(json=currentSettings)
     settings <- settings %>%
       add(elem)
   }
@@ -106,7 +106,7 @@ jsonToCampsisSettings <- function(object, json) {
 #' @importFrom jsonvalidate json_schema
 #' @keywords internal
 #' 
-openJSON <- function(json, schema=NULL) {
+open_json <- function(json, schema=NULL) {
   if (is.list(json)) {
     return(JSONElement(json)) # Don't go further if data is already parsed
   }
@@ -119,7 +119,7 @@ openJSON <- function(json, schema=NULL) {
   }
   
   # Validate content against schema
-  if (getCampsisOption(name="VALIDATE_JSON", default=TRUE)) {
+  if (get_campsis_option(name="VALIDATE_JSON", default=TRUE)) {
     obj <- jsonvalidate::json_schema$new(schema)
     obj$validate(rawJson, error=TRUE)
   }
