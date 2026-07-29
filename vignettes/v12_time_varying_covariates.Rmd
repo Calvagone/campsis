@@ -11,7 +11,9 @@ editor_options:
 
 ```{r, results='asis', echo=F, message=F, warning=F}
 if (campsis::on_cran()) {
-  cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v12_time_varying_covariates.html).")
+  cat(
+    "This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v12_time_varying_covariates.html)."
+  )
   knitr::knit_exit()
 }
 ```
@@ -27,26 +29,34 @@ This vignette shows how time-varying covariates can be implemented.
 As a demonstration example, let's implement allometric scaling on the clearance and volume of a 1-compartment PK model:
 
 ```{r}
-model <- model_suite$nonmem$advan2_trans2
-model <- model %>% replace(Equation("CL", "THETA_CL*exp(ETA_CL)*pow(BW/70, 0.75)"))
-model <- model %>% replace(Equation("V", "THETA_V*exp(ETA_V)*BW/70"))
+model <- model_suite$nonmem$advan2_trans2 %>%
+  replace(Equation("CL", "THETA_CL*exp(ETA_CL)*pow(BW/70, 0.75)")) %>%
+  replace(Equation("V", "THETA_V*exp(ETA_V)*BW/70"))
 ```
 
 Assume our drug is given once a month and `BW` varies over time. A time-varying covariate can be added to the dataset as follows:
 
 ```{r}
 dataset <- Dataset(1) %>%
-  add(Bolus(time=0, amount=1000)) %>%
-  add(Observations(times=seq(0,30,by=0.1))) %>%
-  add(TimeVaryingCovariate("BW", data.frame(TIME=c(0,7,14,21), VALUE=c(80,75,70,65))))
+  add(Bolus(time = 0, amount = 1000)) %>%
+  add(Observations(times = seq(0, 30, by = 0.1))) %>%
+  add(TimeVaryingCovariate(
+    "BW",
+    data.frame(TIME = c(0, 7, 14, 21), VALUE = c(80, 75, 70, 65))
+  ))
 ```
 
 The typical profile can be simulated in the following way:
 
 ```{r event_bw_as_time_varying_covariate, fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% disable("IIV") %>% simulate(dataset, seed=1, outvars="BW")
-gridExtra::grid.arrange(spaghettiPlot(results, "CONC"),
-                        spaghettiPlot(results, "BW"), ncol=1)
+results <- model %>%
+  disable("IIV") %>%
+  simulate(dataset = dataset, seed = 1, outvars = "BW")
+gridExtra::grid.arrange(
+  spaghetti_plot(results, "CONC"),
+  spaghetti_plot(results, "BW"),
+  ncol = 1
+)
 ```
 
 Let's now compare this profile with another typical individual having a constant body weight of 70 kg:
@@ -54,23 +64,38 @@ Let's now compare this profile with another typical individual having a constant
 ```{r event_bw_as_time_varying_covariate_scenarios, fig.align='center', fig.height=4, fig.width=8, message=F}
 scenarios <- Scenarios() %>%
   add(Scenario("BW as time-varying covarite")) %>%
-  add(Scenario("Fixed BW", dataset=~.x %>% replace(Covariate("BW", 70))))
+  add(Scenario("Fixed BW", dataset = ~ .x %>% replace(Covariate("BW", 70))))
 
-results <- model %>% disable("IIV") %>% simulate(dataset, seed=1, outvars="BW", scenarios=scenarios)
-gridExtra::grid.arrange(spaghettiPlot(results, "CONC", "SCENARIO"),
-                        spaghettiPlot(results, "BW", "SCENARIO"), ncol=1)
+results <- model %>%
+  disable("IIV") %>%
+  simulate(dataset = dataset, seed = 1, outvars = "BW", scenarios = scenarios)
+gridExtra::grid.arrange(
+  spaghetti_plot(results, "CONC"),
+  spaghetti_plot(results, "BW"),
+  ncol = 1
+)
 ```
 
 Finally, time-varying covariates can also be individualized by specifying an ID column:
 
 ```{r event_bw_as_time_varying_covariate_by_id, fig.align='center', fig.height=4, fig.width=8, message=F}
 dataset <- Dataset(2) %>%
-  add(Bolus(time=0, amount=1000)) %>%
-  add(Observations(times=seq(0,30,by=0.1))) %>%
-  add(TimeVaryingCovariate("BW", data.frame(ID=c(rep(1, 4), rep(2, 4)),
-                                            TIME=c(0,7,14,21, 0,7,14,21),
-                                            VALUE=c(80,75,70,65, 65,70,75,80))))
-results <- model %>% disable("IIV") %>% simulate(dataset, seed=1, outvars="BW")
-gridExtra::grid.arrange(spaghettiPlot(results, "CONC", "ID"),
-                        spaghettiPlot(results, "BW", "ID"), ncol=1)
+  add(Bolus(time = 0, amount = 1000)) %>%
+  add(Observations(times = seq(0, 30, by = 0.1))) %>%
+  add(TimeVaryingCovariate(
+    "BW",
+    data.frame(
+      ID = c(rep(1, 4), rep(2, 4)),
+      TIME = c(0, 7, 14, 21, 0, 7, 14, 21),
+      VALUE = c(80, 75, 70, 65, 65, 70, 75, 80)
+    )
+  ))
+results <- model %>%
+  disable("IIV") %>%
+  simulate(dataset = dataset, seed = 1, outvars = "BW")
+gridExtra::grid.arrange(
+  spaghetti_plot(results, "CONC", "ID"),
+  spaghetti_plot(results, "BW", "ID"),
+  ncol = 1
+)
 ```

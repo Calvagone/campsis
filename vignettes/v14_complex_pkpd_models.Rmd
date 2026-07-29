@@ -11,7 +11,9 @@ editor_options:
 
 ```{r, results='asis', echo=F, message=F, warning=F}
 if (campsis::on_cran()) {
-  cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v14_complex_pkpd_models.html).")
+  cat(
+    "This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v14_complex_pkpd_models.html)."
+  )
   knitr::knit_exit()
 }
 ```
@@ -34,7 +36,7 @@ pkpd
 Let's create a simple demonstration dataset of 250 subjects:
 
 ```{r}
-baseDataset <- Dataset(250) %>% 
+base_dataset <- Dataset(250) %>%
   add(Covariate("BAS", 0.02)) %>%
   add(Covariate("WT", UniformDistribution(50, 100))) %>%
   add(DoseAdaptation("WT*AMT")) %>% # per kilo dosing
@@ -51,10 +53,22 @@ Assume we want to compare the following subcutaneous administrations of filgrast
 We define the following scenarios:
 
 ```{r}
-scenarios <- Scenarios() %>% 
-  add(Scenario("2.5 μg/kg SC", dataset=~.x %>% add(Bolus(time=0, amount=2.5, compartment=1, ii=24, addl=6)))) %>%
-  add(Scenario("5 μg/kg SC", dataset=~.x %>% add(Bolus(time=0, amount=5, compartment=1, ii=24, addl=6)))) %>%
-  add(Scenario("10 μg/kg SC", dataset=~.x %>% add(Bolus(time=0, amount=10, compartment=1, ii=24, addl=6))))
+scenarios <- Scenarios() %>%
+  add(Scenario(
+    "2.5 μg/kg SC",
+    dataset = ~ .x %>%
+      add(Bolus(time = 0, amount = 2.5, compartment = 1, ii = 24, addl = 6))
+  )) %>%
+  add(Scenario(
+    "5 μg/kg SC",
+    dataset = ~ .x %>%
+      add(Bolus(time = 0, amount = 5, compartment = 1, ii = 24, addl = 6))
+  )) %>%
+  add(Scenario(
+    "10 μg/kg SC",
+    dataset = ~ .x %>%
+      add(Bolus(time = 0, amount = 10, compartment = 1, ii = 24, addl = 6))
+  ))
 ```
 
 A quick simulation gives us the plasma concentration of filgrastim, as well as the absolute neutrophil count (ANC):
@@ -62,13 +76,21 @@ A quick simulation gives us the plasma concentration of filgrastim, as well as t
 ```{r filgrastim_pkpd_model, fig.align='center', fig.height=6, fig.width=8, message=F}
 library(ggplot2)
 
-results <- pkpd %>% simulate(dataset=baseDataset, scenarios=scenarios, seed=1)
-results <- results %>% dplyr::mutate(SCENARIO=factor(SCENARIO, levels=unique(SCENARIO)))
+results <- simulate(
+  model = pkpd,
+  dataset = base_dataset,
+  scenarios = scenarios,
+  seed = 1
+) %>%
+  dplyr::mutate(SCENARIO = factor(SCENARIO, levels = unique(SCENARIO)))
 
-p1 <- shadedPlot(results, "CP", "SCENARIO") + facet_wrap(~SCENARIO) +
-  scale_y_log10(breaks=c(.01,.1,1,10,100)) + ylab("G-CSF Serum Concentration (ng/mL)")
-p2 <- shadedPlot(results, "A_14", "SCENARIO") + facet_wrap(~SCENARIO) + 
+p1 <- shaded_plot(results, "CP") +
+  facet_wrap(~SCENARIO) +
+  scale_y_log10(breaks = c(.01, .1, 1, 10, 100)) +
+  ylab("G-CSF Serum Concentration (ng/mL)")
+p2 <- shaded_plot(results, "A_14") +
+  facet_wrap(~SCENARIO) +
   ylab("ANC (10^3 cells/μL)")
 
-gridExtra::grid.arrange(p1, p2, nrow=2)
+gridExtra::grid.arrange(p1, p2, nrow = 2)
 ```

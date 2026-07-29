@@ -11,7 +11,9 @@ editor_options:
 
 ```{r, results='asis', echo=F, message=F, warning=F}
 if (campsis::on_cran()) {
-  cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v13_events.html).")
+  cat(
+    "This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v13_events.html)."
+  )
   knitr::knit_exit()
 }
 ```
@@ -30,18 +32,33 @@ As a first example of dose adaptation, we're going to adapt the dose based on `C
 model <- model_suite$nonmem$advan2_trans2
 
 dataset <- Dataset(10) %>%
-  add(Observations(times=0:168)) %>%
+  add(Observations(times = 0:168)) %>%
   add(EventCovariate("DOSE", 1500))
 
 events <- Events()
-event1 <- Event(name="Dose adaptation", times=seq(0, 144, by=24), fun=function(inits) {
-  inits$DOSE <- ifelse(inits$CONC > 5, inits$DOSE*0.75, inits$DOSE)
-  inits$A_DEPOT <- inits$A_DEPOT + inits$DOSE
-  return(inits)
-})
-events <- events %>% add(event1)
+event1 <- Event(
+  name = "Dose adaptation",
+  times = seq(0, 144, by = 24),
+  fun = function(inits) {
+    inits$DOSE <- ifelse(inits$CONC > 5, inits$DOSE * 0.75, inits$DOSE)
+    inits$A_DEPOT <- inits$A_DEPOT + inits$DOSE
+    return(inits)
+  }
+)
+events <- events %>%
+  add(event1)
 
-results <- model %>% simulate(dataset, events=events, seed=1, outvars="DOSE")
+results <- simulate(
+  model = model,
+  dataset = dataset,
+  events = events,
+  seed = 1,
+  outvars = "DOSE"
+)
 
-gridExtra::grid.arrange(spaghettiPlot(results, "CONC"), spaghettiPlot(results, "DOSE"), ncol=1)
+gridExtra::grid.arrange(
+  spaghetti_plot(results, "CONC"),
+  spaghetti_plot(results, "DOSE"),
+  ncol = 1
+)
 ```

@@ -11,7 +11,9 @@ editor_options:
 
 ```{r, results='asis', echo=F, message=F, warning=F}
 if (campsis::on_cran()) {
-  cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v15_pkpd_model_library.html).")
+  cat(
+    "This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v15_pkpd_model_library.html)."
+  )
   knitr::knit_exit()
 }
 ```
@@ -40,20 +42,26 @@ pd
 Link the PD model to the PK model as follows:
 
 ```{r}
-pkpd <- pk %>% add(pd)
-pkpd <- pkpd %>% replace(Equation("PK_CONC", "A_CENTRAL/S2"))
+pkpd <- pk %>%
+  add(pd)
+pkpd <- pkpd %>%
+  replace(Equation("PK_CONC", "A_CENTRAL/S2"))
 ```
 
 Simulate the PK/PD model with a basic dataset:
 
 ```{r direct_effect_model, fig.align='center', fig.height=4, fig.width=8, message=F}
 library(campsis)
-dataset <- Dataset(25) %>% 
-  add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=6)) %>%
-  add(Observations(times=0:168))
-results <- pkpd %>% simulate(dataset=dataset, seed=1)
+dataset <- Dataset(25) %>%
+  add(Bolus(time = 0, amount = 1000, compartment = 1, ii = 12, addl = 6)) %>%
+  add(Observations(times = 0:168))
+results <- simulate(model = pkpd, dataset = dataset, seed = 1)
 
-gridExtra::grid.arrange(shadedPlot(results, "CONC"), shadedPlot(results, "EFFECT"), ncol=1)
+gridExtra::grid.arrange(
+  shaded_plot(results, "CONC"),
+  shaded_plot(results, "EFFECT"),
+  ncol = 1
+)
 ```
 
 
@@ -69,20 +77,26 @@ pd
 Link the PD model to the PK model as follows:
 
 ```{r}
-pkpd <- pk %>% add(pd)
-pkpd <- pkpd %>% replace(Equation("PK_CONC", "A_CENTRAL/S2"))
+pkpd <- pk %>%
+  add(pd)
+pkpd <- pkpd %>%
+  replace(Equation("PK_CONC", "A_CENTRAL/S2"))
 ```
 
 Simulate the PK/PD model with a basic dataset:
 
 ```{r effect_compartment_model, fig.align='center', fig.height=4, fig.width=8, message=F}
 library(campsis)
-dataset <- Dataset(25) %>% 
-  add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=2)) %>%
-  add(Observations(times=0:36))
-results <- pkpd %>% simulate(dataset=dataset, seed=1)
+dataset <- Dataset(25) %>%
+  add(Bolus(time = 0, amount = 1000, compartment = 1, ii = 12, addl = 2)) %>%
+  add(Observations(times = 0:36))
+results <- simulate(model = pkpd, dataset = dataset, seed = 1)
 
-gridExtra::grid.arrange(shadedPlot(results, "CONC"), shadedPlot(results, "EFFECT"), ncol=1)
+gridExtra::grid.arrange(
+  shaded_plot(results, "CONC"),
+  shaded_plot(results, "EFFECT"),
+  ncol = 1
+)
 ```
 
 ### Transit-compartment model
@@ -97,20 +111,26 @@ pd
 Link the PD model to the PK model as follows:
 
 ```{r}
-pkpd <- pk %>% add(pd)
-pkpd <- pkpd %>% replace(Equation("PK_CONC", "A_CENTRAL/S2"))
+pkpd <- pk %>%
+  add(pd)
+pkpd <- pkpd %>%
+  replace(Equation("PK_CONC", "A_CENTRAL/S2"))
 ```
 
 Simulate the PK/PD model with a basic dataset:
 
 ```{r transit_compartment_model, fig.align='center', fig.height=4, fig.width=8, message=F}
 library(campsis)
-dataset <- Dataset(25) %>% 
-  add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=35)) %>%
-  add(Observations(times=0:1000))
-results <- pkpd %>% simulate(dataset=dataset, seed=1)
+dataset <- Dataset(25) %>%
+  add(Bolus(time = 0, amount = 1000, compartment = 1, ii = 12, addl = 35)) %>%
+  add(Observations(times = 0:1000))
+results <- simulate(model = pkpd, dataset = dataset, seed = 1)
 
-gridExtra::grid.arrange(shadedPlot(results, "CONC"), shadedPlot(results, "A_CIRC"), ncol=1)
+gridExtra::grid.arrange(
+  shaded_plot(results, "CONC"),
+  shaded_plot(results, "A_CIRC"),
+  ncol = 1
+)
 ```
 
 ### Indirect-response model
@@ -125,18 +145,24 @@ pd
 Link the PD model to the PK model as follows:
 
 ```{r}
-pkpd <- pk %>% add(pd)
-pkpd <- pkpd %>% replace(Equation("PK_CONC", "A_CENTRAL/S2"))
+pkpd <- pk %>%
+  add(pd)
+pkpd <- pkpd %>%
+  replace(Equation("PK_CONC", "A_CENTRAL/S2"))
 ```
 
 Simulate the PK/PD model with a basic dataset:
 
 ```{r indirect_response_model, fig.align='center', fig.height=4, fig.width=8, message=F}
 library(campsis)
-dataset <- Dataset(25) %>% 
-  add(Bolus(time=0, amount=1000, compartment=1, ii=12, addl=35)) %>%
-  add(Observations(times=0:1000))
-results <- pkpd %>% simulate(dataset=dataset, seed=1)
+dataset <- Dataset(25) %>%
+  add(Bolus(time = 0, amount = 1000, compartment = 1, ii = 12, addl = 35)) %>%
+  add(Observations(times = 0:1000))
+results <- simulate(model = pkpd, dataset = dataset, seed = 1)
 
-gridExtra::grid.arrange(shadedPlot(results, "CONC"), shadedPlot(results, "A_EFFECT"), ncol=1)
+gridExtra::grid.arrange(
+  shaded_plot(results, "CONC"),
+  shaded_plot(results, "A_EFFECT"),
+  ncol = 1
+)
 ```
