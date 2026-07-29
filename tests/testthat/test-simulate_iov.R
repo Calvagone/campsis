@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with IOV")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate 1000mg QD with IOV on KA (1)", {
   if (skipLongTests()) return(TRUE)

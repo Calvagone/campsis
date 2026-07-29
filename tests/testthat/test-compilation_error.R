@@ -4,7 +4,7 @@ library(ggplot2)
 context("Check compilation error messages appear well in console")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Incorrect Campsis model does not compile and a clear error message is shown", {
   model <- model_suite$testing$nonmem$advan2_trans2 %>%

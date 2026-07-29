@@ -3,7 +3,7 @@ library(testthat)
 context("Test simple dose adaptations (based on a covariate present in dataset)")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Dose adaptations based on weight work well", {
   model <- model_suite$testing$nonmem$advan4_trans4 %>% disable("IIV")

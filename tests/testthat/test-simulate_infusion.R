@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with infusions")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate infusion using duration in dataset, then in model", {
   if (skipLongTests()) return(TRUE)

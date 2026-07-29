@@ -2,8 +2,8 @@ library(testthat)
 
 context("Test vpc_plot S3 method")
 
-source(file.path(getwd(), test_path(), "testUtils.R"))
-source(file.path(getwd(), test_path(), "testPlotUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
+source(file.path(getwd(), test_path(), "test-plot_utils.R"))
 
 #_______________________________________________________________________________
 #----                        VPC data factory                               ----

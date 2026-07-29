@@ -3,7 +3,7 @@ library(testthat)
 context("Simulate models that depend on TSLD or TDOS")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Weibull model simulation works as expected", {
   regFilename <- "weibull_model"

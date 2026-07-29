@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with lag times")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate a bolus with fixed lag time in dataset", {
   model <- model_suite$testing$nonmem$advan4_trans4

@@ -4,7 +4,7 @@ library(dplyr)
 context("Test the 'outfun' argument of the simulate function")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate with Outfuns returns a named list; single Outfun still returns a data frame", {
   if (skipLongTests()) return(TRUE)

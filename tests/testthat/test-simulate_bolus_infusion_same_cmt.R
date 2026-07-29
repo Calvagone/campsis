@@ -3,7 +3,7 @@ library(testthat)
 context("Simulate boluses and infusions into the same compartment")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Bolus and infusion in CMT 1", {
   

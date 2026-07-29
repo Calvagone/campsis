@@ -3,7 +3,7 @@ library(testthat)
 context("Test the events/interruption logic")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simple interrutpions - No events", {
   if (skipLongTests()) return(TRUE)

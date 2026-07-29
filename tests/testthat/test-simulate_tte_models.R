@@ -2,7 +2,7 @@ library(testthat)
 
 context("Test the simulate method with time-to-event models (TTE)")
 
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate simple TTE model", {
   if (skipLongTests()) return(TRUE)

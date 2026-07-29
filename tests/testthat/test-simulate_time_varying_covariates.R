@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with timevarying covariates")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Body weight as a true time varying covariate", {
   model <- model_suite$testing$nonmem$advan2_trans2

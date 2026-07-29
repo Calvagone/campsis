@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with events")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Clear central compartment events", {
   if (skipLongTests()) return(TRUE)

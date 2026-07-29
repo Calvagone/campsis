@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with the NOCB/LOCF switch")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Weight as a time-varying covariate, NOCB vs LOCF", {
   if (skipLongTests()) return(TRUE)

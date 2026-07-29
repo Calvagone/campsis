@@ -3,7 +3,7 @@ library(testthat)
 context("Test all default plots available in Campsis")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Scatter plot works as expected", {
   model <- model_suite$testing$pk$`1cpt_fo`

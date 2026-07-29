@@ -2,7 +2,7 @@ library(testthat)
 
 context("Test the outvars argument of the simulate function")
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("NULL outvars", {
   model <- model_suite$testing$nonmem$advan4_trans4

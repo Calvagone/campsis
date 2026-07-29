@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with initial conditions")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate initial conditions, observations starting at 0", {
   model <- model_suite$testing$nonmem$advan3_trans4

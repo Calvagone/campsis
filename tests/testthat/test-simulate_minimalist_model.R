@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with minimalist examples")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate a minimalist model, no parameters/IIV/error model", {
   regFilename <- "minimalist_model"

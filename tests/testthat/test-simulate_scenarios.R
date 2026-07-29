@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with scenarios")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate scenarios - make few changes on dataset", {
 

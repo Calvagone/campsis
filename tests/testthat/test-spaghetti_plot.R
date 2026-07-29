@@ -2,8 +2,8 @@ library(testthat)
 
 context("Test spaghetti_plot S3 method")
 
-source(file.path(getwd(), test_path(), "testUtils.R"))
-source(file.path(getwd(), test_path(), "testPlotUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
+source(file.path(getwd(), test_path(), "test-plot_utils.R"))
 
 #_______________________________________________________________________________
 #----           1. colour = "auto", single arm, no scenarios                ----

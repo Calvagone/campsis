@@ -3,7 +3,7 @@ library(testthat)
 context("Test that simulations with weird cases work as expected")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 # options(campsis.options=list(SKIP_VERY_LONG_TESTS=FALSE))
 
 test_that("Simulate a bolus without observation", {

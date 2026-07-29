@@ -3,7 +3,7 @@ library(testthat)
 context("Test the simulate method with different bioavailabilities")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
   model <- model_suite$testing$nonmem$advan4_trans4

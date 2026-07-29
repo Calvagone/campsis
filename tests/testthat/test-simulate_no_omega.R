@@ -2,7 +2,7 @@ library(testthat)
 
 context("Test that the simulate method works even when no OMEGA's/SIGMA's are provided")
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate a 1-cpt model without OMEGA's/SIGMA's - Github issue #8", {
   model <- model_suite$testing$nonmem$advan2_trans2

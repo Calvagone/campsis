@@ -3,7 +3,7 @@ library(testthat)
 context("Test all methods from the dataset class")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Set subjects works as expected", {
   dataset <- Dataset() %>% set_subjects(3)

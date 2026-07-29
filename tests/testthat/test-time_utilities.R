@@ -3,7 +3,7 @@ library(testthat)
 context("Test the time utility functions")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "testUtils.R"))
+source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Time can be converted properly", {
   expect_equal(convert_time(1, from="week", to="week"), 1)
