@@ -377,7 +377,7 @@ apply_compartment_characteristics <- function(table, properties) {
 
 #' @importFrom dplyr all_of
 setMethod("export", signature=c("dataset", "character"), definition=function(object, dest, seed=NULL, model=NULL, settings=NULL, event_related_column=FALSE) {
-  destinationEngine <- getSimulationEngineType(dest)
+  destinationEngine <- get_simulation_engine_type(dest)
   if (is.null(settings)) {
     settings <- Settings()
   }
@@ -468,7 +468,7 @@ export_delegate <- function(object, dest, model, arm_offset=NULL, offset_within_
     # Unwrap treatment and assign dose number
     treatment <- protocol@treatment %>%
       unwrap_treatment() %>%
-      assignDoseNumber()
+      assign_dose_number()
     doseTimes <- get_times(treatment, unwrap=FALSE)
     
     if (treatment %>% length() > 0) {

@@ -24,7 +24,7 @@ test_that("Test a couple of methods", {
   
   # Assign dose number
   treatment <- treatment %>%
-    assignDoseNumber()
+    assign_dose_number()
   expect_equal(treatment@list[[1]]@dose_number, 1)
   expect_equal(treatment@list[[2]]@dose_number, 2)
   expect_equal(treatment@list[[3]]@dose_number, 3)

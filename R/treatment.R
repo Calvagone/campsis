@@ -112,7 +112,7 @@ setMethod("sort", signature=c("treatment"), definition=function(x, decreasing=FA
 })
 
 #_______________________________________________________________________________
-#----                         assignDoseNumber                              ----
+#----                        assign_dose_number                             ----
 #_______________________________________________________________________________
 
 #' Assign dose number to each treatment entry.
@@ -120,15 +120,15 @@ setMethod("sort", signature=c("treatment"), definition=function(x, decreasing=FA
 #' @param object treatment
 #' @return updated treatment object
 #' @keywords internal
-assignDoseNumber <- function(object) {
+assign_dose_number <- function(object) {
   stop("No default function is provided")
 }
 
-setGeneric("assignDoseNumber", function(object) {
-  standardGeneric("assignDoseNumber")
+setGeneric("assign_dose_number", function(object) {
+  standardGeneric("assign_dose_number")
 })
 
-setMethod("assignDoseNumber", signature = c("treatment"), definition = function(object) {
+setMethod("assign_dose_number", signature = c("treatment"), definition = function(object) {
   object <- object %>% sort()
   times <- object@list %>% purrr::map_dbl(~.x@time)
   doseNumbers <- match(times, unique(times))

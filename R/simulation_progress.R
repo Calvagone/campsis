@@ -67,7 +67,7 @@ SimulationProgress <- function(replicates=1, scenarios=1, progressor=NULL, hardw
 #' @param tick_slice tick progress on slices
 #' @return incremental progress, in percentage
 #' @keywords internal
-computeIncrementalProgress <- function(object, tick_slice) {
+compute_incremental_progress <- function(object, tick_slice) {
   if (tick_slice) {
     incrementalWorkPercentage <- 1/(object@replicates*object@scenarios*object@iterations*object@slices)
   } else {
@@ -77,7 +77,7 @@ computeIncrementalProgress <- function(object, tick_slice) {
 }
 
 tick <- function(object, tick_slice) {
-  increment <- object %>% computeIncrementalProgress(tick_slice=tick_slice)
+  increment <- object %>% compute_incremental_progress(tick_slice=tick_slice)
   if (object@replicates > 1) {
     customMessage <- paste0("Simulating replicate ", object@replicate, "/", object@replicates)
   } else if (object@scenarios > 1) {
@@ -101,7 +101,7 @@ tick <- function(object, tick_slice) {
   return(object)
 }
 
-updateReplicate <- function(object, index) {
+update_replicate <- function(object, index) {
   object@replicate <- as.integer(index)
   object@scenario <- 0L
   object@iteration <- 0L
@@ -109,20 +109,20 @@ updateReplicate <- function(object, index) {
   return(object)
 }
 
-updateScenario <- function(object, index) {
+update_scenario <- function(object, index) {
   object@scenario <- as.integer(index)
   object@iteration <- 0L
   object@slice <- 0L
   return(object)
 }
 
-updateIteration <- function(object, index) {
+update_iteration <- function(object, index) {
   object@iteration <- as.integer(index)
   object@slice <- 0L
   return(object)
 }
 
-updateSlice <- function(object, index) {
+update_slice <- function(object, index) {
   object@slice <- as.integer(index)
   return(object)
 }

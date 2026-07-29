@@ -70,7 +70,7 @@ setGeneric("simulate", function(model, dataset, dest=NULL, events=NULL, scenario
 #' @return simulation engine type
 #' @keywords internal
 #' 
-getSimulationEngineType <- function(dest) {
+get_simulation_engine_type <- function(dest) {
   if (dest=="rxode2") {
     engine <- new("rxode_engine", rxode2=TRUE)
   } else if (dest=="RxODE") {
@@ -89,7 +89,7 @@ getSimulationEngineType <- function(dest) {
 #' @return a data frame
 #' @keywords internal
 #' 
-exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, settings) {
+export_table_delegate <- function(model, dataset, dest, events, seed, tablefun, settings) {
 
   if (is(dataset, "dataset")) {
     # Retrieve event times (same for all arms)
@@ -126,20 +126,20 @@ exportTableDelegate <- function(model, dataset, dest, events, seed, tablefun, se
 #' @keywords internal
 #' @importFrom dplyr across bind_rows group_by slice ungroup
 #' 
-simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
-  destEngine <- getSimulationEngineType(dest)
+simulate_delegate_core <- function(model, dataset, dest, events, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
+  destEngine <- get_simulation_engine_type(dest)
   summary <- settings@internal@dataset_summary
   progress <- settings@internal@progress
   iterations <- settings@internal@iterations
   
   tableSeed <- get_seed_for_dataset_export(seed=seed, progress=progress)
-  table <- exportTableDelegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, settings=settings)
+  table <- export_table_delegate(model=model, dataset=dataset, dest=dest, events=events, seed=tableSeed, tablefun=tablefun, settings=settings)
 
   inits <- data.frame()
   results <- NULL
   for (iteration in iterations) {
     # Update iteration counter
-    progress <- progress %>% updateIteration(iteration@index)
+    progress <- progress %>% update_iteration(iteration@index)
     
     iteration@inits <- inits
     table_ <- cutTableForEvent(table, iteration, summary)
@@ -195,7 +195,7 @@ simulateDelegateCore <- function(model, dataset, dest, events, tablefun, outvars
 #' @importFrom purrr map_chr map_int
 #' @keywords internal
 #' 
-processArmLabels <- function(campsis, arms) {
+process_arm_labels <- function(campsis, arms) {
   armIds <- arms@list %>% purrr::map_int(~.x@id)
   armLabels <- arms@list %>% purrr::map_chr(~.x@label)
   if (("ARM" %in% colnames(campsis)) && any(!is.na(armLabels))) {
@@ -213,7 +213,7 @@ processArmLabels <- function(campsis, arms) {
 #' @importFrom methods validObject
 #' @importFrom furrr future_imap_dfr
 #' @importFrom purrr imap_dfr
-simulateScenarios <- function(scenarios, model, dataset, dest, events,
+simulate_scenarios <- function(scenarios, model, dataset, dest, events,
                               tablefun, outvars, outfun, seed, replicates,
                               dosing, settings) {
   emptyScenarios <- scenarios %>% length() == 0
@@ -240,14 +240,14 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
     settings@internal@progress@iterations <- iterations %>% length()
     
     # Update scenario counter
-    settings@internal@progress <- settings@internal@progress %>% updateScenario(scenarioIndex)
+    settings@internal@progress <- settings@internal@progress %>% update_scenario(scenarioIndex)
     
     # Make short summary of dataset
     if (is(dataset, "dataset")) {
       settings@internal@dataset_summary <- toDatasetSummary(dataset)
     }
     
-    inner <- simulateDelegateCore(model=model, dataset=dataset, dest=dest, events=events,
+    inner <- simulate_delegate_core(model=model, dataset=dataset, dest=dest, events=events,
                                   tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
                                   dosing=dosing, settings=settings)
         
@@ -271,7 +271,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
   
   # Label arms (ARM column)
   if (is(dataset, "dataset")) {
-    outer <- processArmLabels(outer, dataset@arms)
+    outer <- process_arm_labels(outer, dataset@arms)
   }
 
   return(outer)
@@ -290,7 +290,7 @@ simulateScenarios <- function(scenarios, model, dataset, dest, events,
 #' @importFrom stats setNames
 #' @importFrom tibble as_tibble
 #' 
-simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
+simulate_delegate <- function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
 
   # Setup plan automatically if parallel computing is required
   if (settings@hardware@auto_setup_plan) {
@@ -338,10 +338,10 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
     }
     
     # Update replicate counter
-    settings@internal@progress <- settings@internal@progress %>% updateReplicate(replicate)
+    settings@internal@progress <- settings@internal@progress %>% update_replicate(replicate)
     retValue <- tryCatch(
       expr={
-        inner <- simulateScenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
+        inner <- simulate_scenarios(scenarios=scenarios, model=model_, dataset=dataset, dest=dest, events=events,
                                    tablefun=tablefun, outvars=outvars, outfun=outfun, seed=seed, replicates=replicates,
                                    dosing=dosing, settings=settings)
         # Apply potential output functions
@@ -407,28 +407,28 @@ simulateDelegate <- function(model, dataset, dest, events, scenarios, tablefun, 
 #' @rdname simulate
 setMethod("simulate", signature=c("replicated_campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
-  return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
+  return(simulate_delegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "dataset", "character", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
-  return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
+  return(simulate_delegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun,
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "tbl_df", "character", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
-  return(simulateDelegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
+  return(simulate_delegate(model=model, dataset=dataset, dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
                           outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
 #' @rdname simulate
 setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "events", "scenarios", "function", "character", "outfuns", "integer", "integer", "logical", "simulation_settings"),
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
-  return(simulateDelegate(model=model, dataset=tibble::as_tibble(dataset), dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
+  return(simulate_delegate(model=model, dataset=tibble::as_tibble(dataset), dest=dest, events=events, scenarios=scenarios, tablefun=tablefun, 
                                     outvars=outvars, outfun=outfun, seed=seed, replicates=replicates, dosing=dosing, settings=settings))
 })
 
@@ -438,7 +438,7 @@ setMethod("simulate", signature=c("campsis_model", "data.frame", "character", "e
 #' @return same model without initial conditions
 #' @keywords internal
 #' 
-removeInitialConditions <- function(model) {
+remove_initial_conditions <- function(model) {
   properties <- model@compartments@properties@list
   properties_ <- properties %>% purrr::keep(~!is(.x, "compartment_initial_condition"))
   model@compartments@properties@list <- properties_
@@ -457,7 +457,7 @@ removeInitialConditions <- function(model) {
 #' @importFrom purrr map2
 #' @keywords internal
 #' 
-processSimulateArguments <- function(model, dataset, dest, outvars, dosing, settings) {
+process_simulate_arguments <- function(model, dataset, dest, outvars, dosing, settings) {
 
   # Retrieve current iteration
   iteration <- settings@internal@iterations[[settings@internal@progress@iteration]]
@@ -485,7 +485,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
 
   # Remove initial conditions from CAMPSIS model before export (if present)
   if (iteration@index > 1) {
-    model <- removeInitialConditions(model)
+    model <- remove_initial_conditions(model)
   }
   
   # Compartment names
@@ -545,7 +545,7 @@ processSimulateArguments <- function(model, dataset, dest, outvars, dosing, sett
 #' @return named numeric vector with the new initial conditions
 #' @keywords internal
 #' 
-getInitialConditions <- function(subdataset, iteration, cmtNames) {
+get_initial_conditions <- function(subdataset, iteration, cmtNames) {
   # Current ID is of length 1 or 6
   currentID <- unique(subdataset$ID) %>% as.integer()
   if (iteration@inits %>% nrow() == 0) {
@@ -566,7 +566,7 @@ getInitialConditions <- function(subdataset, iteration, cmtNames) {
 #' @importFrom dplyr relocate any_of
 #' @keywords internal
 #' 
-reorderColumns <- function(results, dosing) {
+reorder_columns <- function(results, dosing) {
   # Use of any_of with relocate because ARM column may not be there if simulate
   # is used with a 2-dimensional dataset
   if (dosing) {
@@ -588,7 +588,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   summary <- settings@internal@dataset_summary
   
   # Retrieve simulation config
-  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, dosing=dosing, settings=settings)
+  config <- process_simulate_arguments(model=model, dataset=dataset, dest=dest, outvars=outvars, dosing=dosing, settings=settings)
   progress <- settings@internal@progress
   progress@slices <- config$subdatasets %>% length()
 
@@ -631,7 +631,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   
   # This function will be called for each slice
   sliceFunRxode <- function(subdataset, index) {
-    inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
+    inits <- get_initial_conditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
     
     # Launch simulation with RxODE
     if (dest@rxode2) {
@@ -648,7 +648,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
     
     # Tick progress
     if (tick_slice) {
-      progress <- progress %>% updateSlice(index)
+      progress <- progress %>% update_slice(index)
       progress <- progress %>% tick(tick_slice=tick_slice)
     }
     
@@ -678,11 +678,11 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "rxode_engine", "ev
   
   # Tick progress
   if (!tick_slice) {
-    progress <- progress %>% updateSlice(subdatasets %>% length())
+    progress <- progress %>% update_slice(subdatasets %>% length())
     progress <- progress %>% tick(tick_slice=tick_slice)
   }
   
-  return(results %>% reorderColumns(dosing=dosing))
+  return(results %>% reorder_columns(dosing=dosing))
 })
 
 #' @importFrom furrr future_imap_dfr furrr_options
@@ -693,7 +693,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
           definition=function(model, dataset, dest, events, scenarios, tablefun, outvars, outfun, seed, replicates, dosing, settings) {
   
   # Retrieve simulation config
-  config <- processSimulateArguments(model=model, dataset=dataset, dest=dest, outvars=outvars, dosing=dosing, settings=settings)
+  config <- process_simulate_arguments(model=model, dataset=dataset, dest=dest, outvars=outvars, dosing=dosing, settings=settings)
   progress <- settings@internal@progress
   progress@slices <- config$subdatasets %>% length()
   
@@ -735,7 +735,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   
   # This function will be called for each slice
   sliceFunMrgsolve <- function(subdataset, index) {
-    inits <- getInitialConditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
+    inits <- get_initial_conditions(subdataset, iteration=config$iteration, cmtNames=config$cmtNames)
     
     # Update init vector (see mrgsolve script: 'update.R')
     if (!is.null(inits)) {
@@ -748,7 +748,7 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
     
     # Tick progress
     if (tick_slice) {
-      progress <- progress %>% updateSlice(index)
+      progress <- progress %>% update_slice(index)
       progress <- progress %>% tick(tick_slice=tick_slice)
     }
     
@@ -766,9 +766,9 @@ setMethod("simulate", signature=c("campsis_model", "tbl_df", "mrgsolve_engine", 
   
   # Tick progress
   if (!tick_slice) {
-    progress <- progress %>% updateSlice(subdatasets %>% length())
+    progress <- progress %>% update_slice(subdatasets %>% length())
     progress <- progress %>% tick(tick_slice=tick_slice)
   }
   
-  return(results %>% reorderColumns(dosing=dosing))
+  return(results %>% reorder_columns(dosing=dosing))
 })
