@@ -20,3 +20,4 @@ the updated object
 \details{
 `setSubjects()` is deprecated in favor of `set_subjects()`.
 }
+\keyword{internal}

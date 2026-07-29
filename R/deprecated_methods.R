@@ -30,6 +30,7 @@ PI <- function(x, variable, strata = get_default_strata(), level = 0.90) {
 #' @return the updated object
 #' @export
 #' @rdname setLabel
+#' @keywords internal
 setLabel <- function(object, x) {
   lifecycle::deprecate_warn("1.9.0", "setLabel()", "set_label()")
   set_label(object = object, x = x)
@@ -51,6 +52,7 @@ setGeneric("setLabel", function(object, x) {
 #' @return the updated object
 #' @export
 #' @rdname setSubjects
+#' @keywords internal
 setSubjects <- function(object, x) {
   lifecycle::deprecate_warn("1.9.0", "setSubjects()", "set_subjects()")
   set_subjects(object = object, x = x)
@@ -76,6 +78,7 @@ setGeneric("setSubjects", function(object, x) {
 #' @return numeric vector with the converted times
 #' @export
 #' @rdname convertTime
+#' @keywords internal
 convertTime <- function(x, from, to) {
   lifecycle::deprecate_warn("1.9.0", "convertTime()", "convert_time()")
   convert_time(x = x, from = from, to = to)
@@ -104,6 +107,7 @@ setGeneric("convertTime", function(x, from, to) {
 #' @inheritParams setup_plan_default
 #' @return nothing
 #' @export
+#' @keywords internal
 setupPlanDefault <- function(object) {
   lifecycle::deprecate_warn("1.9.0", "setupPlanDefault()", "setup_plan_default()")
   setup_plan_default(object)
@@ -118,6 +122,7 @@ setupPlanDefault <- function(object) {
 #' 
 #' @return nothing
 #' @export
+#' @keywords internal
 setupPlanSequential <- function() {
   lifecycle::deprecate_warn("1.9.0", "setupPlanSequential()", "setup_plan_sequential()")
   setup_plan_sequential()

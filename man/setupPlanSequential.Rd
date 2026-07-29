@@ -15,3 +15,4 @@ nothing
 \details{
 `setupPlanSequential()` is deprecated in favor of `setup_plan_sequential()`.
 }
+\keyword{internal}

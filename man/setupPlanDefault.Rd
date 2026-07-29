@@ -22,3 +22,4 @@ nothing
 \details{
 `setupPlanDefault()` is deprecated in favor of `setup_plan_default()`.
 }
+\keyword{internal}

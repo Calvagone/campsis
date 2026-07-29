@@ -22,7 +22,7 @@ test_that("Adding a duplicate name throws an error", {
   )
 })
 
-test_that("output_function extends pmx_element and output_functions extends pmx_list", {
+test_that("Outfun() extends pmx_element and Outfuns() extends pmx_list", {
   expect_true(is(Outfun(), "pmx_element"))
   expect_true(is(Outfuns(), "pmx_list"))
 })

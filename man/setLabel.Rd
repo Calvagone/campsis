@@ -20,3 +20,4 @@ the updated object
 \details{
 `setLabel()` is deprecated in favor of `set_label()`.
 }
+\keyword{internal}

@@ -22,3 +22,4 @@ numeric vector with the converted times
 \details{
 `convertTime()` is deprecated in favor of `convert_time()`.
 }
+\keyword{internal}

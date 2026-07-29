@@ -83,15 +83,30 @@ reference:
 - title: "Sample distributions"
   contents:
   - sample
-  
-- title: "Summarise data and plots"
+
+- title: "Predefined output functions"
   contents:
-  - PI
-  - VPC
-  - scatterPlot
-  - shadedPlot
-  - spaghettiPlot
-  - vpcPlot
+  - DefaultOutfun
+  - Outfun
+  - Outfuns
+  - PIOutfun
+  - StatsOutfun
+  - NCATableOutfun
+  
+- title: "Plotting utilities (main methods)"
+  contents:
+  - scatter_plot
+  - shaded_plot
+  - spaghetti_plot
+  - vpc_plot
+
+- title: "Plotting utilities (S3 methods)"
+  contents:
+  - scatter_plot.std_campsis_tbl
+  - shaded_plot.std_campsis_tbl
+  - spaghetti_plot.std_campsis_tbl
+  - vpc_plot.pi_campsis_tbl
+  - vpc_plot.std_campsis_tbl
   
 - title: "Simulate"
   contents:
@@ -132,6 +147,9 @@ reference:
   - as.numeric,time_vector-method
   - apply_action
   - apply_compartment_characteristics
+  - apply_outfun
+  - compute_pi
+  - compute_stats
   - dosing_only
   - generate_iiv
   - generate_iiv_
@@ -163,6 +181,8 @@ reference:
   - bolus_wrapper-class
   - bootstrap-class
   - bootstrap_distribution-class
+  - campsis_metadata-class
+  - campsis_tbl-class
   - constant_distribution-class
   - covariate-class
   - covariates-class
@@ -170,6 +190,7 @@ reference:
   - dataset-class
   - dataset_config-class
   - declare_settings-class
+  - default_outfun-class
   - default_settings-class
   - discrete_distribution-class
   - distribution-class
@@ -188,14 +209,18 @@ reference:
   - internal_settings-class
   - lognormal_distribution-class
   - mrgsolve_engine-class
+  - nca_table_outfun-class
   - normal_distribution-class
   - nocb_settings-class
+  - pi_campsis_tbl-class
+  - pi_outfun-class
   - protocol-class
   - observations-class
   - observations_set-class
   - occasion-class
   - occasions-class
-  - output_function-class
+  - outfun-class
+  - outfuns-class
   - progress_settings-class
   - repeated_schedule-class
   - repeat_at_schedule-class
@@ -208,7 +233,10 @@ reference:
   - simulation_engine-class
   - simulation_settings-class
   - simulation_progress-class
+  - stats_outfun-class
+  - std_campsis_tbl-class
   - solver_settings-class
+  - stats_campsis_tbl-class
   - time_sequence-class
   - time_varying_covariate-class
   - time_vector-class

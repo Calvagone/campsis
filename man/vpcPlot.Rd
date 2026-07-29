@@ -29,3 +29,4 @@ a ggplot object
 \description{
 VPC plot.
 }
+\keyword{internal}

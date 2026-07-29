@@ -81,8 +81,8 @@ preprocess_tablefun <- function(fun) {
 
 #' Pre-process outfun argument.
 #'
-#' @param outfun function, lambda formula, output_function or output_functions object
-#' @return an output_functions object in any case
+#' @param outfun function, lambda formula, 'outfun' or 'outfuns' object
+#' @return an 'outfuns' object in any case
 #' @importFrom assertthat assert_that
 #' @keywords internal
 #' 

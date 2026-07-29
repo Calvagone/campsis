@@ -69,6 +69,7 @@ get_column <- function(.data, colname) {
 #' @return plot
 #' @importFrom ggplot2 aes ggplot geom_line
 #' @export
+#' @keywords internal
 spaghettiPlot <- function(x, variable, colour=NULL) {
   group <- "GROUP_GGPLOT"
   strat_extra <- if (.is_replicated(x)) "replicate" else NULL
@@ -101,6 +102,7 @@ spaghettiPlot <- function(x, variable, colour=NULL) {
 #' @return a ggplot object
 #' @importFrom ggplot2 aes ggplot geom_line geom_ribbon ylab
 #' @export
+#' @keywords internal
 shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, alpha=0.25) {
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
@@ -138,6 +140,7 @@ shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, a
 #' @importFrom dplyr filter
 #' @importFrom ggplot2 aes ggplot geom_point
 #' @export
+#' @keywords internal
 scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
   strat_extra <- if (.is_replicated(x)) "replicate" else NULL
   group <- "GROUP_GGPLOT"
@@ -188,6 +191,7 @@ scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
 #'   stratification is requested.
 #' @importFrom ggplot2 aes ggplot facet_wrap labs vars ylab
 #' @export
+#' @keywords internal
 vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15, facet=TRUE) {
   if (length(strata) > 1) {
     stop("Currently max 1 stratification variable is allowed")
