@@ -4,9 +4,9 @@
 #_______________________________________________________________________________
 
 checkTreatmentEntry <- function(object) {
-  return(c(expectOneForAll(object, c("amount", "dose_number", "ref")),
-           expectOneOrMore(object, c("f", "lag")),
-           expectZeroOrMore(object, "compartment")))
+  return(c(expect_one_for_all(object, c("amount", "dose_number", "ref")),
+           expect_one_or_more(object, c("f", "lag")),
+           expect_zero_or_more(object, "compartment")))
 }
 
 setClass(
@@ -29,7 +29,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkBolus <- function(object) {
-  return(expectOneOrMore(object, "time"))
+  return(expect_one_or_more(object, "time"))
 }
 
 #' 
@@ -49,7 +49,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkBolusWrapper <- function(object) {
-  return(c(expectOneForAll(object, c("ii", "addl"))))
+  return(c(expect_one_for_all(object, c("ii", "addl"))))
 }
 
 #' 
@@ -110,8 +110,8 @@ setMethod("get_name", signature = c("bolus_wrapper"), definition = function(x) {
 #_______________________________________________________________________________
 
 validateInfusion <- function(object) {
-  return(c(expectOneOrMore(object, "time"),
-           expectOneOrMore(object, c("duration", "rate"))))
+  return(c(expect_one_or_more(object, "time"),
+           expect_one_or_more(object, c("duration", "rate"))))
 }
 
 #' 
@@ -135,7 +135,7 @@ setClass(
 #_______________________________________________________________________________
 
 checkInfusionWrapper <- function(object) {
-  return(c(expectOneForAll(object, c("ii", "addl"))))
+  return(c(expect_one_for_all(object, c("ii", "addl"))))
 }
 
 #' 

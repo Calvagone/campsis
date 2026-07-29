@@ -3,9 +3,9 @@
 #_______________________________________________________________________________
 
 validateOccasion <- function(object) {
-  check1 <- expectOne(object, "colname")
-  check2 <- expectOneOrMore(object, "values")
-  check3 <- expectOneOrMore(object, "dose_numbers")
+  check1 <- expect_one(object, "colname")
+  check2 <- expect_one_or_more(object, "values")
+  check3 <- expect_one_or_more(object, "dose_numbers")
   check4 <-
     if (object@values %>% length() == object@dose_numbers %>% length()) {
       character()

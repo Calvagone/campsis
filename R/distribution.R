@@ -40,7 +40,7 @@ setClass(
 #_______________________________________________________________________________
 
 validateSampledDistribution <- function(object) {
-  return(expectZeroOrMore(object, "sampled_values"))
+  return(expect_zero_or_more(object, "sampled_values"))
 }
 
 setClass(
@@ -58,7 +58,7 @@ setClass(
 #_______________________________________________________________________________
 
 validateConstantDistribution <- function(object) {
-  return(expectOneForAll(object, c("value")))
+  return(expect_one_for_all(object, c("value")))
 }
 
 #' 
@@ -90,7 +90,7 @@ ConstantDistribution <- function(value) {
 #_______________________________________________________________________________
 
 validateFixedDistribution <- function(object) {
-  return(expectOneOrMore(object, c("values")))
+  return(expect_one_or_more(object, c("values")))
 }
 
 #' 
@@ -123,8 +123,8 @@ FixedDistribution <- function(values) {
 #_______________________________________________________________________________
 
 validateFunctionDistribution <- function(object) {
-  check1 <- expectOne(object, "fun")
-  check2 <- expectZeroOrMore(object, "args")
+  check1 <- expect_one(object, "fun")
+  check2 <- expect_zero_or_more(object, "args")
   return(c(check1, check2))
 }
 
@@ -182,8 +182,8 @@ setClass(
 #' @return an uniform distribution
 #' @export
 UniformDistribution <- function(min, max) {
-  expectSingleNumericValue(min, "min")
-  expectSingleNumericValue(max, "max")
+  expect_single_numeric_value(min, "min")
+  expect_single_numeric_value(max, "max")
   return(new("function_distribution", fun="runif", args=list(min=as.numeric(min), max=as.numeric(max))))
 }
 
@@ -210,8 +210,8 @@ setClass(
 #' @return a normal distribution
 #' @export
 NormalDistribution <- function(mean, sd) {
-  expectSingleNumericValue(mean, "mean")
-  expectSingleNumericValue(sd, "sd")
+  expect_single_numeric_value(mean, "mean")
+  expect_single_numeric_value(sd, "sd")
   return(new("normal_distribution", fun="rnorm", args=list(mean=as.numeric(mean), sd=as.numeric(sd))))
 }
 
@@ -239,8 +239,8 @@ setClass(
 #' @return a log normal distribution
 #' @export
 LogNormalDistribution <- function(meanlog, sdlog) {
-  expectSingleNumericValue(meanlog, "meanlog")
-  expectSingleNumericValue(sdlog, "sdlog")
+  expect_single_numeric_value(meanlog, "meanlog")
+  expect_single_numeric_value(sdlog, "sdlog")
   return(new("function_distribution", fun="rlnorm", args=list(meanlog=as.numeric(meanlog), sdlog=as.numeric(sdlog))))
 }
 
@@ -297,8 +297,8 @@ setClass(
 #' @return a binomial distribution
 #' @export
 BinomialDistribution <- function(trials, prob) {
-  expectSingleIntegerValue(trials, name="trials")
-  expectSingleNumericValue(prob, name="prob")
+  expect_single_integer_value(trials, name="trials")
+  expect_single_numeric_value(prob, name="prob")
   return(new("function_distribution", fun="rbinom", args=list(size=as.integer(trials), prob=as.numeric(prob))))
 }
 
@@ -368,8 +368,8 @@ EtaDistribution <- function(model, omega) {
 #_______________________________________________________________________________
 
 validateBootstrapDistribution <- function(object) {
-  check1 <- expectOneOrMore(object, c("data"))
-  check2 <- expectOneForAll(object, c("replacement", "random"))
+  check1 <- expect_one_or_more(object, c("data"))
+  check2 <- expect_one_for_all(object, c("replacement", "random"))
   return(c(check1, check2))
 }
 

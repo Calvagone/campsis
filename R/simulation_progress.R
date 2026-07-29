@@ -27,14 +27,14 @@ setClass(
     hardware="hardware_settings"
   ),
   validity=function(object) {
-    return(c(expectOne(object, "replicates"),
-             expectOne(object, "scenarios"),
-             expectOne(object, "iterations"),
-             expectOne(object, "slices"),
-             expectOne(object, "replicate"),
-             expectOne(object, "iteration"),
-             expectOne(object, "scenario"),
-             expectOne(object, "slice")))
+    return(c(expect_one(object, "replicates"),
+             expect_one(object, "scenarios"),
+             expect_one(object, "iterations"),
+             expect_one(object, "slices"),
+             expect_one(object, "replicate"),
+             expect_one(object, "iteration"),
+             expect_one(object, "scenario"),
+             expect_one(object, "slice")))
   },
   prototype=prototype(slices=0L, replicate=0L, scenario=0L, iteration=0L, slice=0L)
 )

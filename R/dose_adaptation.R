@@ -4,9 +4,9 @@
 #_______________________________________________________________________________
 
 checkDoseAdaptation <- function(object) {
-  check1 <- expectOne(object, "formula")
-  check2 <- expectZeroOrMore(object, "compartments")
-  check3 <- expectPositiveValues(object, "compartments")
+  check1 <- expect_one(object, "formula")
+  check2 <- expect_zero_or_more(object, "compartments")
+  check3 <- expect_positive_values(object, "compartments")
   return(c(check1, check2, check3))
 }
 

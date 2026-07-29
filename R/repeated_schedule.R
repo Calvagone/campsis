@@ -57,7 +57,7 @@ DosingSchedule <- function() {
 #_______________________________________________________________________________
 
 validateCyclicSchedule <- function(object) {
-  return(expectOneForAll(object, c("duration", "repetitions")))
+  return(expect_one_for_all(object, c("duration", "repetitions")))
 }
 
 #' 
@@ -91,7 +91,7 @@ CyclicSchedule <- function(duration, repetitions) {
 #_______________________________________________________________________________
 
 validateRepeatAtSchedule <- function(object) {
-  return(expectOneOrMore(object, c("times")))
+  return(expect_one_or_more(object, c("times")))
 }
 
 #' 

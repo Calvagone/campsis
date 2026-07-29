@@ -30,7 +30,7 @@ setClass(
                       time_unit_dataset="hour",
                       time_unit_export="hour"),
   validity=function(object) {
-    return(expectOneForAll(object, c("def_depot_cmt", "def_obs_cmt", "export_tsld",
+    return(expect_one_for_all(object, c("def_depot_cmt", "def_obs_cmt", "export_tsld",
                                      "export_tdos", "time_unit_dataset", "time_unit_export")))
   }
 )

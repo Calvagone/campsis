@@ -5,14 +5,14 @@
 
 checkObservations <- function(object) {
   times <- get_times(object)
-  check1 <- expectOne(object, "compartment")
+  check1 <- expect_one(object, "compartment")
   check2 <- character()
   if (object@dv %>% length() > 0 && object@dv %>% length() != length(times)) {
     check2 <- "Slots 'times' and dv' don't have the same length"
   }
   
-  check3 <- expectOneOrMore_(times, "times")
-  check4 <- expectPositiveValues_(times, "times")
+  check3 <- expect_one_or_more_(times, "times")
+  check4 <- expect_positive_values_(times, "times")
 
   return(c(check1, check2, check3, check4))
 }

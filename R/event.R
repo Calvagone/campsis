@@ -4,11 +4,11 @@
 #_______________________________________________________________________________
 
 checkEvent <- function(object) {
-  checkName <- expectOne(object, "name")
-  checkTimes <- expectOneOrMore(object, "times")
-  checkTimesPositive <- expectPositiveValues(object, "times")
-  checkFunction <- expectOne(object, "fun")
-  checkDebug <- expectOne(object, "debug")
+  checkName <- expect_one(object, "name")
+  checkTimes <- expect_one_or_more(object, "times")
+  checkTimesPositive <- expect_positive_values(object, "times")
+  checkFunction <- expect_one(object, "fun")
+  checkDebug <- expect_one(object, "debug")
   return(c(checkName, checkTimes, checkTimesPositive, checkFunction, checkDebug))
 }
 

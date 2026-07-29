@@ -55,7 +55,7 @@ setClass(
     }
     
     # Check other slots
-    check3 <- expectOneForAll(object, c("replacement", "random", "export_id"))
+    check3 <- expect_one_for_all(object, c("replacement", "random", "export_id"))
     
     return(c(check1a, check1b, check1c, check1d,  check2, check3))
   }

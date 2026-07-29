@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkCovariate <- function(object) {
-  return(expectOneForAll(object, c("name", "distribution")))
+  return(expect_one_for_all(object, c("name", "distribution")))
 }
 
 #' 

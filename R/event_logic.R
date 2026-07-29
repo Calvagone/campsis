@@ -3,7 +3,7 @@
 #_______________________________________________________________________________
 
 checkEventIteration <- function(object) {
-  return(expectOneForAll(object, c("start", "end", "index", "maxIndex")))
+  return(expect_one_for_all(object, c("start", "end", "index", "maxIndex")))
 }
 
 setClass(

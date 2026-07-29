@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkArm <- function(object) {
-  return(expectOneForAll(object, c("id", "subjects", "label")))
+  return(expect_one_for_all(object, c("id", "subjects", "label")))
 }
 
 getEmptyBootstrap <- function() {

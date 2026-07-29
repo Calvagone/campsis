@@ -4,7 +4,7 @@
 #_______________________________________________________________________________
 
 checkScenario <- function(object) {
-  checkName <- expectOne(object, "name")
+  checkName <- expect_one(object, "name")
   checkModel <- expectAppropriateModelArg(object@model)
   checkDataset <- expectAppropriateDatasetArg(object@dataset)
   return(c(checkName, checkModel, checkDataset))

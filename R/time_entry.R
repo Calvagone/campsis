@@ -3,8 +3,8 @@
 #_______________________________________________________________________________
 
 checkTimeEntry <- function(object) {
-  check1 <- expectOneOrMore(object, "time")
-  check2 <- expectPositiveValues(object, "time")
+  check1 <- expect_one_or_more(object, "time")
+  check2 <- expect_positive_values(object, "time")
   return(c(check1, check2))
 }
 

@@ -3,8 +3,8 @@
 #_______________________________________________________________________________
 
 validateTreatmentIOV <- function(object) {
-  check1 <- expectOneForAll(object, c("colname", "distribution"))
-  check2 <- expectZeroOrMore(object, "dose_numbers")
+  check1 <- expect_one_for_all(object, c("colname", "distribution"))
+  check2 <- expect_zero_or_more(object, "dose_numbers")
   return(c(check1, check2))
 }
 
