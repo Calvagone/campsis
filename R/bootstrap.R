@@ -10,7 +10,7 @@
 #' Other columns are covariates to be bootstrapped (row by row).
 #' @slot replacement values can be reused or not, logical
 #' @slot random values are drawn randomly, logical
-#' @slot export_id tell CAMPSIS if 'BS_ID' must be exported into the dataset, logical
+#' @slot export_id tell Campsis if 'BS_ID' must be exported into the dataset, logical
 #' @importFrom dplyr pull
 #' @importFrom purrr map_lgl
 #' @export
@@ -76,7 +76,7 @@ setMethod("get_name", signature = c("bootstrap"), definition = function(x) {
 #' @param id unique identifier column name in data
 #' @param replacement values can be reused or not when drawn, logical
 #' @param random values are drawn randomly, logical
-#' @param export_id tell CAMPSIS if the identifier 'BS_ID' must be output or not, logical
+#' @param export_id tell Campsis if the identifier 'BS_ID' must be output or not, logical
 #' @return a bootstrap object
 #' @importFrom assertthat assert_that
 #' @importFrom dplyr all_of rename

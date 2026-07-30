@@ -4,8 +4,8 @@
 
 #' Simulate function.
 #'
-#' @param model generic CAMPSIS model
-#' @param dataset CAMPSIS dataset or 2-dimensional table
+#' @param model generic Campsis model
+#' @param dataset Campsis dataset or 2-dimensional table
 #' @param dest destination simulation engine, default is 'RxODE'
 #' @param events interruption events
 #' @param scenarios list of scenarios to be simulated
@@ -246,9 +246,9 @@ simulate_delegate_core <- function(
 #' Process arm labels. Arm identifiers in ARM column are replaced by arm labels
 #' as soon as one arm label is provided.
 #'
-#' @param campsis CAMPSIS output
+#' @param campsis Campsis output
 #' @param arms all treatment arms
-#' @return updated CAMPSIS output with arm labels instead of arm identifiers
+#' @return updated Campsis output with arm labels instead of arm identifiers
 #' @importFrom dplyr mutate recode
 #' @importFrom purrr map_chr map_int
 #' @keywords internal
@@ -295,10 +295,10 @@ simulate_scenarios <- function(
     model <- model %>% apply_scenario(scenario)
     dataset <- dataset %>% apply_scenario(scenario)
 
-    # Validate CAMPSIS model in depth
+    # Validate Campsis model in depth
     methods::validObject(model, complete = TRUE)
 
-    # Validate CAMPSIS dataset in depth (btw, validObject also works on non S4 objects)
+    # Validate Campsis dataset in depth (btw, validObject also works on non S4 objects)
     methods::validObject(dataset, complete = TRUE)
 
     # Find out how many iterations are needed
@@ -716,7 +716,7 @@ setMethod(
 
 #' Remove initial conditions.
 #'
-#' @param model CAMPSIS model
+#' @param model Campsis model
 #' @return same model without initial conditions
 #' @keywords internal
 #'
@@ -729,7 +729,7 @@ remove_initial_conditions <- function(model) {
 
 #' Preprocess arguments of the simulate method.
 #'
-#' @param model CAMPSIS model
+#' @param model Campsis model
 #' @param dataset dataset, data.frame form
 #' @param dest destination engine
 #' @param outvars outvars
@@ -771,7 +771,7 @@ process_simulate_arguments <- function(model, dataset, dest, outvars, dosing, se
     "EVENT_RELATED"
   ))
 
-  # Remove initial conditions from CAMPSIS model before export (if present)
+  # Remove initial conditions from Campsis model before export (if present)
   if (iteration@index > 1) {
     model <- remove_initial_conditions(model)
   }
@@ -810,7 +810,7 @@ process_simulate_arguments <- function(model, dataset, dest, outvars, dosing, se
       export(dest = "mrgsolve", outvars = outvars_, extra_params = c(etaNames, declare))
 
     # Disable IIV in mrgsolve model
-    engineModel@omega <- character(0) # IIV managed by CAMPSIS
+    engineModel@omega <- character(0) # IIV managed by Campsis
   }
 
   # Compute all slice rounds to perform

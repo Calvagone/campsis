@@ -10,7 +10,7 @@ RxODE/rxode2 engine class.
 \section{Slots}{
 
 \describe{
-\item{\code{rxode2}}{logical field to indicate if CAMPSIS should use rxode2 (field set to TRUE)
+\item{\code{rxode2}}{logical field to indicate if Campsis should use rxode2 (field set to TRUE)
 or RxODE (field set to FALSE). Default is TRUE.}
 }}
 

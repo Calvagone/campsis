@@ -15,7 +15,7 @@ setClass(
 #'
 #' RxODE/rxode2 engine class.
 #'
-#' @slot rxode2 logical field to indicate if CAMPSIS should use rxode2 (field set to TRUE)
+#' @slot rxode2 logical field to indicate if Campsis should use rxode2 (field set to TRUE)
 #'  or RxODE (field set to FALSE). Default is TRUE.
 #' @export
 setClass(

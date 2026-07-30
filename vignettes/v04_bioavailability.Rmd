@@ -22,13 +22,13 @@ if (campsis::on_cran()) {
 library(campsis)
 ```
 
-There are 2 ways to implement bioavailability in CAMPSIS:
+There are 2 ways to implement bioavailability in Campsis:
 
 * in the model: bioavailability is defined for each compartment
 * in the dataset: bioavailability is defined for each bolus or infusion
 
 In the first case, the simulation engine will take care of the bioavailability.
-In the second case, CAMPSIS will adapt automatically the amount injected through the dataset (AMT column).
+In the second case, Campsis will adapt automatically the amount injected through the dataset (AMT column).
 
 ### Bioavailability implemented in model
 
@@ -54,7 +54,7 @@ model <- model %>%
   add(Equation("F1", "THETA_F1*exp(ETA_F1)"))
 ```
 
-Finally, we need to tell CAMPSIS that `F1` corresponds to a bioavailability.
+Finally, we need to tell Campsis that `F1` corresponds to a bioavailability.
 
 ```{r}
 model <- model %>%

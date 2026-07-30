@@ -7,7 +7,7 @@
 unite_columns(x, columns, colname, factor = TRUE)
 }
 \arguments{
-\item{x}{data frame, CAMPSIS output}
+\item{x}{data frame, Campsis output}
 
 \item{columns}{columns to unify}
 

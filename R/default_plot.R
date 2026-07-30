@@ -1,6 +1,6 @@
-#' Filter CAMPSIS output on observation rows.
+#' Filter Campsis output on observation rows.
 #'
-#' @param x data frame, CAMPSIS output
+#' @param x data frame, Campsis output
 #' @return a data frame with the observation rows
 #' @importFrom dplyr filter
 #' @export
@@ -12,9 +12,9 @@ obs_only <- function(x) {
   }
 }
 
-#' Filter CAMPSIS output on dosing rows.
+#' Filter Campsis output on dosing rows.
 #'
-#' @param x data frame, CAMPSIS output
+#' @param x data frame, Campsis output
 #' @return a data frame with the dosing rows
 #' @importFrom dplyr filter
 #' @export
@@ -28,7 +28,7 @@ dosing_only <- function(x) {
 
 #' Unite the given column names.
 #'
-#' @param x data frame, CAMPSIS output
+#' @param x data frame, Campsis output
 #' @param columns columns to unify
 #' @param colname destination column name
 #' @param factor factor the destination column
@@ -200,7 +200,7 @@ scatterPlot <- function(x, variable, colour = NULL, time = NULL) {
 
 #' VPC plot.
 #'
-#' @param x data frame, output of CAMPSIS with replicates
+#' @param x data frame, output of Campsis with replicates
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 #'   Only columns that are actually present in \code{x} are used.
 #' @param level PI level, default is 0.9 (90\% PI)

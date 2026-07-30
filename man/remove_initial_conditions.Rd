@@ -7,7 +7,7 @@
 remove_initial_conditions(model)
 }
 \arguments{
-\item{model}{CAMPSIS model}
+\item{model}{Campsis model}
 }
 \value{
 same model without initial conditions

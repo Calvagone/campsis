@@ -14,7 +14,7 @@ preprocess_dest <- function(dest) {
     } else if (find.package("mrgsolve", quiet = TRUE) %>% length() > 0) {
       dest <- "mrgsolve"
     } else {
-      stop("Simulation engine 'rxode2', 'RxODE' or 'mrgsolve' is required to run CAMPSIS")
+      stop("Simulation engine 'rxode2', 'RxODE' or 'mrgsolve' is required to run Campsis")
     }
   } else if (is.vector(dest)) {
     if (!(dest %in% c("rxode2", "RxODE", "mrgsolve"))) {
@@ -109,7 +109,7 @@ preprocess_outfun <- function(outfun) {
 }
 
 #' Preprocess 'outvars' argument. 'Outvars' is a character vector which tells
-#' CAMPSIS the mandatory columns to keep in the output dataframe.
+#' Campsis the mandatory columns to keep in the output dataframe.
 #'
 #' @param outvars character vector or function
 #' @return outvars

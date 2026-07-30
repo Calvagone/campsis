@@ -94,7 +94,7 @@ The default compartment is the first one. Although the compartment number is not
 ### Export dataset
 
 So far so good! The dataset contains 5 subjects, 1 bolus and 1 infusion.
-We are going to export it to a 2-dimensional table. This step is implicitly done by CAMPSIS when you simulate your model.
+We are going to export it to a 2-dimensional table. This step is implicitly done by Campsis when you simulate your model.
 
 ```{r}
 table <- ds %>% export(dest = "RxODE")
@@ -103,7 +103,7 @@ table
 
 A few explanations need to be given here regarding the following column names:
 
-* ID: this is the subject ID, it always starts at 1. ID's are consecutive in CAMPSIS
+* ID: this is the subject ID, it always starts at 1. ID's are consecutive in Campsis
 * ARM: this is the ARM number. 0 is the default arm.
 * RATE: the RATE column (0 for boluses, -1/-2 for a rate/infusion defined in the model, NA when no information is available)
 * DOSENO: the dose number. Doses (boluses and infusions) are numbered according to the time they occur.

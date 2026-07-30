@@ -116,9 +116,9 @@ simulate(
 )
 }
 \arguments{
-\item{model}{generic CAMPSIS model}
+\item{model}{generic Campsis model}
 
-\item{dataset}{CAMPSIS dataset or 2-dimensional table}
+\item{dataset}{Campsis dataset or 2-dimensional table}
 
 \item{dest}{destination simulation engine, default is 'RxODE'}
 

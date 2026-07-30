@@ -2,7 +2,7 @@
 % Please edit documentation in R/vpc_plot.R
 \name{vpc_plot.std_campsis_tbl}
 \alias{vpc_plot.std_campsis_tbl}
-\title{VPC plot for standard CAMPSIS simulation output.}
+\title{VPC plot for standard Campsis simulation output.}
 \usage{
 \method{vpc_plot}{std_campsis_tbl}(
   x,

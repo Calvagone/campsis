@@ -42,7 +42,7 @@ setClass(
 #'
 #' @param id unique identifier for this arm (available trough dataset), integer. If NA (default), this identifier is auto-incremented.
 #' @param subjects number of subjects in arm, integer
-#' @param label arm label, single character string. If set, this label will be output in the ARM column of CAMPSIS instead of the identifier.
+#' @param label arm label, single character string. If set, this label will be output in the ARM column of Campsis instead of the identifier.
 #' @return an arm
 #' @export
 Arm <- function(id = as.integer(NA), subjects = 1, label = as.character(NA)) {

@@ -8,12 +8,12 @@ as soon as one arm label is provided.}
 process_arm_labels(campsis, arms)
 }
 \arguments{
-\item{campsis}{CAMPSIS output}
+\item{campsis}{Campsis output}
 
 \item{arms}{all treatment arms}
 }
 \value{
-updated CAMPSIS output with arm labels instead of arm identifiers
+updated Campsis output with arm labels instead of arm identifiers
 }
 \description{
 Process arm labels. Arm identifiers in ARM column are replaced by arm labels

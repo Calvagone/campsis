@@ -2,16 +2,16 @@
 % Please edit documentation in R/default_plot.R
 \name{dosing_only}
 \alias{dosing_only}
-\title{Filter CAMPSIS output on dosing rows.}
+\title{Filter Campsis output on dosing rows.}
 \usage{
 dosing_only(x)
 }
 \arguments{
-\item{x}{data frame, CAMPSIS output}
+\item{x}{data frame, Campsis output}
 }
 \value{
 a data frame with the dosing rows
 }
 \description{
-Filter CAMPSIS output on dosing rows.
+Filter Campsis output on dosing rows.
 }

@@ -22,7 +22,7 @@ if (campsis::on_cran()) {
 library(campsis)
 ```
 
-This vignette shows how initial conditions may be used in CAMPSIS.
+This vignette shows how initial conditions may be used in Campsis.
 
 ### Init central compartment
 

@@ -29,8 +29,8 @@ stripMetadata <- function(x) {
 
 #' Test there is no regression in the exported dataset.
 #'
-#' @param dataset newly generated CAMPSIS dataset
-#' @param model CAMPSIS model
+#' @param dataset newly generated Campsis dataset
+#' @param model Campsis model
 #' @param seed seed that was used for export
 #' @param doseOnly look only at the doses, i.e. EVID==1
 #' @param filename reference file

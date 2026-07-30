@@ -4,7 +4,7 @@
 
 #' Shaded plot / prediction interval plot (S3 generic).
 #'
-#' @param x a CAMPSIS output object
+#' @param x a Campsis output object
 #' @param ... additional arguments passed to the method
 #' @return a ggplot object
 #' @export
@@ -16,7 +16,7 @@ shaded_plot <- function(x, ...) {
 #----                   shaded_plot.std_campsis_tbl                         ----
 #_______________________________________________________________________________
 
-#' Shaded plot for standard CAMPSIS simulation output.
+#' Shaded plot for standard Campsis simulation output.
 #'
 #' Plots a median line with a prediction interval ribbon from a
 #' \code{std_campsis_tbl} (the default output of \code{simulate()} when no

@@ -7,7 +7,7 @@
 spaghetti_plot(x, ...)
 }
 \arguments{
-\item{x}{a CAMPSIS output object}
+\item{x}{a Campsis output object}
 
 \item{...}{additional arguments passed to the method}
 }

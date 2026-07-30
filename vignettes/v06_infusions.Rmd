@@ -22,13 +22,13 @@ if (campsis::on_cran()) {
 library(campsis)
 ```
 
-There are 2 ways to implement infusions in CAMPSIS:
+There are 2 ways to implement infusions in Campsis:
 
 * in the model: infusion duration or rate is defined for each compartment
 * in the dataset: infusion duration or rate is defined for infusion
 
 In the first case, the simulation engine will take care of the infusion duration or rate (RATE in dataset will be -1 or -2).
-In the second case, CAMPSIS will inject specific values in the RATE column of the dataset.
+In the second case, Campsis will inject specific values in the RATE column of the dataset.
 
 ### Infusion duration or rate implemented in model
 
@@ -54,7 +54,7 @@ model <- model %>%
   add(Equation("D1", "THETA_D1*exp(ETA_D1)"))
 ```
 
-Finally, we need to tell CAMPSIS that `D1` corresponds the infusion duration for the first compartment.
+Finally, we need to tell Campsis that `D1` corresponds the infusion duration for the first compartment.
 
 ```{r}
 model <- model %>%

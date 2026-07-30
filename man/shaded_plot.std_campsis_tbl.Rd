@@ -2,7 +2,7 @@
 % Please edit documentation in R/shaded_plot.R
 \name{shaded_plot.std_campsis_tbl}
 \alias{shaded_plot.std_campsis_tbl}
-\title{Shaded plot for standard CAMPSIS simulation output.}
+\title{Shaded plot for standard Campsis simulation output.}
 \usage{
 \method{shaded_plot}{std_campsis_tbl}(
   x,

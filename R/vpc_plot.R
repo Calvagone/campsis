@@ -4,7 +4,7 @@
 
 #' VPC plot (S3 generic).
 #'
-#' @param x a CAMPSIS output object
+#' @param x a Campsis output object
 #' @param ... additional arguments passed to the method
 #' @return a ggplot object
 #' @export
@@ -16,7 +16,7 @@ vpc_plot <- function(x, ...) {
 #----                     vpc_plot.pi_campsis_tbl                           ----
 #_______________________________________________________________________________
 
-#' VPC plot for prediction-interval CAMPSIS output.
+#' VPC plot for prediction-interval Campsis output.
 #'
 #' Plots VPC ribbons (a confidence interval around the median, lower and upper
 #' percentiles) from a \code{pi_campsis_tbl}, i.e. the output of
@@ -73,7 +73,7 @@ vpc_plot.pi_campsis_tbl <- function(x, strata = "auto", level = 0.90, alpha = 0.
 #----                    vpc_plot.std_campsis_tbl                           ----
 #_______________________________________________________________________________
 
-#' VPC plot for standard CAMPSIS simulation output.
+#' VPC plot for standard Campsis simulation output.
 #'
 #' Plots VPC ribbons (a confidence interval around the median, lower and upper
 #' percentiles) from a \code{std_campsis_tbl}, i.e. the default output of

@@ -22,7 +22,7 @@ if (campsis::on_cran()) {
 library(campsis)
 ```
 
-This vignette intends to demonstrate that CAMPSIS can be used to implement almost any PK/PD model, including complex ones.
+This vignette intends to demonstrate that Campsis can be used to implement almost any PK/PD model, including complex ones.
 
 ### Filgrastim PK/PD model
 

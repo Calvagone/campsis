@@ -22,13 +22,13 @@ if (campsis::on_cran()) {
 library(campsis)
 ```
 
-There are 2 ways to implement a lag time in CAMPSIS:
+There are 2 ways to implement a lag time in Campsis:
 
 * in the model: lag time is defined for each compartment
 * in the dataset: lag time is defined for each bolus or infusion
 
 In the first case, the simulation engine will take care of the lag time
-In the second case, CAMPSIS will adapt automatically the time of the dose(s)
+In the second case, Campsis will adapt automatically the time of the dose(s)
 
 ### Lag time implemented in model
 
@@ -54,7 +54,7 @@ model <- model %>%
   add(Equation("ALAG1", "THETA_ALAG1*exp(ETA_ALAG1)"))
 ```
 
-Finally, we need to tell CAMPSIS that `ALAG1` corresponds to a lag time.
+Finally, we need to tell Campsis that `ALAG1` corresponds to a lag time.
 
 ```{r}
 model <- model %>%

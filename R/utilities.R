@@ -10,7 +10,7 @@ import_campsismod_to_namespace <- function() {
 }
 
 #'
-#' Convert user-given distribution to an explicit CAMPSIS distribution.
+#' Convert user-given distribution to an explicit Campsis distribution.
 #' Passed distribution can be:
 #' - a NULL value. In that case, it will be converted into an 'UndefinedDistribution'.
 #' - a single numeric value. In that case, it will be converted into a 'ConstantDistribution'.

@@ -39,7 +39,7 @@ setClass(
 )
 
 #'
-#' Create a dataset configuration. This configuration allows CAMPSIS to know which
+#' Create a dataset configuration. This configuration allows Campsis to know which
 #' are the default depot and observed compartments.
 #'
 #' @param defDepotCmt default depot compartment, integer

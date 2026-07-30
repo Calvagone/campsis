@@ -7,7 +7,7 @@
 process_simulate_arguments(model, dataset, dest, outvars, dosing, settings)
 }
 \arguments{
-\item{model}{CAMPSIS model}
+\item{model}{Campsis model}
 
 \item{dataset}{dataset, data.frame form}
 

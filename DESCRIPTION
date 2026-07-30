@@ -132,6 +132,4 @@ Collate:
     'scatter_plot.R'
     'vpc_plot.R'
     'deprecated_methods.R'
-Remotes:
-  Calvagone/campsismod@snake_case
 Config/roxygen2/version: 8.0.0

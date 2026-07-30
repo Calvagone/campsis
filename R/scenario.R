@@ -60,7 +60,7 @@ expect_appropriate_model_arg <- function(model) {
   if (is(model, "campsis_model") || is.function(model) || rlang::is_formula(model)) {
     return(character(0))
   } else {
-    return("model must be a CAMPSIS model, a function or a purrr-style lambda formula")
+    return("model must be a Campsis model, a function or a purrr-style lambda formula")
   }
 }
 
@@ -68,7 +68,7 @@ expect_appropriate_dataset_arg <- function(dataset) {
   if (is(dataset, "dataset") || is.function(dataset) || rlang::is_formula(dataset)) {
     return(character(0))
   } else {
-    return("dataset must be a CAMPSIS dataset, a function or a purrr-style lambda formula")
+    return("dataset must be a Campsis dataset, a function or a purrr-style lambda formula")
   }
 }
 
@@ -121,7 +121,7 @@ apply_scenario <- function(x, scenario) {
   } else if (is(x, "dataset") || is.data.frame(x)) {
     x_ <- scenario@dataset
   } else {
-    stop("x must be either a CAMPSIS model or dataset")
+    stop("x must be either a Campsis model or dataset")
   }
 
   if (is.function(x_)) {

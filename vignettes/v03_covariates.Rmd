@@ -24,7 +24,7 @@ library(campsis)
 
 ### Add a body weight covariate into the model
 
-Let's use a simple 1-compartment model to illustrate how covariates are managed by CAMPSIS.
+Let's use a simple 1-compartment model to illustrate how covariates are managed by Campsis.
 
 ```{r}
 model <- model_suite$nonmem$advan1_trans2

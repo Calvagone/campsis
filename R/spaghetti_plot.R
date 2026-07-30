@@ -4,7 +4,7 @@
 
 #' Spaghetti plot (S3 generic).
 #'
-#' @param x a CAMPSIS output object
+#' @param x a Campsis output object
 #' @param ... additional arguments passed to the method
 #' @return a ggplot object
 #' @export
@@ -16,7 +16,7 @@ spaghetti_plot <- function(x, ...) {
 #----                  spaghetti_plot.std_campsis_tbl                       ----
 #_______________________________________________________________________________
 
-#' Spaghetti plot for standard CAMPSIS simulation output.
+#' Spaghetti plot for standard Campsis simulation output.
 #'
 #' Plots individual-level time profiles from a \code{std_campsis_tbl} (the
 #' default output of \code{simulate()} when no custom \code{outfun} is used).

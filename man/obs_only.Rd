@@ -2,16 +2,16 @@
 % Please edit documentation in R/default_plot.R
 \name{obs_only}
 \alias{obs_only}
-\title{Filter CAMPSIS output on observation rows.}
+\title{Filter Campsis output on observation rows.}
 \usage{
 obs_only(x)
 }
 \arguments{
-\item{x}{data frame, CAMPSIS output}
+\item{x}{data frame, Campsis output}
 }
 \value{
 a data frame with the observation rows
 }
 \description{
-Filter CAMPSIS output on observation rows.
+Filter Campsis output on observation rows.
 }

@@ -3,7 +3,7 @@
 \name{preprocess_outvars}
 \alias{preprocess_outvars}
 \title{Preprocess 'outvars' argument. 'Outvars' is a character vector which tells
-CAMPSIS the mandatory columns to keep in the output dataframe.}
+Campsis the mandatory columns to keep in the output dataframe.}
 \usage{
 preprocess_outvars(outvars)
 }
@@ -15,6 +15,6 @@ outvars
 }
 \description{
 Preprocess 'outvars' argument. 'Outvars' is a character vector which tells
-CAMPSIS the mandatory columns to keep in the output dataframe.
+Campsis the mandatory columns to keep in the output dataframe.
 }
 \keyword{internal}

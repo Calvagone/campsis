@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{to_explicit_distribution}
 \alias{to_explicit_distribution}
-\title{Convert user-given distribution to an explicit CAMPSIS distribution.
+\title{Convert user-given distribution to an explicit Campsis distribution.
 Passed distribution can be:
 - a NULL value. In that case, it will be converted into an 'UndefinedDistribution'.
 - a single numeric value. In that case, it will be converted into a 'ConstantDistribution'.
@@ -18,7 +18,7 @@ to_explicit_distribution(distribution)
 a distribution object
 }
 \description{
-Convert user-given distribution to an explicit CAMPSIS distribution.
+Convert user-given distribution to an explicit Campsis distribution.
 Passed distribution can be:
 - a NULL value. In that case, it will be converted into an 'UndefinedDistribution'.
 - a single numeric value. In that case, it will be converted into a 'ConstantDistribution'.

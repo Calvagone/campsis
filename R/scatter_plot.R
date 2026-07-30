@@ -4,7 +4,7 @@
 
 #' Scatter plot (S3 generic).
 #'
-#' @param x a CAMPSIS output object
+#' @param x a Campsis output object
 #' @param ... additional arguments passed to the method
 #' @return a ggplot object
 #' @export
@@ -16,7 +16,7 @@ scatter_plot <- function(x, ...) {
 #----                   scatter_plot.std_campsis_tbl                        ----
 #_______________________________________________________________________________
 
-#' Scatter plot for standard CAMPSIS simulation output.
+#' Scatter plot for standard Campsis simulation output.
 #'
 #' Plots one or two variables against each other at a given time point, from a
 #' \code{std_campsis_tbl} (the default output of \code{simulate()} when no

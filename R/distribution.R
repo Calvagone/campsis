@@ -396,7 +396,7 @@ setClass(
 )
 
 #'
-#' Create a bootstrap distribution. During function sampling, CAMPSIS will generate
+#' Create a bootstrap distribution. During function sampling, Campsis will generate
 #' values depending on the given data and arguments.
 #'
 #' @param data values to draw, numeric vector

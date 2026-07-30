@@ -1,8 +1,8 @@
 ---
-title: "Get started with CAMPSIS"
+title: "Get started with Campsis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get started with CAMPSIS}
+  %\VignetteIndexEntry{Get started with Campsis}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -27,7 +27,7 @@ model <- model_suite$pk$`2cpt_fo`
 
 ### Create dataset
 
-Create your dataset in CAMPSIS. For instance, let's give 1000mg QD for 3 days and observe every hour.
+Create your dataset in Campsis. For instance, let's give 1000mg QD for 3 days and observe every hour.
 
 ```{r}
 dataset <- Dataset(10) %>%
@@ -81,4 +81,4 @@ shaded_plot(results)
 
 ### Going further
 
-We invite you to check out the other [vignettes](https://calvagone.github.io/campsis.doc/articles/). Have fun with CAMPSIS!
+We invite you to check out the other [vignettes](https://calvagone.github.io/campsis.doc/articles/). Have fun with Campsis!
