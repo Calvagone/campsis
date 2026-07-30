@@ -11,7 +11,9 @@ editor_options:
 
 ```{r, results='asis', echo=F, message=F, warning=F}
 if (campsis::on_cran()) {
-  cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v01_dataset.html).")
+  cat(
+    "This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v01_dataset.html)."
+  )
   knitr::knit_exit()
 }
 ```
@@ -25,7 +27,7 @@ library(campsis)
 Create a dataset of 3 subjects:
 
 ```{r}
-ds <- Dataset(subjects=3)
+ds <- Dataset(subjects = 3)
 ```
 
 Or shortly:
@@ -43,7 +45,7 @@ ds %>% length()
 See all methods that can be applied on a dataset:
 
 ```{r}
-methods(class=class(ds))
+methods(class = class(ds))
 ```
 
 Oh, this looks cool. There are plenty of functions to play with.  
@@ -56,13 +58,13 @@ In the next sections below, we'll see how we can add boluses and infusions:
 A bolus can be created using the constructor `Bolus` and added to the dataset:
 
 ```{r}
-ds <- ds %>% add(Bolus(time=0, amount=1000))
+ds <- ds %>% add(Bolus(time = 0, amount = 1000))
 ```
 
 By default, it will be injected into the first compartment (CMT=1). If another compartment needs to be used, the `compartment` argument may be used as follows:
 
 ```{r, results='hide'}
-Bolus(time=0, amount=1000, compartment=2)
+Bolus(time = 0, amount = 1000, compartment = 2)
 ```
 
 Bioavailabilities (`f` argument) and lag times (`lag` argument) can be implemented as well, in the dataset. This will be illustrated in other vignettes.
@@ -72,7 +74,7 @@ Bioavailabilities (`f` argument) and lag times (`lag` argument) can be implement
 An infusion can be created using the constructor `Infusion` and added to the dataset:
 
 ```{r}
-ds <- ds %>% add(Infusion(time=0.5, amount=1000))
+ds <- ds %>% add(Infusion(time = 0.5, amount = 1000))
 ```
 
 As previously, the default compartment is the first compartment.
@@ -84,7 +86,7 @@ Infusion rate (`rate` argument) or duration (`duration` argument), bioavailabili
 Observations can be created using the constructor `Observations` and added to the dataset:
 
 ```{r}
-ds <- ds %>% add(Observations(times=c(0.5, 1)))
+ds <- ds %>% add(Observations(times = c(0.5, 1)))
 ```
 
 The default compartment is the first one. Although the compartment number is not useful for simulations (as simulation engines are able to look at all `DV` at once), it can still be useful when exporting a table for a modeling tool.
@@ -95,7 +97,7 @@ So far so good! The dataset contains 5 subjects, 1 bolus and 1 infusion.
 We are going to export it to a 2-dimensional table. This step is implicitly done by CAMPSIS when you simulate your model.
 
 ```{r}
-table <- ds %>% export(dest="RxODE")
+table <- ds %>% export(dest = "RxODE")
 table
 ```
 
@@ -113,26 +115,26 @@ Instead of using the default arm (0) in the dataset, several arms can be created
 To illustrate this, let's create a dataset with two arms.
 
 ```{r}
-arm1 <- Arm(subjects=2)
-arm2 <- Arm(subjects=3)
+arm1 <- Arm(subjects = 2)
+arm2 <- Arm(subjects = 3)
 ```
 
 Let's create 2 different treatments:
 
 ```{r}
 arm1 <- arm1 %>%
-  add(Bolus(time=0, amount=1000))
+  add(Bolus(time = 0, amount = 1000))
 arm2 <- arm2 %>%
-  add(Bolus(time=0, amount=2000))
+  add(Bolus(time = 0, amount = 2000))
 ```
 
 Observations may also differ:
 
 ```{r}
 arm1 <- arm1 %>%
-  add(Observations(times=c(0.5, 1)))
-arm2 <- arm2 %>% 
-  add(Observations(times=c(1, 1.5)))
+  add(Observations(times = c(0.5, 1)))
+arm2 <- arm2 %>%
+  add(Observations(times = c(1, 1.5)))
 ```
 
 Let's now add these 2 arms into a fresh dataset:
@@ -150,6 +152,6 @@ ds %>% length()
 The resulting exported table is as follows:
 
 ```{r}
-table <- ds %>% export(dest="RxODE")
+table <- ds %>% export(dest = "RxODE")
 table
 ```
