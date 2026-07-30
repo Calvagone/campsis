@@ -8,6 +8,7 @@
 * Apply collection of output functions (outfuns) on simulated output #207
 * Migrate campsis to snake_case #208
 * Update pkgdown documentation #209
+* Format code with Air #211
 
 # campsis 1.8.2
 

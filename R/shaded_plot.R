@@ -1,4 +1,3 @@
-
 #_______________________________________________________________________________
 #----                         shaded_plot generic                           ----
 #_______________________________________________________________________________
@@ -50,18 +49,20 @@ shaded_plot <- function(x, ...) {
 #' @seealso \code{\link{shadedPlot}}
 #' @importFrom ggplot2 aes ggplot geom_line geom_ribbon labs ylab
 #' @export
-shaded_plot.std_campsis_tbl <- function(x, variable = "CONC",
-                                        colour = "auto",
-                                        strat_extra = NULL,
-                                        level = 0.90,
-                                        alpha = 0.25,
-                                        ...) {
+shaded_plot.std_campsis_tbl <- function(
+  x,
+  variable = "CONC",
+  colour = "auto",
+  strat_extra = NULL,
+  level = 0.90,
+  alpha = 0.25,
+  ...
+) {
   .assert_variable_present(x, variable)
 
   if (identical(colour, "auto")) {
     colour <- .auto_colour_columns(x)
   }
 
-  shadedPlot(x, variable = variable, colour = colour,
-             strat_extra = strat_extra, level = level, alpha = alpha)
+  shadedPlot(x, variable = variable, colour = colour, strat_extra = strat_extra, level = level, alpha = alpha)
 }

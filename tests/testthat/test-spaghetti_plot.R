@@ -10,8 +10,8 @@ source(file.path(getwd(), test_path(), "test-plot_utils.R"))
 #_______________________________________________________________________________
 
 test_that("spaghetti_plot auto colour: single arm, no scenarios → no colour", {
-  data <- make_data()  # no ARM / SCENARIO columns
-  tbl  <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
+  data <- make_data() # no ARM / SCENARIO columns
+  tbl <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
 
   # Internal helper must return NULL (nothing to colour by).
   expect_null(campsis:::.auto_colour_columns(tbl))
@@ -30,7 +30,7 @@ test_that("spaghetti_plot auto colour: single arm, no scenarios → no colour", 
 
 test_that("spaghetti_plot auto colour: multiple arms → colour by ARM", {
   data <- make_data(arms = c("100 mg", "100 mg", "200 mg"))
-  tbl  <- make_std_campsis_tbl(data, dataset = two_arm_dataset)
+  tbl <- make_std_campsis_tbl(data, dataset = two_arm_dataset)
 
   expect_equal(campsis:::.auto_colour_columns(tbl), "ARM")
 
@@ -41,7 +41,7 @@ test_that("spaghetti_plot auto colour: multiple arms → colour by ARM", {
 
 test_that("spaghetti_plot auto colour: multiple scenarios → colour by SCENARIO", {
   data <- make_data(scenarios = c("Low dose", "Low dose", "High dose"))
-  tbl  <- make_std_campsis_tbl(data, dataset = single_arm_dataset, scenarios = two_scenarios)
+  tbl <- make_std_campsis_tbl(data, dataset = single_arm_dataset, scenarios = two_scenarios)
 
   expect_equal(campsis:::.auto_colour_columns(tbl), "SCENARIO")
 
@@ -52,7 +52,7 @@ test_that("spaghetti_plot auto colour: multiple scenarios → colour by SCENARIO
 
 test_that("spaghetti_plot auto colour: multiple arms + scenarios → colour by both", {
   data <- make_data(
-    arms      = c("100 mg", "200 mg", "100 mg"),
+    arms = c("100 mg", "200 mg", "100 mg"),
     scenarios = c("Low dose", "Low dose", "High dose")
   )
   tbl <- make_std_campsis_tbl(data, dataset = two_arm_dataset, scenarios = two_scenarios)
@@ -70,7 +70,7 @@ test_that("spaghetti_plot auto colour: multiple arms + scenarios → colour by b
 
 test_that("spaghetti_plot colour = NULL: no colour even with multiple arms", {
   data <- make_data(arms = c("100 mg", "100 mg", "200 mg"))
-  tbl  <- make_std_campsis_tbl(data, dataset = two_arm_dataset)
+  tbl <- make_std_campsis_tbl(data, dataset = two_arm_dataset)
 
   plot <- expect_no_error(spaghetti_plot(tbl, colour = NULL))
   expect_s3_class(plot, "gg")
@@ -84,7 +84,7 @@ test_that("spaghetti_plot colour = NULL: no colour even with multiple arms", {
 
 test_that("spaghetti_plot raises an informative error for missing variable", {
   data <- make_data()
-  tbl  <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
+  tbl <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
 
   expect_error(
     spaghetti_plot(tbl, variable = "MISSING"),
@@ -97,9 +97,9 @@ test_that("spaghetti_plot raises an informative error for missing variable", {
 #_______________________________________________________________________________
 
 test_that("spaghetti_plot plots a non-default variable when supplied", {
-  data     <- make_data()
+  data <- make_data()
   data$AUC <- data$CONC * 2
-  tbl      <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
+  tbl <- make_std_campsis_tbl(data, dataset = single_arm_dataset)
 
   plot <- expect_no_error(spaghetti_plot(tbl, variable = "AUC"))
   expect_s3_class(plot, "gg")

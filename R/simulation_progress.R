@@ -1,6 +1,6 @@
-#' 
+#'
 #' Simulation progress class.
-#' 
+#'
 #' @param replicates total number of replicates to simulate
 #' @param scenarios total number of scenarios to simulate
 #' @param iterations total number of iterations to simulate
@@ -15,33 +15,35 @@
 setClass(
   "simulation_progress",
   representation(
-    replicates="integer", # Known upfront
-    scenarios="integer",  # Known upfront
-    iterations="integer", # May vary based on the dataset (see getEventIterations())
-    slices="integer",     # May vary based on number of subjects in dataset (which can change in scenarios)
-    replicate="integer",
-    scenario="integer",
-    iteration="integer",
-    slice="integer",
-    progressor="ANY",
-    hardware="hardware_settings"
+    replicates = "integer", # Known upfront
+    scenarios = "integer", # Known upfront
+    iterations = "integer", # May vary based on the dataset (see getEventIterations())
+    slices = "integer", # May vary based on number of subjects in dataset (which can change in scenarios)
+    replicate = "integer",
+    scenario = "integer",
+    iteration = "integer",
+    slice = "integer",
+    progressor = "ANY",
+    hardware = "hardware_settings"
   ),
-  validity=function(object) {
-    return(c(expect_one(object, "replicates"),
-             expect_one(object, "scenarios"),
-             expect_one(object, "iterations"),
-             expect_one(object, "slices"),
-             expect_one(object, "replicate"),
-             expect_one(object, "iteration"),
-             expect_one(object, "scenario"),
-             expect_one(object, "slice")))
+  validity = function(object) {
+    return(c(
+      expect_one(object, "replicates"),
+      expect_one(object, "scenarios"),
+      expect_one(object, "iterations"),
+      expect_one(object, "slices"),
+      expect_one(object, "replicate"),
+      expect_one(object, "iteration"),
+      expect_one(object, "scenario"),
+      expect_one(object, "slice")
+    ))
   },
-  prototype=prototype(slices=0L, replicate=0L, scenario=0L, iteration=0L, slice=0L)
+  prototype = prototype(slices = 0L, replicate = 0L, scenario = 0L, iteration = 0L, slice = 0L)
 )
 
-#' 
+#'
 #' Create a simulation progress object.
-#' 
+#'
 #' @param replicates total number of replicates to simulate
 #' @param scenarios total number of scenarios to simulate
 #' @param progressor progressr progressor
@@ -49,35 +51,37 @@ setClass(
 #' @return a progress bar
 #' @importFrom progressr progressor
 #' @export
-SimulationProgress <- function(replicates=1, scenarios=1, progressor=NULL, hardware=NULL) {
+SimulationProgress <- function(replicates = 1, scenarios = 1, progressor = NULL, hardware = NULL) {
   if (is.null(hardware)) {
     hardware <- Hardware()
   }
-  return(new("simulation_progress",
-             replicates=as.integer(replicates),
-             scenarios=as.integer(scenarios),
-             iterations=1L,
-             progressor=progressor,
-             hardware=hardware))
+  return(new(
+    "simulation_progress",
+    replicates = as.integer(replicates),
+    scenarios = as.integer(scenarios),
+    iterations = 1L,
+    progressor = progressor,
+    hardware = hardware
+  ))
 }
 
 #' Compute incremental progress.
-#' 
+#'
 #' @param object simulation progress object
 #' @param tick_slice tick progress on slices
 #' @return incremental progress, in percentage
 #' @keywords internal
 compute_incremental_progress <- function(object, tick_slice) {
   if (tick_slice) {
-    incrementalWorkPercentage <- 1/(object@replicates*object@scenarios*object@iterations*object@slices)
+    incrementalWorkPercentage <- 1 / (object@replicates * object@scenarios * object@iterations * object@slices)
   } else {
-    incrementalWorkPercentage <- 1/(object@replicates*object@scenarios*object@iterations)
+    incrementalWorkPercentage <- 1 / (object@replicates * object@scenarios * object@iterations)
   }
-  return(incrementalWorkPercentage*100)
+  return(incrementalWorkPercentage * 100)
 }
 
 tick <- function(object, tick_slice) {
-  increment <- object %>% compute_incremental_progress(tick_slice=tick_slice)
+  increment <- object %>% compute_incremental_progress(tick_slice = tick_slice)
   if (object@replicates > 1) {
     customMessage <- paste0("Simulating replicate ", object@replicate, "/", object@replicates)
   } else if (object@scenarios > 1) {
@@ -97,7 +101,7 @@ tick <- function(object, tick_slice) {
       customMessage <- paste0("Running simulation in parallel (", cpus, ")")
     }
   }
-  object@progressor(message=customMessage, amount=increment)
+  object@progressor(message = customMessage, amount = increment)
   return(object)
 }
 
@@ -128,14 +132,14 @@ update_slice <- function(object, index) {
 }
 
 #' Suggested Campsis handler for showing the progress bar.
-#' 
+#'
 #' @return a progressr handler list
 #' @export
 campsis_handler <- function() {
   return(list(
     progressr::handler_progress(
-      format=" :message [:bar] :percent eta: :eta",
-      width=100
+      format = " :message [:bar] :percent eta: :eta",
+      width = 100
     )
   ))
 }

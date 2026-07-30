@@ -17,7 +17,7 @@
 A restored `campsis_tbl` object with appropriate metadata and classes.
 }
 \description{
-Internal vctrs method to restore the custom `campsis_tbl` class attributes, 
+Internal vctrs method to restore the custom `campsis_tbl` class attributes,
 specifically copying over the S4 metadata object, after a vector operation.
 }
 \keyword{internal}

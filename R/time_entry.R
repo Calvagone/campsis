@@ -13,6 +13,6 @@ setClass(
   representation(
     time = "numeric"
   ),
-  contains="pmx_element",
-  validity=check_time_entry
+  contains = "pmx_element",
+  validity = check_time_entry
 )

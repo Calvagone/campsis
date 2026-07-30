@@ -1,18 +1,27 @@
-
 no_default_function_provided_debug <- function(args_list, fun_name) {
   # Get the class of each argument as a string (fixed CHARACTER to character)
-  arg_classes <- vapply(args_list, function(x) {
-    if (is.null(x)) "NULL" else paste(class(x), collapse = "/")
-  }, character(1))
-  
+  arg_classes <- vapply(
+    args_list,
+    function(x) {
+      if (is.null(x)) "NULL" else paste(class(x), collapse = "/")
+    },
+    character(1)
+  )
+
   # Format into a readable string: "arg1 (class), arg2 (class), ..."
   formatted_args <- sprintf("%s (%s)", names(arg_classes), arg_classes)
   error_details <- paste(formatted_args, collapse = "\n  ")
-  
-  stop(paste0(
-    "Generic '", fun_name, "' function cannot be called directly.\n",
-    "Received arguments:\n  ", error_details
-  ), call. = FALSE)
+
+  stop(
+    paste0(
+      "Generic '",
+      fun_name,
+      "' function cannot be called directly.\n",
+      "Received arguments:\n  ",
+      error_details
+    ),
+    call. = FALSE
+  )
 }
 
 #_______________________________________________________________________________
@@ -20,7 +29,7 @@ no_default_function_provided_debug <- function(args_list, fun_name) {
 #_______________________________________________________________________________
 
 #' Apply some action on the given object.
-#' 
+#'
 #' @param object any object
 #' @param action action to apply
 #' @return updated object
@@ -39,7 +48,7 @@ setGeneric("apply_action", function(object, action) {
 #_______________________________________________________________________________
 
 #' Apply output function(s) on the given Campsis results.
-#' 
+#'
 #' @param x Campsis simulation results
 #' @param outfun output function(s), an `outfun` or `outfuns` object
 #' @param level level at which the output function is applied, 'replicate' by default
@@ -51,19 +60,23 @@ apply_outfun <- function(x, outfun, level, ...) {
   stop("No default function is provided")
 }
 
-setGeneric("apply_outfun", function(x, outfun, level=NULL, ...) {
-  if (is.null(level)) {
-    level <- "replicate"
-  }
-  standardGeneric("apply_outfun")
-}, signature = "outfun")
+setGeneric(
+  "apply_outfun",
+  function(x, outfun, level = NULL, ...) {
+    if (is.null(level)) {
+      level <- "replicate"
+    }
+    standardGeneric("apply_outfun")
+  },
+  signature = "outfun"
+)
 
 #_______________________________________________________________________________
 #----                           get_covariates                              ----
 #_______________________________________________________________________________
 
 #' Get all covariates (fixed / time-varying / event covariates).
-#' 
+#'
 #' @param object any object
 #' @return all covariates from object
 #' @export
@@ -81,7 +94,7 @@ setGeneric("get_covariates", function(object) {
 #_______________________________________________________________________________
 
 #' Get all event-related covariates.
-#' 
+#'
 #' @param object any object
 #' @return all event-related covariates from object
 #' @export
@@ -99,7 +112,7 @@ setGeneric("get_event_covariates", function(object) {
 #_______________________________________________________________________________
 
 #' Get all fixed covariates.
-#' 
+#'
 #' @param object any object
 #' @return all fixed covariates from object
 #' @export
@@ -117,7 +130,7 @@ setGeneric("get_fixed_covariates", function(object) {
 #_______________________________________________________________________________
 
 #' Get all time-varying covariates.
-#' 
+#'
 #' @param object any object
 #' @return all time-varying covariates from object
 #' @export
@@ -135,7 +148,7 @@ setGeneric("get_time_varying_covariates", function(object) {
 #_______________________________________________________________________________
 
 #' Get all IOV objects.
-#' 
+#'
 #' @param object any object
 #' @return all IOV's from object
 #' @export
@@ -153,7 +166,7 @@ setGeneric("get_iovs", function(object) {
 #_______________________________________________________________________________
 
 #' Get all occasions.
-#' 
+#'
 #' @param object any object
 #' @return all occasions from object
 #' @export
@@ -171,7 +184,7 @@ setGeneric("get_occasions", function(object) {
 #_______________________________________________________________________________
 
 #' Get all distinct times for the specified object.
-#' 
+#'
 #' @param object any object
 #' @param ... extra arguments like `doseTimes` in observations or `unwrap` in treatment
 #' @return numeric vector with all unique times, sorted
@@ -190,7 +203,7 @@ setGeneric("get_times", function(object, ...) {
 #_______________________________________________________________________________
 
 #' Repeat schedule.
-#' 
+#'
 #' @param x object to repeat the schedule
 #' @param schedule initial times vector
 #' @return resulting times vector
@@ -209,7 +222,7 @@ setGeneric("repeat_schedule", function(x, schedule) {
 #_______________________________________________________________________________
 
 #' Set the label.
-#' 
+#'
 #' @param object any object that has a label
 #' @param x the new label
 #' @return the updated object
@@ -228,7 +241,7 @@ setGeneric("set_label", function(object, x) {
 #_______________________________________________________________________________
 
 #' Sample generic object.
-#' 
+#'
 #' @param object generic object
 #' @param n number of samples required
 #' @param ... extra arguments
@@ -248,7 +261,7 @@ setGeneric("sample", function(object, n, ...) {
 #_______________________________________________________________________________
 
 #' Set the number of subjects.
-#' 
+#'
 #' @param object any object
 #' @param x the new number of subjects
 #' @return the updated object
@@ -270,7 +283,7 @@ setGeneric("set_subjects", function(object, x) {
 #_______________________________________________________________________________
 
 #' Unwrap treatment.
-#' 
+#'
 #' @param object any object
 #' @return updated object
 #' @export
@@ -288,7 +301,7 @@ setGeneric("unwrap_treatment", function(object) {
 #_______________________________________________________________________________
 
 #' Update amount.
-#' 
+#'
 #' @param object generic object
 #' @param amount new amount
 #' @param ref reference treatment name
@@ -311,7 +324,7 @@ setGeneric("update_amount", function(object, amount, ref) {
 #_______________________________________________________________________________
 
 #' Update the inter-dose interval (II).
-#' 
+#'
 #' @param object generic object
 #' @param ii new inter-dose interval
 #' @param ref reference treatment name
@@ -322,7 +335,7 @@ update_ii <- function(object, ii, ref) {
   stop("No default function is provided")
 }
 
-setGeneric("update_ii", function(object, ii, ref=NULL) {
+setGeneric("update_ii", function(object, ii, ref = NULL) {
   if (is.null(ref)) {
     ref <- as.character(NA)
   }
@@ -334,7 +347,7 @@ setGeneric("update_ii", function(object, ii, ref=NULL) {
 #_______________________________________________________________________________
 
 #' Update the number of additional doses (ADDL).
-#' 
+#'
 #' @param object generic object
 #' @param addl new number of additional doses
 #' @param ref reference treatment name
@@ -345,7 +358,7 @@ update_addl <- function(object, addl, ref) {
   stop("No default function is provided")
 }
 
-setGeneric("update_addl", function(object, addl, ref=NULL) {
+setGeneric("update_addl", function(object, addl, ref = NULL) {
   if (is.null(ref)) {
     ref <- as.character(NA)
   }
@@ -358,7 +371,7 @@ setGeneric("update_addl", function(object, addl, ref=NULL) {
 #_______________________________________________________________________________
 
 #' Update the repeat field (argument 'rep' in Bolus and Infusion constructors).
-#' 
+#'
 #' @param object generic object
 #' @param rep repeated dosing schedule (definition) object
 #' @param ref reference treatment name
@@ -369,10 +382,9 @@ update_repeat <- function(object, rep, ref) {
   stop("No default function is provided")
 }
 
-setGeneric("update_repeat", function(object, rep, ref=NULL) {
+setGeneric("update_repeat", function(object, rep, ref = NULL) {
   if (is.null(ref)) {
     ref <- as.character(NA)
   }
   standardGeneric("update_repeat")
 })
-

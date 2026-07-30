@@ -2,11 +2,11 @@
 #----                          solver_settings class                        ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Solver settings class.
 #' See ?mrgsolve::update.
 #' See ?rxode2::rxSolve.
-#' 
+#'
 #' @slot atol absolute solver tolerance, default is 1e-08
 #' @slot rtol relative solver tolerance, default is 1e-08
 #' @slot hmax limit how big a solver step can be, default is NA
@@ -16,13 +16,13 @@
 setClass(
   "solver_settings",
   representation(
-    atol="numeric",
-    rtol="numeric",
-    hmax="numeric",
-    maxsteps="integer",
-    method="character"
+    atol = "numeric",
+    rtol = "numeric",
+    hmax = "numeric",
+    maxsteps = "integer",
+    method = "character"
   ),
-  prototype=prototype(atol=1e-08, rtol=1e-08, hmax=as.numeric(NA), maxsteps=70000L, method="liblsoda")
+  prototype = prototype(atol = 1e-08, rtol = 1e-08, hmax = as.numeric(NA), maxsteps = 70000L, method = "liblsoda")
 )
 
 #'
@@ -36,21 +36,33 @@ setClass(
 #'
 #' @return solver settings
 #' @export
-Solver <- function(atol=1e-08, rtol=1e-08, hmax=NA, maxsteps=70000L, method="liblsoda") {
-  return(new("solver_settings", atol=atol, rtol=rtol, hmax=as.numeric(hmax), maxsteps=as.integer(maxsteps), method=method))
+Solver <- function(atol = 1e-08, rtol = 1e-08, hmax = NA, maxsteps = 70000L, method = "liblsoda") {
+  return(new(
+    "solver_settings",
+    atol = atol,
+    rtol = rtol,
+    hmax = as.numeric(hmax),
+    maxsteps = as.integer(maxsteps),
+    method = method
+  ))
 }
 
 #_______________________________________________________________________________
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("solver_settings"), definition=function(object) {
+setMethod("show", signature = c("solver_settings"), definition = function(object) {
   if (identical(object, Solver())) {
-    cat("Solver: default")    
+    cat("Solver: default")
   } else {
-    cat(sprintf("Solver: atol=%1.1e, rtol=%1.1e, hmax=%1.1e, maxsteps=%i, method=%s",
-                object@atol, object@rtol, object@hmax, object@maxsteps, object@method))
+    cat(sprintf(
+      "Solver: atol=%1.1e, rtol=%1.1e, hmax=%1.1e, maxsteps=%i, method=%s",
+      object@atol,
+      object@rtol,
+      object@hmax,
+      object@maxsteps,
+      object@method
+    ))
   }
   cat("\n")
 })
-

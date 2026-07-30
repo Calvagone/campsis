@@ -1,35 +1,34 @@
-
 overwriteNonRegressionFiles <- FALSE
 testEngines <- c("rxode2", "mrgsolve")
 
-datasetInMemory <- function(dataset, model=NULL, seed, doseOnly=TRUE, settings, dest) {
-  table <- dataset %>% export(dest=dest, model=model, seed=seed, settings=settings)
-  
+datasetInMemory <- function(dataset, model = NULL, seed, doseOnly = TRUE, settings, dest) {
+  table <- dataset %>% export(dest = dest, model = model, seed = seed, settings = settings)
+
   # Keep doses only
   if (doseOnly) {
-    table <- table %>% dplyr::filter(EVID==1)
+    table <- table %>% dplyr::filter(EVID == 1)
   }
-  
+
   # Convert CMT column
   if (!is.null(model)) {
-    table <- table %>% dplyr::mutate(CMT=as.integer(CMT))
+    table <- table %>% dplyr::mutate(CMT = as.integer(CMT))
   }
-  
+
   return(table)
 }
 
 stripMetadata <- function(x) {
   # Revert class back to standard tibble components
   class(x) <- c("tbl_df", "tbl", "data.frame")
-  
+
   # Delete the attribute
   attr(x, "metadata") <- NULL
-  
+
   return(x)
 }
 
 #' Test there is no regression in the exported dataset.
-#' 
+#'
 #' @param dataset newly generated CAMPSIS dataset
 #' @param model CAMPSIS model
 #' @param seed seed that was used for export
@@ -38,51 +37,66 @@ stripMetadata <- function(x) {
 #' @param settings export settings
 #' @param dest destination engine
 #' @export
-datasetRegressionTest <- function(dataset, model=NULL, seed, doseOnly=TRUE, filename, settings=Settings(), dest="RxODE") {
-  dataset1 <- datasetInMemory(dataset=dataset, model=model, seed=seed, doseOnly=doseOnly, settings=settings, dest=dest)
-  dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits=6)
-  
+datasetRegressionTest <- function(
+  dataset,
+  model = NULL,
+  seed,
+  doseOnly = TRUE,
+  filename,
+  settings = Settings(),
+  dest = "RxODE"
+) {
+  dataset1 <- datasetInMemory(
+    dataset = dataset,
+    model = model,
+    seed = seed,
+    doseOnly = doseOnly,
+    settings = settings,
+    dest = dest
+  )
+  dataset1 <- dataset1 %>% dplyr::mutate_if(is.numeric, round, digits = 6)
+
   file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, ".csv"))
-  
+
   if (overwriteNonRegressionFiles) {
-    write.table(dataset1, file=file, sep=",", row.names=FALSE)
+    write.table(dataset1, file = file, sep = ",", row.names = FALSE)
   }
-  
-  dataset2 <- read.csv(file=file) %>%
+
+  dataset2 <- read.csv(file = file) %>%
     tibble::as_tibble()
-  
+
   # When model is not provided, export always returns CMT as character
   if (is.null(model) && "CMT" %in% colnames(dataset2)) {
     dataset2 <- dataset2 %>%
-      dplyr::mutate(CMT=as.character(CMT))
+      dplyr::mutate(CMT = as.character(CMT))
   }
 
   expect_equal(dataset1, dataset2)
 }
 
 #' Test there is no regression in the simulated output.
-#' 
+#'
 #' @param results newly generated results
 #' @param output variables to compare
 #' @param filename reference file (output will be appended automatically)
 #' @param times filter reference results on specific times, NULL by default
 #' @importFrom tibble as_tibble
 #' @export
-outputRegressionTest <- function(results, output, filename, times=NULL) {
+outputRegressionTest <- function(results, output, filename, times = NULL) {
   selectedColumns <- unique(c("ID", "TIME", output))
   results1 <- results %>%
     stripMetadata() %>%
     dplyr::select(dplyr::all_of(selectedColumns)) %>%
-    dplyr::mutate_if(is.numeric, round, digits=2)
-  suffix <- paste0(output, collapse="_") %>% tolower()
-  
+    dplyr::mutate_if(is.numeric, round, digits = 2)
+  suffix <- paste0(output, collapse = "_") %>% tolower()
+
   file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, "_", suffix, ".csv"))
-  
+
   if (overwriteNonRegressionFiles) {
-    write.table(results1, file=file, sep=",", row.names=FALSE)
+    write.table(results1, file = file, sep = ",", row.names = FALSE)
   }
 
-  results2 <- read.csv(file=file) %>% tibble::as_tibble()
+  results2 <- read.csv(file = file) %>% tibble::as_tibble()
   if (!is.null(times)) {
     results2 <- results2 %>%
       dplyr::filter(TIME %in% times)
@@ -91,7 +105,7 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 }
 
 #' Test there is no regression in the simulated output.
-#' 
+#'
 #' @param results newly generated results
 #' @param output variables to compare
 #' @param filename reference file (output will be appended automatically)
@@ -99,27 +113,27 @@ outputRegressionTest <- function(results, output, filename, times=NULL) {
 vpcOutputRegressionTest <- function(results, output, filename) {
   results <- results %>%
     stripMetadata() %>%
-      dplyr::filter(.data$variable %in% output)
-  
+    dplyr::filter(.data$variable %in% output)
+
   results1 <- results %>%
     dplyr::ungroup() %>%
-    dplyr::mutate_if(is.numeric, round, digits=2) %>%
+    dplyr::mutate_if(is.numeric, round, digits = 2) %>%
     dplyr::arrange(replicate, TIME, metric)
-  suffix <- paste0(output, collapse="_") %>% tolower()
-  
+  suffix <- paste0(output, collapse = "_") %>% tolower()
+
   file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, "_", suffix, ".csv"))
-  
+
   if (overwriteNonRegressionFiles) {
-    write.table(results1, file=file, sep=",", row.names=FALSE)
+    write.table(results1, file = file, sep = ",", row.names = FALSE)
   }
-  
-  results2 <- read.csv(file=file) %>% tibble::as_tibble()
-  
+
+  results2 <- read.csv(file = file) %>% tibble::as_tibble()
+
   # Re-arrange data frame for backwards compatibility
   results2 <- results2 %>%
     tibble::as_tibble() %>%
     dplyr::arrange(replicate, TIME, metric)
-  
+
   expect_equal(results1, results2)
 }
 
@@ -131,69 +145,69 @@ noEngineInstalled <- function() {
 }
 
 engineInstalled <- function(name) {
-  return(find.package(name, quiet=TRUE) %>% length() > 0)
+  return(find.package(name, quiet = TRUE) %>% length() > 0)
 }
 
 campsisTest <- function(simulation, test, env) {
   # Iteration over all test engines to be tested
   for (testEngine in testEngines) {
-    env$destEngine <-  testEngine
+    env$destEngine <- testEngine
     # Check if package exists (as test engines are suggested packages)
     # This is needed for CRAN when package is tested with `_R_CHECK_DEPENDS_ONLY_`=TRUE
     if (engineInstalled(testEngine)) {
-      env$results <- eval(simulation, envir=env)
-      eval(test, envir=env)
+      env$results <- eval(simulation, envir = env)
+      eval(test, envir = env)
     }
   }
 }
 
 getTestName <- function(name) {
-  return(paste0(name, " (", paste0(testEngines, collapse="/"), ")"))
+  return(paste0(name, " (", paste0(testEngines, collapse = "/"), ")"))
 }
 
 getContext <- function(name) {
-  return(paste0(name, " (", paste0(testEngines, collapse="/"), ")"))
+  return(paste0(name, " (", paste0(testEngines, collapse = "/"), ")"))
 }
 
 skipLongTests <- function() {
   # On CRAN, default value is TRUE
   # FALSE otherwise
-  return(get_campsis_option(name="SKIP_LONG_TESTS", default=on_cran()))
+  return(get_campsis_option(name = "SKIP_LONG_TESTS", default = on_cran()))
 }
 
 skipVeryLongTests <- function() {
-  return(get_campsis_option(name="SKIP_VERY_LONG_TESTS", default=TRUE))
+  return(get_campsis_option(name = "SKIP_VERY_LONG_TESTS", default = TRUE))
 }
 
 isMacOs <- function() {
   # return windows, darwin, linux or sunos
   systemOs <- tolower(Sys.info()[["sysname"]])
-  return(systemOs=="darwin")
-} 
+  return(systemOs == "darwin")
+}
 
 skipVdiffrTests <- function() {
   # On mac, default value is TRUE (problems in vdiffr tests, see CI)
   # FALSE otherwise
-  return(get_campsis_option(name="SKIP_VDIFFR_TESTS", default=ifelse(isMacOs(), TRUE, FALSE)))
+  return(get_campsis_option(name = "SKIP_VDIFFR_TESTS", default = ifelse(isMacOs(), TRUE, FALSE)))
 }
 
 convertCampsisTest <- function(env = parent.frame(), debug_engine = "mrgsolve") {
   if (!exists("simulation", envir = env) || !exists("test", envir = env)) {
     stop("Could not find 'simulation' or 'test' expressions in the provided environment.")
   }
-  
+
   # Get the expressions from the specified environment
   sim_expr <- get("simulation", envir = env)
   test_expr <- get("test", envir = env)
-  
+
   # Modify the simulation call
   sim_call <- sim_expr[[1]]
   sim_call$dest <- debug_engine
   sim_text <- paste0("results <- ", deparse1(sim_call))
-  
+
   # Extract all lines from the test expression
   test_text_lines <- vapply(as.list(test_expr), deparse1, character(1))
-  
+
   # Combine and return
   final_script <- c(sim_text, test_text_lines)
   cat(paste(final_script, collapse = "\n"))

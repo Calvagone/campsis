@@ -1,18 +1,17 @@
-
-#' Pre-process destination engine. Throw an error message if the destination 
+#' Pre-process destination engine. Throw an error message if the destination
 #' engine is not installed.
 #'
 #' @param dest destination engine
 #' @return 'rxode2', 'RxODE' or 'mrgsolve'
 #' @keywords internal
-#' 
+#'
 preprocess_dest <- function(dest) {
   if (is.null(dest)) {
-    if (find.package("rxode2", quiet=TRUE) %>% length() > 0) {
+    if (find.package("rxode2", quiet = TRUE) %>% length() > 0) {
       dest <- "rxode2" # Default package
-    } else if (find.package("RxODE", quiet=TRUE) %>% length() > 0) {
+    } else if (find.package("RxODE", quiet = TRUE) %>% length() > 0) {
       dest <- "RxODE"
-    } else if (find.package("mrgsolve", quiet=TRUE) %>% length() > 0) {
+    } else if (find.package("mrgsolve", quiet = TRUE) %>% length() > 0) {
       dest <- "mrgsolve"
     } else {
       stop("Simulation engine 'rxode2', 'RxODE' or 'mrgsolve' is required to run CAMPSIS")
@@ -21,7 +20,7 @@ preprocess_dest <- function(dest) {
     if (!(dest %in% c("rxode2", "RxODE", "mrgsolve"))) {
       stop("Argument 'dest' must be one of: 'rxode2', 'RxODE', 'mrgsolve' or NULL")
     }
-    if (find.package(dest, quiet=TRUE) %>% length()==0) {
+    if (find.package(dest, quiet = TRUE) %>% length() == 0) {
       stop(paste0("Simulation engine '", dest, "' is not installed"))
     }
   } else {
@@ -34,7 +33,7 @@ preprocess_dest <- function(dest) {
 #'
 #' @param events interruption events
 #' @keywords internal
-#' 
+#'
 preprocess_events <- function(events) {
   if (is.null(events)) {
     return(Events())
@@ -47,7 +46,7 @@ preprocess_events <- function(events) {
 #'
 #' @param scenarios scenarios
 #' @keywords internal
-#' 
+#'
 preprocess_scenarios <- function(scenarios) {
   if (is.null(scenarios)) {
     return(Scenarios())
@@ -63,14 +62,18 @@ preprocess_scenarios <- function(scenarios) {
 #' @importFrom assertthat assert_that
 #' @importFrom rlang as_function is_formula
 #' @keywords internal
-#' 
+#'
 preprocess_tablefun <- function(fun) {
   if (is.null(fun)) {
-    fun <- function(x){x}
+    fun <- function(x) {
+      x
+    }
     return(fun)
   } else {
-    assertthat::assert_that(is.function(fun) || rlang::is_formula(fun),
-                            msg=paste0("tablefun must be a function or a purrr-style lambda formula"))
+    assertthat::assert_that(
+      is.function(fun) || rlang::is_formula(fun),
+      msg = paste0("tablefun must be a function or a purrr-style lambda formula")
+    )
     if (rlang::is_formula(fun)) {
       fun <- rlang::as_function(fun)
       class(fun) <- "function" # Cast needed to work with S4 class system
@@ -85,13 +88,13 @@ preprocess_tablefun <- function(fun) {
 #' @return an 'outfuns' object in any case
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocess_outfun <- function(outfun) {
   fun <- NULL
   if (is.null(outfun)) {
     fun <- DefaultOutfun()
   } else if (is.function(outfun) || rlang::is_formula(outfun)) {
-      fun <- Outfun(fun=outfun)
+    fun <- Outfun(fun = outfun)
   } else if (is(outfun, "outfun")) {
     fun <- outfun
   } else if (is(outfun, "outfuns")) {
@@ -112,14 +115,16 @@ preprocess_outfun <- function(outfun) {
 #' @return outvars
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocess_outvars <- function(outvars) {
   if (is.null(outvars)) {
     return(character(0))
   } else {
-    assertthat::assert_that(is.character(outvars), 
-                            msg="outvars must be a character vector with the column names to keep")
-    
+    assertthat::assert_that(
+      is.character(outvars),
+      msg = "outvars must be a character vector with the column names to keep"
+    )
+
     # In any cases, we should never see these special variables
     outvars <- outvars[!(toupper(outvars) %in% c("ID", "EVID", "CMT", "AMT", "TIME", "ARM"))]
     return(outvars)
@@ -127,21 +132,23 @@ preprocess_outvars <- function(outvars) {
 }
 
 #' Preprocess 'replicates' argument.
-#' 
+#'
 #' @param replicates number of replicates
 #' @param model Campsis model (class 'campsis_model' or 'replicated_campsis_model')
 #' @return number of replicates to simulate
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocess_replicates <- function(replicates, model) {
-  assertthat::assert_that(is.numeric(replicates) && replicates%%1==0 && replicates > 0,
-                          msg="replicates not a positive integer")
+  assertthat::assert_that(
+    is.numeric(replicates) && replicates %% 1 == 0 && replicates > 0,
+    msg = "replicates not a positive integer"
+  )
   replicates <- as.integer(replicates)
-  
+
   if (is(model, "replicated_campsis_model")) {
     rows <- nrow(model@replicated_parameters)
-    if (replicates==1) {
+    if (replicates == 1) {
       replicates <- rows # This way, the user does not have to specify 'replicates'.
     } else {
       # If he did, we check the consistency
@@ -154,18 +161,18 @@ preprocess_replicates <- function(replicates, model) {
 }
 
 #' Preprocess the simulation settings.
-#' 
+#'
 #' @param settings simulation settings
 #' @param dest destination engine
 #' @return updated simulation settings
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocess_settings <- function(settings, dest) {
   # Check if NOCB is specified
   enable <- settings@nocb@enable
   if (is.na(enable)) {
-    if (dest=="mrgsolve") {
+    if (dest == "mrgsolve") {
       enable <- TRUE
     } else {
       enable <- FALSE
@@ -173,60 +180,62 @@ preprocess_settings <- function(settings, dest) {
   }
   # Assign final value
   settings@nocb@enable <- enable
-  
+
   # Preprocess slice_size
   if (is.na(settings@hardware@slice_size)) {
-     if (dest=="mrgsolve") {
-       settings@hardware@slice_size <- as.integer(500)
-     } else {
-       # There seems to be an issue in RxODE/rxode2 when dealing with large datasets
-       # From what I notice, a too large slice size (e.g. > 25) slows down RxODE/rxode2
-       # while mrgsolve can work with a large slice size without any problem...
-       settings@hardware@slice_size <- as.integer(6)
-     }
+    if (dest == "mrgsolve") {
+      settings@hardware@slice_size <- as.integer(500)
+    } else {
+      # There seems to be an issue in RxODE/rxode2 when dealing with large datasets
+      # From what I notice, a too large slice size (e.g. > 25) slows down RxODE/rxode2
+      # while mrgsolve can work with a large slice size without any problem...
+      settings@hardware@slice_size <- as.integer(6)
+    }
   }
-  
+
   return(settings)
 }
 
 #' Preprocess 'dosing' argument.
-#' 
+#'
 #' @param dosing dosing argument, logical value
 #' @return user value, if not specified, return FALSE (observations only)
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocess_dosing <- function(dosing) {
   if (is.null(dosing)) {
     dosing <- FALSE
   }
-  assertthat::assert_that(is.logical(dosing) && dosing %>% length()==1 && !is.na(dosing),
-                          msg="dosing not a logical value TRUE/FALSE")
+  assertthat::assert_that(
+    is.logical(dosing) && dosing %>% length() == 1 && !is.na(dosing),
+    msg = "dosing not a logical value TRUE/FALSE"
+  )
   return(dosing)
 }
 
 #' Preprocess subjects ID's.
-#' 
+#'
 #' @param dataset current dataset, data frame form
 #' @return list of consecutive ID's
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocess_ids <- function(dataset) {
   ids <- unique(dataset$ID)
   maxID <- max(ids)
-  assertthat::assert_that(all(ids==seq_len(maxID)), msg="ID's must be consecutive numbers, starting at 1")
+  assertthat::assert_that(all(ids == seq_len(maxID)), msg = "ID's must be consecutive numbers, starting at 1")
   return(ids)
 }
 
 #' Preprocess ARM column. Add ARM equation in model automatically.
-#' 
+#'
 #' @param dataset current dataset, data frame form
 #' @param model model
 #' @return updated model
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocess_arm_column <- function(dataset, model) {
   if ("ARM" %in% colnames(dataset)) {
     pkRecord <- model@model %>% get_by_name("MAIN")
@@ -242,28 +251,27 @@ preprocess_arm_column <- function(dataset, model) {
 }
 
 #' Preprocess 'slices' argument.
-#' 
+#'
 #' @param slices slices argument corresponding to the number of subjects simulated at once
 #' @return slices if not NULL, otherwise total number of subjects
 #' @importFrom assertthat assert_that
 #' @keywords internal
-#' 
+#'
 preprocess_slices <- function(slices, maxID) {
   if (is.null(slices)) {
     return(maxID)
   } else {
-    assertthat::assert_that(is.numeric(slices) && slices%%1==0 && slices > 0,
-                            msg="slices not a positive integer")
+    assertthat::assert_that(is.numeric(slices) && slices %% 1 == 0 && slices > 0, msg = "slices not a positive integer")
     return(slices)
   }
 }
 
 #' Return the 'DROP_OTHERS' string that may be used in the 'outvars' vector for
 #' RxODE/mrgsolve to drop all others variables that are usually output in the resulting data frame.
-#' 
+#'
 #' @return a character value
 #' @keywords internal
-#' 
+#'
 drop_others <- function() {
   return("DROP_OTHERS")
 }
@@ -275,8 +283,8 @@ drop_others <- function() {
 #' @param drop_others logical value
 #' @return processed data frame
 #' @keywords internal
-#' 
-process_drop_others <- function(x, outvars=character(0), drop_others) {
+#'
+process_drop_others <- function(x, outvars = character(0), drop_others) {
   if (!drop_others) {
     return(x)
   }

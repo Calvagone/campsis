@@ -8,19 +8,19 @@ source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Test generated RUV is correct", {
   model <- model_suite$testing$nonmem$advan4_trans4
-  
+
   ds <- Dataset(500) %>%
     add(Bolus(0, 1000)) %>%
-    add(Observations(times=seq(0.1,24,by=0.1))) # No predose to avoid zero's
-  
+    add(Observations(times = seq(0.1, 24, by = 0.1))) # No predose to avoid zero's
+
   # Back compute EPS_PROP
   # Y=CP*(EPS_PROP + 1)
   # EPS_PROP = Y/CP - 1
-  
-  simulation <- expression(simulate(model=model, dataset=ds, dest=destEngine, seed=seed))
+
+  simulation <- expression(simulate(model = model, dataset = ds, dest = destEngine, seed = seed))
   test <- expression(
     eps <- results$Y / results$CP - 1,
     expect_equal(round(var(eps), 3), 0.025)
   )
-  campsisTest(simulation, test, env=environment())
+  campsisTest(simulation, test, env = environment())
 })

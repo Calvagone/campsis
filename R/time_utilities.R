@@ -1,4 +1,3 @@
-
 #'
 #' Convert seconds to hours.
 #'
@@ -6,7 +5,7 @@
 #' @return numeric vector in hours
 #' @export
 seconds <- function(x) {
-  return(x/(60*60))
+  return(x / (60 * 60))
 }
 
 #'
@@ -16,7 +15,7 @@ seconds <- function(x) {
 #' @return numeric vector in hours
 #' @export
 minutes <- function(x) {
-  return(x/60)
+  return(x / 60)
 }
 
 #'
@@ -36,7 +35,7 @@ hours <- function(x) {
 #' @return numeric vector in hours
 #' @export
 days <- function(x) {
-  return(x*24)
+  return(x * 24)
 }
 
 #'
@@ -46,7 +45,7 @@ days <- function(x) {
 #' @return numeric vector in hours
 #' @export
 weeks <- function(x) {
-  return(x*7*24)
+  return(x * 7 * 24)
 }
 
 #'
@@ -56,7 +55,7 @@ weeks <- function(x) {
 #' @return numeric vector in hours
 #' @export
 months <- function(x) {
-  return(x*4*7*24)
+  return(x * 4 * 7 * 24)
 }
 
 #'
@@ -66,7 +65,7 @@ months <- function(x) {
 #' @return numeric vector in hours
 #' @export
 years <- function(x) {
-  return(x*12*4*7*24)
+  return(x * 12 * 4 * 7 * 24)
 }
 
 #'
@@ -80,52 +79,49 @@ get_available_time_units <- function() {
 
 #'
 #' Convert numeric time vector based on the provided units.
-#' 
+#'
 #' @param x numeric time vector
 #' @param from unit of x, single character value
 #' @param to destination unit, single character value
 #' @return numeric vector with the converted times
 #' @export
 convert_time <- function(x, from, to) {
-  assertthat::assert_that(is.numeric(x), msg="x is not numeric")
-  from_ <- standardise_time(x=1, unit=from)
-  to_ <- standardise_time(x=1, unit=to)
-  return(x*from_/to_)
+  assertthat::assert_that(is.numeric(x), msg = "x is not numeric")
+  from_ <- standardise_time(x = 1, unit = from)
+  to_ <- standardise_time(x = 1, unit = to)
+  return(x * from_ / to_)
 }
 
 #'
 #' Standardise time to hours.
-#' 
+#'
 #' @param x numeric time vector
 #' @param unit unit of x, single character value
 #' @return numeric vector with the times converted to hours
 #' @export
 standardise_time <- function(x, unit) {
-  assertthat::assert_that(length(unit)==1, msg="argument 'unit' must be length 1")
-  assertthat::assert_that(unit %in% get_available_time_units(),
-                          msg=sprintf("argument 'unit' is incorrect, unit must be one of: %s",
-                                      paste0(get_available_time_units(), collapse=", ")))
-  if (unit=="second") {
+  assertthat::assert_that(length(unit) == 1, msg = "argument 'unit' must be length 1")
+  assertthat::assert_that(
+    unit %in% get_available_time_units(),
+    msg = sprintf(
+      "argument 'unit' is incorrect, unit must be one of: %s",
+      paste0(get_available_time_units(), collapse = ", ")
+    )
+  )
+  if (unit == "second") {
     return(seconds(x))
-    
-  } else if (unit=="minute") {
+  } else if (unit == "minute") {
     return(minutes(x))
-    
-  } else if (unit=="hour") {
+  } else if (unit == "hour") {
     return(hours(x))
-    
-  } else if (unit=="day") {
+  } else if (unit == "day") {
     return(days(x))
-    
-  } else if (unit=="week") {
+  } else if (unit == "week") {
     return(weeks(x))
-    
-  } else if (unit=="month") {
+  } else if (unit == "month") {
     return(months(x))
-    
-  } else if (unit=="year") {
+  } else if (unit == "year") {
     return(years(x))
-    
   } else {
     stop("Should never occur")
   }

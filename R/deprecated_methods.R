@@ -1,5 +1,5 @@
 #' Compute the prediction interval summary over time (deprecated).
-#' 
+#'
 #' @param x data frame
 #' @param variable variable(s) used to compute the prediction interval, character vector.
 #'   When more than one variable is supplied, a \code{variable} column is added to the
@@ -12,7 +12,7 @@
 #' @keywords internal
 PI <- function(x, variable, strata = get_default_strata(), level = 0.90) {
   .Deprecated("compute_pi")
-  return(compute_pi(x=x, variable=variable, strata=strata, level=level))  
+  return(compute_pi(x = x, variable = variable, strata = strata, level = level))
 }
 
 #_______________________________________________________________________________
@@ -20,12 +20,12 @@ PI <- function(x, variable, strata = get_default_strata(), level = 0.90) {
 #_______________________________________________________________________________
 
 #' Set the label.
-#' 
+#'
 #' `setLabel()` is deprecated in favor of `set_label()`.
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' @inheritParams set_label
 #' @return the updated object
 #' @export
@@ -42,12 +42,12 @@ setGeneric("setLabel", function(object, x) {
 })
 
 #' Set the number of subjects.
-#' 
+#'
 #' `setSubjects()` is deprecated in favor of `set_subjects()`.
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' @inheritParams set_subjects
 #' @return the updated object
 #' @export
@@ -68,12 +68,12 @@ setGeneric("setSubjects", function(object, x) {
 #_______________________________________________________________________________
 
 #' Convert numeric time vector based on the provided units.
-#' 
+#'
 #' `convertTime()` is deprecated in favor of `convert_time()`.
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' @inheritParams convert_time
 #' @return numeric vector with the converted times
 #' @export
@@ -97,13 +97,13 @@ setGeneric("convertTime", function(x, from, to) {
 #' This plan will prioritise the distribution of workers in the following order:
 #' 1) Replicates (if 'replicate_parallel' is enabled)
 #' 2) Scenarios (if 'scenario_parallel' is enabled)
-#' 3) Dataset export / slices (if 'dataset_export' or 'slice_parallel' is enabled)  
-#' 
+#' 3) Dataset export / slices (if 'dataset_export' or 'slice_parallel' is enabled)
+#'
 #' `setupPlanDefault()` is deprecated in favor of `setup_plan_default()`.
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' @inheritParams setup_plan_default
 #' @return nothing
 #' @export
@@ -114,12 +114,12 @@ setupPlanDefault <- function(object) {
 }
 
 #' Setup plan as sequential (i.e. no parallelisation).
-#' 
+#'
 #' `setupPlanSequential()` is deprecated in favor of `setup_plan_sequential()`.
-#' 
+#'
 #' @description
 #' `r lifecycle::badge("deprecated")`
-#' 
+#'
 #' @return nothing
 #' @export
 #' @keywords internal
@@ -127,4 +127,3 @@ setupPlanSequential <- function() {
   lifecycle::deprecate_warn("1.9.0", "setupPlanSequential()", "setup_plan_sequential()")
   setup_plan_sequential()
 }
-

@@ -14,3 +14,4 @@
 ^Meta$
 ^codecov\.yml$
 ^\.vscode$
+^air\.toml$

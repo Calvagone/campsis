@@ -1,11 +1,10 @@
-
 #_______________________________________________________________________________
 #----                       dataset_config class                            ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Dataset configuration class.
-#' 
+#'
 #' @slot def_depot_cmt default depot compartment, integer
 #' @slot def_obs_cmt default observation compartment, integer
 #' @slot export_tsld export column TSLD, logical
@@ -16,22 +15,26 @@
 setClass(
   "dataset_config",
   representation(
-    def_depot_cmt="integer",
-    def_obs_cmt="integer",
-    export_tsld="logical",
-    export_tdos="logical",
-    time_unit_dataset="character",
-    time_unit_export="character"
+    def_depot_cmt = "integer",
+    def_obs_cmt = "integer",
+    export_tsld = "logical",
+    export_tdos = "logical",
+    time_unit_dataset = "character",
+    time_unit_export = "character"
   ),
-  prototype=prototype(def_depot_cmt=as.integer(1),
-                      def_obs_cmt=as.integer(1),
-                      export_tsld=FALSE,
-                      export_tdos=FALSE,
-                      time_unit_dataset="hour",
-                      time_unit_export="hour"),
-  validity=function(object) {
-    return(expect_one_for_all(object, c("def_depot_cmt", "def_obs_cmt", "export_tsld",
-                                     "export_tdos", "time_unit_dataset", "time_unit_export")))
+  prototype = prototype(
+    def_depot_cmt = as.integer(1),
+    def_obs_cmt = as.integer(1),
+    export_tsld = FALSE,
+    export_tdos = FALSE,
+    time_unit_dataset = "hour",
+    time_unit_export = "hour"
+  ),
+  validity = function(object) {
+    return(expect_one_for_all(
+      object,
+      c("def_depot_cmt", "def_obs_cmt", "export_tsld", "export_tdos", "time_unit_dataset", "time_unit_export")
+    ))
   }
 )
 
@@ -47,18 +50,30 @@ setClass(
 #' @param timeUnitExport unit of time in export, character ('hour' by default)
 #' @return a dataset configuration
 #' @export
-DatasetConfig <- function(defDepotCmt=1, defObsCmt=1, exportTSLD=FALSE, exportTDOS=FALSE,
-                          timeUnitDataset="hour", timeUnitExport="hour") {
-  return(new("dataset_config", def_depot_cmt=as.integer(defDepotCmt),
-             def_obs_cmt=as.integer(defObsCmt), export_tsld=exportTSLD, export_tdos=exportTDOS,
-             time_unit_dataset=timeUnitDataset, time_unit_export=timeUnitExport))
+DatasetConfig <- function(
+  defDepotCmt = 1,
+  defObsCmt = 1,
+  exportTSLD = FALSE,
+  exportTDOS = FALSE,
+  timeUnitDataset = "hour",
+  timeUnitExport = "hour"
+) {
+  return(new(
+    "dataset_config",
+    def_depot_cmt = as.integer(defDepotCmt),
+    def_obs_cmt = as.integer(defObsCmt),
+    export_tsld = exportTSLD,
+    export_tdos = exportTDOS,
+    time_unit_dataset = timeUnitDataset,
+    time_unit_export = timeUnitExport
+  ))
 }
 
 #_______________________________________________________________________________
 #----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("load_from_json", signature=c("dataset_config", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature = c("dataset_config", "json_element"), definition = function(object, json) {
   object <- campsismod::map_json_properties_to_s4_slots(object, json)
   return(object)
 })

@@ -2,25 +2,24 @@
 #----                       scenario_actions class                          ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Scenario actions class.
-#' 
+#'
 #' @export
 setClass(
   "scenario_actions",
-  representation(
-  ),
+  representation(),
   contains = "pmx_list",
-  prototype = prototype(type="scenario_action") 
+  prototype = prototype(type = "scenario_action")
 )
 
 #_______________________________________________________________________________
 #----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("load_from_json", signature=c("scenario_actions", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature = c("scenario_actions", "json_element"), definition = function(object, json) {
   for (jsonAction in json@data) {
-    if (jsonAction$type=="replace_action") {
+    if (jsonAction$type == "replace_action") {
       object <- object %>%
         add(load_from_json(ReplaceAction(NA), JSONElement(jsonAction)))
     } else {
@@ -29,4 +28,3 @@ setMethod("load_from_json", signature=c("scenario_actions", "json_element"), def
   }
   return(object)
 })
-

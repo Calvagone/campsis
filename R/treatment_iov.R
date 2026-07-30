@@ -8,9 +8,9 @@ validate_treatment_iov <- function(object) {
   return(c(check1, check2))
 }
 
-#' 
+#'
 #' Treatment IOV class.
-#' 
+#'
 #' @slot colname name of the column that will be output in dataset
 #' @slot distribution distribution
 #' @slot dose_numbers associated dose numbers, integer vector, same length as values
@@ -22,8 +22,8 @@ setClass(
     distribution = "distribution",
     dose_numbers = "integer"
   ),
-  contains="pmx_element",
-  validity=validate_treatment_iov 
+  contains = "pmx_element",
+  validity = validate_treatment_iov
 )
 
 #'
@@ -36,12 +36,16 @@ setClass(
 #' @param doseNumbers dose numbers, if provided, IOV is generated at these doses only. By default, IOV is generated for all doses.
 #' @return an IOV object
 #' @export
-IOV <- function(colname, distribution, doseNumbers=NULL) {
+IOV <- function(colname, distribution, doseNumbers = NULL) {
   if (is.null(doseNumbers)) {
     doseNumbers <- integer(0)
   }
-  return(new("treatment_iov", colname=trimws(colname), distribution=to_explicit_distribution(distribution),
-             dose_numbers=as.integer(doseNumbers) %>% unique() %>% base::sort()))
+  return(new(
+    "treatment_iov",
+    colname = trimws(colname),
+    distribution = to_explicit_distribution(distribution),
+    dose_numbers = as.integer(doseNumbers) %>% unique() %>% base::sort()
+  ))
 }
 
 #_______________________________________________________________________________

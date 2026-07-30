@@ -1,4 +1,3 @@
-
 #_______________________________________________________________________________
 #----                        spaghetti_plot generic                         ----
 #_______________________________________________________________________________
@@ -42,8 +41,7 @@ spaghetti_plot <- function(x, ...) {
 #' @seealso \code{\link{spaghettiPlot}}
 #' @importFrom ggplot2 aes ggplot geom_line labs
 #' @export
-spaghetti_plot.std_campsis_tbl <- function(x, variable = "CONC",
-                                           colour = "auto", ...) {
+spaghetti_plot.std_campsis_tbl <- function(x, variable = "CONC", colour = "auto", ...) {
   .assert_variable_present(x, variable)
 
   if (identical(colour, "auto")) {

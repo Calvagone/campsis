@@ -1,6 +1,6 @@
-#' 
+#'
 #' Campsis metadata class.
-#' 
+#'
 #' @slot dataset Campsis dataset object
 #' @slot dest destination simulation engine
 #' @slot scenarios Campsis scenarios object
@@ -31,7 +31,7 @@ new_campsis_tbl <- function(x = tibble(), metadata) {
 
 #' Restore a campsis_tbl object
 #'
-#' Internal vctrs method to restore the custom `campsis_tbl` class attributes, 
+#' Internal vctrs method to restore the custom `campsis_tbl` class attributes,
 #' specifically copying over the S4 metadata object, after a vector operation.
 #'
 #' @param x A tibble or vector to restore.

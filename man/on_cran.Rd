@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.R
 \name{on_cran}
 \alias{on_cran}
-\title{Check if the current session is on CRAN. The objective is to potentially suppress 
+\title{Check if the current session is on CRAN. The objective is to potentially suppress
 long tasks to be run on CRAN (long tests or vignettes).}
 \usage{
 on_cran()
@@ -11,7 +11,7 @@ on_cran()
 logical value TRUE/FALSE
 }
 \description{
-Check if the current session is on CRAN. The objective is to potentially suppress 
+Check if the current session is on CRAN. The objective is to potentially suppress
 long tasks to be run on CRAN (long tests or vignettes).
 }
 \keyword{internal}

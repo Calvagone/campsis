@@ -1,4 +1,3 @@
-
 # Shared fixtures and helpers for S3 plot method tests.
 # Sourced by testSpaghettiPlot.R and testShadedPlot.R.
 
@@ -10,11 +9,11 @@
 make_std_campsis_tbl <- function(data, dataset, scenarios = Scenarios()) {
   metadata <- new(
     "campsis_metadata",
-    dataset    = dataset,
-    dest       = "rxode2",
-    scenarios  = scenarios,
-    outvars    = character(0),
-    outfun     = DefaultOutfun(),
+    dataset = dataset,
+    dest = "rxode2",
+    scenarios = scenarios,
+    outvars = character(0),
+    outfun = DefaultOutfun(),
     replicates = 1L
   )
   campsis:::new_campsis_tbl(data, metadata)
@@ -22,15 +21,14 @@ make_std_campsis_tbl <- function(data, dataset, scenarios = Scenarios()) {
 
 #' Build a minimal pi_campsis_tbl (the output of a PIOutfun) from a plain
 #' tibble in long PI format (replicate, TIME, metric, value) + metadata.
-make_pi_campsis_tbl <- function(data, dataset, scenarios = Scenarios(),
-                                variable = "CONC") {
+make_pi_campsis_tbl <- function(data, dataset, scenarios = Scenarios(), variable = "CONC") {
   metadata <- new(
     "campsis_metadata",
-    dataset    = dataset,
-    dest       = "rxode2",
-    scenarios  = scenarios,
-    outvars    = character(0),
-    outfun     = PIOutfun(variable = variable),
+    dataset = dataset,
+    dest = "rxode2",
+    scenarios = scenarios,
+    outvars = character(0),
+    outfun = PIOutfun(variable = variable),
     replicates = as.integer(dplyr::n_distinct(data$replicate))
   )
   campsis:::new_campsis_tbl(data, metadata)
@@ -74,11 +72,11 @@ two_scenarios <- Scenarios() %>%
 #' @return a tibble with columns ID, TIME, CONC, and optionally ARM / SCENARIO
 make_data <- function(arms = NULL, scenarios = NULL) {
   n_subjects <- 3
-  times      <- c(0, 6, 12, 18, 24)
-  n_times    <- length(times)
+  times <- c(0, 6, 12, 18, 24)
+  n_times <- length(times)
 
   data <- tibble::tibble(
-    ID   = rep(seq_len(n_subjects), each = n_times),
+    ID = rep(seq_len(n_subjects), each = n_times),
     TIME = rep(times, times = n_subjects),
     CONC = rep(c(10, 8, 6, 4, 2), times = n_subjects) * seq_len(n_subjects)
   )

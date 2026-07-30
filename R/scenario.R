@@ -1,4 +1,3 @@
-
 #_______________________________________________________________________________
 #----                         scenario class                                ----
 #_______________________________________________________________________________
@@ -10,9 +9,9 @@ check_scenario <- function(object) {
   return(c(checkName, checkModel, checkDataset))
 }
 
-#' 
+#'
 #' Scenario class.
-#' 
+#'
 #' @slot name scenario name, single character string
 #' @slot model either a Campsis model, a function or lambda-style formula
 #' @slot dataset either a Campsis dataset, a function or lambda-style formula
@@ -26,19 +25,19 @@ setClass(
     dataset = "ANY", # To deprecate
     actions = "scenario_actions"
   ),
-  contains="pmx_element",
-  validity=check_scenario
+  contains = "pmx_element",
+  validity = check_scenario
 )
 
-#' 
+#'
 #' Create an scenario.
-#' 
+#'
 #' @param name scenario name, single character string
 #' @param model either a Campsis model, a function or lambda-style formula
 #' @param dataset either a Campsis dataset, a function or lambda-style formula
 #' @return a new scenario
 #' @export
-Scenario <- function(name=NULL, model=NULL, dataset=NULL) {
+Scenario <- function(name = NULL, model = NULL, dataset = NULL) {
   if (is.null(name)) {
     name <- as.character(NA)
   }
@@ -46,15 +45,15 @@ Scenario <- function(name=NULL, model=NULL, dataset=NULL) {
     model <- ~.x
   } else {
     checkModel <- expect_appropriate_model_arg(model)
-    assertthat::assert_that(length(checkModel)==0, msg=checkModel)
+    assertthat::assert_that(length(checkModel) == 0, msg = checkModel)
   }
   if (is.null(dataset)) {
     dataset <- ~.x
   } else {
     checkDataset <- expect_appropriate_dataset_arg(dataset)
-    assertthat::assert_that(length(checkDataset)==0, msg=checkDataset)
+    assertthat::assert_that(length(checkDataset) == 0, msg = checkDataset)
   }
-  return(new("scenario", name=name, model=model, dataset=dataset))
+  return(new("scenario", name = name, model = model, dataset = dataset))
 }
 
 expect_appropriate_model_arg <- function(model) {
@@ -77,7 +76,6 @@ expect_appropriate_dataset_arg <- function(dataset) {
 #----                              add                                      ----
 #_______________________________________________________________________________
 
-
 setMethod("add", signature = c("scenario", "scenario_action"), definition = function(object, x) {
   object@actions <- object@actions %>% add(x)
   return(object)
@@ -95,10 +93,10 @@ setMethod("get_name", signature = c("scenario"), definition = function(x) {
 #----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("load_from_json", signature=c("scenario", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature = c("scenario", "json_element"), definition = function(object, json) {
   jsonScenario <- json@data
-  scenario <- Scenario(name=jsonScenario$name)
-  scenario@actions <- load_from_json(new("scenario_actions"), JSONElement(jsonScenario$actions)) 
+  scenario <- Scenario(name = jsonScenario$name)
+  scenario@actions <- load_from_json(new("scenario_actions"), JSONElement(jsonScenario$actions))
   return(scenario)
 })
 
@@ -106,9 +104,9 @@ setMethod("load_from_json", signature=c("scenario", "json_element"), definition=
 #----                        apply_scenario                                  ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Apply scenario to the given model or dataset.
-#' 
+#'
 #' @param x the given model or dataset
 #' @param scenario the scenario to be applied
 #' @return an updated model or dataset
@@ -117,8 +115,7 @@ setMethod("load_from_json", signature=c("scenario", "json_element"), definition=
 #' @export
 #' @keywords internal
 apply_scenario <- function(x, scenario) {
-  assertthat::assert_that(is(scenario, "scenario"),
-                          msg="scenario must be a scenario")
+  assertthat::assert_that(is(scenario, "scenario"), msg = "scenario must be a scenario")
   if (is(x, "campsis_model")) {
     x_ <- scenario@model
   } else if (is(x, "dataset") || is.data.frame(x)) {
@@ -128,19 +125,19 @@ apply_scenario <- function(x, scenario) {
   }
 
   if (is.function(x_)) {
-    retValue <- x_(x) 
+    retValue <- x_(x)
   } else if (rlang::is_formula(x_)) {
     x_ <- rlang::as_function(x_)
     retValue <- x_(x)
   } else {
     retValue <- x_
   }
-  
+
   for (action in scenario@actions@list) {
     retValue <- retValue %>%
-      apply_action(action=action)
+      apply_action(action = action)
   }
-  
+
   return(retValue)
 }
 
@@ -148,8 +145,8 @@ apply_scenario <- function(x, scenario) {
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("scenario"), definition=function(object) {
-  cat(sprintf("Scenario '%s'", object@name), "\n", sep="")
+setMethod("show", signature = c("scenario"), definition = function(object) {
+  cat(sprintf("Scenario '%s'", object@name), "\n", sep = "")
   for (action in object@actions@list) {
     cat(" - ")
     show(action)

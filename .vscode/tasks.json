@@ -5,7 +5,10 @@
       "label": "📦 Install package from sources",
       "type": "process",
       "command": "Rscript",
-      "args": ["-e", "devtools::install(build_vignettes=FALSE, dependencies=FALSE)"],
+      "args": [
+        "-e",
+        "devtools::install(build_vignettes=FALSE, dependencies=FALSE)"
+      ],
       "group": "build",
       "problemMatcher": []
     },
@@ -13,15 +16,21 @@
       "label": "📦 Roxygen",
       "type": "process",
       "command": "Rscript",
-      "args": ["-e", "roxygen2::roxygenise()"],
+      "args": [
+        "-e",
+        "roxygen2::roxygenise()"
+      ],
       "group": "build",
       "problemMatcher": []
     },
-	{
-      "label": "🧪 Check package (R CMD Check)",
+    {
+      "label": "📦 Check package (CRAN)",
       "type": "process",
       "command": "Rscript",
-      "args": ["-e", "devtools::check(cran = TRUE)"],
+      "args": [
+        "-e",
+        "devtools::check(args = c('--no-manual', '--as-cran'))"
+      ],
       "group": "test",
       "problemMatcher": []
     },
@@ -29,7 +38,10 @@
       "label": "🌐 Build pkgdown site",
       "type": "process",
       "command": "Rscript",
-      "args": ["-e", "pkgdown::build_site()"],
+      "args": [
+        "-e",
+        "pkgdown::build_site()"
+      ],
       "options": {
         "env": {
           "NOT_CRAN": "true"

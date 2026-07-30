@@ -2,7 +2,7 @@
 % Please edit documentation in R/simulate_preprocess.R
 \name{preprocess_dest}
 \alias{preprocess_dest}
-\title{Pre-process destination engine. Throw an error message if the destination 
+\title{Pre-process destination engine. Throw an error message if the destination
 engine is not installed.}
 \usage{
 preprocess_dest(dest)
@@ -14,7 +14,7 @@ preprocess_dest(dest)
 'rxode2', 'RxODE' or 'mrgsolve'
 }
 \description{
-Pre-process destination engine. Throw an error message if the destination 
+Pre-process destination engine. Throw an error message if the destination
 engine is not installed.
 }
 \keyword{internal}

@@ -1,6 +1,6 @@
-#' 
+#'
 #' Default settings class.
-#' 
+#'
 #' @slot engine simulation engine, character
 #' @slot seed random seed number, integer
 #' @slot replicates number of replicates, integer
@@ -12,17 +12,23 @@
 setClass(
   "default_settings",
   representation(
-    engine="character",
-    seed="integer",   # NA means 'AUTO'
-    replicates="integer",
-    outvars="character",
-    outfuns="outfuns",
-    disabled_variabilities="character",
-    dosing="logical"
+    engine = "character",
+    seed = "integer", # NA means 'AUTO'
+    replicates = "integer",
+    outvars = "character",
+    outfuns = "outfuns",
+    disabled_variabilities = "character",
+    dosing = "logical"
   ),
-  prototype=prototype(engine="rxode2", seed=as.integer(NA), replicates=1L,
-                      outvars=character(), outfuns=Outfuns(),
-                      disabled_variabilities=character(), dosing=FALSE)
+  prototype = prototype(
+    engine = "rxode2",
+    seed = as.integer(NA),
+    replicates = 1L,
+    outvars = character(),
+    outfuns = Outfuns(),
+    disabled_variabilities = character(),
+    dosing = FALSE
+  )
 )
 
 #'
@@ -37,9 +43,15 @@ setClass(
 #' @param dosing output dosing information, logical
 #' @return default settings
 #' @export
-DefaultSettings <- function(engine = "rxode2", seed = NULL, replicates = 1L,
-                             outvars = character(), outfuns = Outfuns(),
-                             disabled_variabilities = character(), dosing = FALSE) {
+DefaultSettings <- function(
+  engine = "rxode2",
+  seed = NULL,
+  replicates = 1L,
+  outvars = character(),
+  outfuns = Outfuns(),
+  disabled_variabilities = character(),
+  dosing = FALSE
+) {
   if (is.null(seed)) {
     seed <- as.integer(NA)
   }
@@ -59,7 +71,7 @@ DefaultSettings <- function(engine = "rxode2", seed = NULL, replicates = 1L,
 #----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("load_from_json", signature=c("default_settings", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature = c("default_settings", "json_element"), definition = function(object, json) {
   json_outfuns <- json@data$outfuns
   json@data$outfuns <- NULL
   object <- campsismod::map_json_properties_to_s4_slots(object, json)
@@ -72,7 +84,7 @@ setMethod("load_from_json", signature=c("default_settings", "json_element"), def
   } else {
     object@outfuns <- load_from_json(Outfuns(), JSONElement(json_outfuns))
   }
-  
+
   return(object)
 })
 
@@ -80,7 +92,7 @@ setMethod("load_from_json", signature=c("default_settings", "json_element"), def
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("default_settings"), definition=function(object) {
+setMethod("show", signature = c("default_settings"), definition = function(object) {
   if (identical(object, DefaultSettings())) {
     cat("Default arguments: default")
   } else {

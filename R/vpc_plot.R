@@ -1,4 +1,3 @@
-
 #_______________________________________________________________________________
 #----                          vpc_plot generic                             ----
 #_______________________________________________________________________________
@@ -54,11 +53,7 @@ vpc_plot <- function(x, ...) {
 #' @return a ggplot object
 #' @seealso \code{\link{vpcPlot}}, \code{\link{PIOutfun}}
 #' @export
-vpc_plot.pi_campsis_tbl <- function(x, strata = "auto",
-                                    level = 0.90,
-                                    alpha = 0.15,
-                                    facet = TRUE,
-                                    ...) {
+vpc_plot.pi_campsis_tbl <- function(x, strata = "auto", level = 0.90, alpha = 0.15, facet = TRUE, ...) {
   if (!.is_replicated(x)) {
     stop(
       "vpc_plot() requires data with multiple replicates. ",
@@ -120,13 +115,16 @@ vpc_plot.pi_campsis_tbl <- function(x, strata = "auto",
 #' @return a ggplot object
 #' @seealso \code{\link{vpcPlot}}, \code{\link{vpc_plot.pi_campsis_tbl}}
 #' @export
-vpc_plot.std_campsis_tbl <- function(x, variable = "CONC",
-                                     strata = "auto",
-                                     pi_level = 0.90,
-                                     ci_level = 0.90,
-                                     alpha = 0.15,
-                                     facet = TRUE,
-                                     ...) {
+vpc_plot.std_campsis_tbl <- function(
+  x,
+  variable = "CONC",
+  strata = "auto",
+  pi_level = 0.90,
+  ci_level = 0.90,
+  alpha = 0.15,
+  facet = TRUE,
+  ...
+) {
   if (!.is_replicated(x)) {
     stop(
       "vpc_plot() requires data with multiple replicates. ",

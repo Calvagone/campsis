@@ -8,27 +8,27 @@ source(file.path(getwd(), test_path(), "test-utils.R"))
 test_that("Simulate a bolus using the tabular dataset", {
   model <- model_suite$testing$nonmem$advan4_trans4
   regFilename <- "simple_bolus"
-  
+
   dataset <- Dataset() %>%
-    add(Bolus(time=0, amount=1000, compartment=1)) %>%
-    add(Observations(times=seq(0,24, by=0.5)))
-  
+    add(Bolus(time = 0, amount = 1000, compartment = 1)) %>%
+    add(Observations(times = seq(0, 24, by = 0.5)))
+
   simulation <- expression(
-    table <- dataset %>% export(dest=destEngine, model=model, seed=seed),
-    simulate(model=model, dataset=table, dest=destEngine, seed=seed) # seed not important as IIV is part of table
+    table <- dataset %>% export(dest = destEngine, model = model, seed = seed),
+    simulate(model = model, dataset = table, dest = destEngine, seed = seed) # seed not important as IIV is part of table
   )
   test <- expression(
-    outputRegressionTest(results, output="CP", filename=regFilename)
+    outputRegressionTest(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env=environment())
-  
+  campsisTest(simulation, test, env = environment())
+
   # Same but remove ARM column (ARM not mandatory)
   simulation <- expression(
-    table <- dataset %>% export(dest=destEngine, model=model, seed=seed) %>% dplyr::select(-ARM),
-    simulate(model=model, dataset=table, dest=destEngine, seed=seed)  # seed not important as IIV is part of table
+    table <- dataset %>% export(dest = destEngine, model = model, seed = seed) %>% dplyr::select(-ARM),
+    simulate(model = model, dataset = table, dest = destEngine, seed = seed) # seed not important as IIV is part of table
   )
   test <- expression(
-    outputRegressionTest(results, output="CP", filename=regFilename)
+    outputRegressionTest(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env=environment())
+  campsisTest(simulation, test, env = environment())
 })

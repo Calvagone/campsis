@@ -1,4 +1,3 @@
-
 #_______________________________________________________________________________
 #----                         scatter_plot generic                          ----
 #_______________________________________________________________________________
@@ -52,10 +51,7 @@ scatter_plot <- function(x, ...) {
 #' @seealso \code{\link{scatterPlot}}
 #' @importFrom ggplot2 aes ggplot geom_point labs
 #' @export
-scatter_plot.std_campsis_tbl <- function(x, variable = "CONC",
-                                         colour = "auto",
-                                         time = NULL,
-                                         ...) {
+scatter_plot.std_campsis_tbl <- function(x, variable = "CONC", colour = "auto", time = NULL, ...) {
   if (length(variable) > 2) {
     stop("'variable' must have length 1 or 2.", call. = FALSE)
   }

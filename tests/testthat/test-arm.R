@@ -10,7 +10,7 @@ test_that("Default arm", {
 })
 
 test_that("Custom arm", {
-  arm <- Arm(id=1, subjects=10, label="Cohort A")
+  arm <- Arm(id = 1, subjects = 10, label = "Cohort A")
   expect_equal(arm@id, 1)
   expect_equal(arm@subjects, 10)
   expect_equal(arm@label, "Cohort A")
@@ -25,19 +25,18 @@ test_that("Covariate names can be accessed easily", {
 
 test_that("IOV names can be accessed easily", {
   arm <- Arm()
-  arm <- arm %>% add(IOV(colname="IOV_KA", distribution=NormalDistribution(mean=0, sd=0.1)))
+  arm <- arm %>% add(IOV(colname = "IOV_KA", distribution = NormalDistribution(mean = 0, sd = 0.1)))
   expect_equal(arm %>% get_iovs() %>% get_names(), c("IOV_KA"))
 })
 
 test_that("Set subjects works as expected", {
-  arm <- Arm(subjects=5)
+  arm <- Arm(subjects = 5)
   arm <- arm %>% set_subjects(2)
   expect_equal(arm %>% length(), 2)
 })
 
 test_that("Set label works as expected", {
-  arm <- Arm(subjects=5, label="Old label")
+  arm <- Arm(subjects = 5, label = "Old label")
   arm <- arm %>% set_label("New label")
   expect_equal(arm@label, "New label")
 })
-

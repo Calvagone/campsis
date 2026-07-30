@@ -1,15 +1,14 @@
-
 #_______________________________________________________________________________
 #----                            arm class                                  ----
 #_______________________________________________________________________________
 
 get_empty_bootstrap <- function() {
-  return(Bootstrap(data=data.frame(BS_ID=integer())))
+  return(Bootstrap(data = data.frame(BS_ID = integer())))
 }
 
-#' 
+#'
 #' Arm class.
-#' 
+#'
 #' @slot id arm unique ID, integer
 #' @slot subjects number of subjects in arm, integer
 #' @slot label arm label, single character string
@@ -27,10 +26,15 @@ setClass(
     covariates = "covariates",
     bootstrap = "bootstrap"
   ),
-  contains="pmx_element",
-  prototype=prototype(id=as.integer(NA), subjects=as.integer(1), label=as.character(NA),
-                      protocol=new("protocol"), covariates=new("covariates"),
-                      bootstrap=get_empty_bootstrap())
+  contains = "pmx_element",
+  prototype = prototype(
+    id = as.integer(NA),
+    subjects = as.integer(1),
+    label = as.character(NA),
+    protocol = new("protocol"),
+    covariates = new("covariates"),
+    bootstrap = get_empty_bootstrap()
+  )
 )
 
 #'
@@ -41,8 +45,8 @@ setClass(
 #' @param label arm label, single character string. If set, this label will be output in the ARM column of CAMPSIS instead of the identifier.
 #' @return an arm
 #' @export
-Arm <- function(id=as.integer(NA), subjects=1, label=as.character(NA)) {
-  return(new("arm", id=as.integer(id), subjects=as.integer(subjects), label=as.character(label)))
+Arm <- function(id = as.integer(NA), subjects = 1, label = as.character(NA)) {
+  return(new("arm", id = as.integer(id), subjects = as.integer(subjects), label = as.character(label)))
 }
 
 #_______________________________________________________________________________
@@ -113,7 +117,7 @@ setMethod("get_name", signature = c("arm"), definition = function(x) {
 
 #' @rdname get_times
 setMethod("get_times", signature = c("arm"), definition = function(object) {
-  return(get_times(object@protocol@observations, doseTimes=get_times(object@protocol@treatment)))
+  return(get_times(object@protocol@observations, doseTimes = get_times(object@protocol@treatment)))
 })
 
 #_______________________________________________________________________________
@@ -129,27 +133,27 @@ setMethod("add", signature = c("arm", "list"), definition = function(object, x) 
 
 setMethod("add", signature = c("arm", "treatment_entry"), definition = function(object, x) {
   # Note, we do not use add because add checks for uniqueness
-  object@protocol@treatment@list <- object@protocol@treatment@list %>% append(x) 
+  object@protocol@treatment@list <- object@protocol@treatment@list %>% append(x)
   return(object)
 })
 
 setMethod("add", signature = c("arm", "treatment_iov"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% add(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% add(x)
   return(object)
 })
 
 setMethod("add", signature = c("arm", "occasion"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% add(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% add(x)
   return(object)
 })
 
 setMethod("add", signature = c("arm", "dose_adaptation"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% add(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% add(x)
   return(object)
 })
 
 setMethod("add", signature = c("arm", "observations"), definition = function(object, x) {
-  object@protocol@observations <- object@protocol@observations %>% add(x) 
+  object@protocol@observations <- object@protocol@observations %>% add(x)
   return(object)
 })
 
@@ -167,7 +171,7 @@ setMethod("add", signature = c("arm", "bootstrap"), definition = function(object
 #----                               contains                                ----
 #_______________________________________________________________________________
 
-setMethod("contains", signature=c("arm", "pmx_element"), definition=function(object, x) {
+setMethod("contains", signature = c("arm", "pmx_element"), definition = function(object, x) {
   return(!is.null(object %>% find(x)))
 })
 
@@ -176,27 +180,27 @@ setMethod("contains", signature=c("arm", "pmx_element"), definition=function(obj
 #_______________________________________________________________________________
 
 setMethod("delete", signature = c("arm", "treatment_entry"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% delete(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% delete(x)
   return(object)
 })
 
 setMethod("delete", signature = c("arm", "treatment_iov"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% delete(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% delete(x)
   return(object)
 })
 
 setMethod("delete", signature = c("arm", "occasion"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% delete(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% delete(x)
   return(object)
 })
 
 setMethod("delete", signature = c("arm", "dose_adaptation"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% delete(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% delete(x)
   return(object)
 })
 
 setMethod("delete", signature = c("arm", "observations"), definition = function(object, x) {
-  object@protocol@observations <- object@protocol@observations %>% delete(x) 
+  object@protocol@observations <- object@protocol@observations %>% delete(x)
   return(object)
 })
 
@@ -238,10 +242,10 @@ setMethod("find", signature = c("arm", "covariate"), definition = function(objec
 #_______________________________________________________________________________
 
 #' Return the number of subjects contained in this arm.
-#' 
+#'
 #' @param x arm
 #' @return a number
-setMethod("length", signature=c("arm"), definition=function(x) {
+setMethod("length", signature = c("arm"), definition = function(x) {
   return(x@subjects)
 })
 
@@ -250,27 +254,27 @@ setMethod("length", signature=c("arm"), definition=function(x) {
 #_______________________________________________________________________________
 
 setMethod("replace", signature = c("arm", "treatment_entry"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% replace(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% replace(x)
   return(object)
 })
 
 setMethod("replace", signature = c("arm", "treatment_iov"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% replace(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% replace(x)
   return(object)
 })
 
 setMethod("replace", signature = c("arm", "occasion"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% replace(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% replace(x)
   return(object)
 })
 
 setMethod("replace", signature = c("arm", "dose_adaptation"), definition = function(object, x) {
-  object@protocol@treatment <- object@protocol@treatment %>% replace(x) 
+  object@protocol@treatment <- object@protocol@treatment %>% replace(x)
   return(object)
 })
 
 setMethod("replace", signature = c("arm", "observations"), definition = function(object, x) {
-  object@protocol@observations <- object@protocol@observations %>% replace(x) 
+  object@protocol@observations <- object@protocol@observations %>% replace(x)
   return(object)
 })
 
@@ -307,7 +311,7 @@ setMethod("set_subjects", signature = c("arm", "integer"), definition = function
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("arm"), definition=function(object) {
+setMethod("show", signature = c("arm"), definition = function(object) {
   if (!is.na(object@id) && object@id != 0) {
     if (is.na(object@label)) {
       armLabel <- paste("Arm", object@id)
@@ -377,9 +381,11 @@ setMethod("update_addl", signature = c("arm", "integer", "character"), definitio
 #_______________________________________________________________________________
 
 #' @rdname update_repeat
-setMethod("update_repeat", signature = c("arm", "repeated_schedule", "character"), definition = function(object, rep, ref) {
-  object@protocol@treatment <- object@protocol@treatment %>% update_repeat(rep, ref)
-  return(object)
-})
-
-
+setMethod(
+  "update_repeat",
+  signature = c("arm", "repeated_schedule", "character"),
+  definition = function(object, rep, ref) {
+    object@protocol@treatment <- object@protocol@treatment %>% update_repeat(rep, ref)
+    return(object)
+  }
+)

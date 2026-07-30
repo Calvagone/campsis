@@ -2,9 +2,9 @@
 #----                         bootstrap class                               ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Bootstrap class.
-#' 
+#'
 #' @slot data data frame to be bootstrapped. Column 'BS_ID' is mandatory and
 #' corresponds to the original row ID from the bootstrap. It must be numeric and unique.
 #' Other columns are covariates to be bootstrapped (row by row).
@@ -22,42 +22,42 @@ setClass(
     random = "logical",
     export_id = "logical"
   ),
-  contains="pmx_element",
-  validity=function(object) {
+  contains = "pmx_element",
+  validity = function(object) {
     check1a <- NULL
     check1b <- NULL
     check1c <- NULL
     check1d <- NULL
-    
+
     # Check BS_ID column
     if (!("BS_ID" %in% c(colnames(object@data)))) {
-      check1a <- "Column 'BS_ID' is mandatory in bootstrap" 
+      check1a <- "Column 'BS_ID' is mandatory in bootstrap"
     } else {
       if (!is.numeric(object@data$BS_ID)) {
-        check1b <- "Column 'BS_ID' must be numeric" 
+        check1b <- "Column 'BS_ID' must be numeric"
       } else {
-        if (!all(object@data$BS_ID %% 1==0)) {
-          check1c <- "Column 'BS_ID' must contain integers only" 
+        if (!all(object@data$BS_ID %% 1 == 0)) {
+          check1c <- "Column 'BS_ID' must contain integers only"
         }
       }
       if (unique(object@data$BS_ID) %>% length() != object@data$BS_ID %>% length()) {
-        check1d <- "Column 'BS_ID' contains duplicates" 
+        check1d <- "Column 'BS_ID' contains duplicates"
       }
     }
-    
+
     # Check covariable columns
     check2 <- NULL
     covariableNames <- object %>% get_names()
     covariableNames <- covariableNames[!(covariableNames %in% "BS_ID")]
-    check2_lgl <- !covariableNames %>% purrr::map_lgl(.f=~object@data %>% dplyr::pull(.x) %>% is.numeric())
+    check2_lgl <- !covariableNames %>% purrr::map_lgl(.f = ~ object@data %>% dplyr::pull(.x) %>% is.numeric())
     if (any(check2_lgl)) {
-      check2 <- paste0("Column(s) ", paste0(covariableNames[check2_lgl], collapse=","), " are not numeric")
+      check2 <- paste0("Column(s) ", paste0(covariableNames[check2_lgl], collapse = ","), " are not numeric")
     }
-    
+
     # Check other slots
     check3 <- expect_one_for_all(object, c("replacement", "random", "export_id"))
-    
-    return(c(check1a, check1b, check1c, check1d,  check2, check3))
+
+    return(c(check1a, check1b, check1c, check1d, check2, check3))
   }
 )
 
@@ -72,7 +72,7 @@ setMethod("get_name", signature = c("bootstrap"), definition = function(x) {
 #' named according to the specified argument 'id' (default value is 'BS_ID').
 #' Other columns are covariates to bootstrap. They must all be numeric.
 #' Whatever the configuration of the bootstrap, these covariates are always read
-#' row by row and belong to a same individual. 
+#' row by row and belong to a same individual.
 #' @param id unique identifier column name in data
 #' @param replacement values can be reused or not when drawn, logical
 #' @param random values are drawn randomly, logical
@@ -82,15 +82,15 @@ setMethod("get_name", signature = c("bootstrap"), definition = function(x) {
 #' @importFrom dplyr all_of rename
 #' @importFrom tibble as_tibble
 #' @export
-Bootstrap <- function(data, id="BS_ID", replacement=FALSE, random=FALSE, export_id=FALSE) {
-  assertthat::assert_that(is(data, "data.frame"), msg="data not a data frame")
-  assertthat::assert_that(id %in% colnames(data), msg=paste0("Unique identifier '", id, "' not part of data"))
+Bootstrap <- function(data, id = "BS_ID", replacement = FALSE, random = FALSE, export_id = FALSE) {
+  assertthat::assert_that(is(data, "data.frame"), msg = "data not a data frame")
+  assertthat::assert_that(id %in% colnames(data), msg = paste0("Unique identifier '", id, "' not part of data"))
   data <- data %>% tibble::as_tibble()
   if (id != "BS_ID") {
-    lookup <- c(BS_ID=id)
+    lookup <- c(BS_ID = id)
     data <- data %>% dplyr::rename(dplyr::all_of(lookup))
   }
-  return(new("bootstrap", data=data, replacement=replacement, random=random, export_id=export_id))
+  return(new("bootstrap", data = data, replacement = replacement, random = random, export_id = export_id))
 }
 
 #'
@@ -101,17 +101,17 @@ Bootstrap <- function(data, id="BS_ID", replacement=FALSE, random=FALSE, export_
 #' @importFrom assertthat assert_that
 #' @keywords internal
 is_empty_bootstrap <- function(object) {
-  assertthat::assert_that(is(object, "bootstrap"), msg="Not a bootstrap object")
+  assertthat::assert_that(is(object, "bootstrap"), msg = "Not a bootstrap object")
   data <- object@data
   nData <- nrow(data)
-  return(nData==0)
+  return(nData == 0)
 }
 
 #_______________________________________________________________________________
 #----                            get_names                                   ----
 #_______________________________________________________________________________
 
-setMethod("get_names", signature=c("bootstrap"), definition=function(object) {
+setMethod("get_names", signature = c("bootstrap"), definition = function(object) {
   data <- object@data
   covariableNames <- colnames(data)
   export_id <- object@export_id
@@ -125,17 +125,17 @@ setMethod("get_names", signature=c("bootstrap"), definition=function(object) {
 #----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("load_from_json", signature=c("bootstrap", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature = c("bootstrap", "json_element"), definition = function(object, json) {
   data <- json@data
   dataBs <- data$data %>%
     purrr::map_df(~.x) %>%
     dplyr::select(-dplyr::all_of("type"))
   if (!"BS_ID" %in% colnames(dataBs)) {
     dataBs <- dataBs %>%
-      dplyr::mutate(BS_ID=seq_len(nrow(dataBs))) %>%
+      dplyr::mutate(BS_ID = seq_len(nrow(dataBs))) %>%
       dplyr::relocate(dplyr::any_of("BS_ID"))
   }
-  bootstrap <- Bootstrap(data=dataBs, replacement=data$replacement, random=data$random, export_id=TRUE)
+  bootstrap <- Bootstrap(data = dataBs, replacement = data$replacement, random = data$random, export_id = TRUE)
   return(bootstrap)
 })
 
@@ -143,39 +143,41 @@ setMethod("load_from_json", signature=c("bootstrap", "json_element"), definition
 #----                             sample                                    ----
 #_______________________________________________________________________________
 
-
 #' @rdname sample
 setMethod("sample", signature = c("bootstrap", "integer"), definition = function(object, n) {
   data <- object@data
   replacement <- object@replacement
   random <- object@random
   nData <- nrow(data)
-  
+
   if (is_empty_bootstrap(object)) {
     return(list())
   }
-  
+
   if (random) {
     # Cases random=TRUE and replacement=TRUE/FALSE
-    data <- data[sample.int(n=nData, size=n, replace=replacement),]
+    data <- data[sample.int(n = nData, size = n, replace = replacement), ]
   } else if (replacement) {
     # Case random=FALSE and replacement=TRUE
-    data <- data[rep(seq_len(nData), length.out=n),]
+    data <- data[rep(seq_len(nData), length.out = n), ]
   } else {
     # Case random=FALSE, replacement=FALSE
     # Do nothing
   }
-  return(object %>% get_names() %>%
-           purrr::map(~Covariate(name=.x, distribution=FixedDistribution(data %>% dplyr::pull(.x)))))
+  return(
+    object %>%
+      get_names() %>%
+      purrr::map(~ Covariate(name = .x, distribution = FixedDistribution(data %>% dplyr::pull(.x))))
+  )
 })
 
 #_______________________________________________________________________________
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("bootstrap"), definition=function(object) {
+setMethod("show", signature = c("bootstrap"), definition = function(object) {
   if (object %>% length() > 0) {
-    cat("Bootstrap:", paste0(colnames(object@data), collapse=","))
+    cat("Bootstrap:", paste0(colnames(object@data), collapse = ","))
     cat("\n")
   }
 })
