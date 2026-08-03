@@ -138,10 +138,9 @@ vpcOutputRegressionTest <- function(results, output, filename) {
 }
 
 noEngineInstalled <- function() {
-  cond1 <- engineInstalled("RxODE")
-  cond2 <- engineInstalled("rxode2")
-  cond3 <- engineInstalled("mrgsolve")
-  return(!(cond1 || cond2 || cond3))
+  cond1 <- engineInstalled("rxode2")
+  cond2 <- engineInstalled("mrgsolve")
+  return(!(cond1 || cond2))
 }
 
 engineInstalled <- function(name) {

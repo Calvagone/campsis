@@ -169,6 +169,11 @@ test_that("Import Campsis settings in JSON format", {
 })
 
 test_that("Import Campsis settings that include a NCA table outfun from JSON", {
+  if (skipLongTests()) {
+    # Long tests are not executed on CRAN
+    # Here I don't to create a dependency to campsisnca in the Campsis tests
+    return(TRUE)
+  }
   skip_if_not_installed("campsisnca")
   library(campsisnca)
 

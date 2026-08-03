@@ -9,8 +9,8 @@ test_that("Output functions can be added and retrieved", {
     add(Outfun(~ compute_pi(.x, variable = "Y"), name = "PI on Y"))
 
   expect_equal(outfuns %>% length(), 2)
-  expect_equal(outfuns %>% getByIndex(1) %>% .@name, "PI on CP")
-  expect_equal(outfuns %>% getByIndex(2) %>% .@name, "PI on Y")
+  expect_equal(outfuns %>% get_by_index(1) %>% .@name, "PI on CP")
+  expect_equal(outfuns %>% get_by_index(2) %>% .@name, "PI on Y")
 })
 
 test_that("Adding a duplicate name throws an error", {

@@ -74,7 +74,7 @@ test_that("Dose adaptations based on weight work well, check argument compartmen
 
   # Add independant ODE
   model <- model %>% add(Ode("A_TEST", "-log(2)/100*A_TEST"))
-  model <- model %>% updateCompartments()
+  model <- model %>% update_compartments()
 
   # Dataset with unnamed compartments
   times <- seq(0, 7 * 24, by = 4)

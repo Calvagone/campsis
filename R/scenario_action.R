@@ -50,7 +50,7 @@ setMethod("load_from_json", signature = c("replace_action", "json_element"), def
   replacementObject <- json@data$object
   replacementType <- replacementObject$type
   if (replacementType %in% c("theta", "omega", "sigma")) {
-    object@object <- campsismod::jsonToParameter(replacementObject)
+    object@object <- campsismod::json_to_parameter(replacementObject)
   } else {
     stop(sprintf("Type 's' is not supported as a replacement object", replacementType))
   }

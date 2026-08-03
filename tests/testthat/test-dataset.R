@@ -82,7 +82,7 @@ test_that("Two arms example", {
   expect_equal(nrow(table), 98)
 
   # Replace numbers of subjects in second arm
-  arm2Bis <- dataset@arms %>% getByIndex(2)
+  arm2Bis <- dataset@arms %>% get_by_index(2)
   arm2Bis@subjects <- as.integer(5)
   dataset <- dataset %>% replace(arm2Bis)
 
