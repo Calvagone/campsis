@@ -45,16 +45,6 @@ jobs:
             any::progress
           needs: check
 
-      # Force source installation of rxode2 stack on Windows to resolve DLL procedure entry point errors
-      - name: Reinstall rxode2 from source (Windows only)
-        if: runner.os == 'Windows'
-        shell: Rscript {0}
-        run: |
-          install.packages(
-            c("rxode2parse", "rxode2ll", "rxode2random", "rxode2"),
-            type = "source"
-          )
-
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
