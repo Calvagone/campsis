@@ -18,9 +18,9 @@ test_that("Simulate a bolus using the tabular dataset", {
     simulate(model = model, dataset = table, dest = destEngine, seed = seed) # seed not important as IIV is part of table
   )
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Same but remove ARM column (ARM not mandatory)
   simulation <- expression(
@@ -28,7 +28,7 @@ test_that("Simulate a bolus using the tabular dataset", {
     simulate(model = model, dataset = table, dest = destEngine, seed = seed) # seed not important as IIV is part of table
   )
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

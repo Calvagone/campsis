@@ -17,7 +17,7 @@ test_that("Argument dest works well", {
     regexp = "Argument 'dest' must be one of: 'rxode2', 'mrgsolve' or NULL"
   )
 
-  if (noEngineInstalled()) {
+  if (no_engine_installed()) {
     return(TRUE)
   }
 
@@ -33,7 +33,7 @@ test_that("Auto seed value vs fix seed + default engine", {
     add(Bolus(time = 0, amount = 1000, compartment = 1)) %>%
     add(Observations(times = seq(0, 24, by = 0.5)))
 
-  if (noEngineInstalled()) {
+  if (no_engine_installed()) {
     return(TRUE)
   }
 
@@ -44,7 +44,7 @@ test_that("Auto seed value vs fix seed + default engine", {
   expect_equal(results1, results2)
 
   # Check RxODE was chosen as default engine
-  if (engineInstalled("rxode2")) {
+  if (engine_installed("rxode2")) {
     expect_true(all(c("KA", "CL", "V2") %in% colnames(results1)))
   }
 

@@ -52,12 +52,12 @@ test_that("Scatter plot works as expected", {
     # The higher N, the closer the correlation will be to its true value
     expect_equal(round(corA, digits = 1), 0.50),
     expect_equal(round(corB, digits = 1), 0.90),
-    if (!skipVdiffrTests()) {
+    if (!skip_vdiffr_tests()) {
       vdiffr::expect_doppelganger(sprintf("scatterPlot / no colour / %s", destEngine), plot1)
       vdiffr::expect_doppelganger(sprintf("scatterPlot / colour: SCENARIO / %s", destEngine), plot2)
     }
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Shaded and spaghetti plots work as expected", {
@@ -85,12 +85,12 @@ test_that("Shaded and spaghetti plots work as expected", {
   test <- expression(
     plot1 <- expect_no_error(shaded_plot(results)), # Auto colour by SCENARIO
     plot2 <- expect_no_error(spaghetti_plot(results)), # Auto colour by SCENARIO
-    if (!skipVdiffrTests()) {
+    if (!skip_vdiffr_tests()) {
       vdiffr::expect_doppelganger(sprintf("shadedPlot / colour: SCENARIO / %s", destEngine), plot1)
       vdiffr::expect_doppelganger(sprintf("spaghettiPlot / colour: SCENARIO / %s", destEngine), plot2)
     }
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Grouping by ARM and stratifying by WT should work", {
@@ -133,11 +133,11 @@ test_that("Grouping by ARM and stratifying by WT should work", {
         ggplot2::facet_wrap(~WT)
     ),
 
-    if (!skipVdiffrTests()) {
+    if (!skip_vdiffr_tests()) {
       vdiffr::expect_doppelganger(sprintf("spaghettiPlot / colour: ARM / strat: WT / %s", destEngine), plot1)
       vdiffr::expect_doppelganger(sprintf("shadedPlot / colour: ARM / strat: WT / %s", destEngine), plot2)
       vdiffr::expect_doppelganger(sprintf("shadedPlot / colour: ARM,WT / strat: WT / %s", destEngine), plot3)
     }
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

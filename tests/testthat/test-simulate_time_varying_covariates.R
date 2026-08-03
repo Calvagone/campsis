@@ -25,9 +25,9 @@ test_that("Body weight as a true time varying covariate", {
     settings = Settings(NOCB(variables = "BW"))
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Body weight as a true time varying covariate, 2 arms, individual body weights", {
@@ -64,7 +64,7 @@ test_that("Body weight as a true time varying covariate, 2 arms, individual body
   test <- expression(
     spaghettiPlot(results, "CP", "ID"),
     spaghettiPlot(results, "BW", "ID"),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

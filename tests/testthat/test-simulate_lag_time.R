@@ -13,14 +13,14 @@ test_that("Simulate a bolus with fixed lag time in dataset", {
     add(Bolus(time = 0, amount = 1000, compartment = 1, lag = 2)) %>% # 2-hour lag time
     add(Observations(times = seq(0, 24, by = 0.5)))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = paste0(regFilename, "_dataset"))
+  dataset_regression_test(dataset, model, seed = seed, filename = paste0(regFilename, "_dataset"))
 
   simulation <- expression(model %>% simulate(dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49 * length(dataset)),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate a bolus with fixed lag time in model", {
@@ -34,12 +34,12 @@ test_that("Simulate a bolus with fixed lag time in model", {
   # 2 hours lag time, no variability
   model <- model %>% add(LagTime(compartment = 1, rhs = "2"))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = paste0(regFilename, "_model"))
+  dataset_regression_test(dataset, model, seed = seed, filename = paste0(regFilename, "_model"))
 
   simulation <- expression(model %>% simulate(dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49 * length(dataset)),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

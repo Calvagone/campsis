@@ -21,13 +21,13 @@ test_that("Simulate a bolus, 2 arms, F1 only in arm1, in dataset", {
     add(arm1) %>%
     add(arm2)
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(model %>% simulate(dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), dataset %>% length() * 49)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate a simple bolus with bioavailability, dataset versus model", {
@@ -39,14 +39,14 @@ test_that("Simulate a simple bolus with bioavailability, dataset versus model", 
     add(Bolus(time = 0, amount = 1000, compartment = 1, f = 0.75)) %>%
     add(Observations(times = seq(0, 24, by = 0.5)))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(model %>% simulate(dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), dataset %>% length() * 49),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Bioavailability implemented in model
   model <- model %>% add(Bioavailability(compartment = 1, rhs = "0.75"))
@@ -58,9 +58,9 @@ test_that("Simulate a simple bolus with bioavailability, dataset versus model", 
   simulation <- expression(model %>% simulate(dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), dataset %>% length() * 49),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 
@@ -77,5 +77,5 @@ test_that("Simulate several fixed F's at once", {
     cmax <- results %>% dplyr::filter(TIME == 2.5) %>% dplyr::pull(CP),
     expect_equal(round(cmax, 2), c(2.89, 5.77, 8.66, 9.62))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

@@ -5,7 +5,7 @@ context("Test the simulate method with time-to-event models (TTE)")
 source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate simple TTE model", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   regFilename <- "simple_tte_model"
@@ -53,7 +53,7 @@ test_that("Simulate simple TTE model", {
     seed = 5
   ))
   test <- expression(
-    outputRegressionTest(results, output = c("A_SURVIVAL", "TRIGGER"), filename = regFilename)
+    output_regression_test(results, output = c("A_SURVIVAL", "TRIGGER"), filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

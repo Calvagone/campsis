@@ -180,13 +180,13 @@ test_that("Dataset export may vary if parallelisation is used when covariates/IO
   settings1 <- Settings()
   setup_plan_sequential()
   table1 <- dataset %>% export(dest = "rxode2", settings = settings1, seed = seed)
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilenameDisabled)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilenameDisabled)
 
   # Parallelisation with 2 CPU's and slice of 10 subjects
   settings2 <- Settings(Hardware(cpu = 2, dataset_parallel = T, dataset_slice_size = 10))
   setup_plan_default(settings2@hardware)
   table2 <- dataset %>% export(dest = "rxode2", settings = settings2, seed = seed)
-  datasetRegressionTest(
+  dataset_regression_test(
     dataset,
     model,
     seed = seed,
@@ -194,7 +194,7 @@ test_that("Dataset export may vary if parallelisation is used when covariates/IO
     settings = settings2,
     dest = "rxode2"
   )
-  datasetRegressionTest(
+  dataset_regression_test(
     dataset,
     model,
     seed = seed,
@@ -207,7 +207,7 @@ test_that("Dataset export may vary if parallelisation is used when covariates/IO
   settings3 <- Settings(Hardware(cpu = 3, dataset_parallel = T, dataset_slice_size = 10))
   setup_plan_default(settings3@hardware)
   table3 <- dataset %>% export(dest = "rxode2", settings = settings3, seed = seed)
-  datasetRegressionTest(
+  dataset_regression_test(
     dataset,
     model,
     seed = seed,
@@ -215,7 +215,7 @@ test_that("Dataset export may vary if parallelisation is used when covariates/IO
     settings = settings3,
     dest = "rxode2"
   )
-  datasetRegressionTest(
+  dataset_regression_test(
     dataset,
     model,
     seed = seed,

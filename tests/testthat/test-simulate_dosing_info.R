@@ -21,7 +21,7 @@ test_that("Dose adaptations can be checked in Campsis output if dosing is TRUE",
   test <- expression(
     expect_equal(results %>% nrow(), expectedLength)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # With dosing output
   expectedLength <- expectedLength +
@@ -33,5 +33,5 @@ test_that("Dose adaptations can be checked in Campsis output if dosing is TRUE",
     spaghettiPlot(results, "A_DEPOT"), # RxODE always puts dose before the observation for same time
     shadedPlot(results, "A_DEPOT")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

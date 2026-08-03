@@ -563,7 +563,7 @@ test_that("Export works well even if objects are defined in a different order", 
   ds <- Dataset() %>% add(c(arm1, arm2))
   table <- ds %>% export(dest = "rxode2")
 
-  datasetRegressionTest(dataset = ds, seed = 1, doseOnly = FALSE, filename = regFilename)
+  dataset_regression_test(dataset = ds, seed = 1, doseOnly = FALSE, filename = regFilename)
 })
 
 test_that("Any layer added to the multiple-arm dataset apply to each arm.", {
@@ -598,7 +598,7 @@ test_that("Any layer added to the multiple-arm dataset apply to each arm.", {
 
   table <- dataset %>% export(dest = "rxode2", seed = 1)
 
-  datasetRegressionTest(dataset = dataset, seed = 1, doseOnly = FALSE, filename = regFilename)
+  dataset_regression_test(dataset = dataset, seed = 1, doseOnly = FALSE, filename = regFilename)
 })
 
 test_that("Boluses/Infusions can now be given at same time and into the same compartment", {
@@ -708,10 +708,10 @@ test_that("Compartment properties can be vectorised", {
   table <- dataset %>% export(dest = "rxode2", seed = 1)
 
   # First non-regression test
-  datasetRegressionTest(dataset = dataset, seed = 1, doseOnly = TRUE, filename = regFilename)
+  dataset_regression_test(dataset = dataset, seed = 1, doseOnly = TRUE, filename = regFilename)
 
   # Also check the seed does not matter since the distributions are pre-sampled
-  datasetRegressionTest(dataset = dataset, seed = 2, doseOnly = TRUE, filename = regFilename)
+  dataset_regression_test(dataset = dataset, seed = 2, doseOnly = TRUE, filename = regFilename)
 })
 
 test_that("Method 'update_amount' works as expected", {

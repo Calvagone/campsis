@@ -27,7 +27,7 @@ test_that("Simulate scenarios - make few changes on dataset", {
   ))
   test <- expression(
     spaghettiPlot(results, "CP", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO),
-    outputRegressionTest(results, output = c("SCENARIO", "CP"), filename = regFilename),
+    output_regression_test(results, output = c("SCENARIO", "CP"), filename = regFilename),
     expect_equal(results$SCENARIO %>% unique(), c("1000 mg SD", "1500 mg SD", "2000 mg SD")),
 
     # Check some 'properties' of the scenarios:
@@ -47,7 +47,7 @@ test_that("Simulate scenarios - make few changes on dataset", {
     # 3) Same seed is used in each scenario -> same residual variability if same number of subjects & same protocol
     expect_equal(res_scenario1$EPS_PROP, res_scenario2$EPS_PROP)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate scenarios - make few changes on model", {
@@ -77,9 +77,9 @@ test_that("Simulate scenarios - make few changes on model", {
   ))
   test <- expression(
     spaghettiPlot(results, "CP", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO),
-    outputRegressionTest(results, output = c("SCENARIO", "CP"), filename = regFilename)
+    output_regression_test(results, output = c("SCENARIO", "CP"), filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Running scenarios in parallel with 3 CPU's
   settings <- Settings(Hardware(cpu = 3, scenario_parallel = TRUE))
@@ -94,9 +94,9 @@ test_that("Simulate scenarios - make few changes on model", {
   ))
   test <- expression(
     spaghettiPlot(results, "CP", "SCENARIO") + ggplot2::facet_wrap(~SCENARIO),
-    outputRegressionTest(results, output = c("SCENARIO", "CP"), filename = regFilename)
+    output_regression_test(results, output = c("SCENARIO", "CP"), filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Back to sequential
   setup_plan_sequential()
@@ -123,7 +123,7 @@ test_that("Export 'SCENARIO' column as soon as 1 scenario is specified.", {
     expect_equal(nrow(results), 3 * 9),
     expect_false("SCENARIO" %in% colnames(results))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Scenarios are empty
   scenarios <- Scenarios()
@@ -139,7 +139,7 @@ test_that("Export 'SCENARIO' column as soon as 1 scenario is specified.", {
     expect_equal(nrow(results), 3 * 9),
     expect_false("SCENARIO" %in% colnames(results))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # 1 scenario is provided
   scenarios <- Scenarios() %>%
@@ -157,5 +157,5 @@ test_that("Export 'SCENARIO' column as soon as 1 scenario is specified.", {
     expect_true("SCENARIO" %in% colnames(results)),
     expect_true(results$SCENARIO %>% unique() == "My scenario")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

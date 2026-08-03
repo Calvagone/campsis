@@ -1,7 +1,7 @@
-overwriteNonRegressionFiles <- FALSE
-testEngines <- c("rxode2", "mrgsolve")
+OVERWRITE_NON_REG_FILES <- FALSE
+TEST_ENGINES <- c("rxode2", "mrgsolve")
 
-datasetInMemory <- function(dataset, model = NULL, seed, doseOnly = TRUE, settings, dest) {
+dataset_in_memory <- function(dataset, model = NULL, seed, doseOnly = TRUE, settings, dest) {
   table <- dataset %>% export(dest = dest, model = model, seed = seed, settings = settings)
 
   # Keep doses only
@@ -17,7 +17,7 @@ datasetInMemory <- function(dataset, model = NULL, seed, doseOnly = TRUE, settin
   return(table)
 }
 
-stripMetadata <- function(x) {
+strip_metadata <- function(x) {
   # Revert class back to standard tibble components
   class(x) <- c("tbl_df", "tbl", "data.frame")
 
@@ -37,7 +37,7 @@ stripMetadata <- function(x) {
 #' @param settings export settings
 #' @param dest destination engine
 #' @export
-datasetRegressionTest <- function(
+dataset_regression_test <- function(
   dataset,
   model = NULL,
   seed,
@@ -46,7 +46,7 @@ datasetRegressionTest <- function(
   settings = Settings(),
   dest = "rxode2"
 ) {
-  dataset1 <- datasetInMemory(
+  dataset1 <- dataset_in_memory(
     dataset = dataset,
     model = model,
     seed = seed,
@@ -58,7 +58,7 @@ datasetRegressionTest <- function(
 
   file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, ".csv"))
 
-  if (overwriteNonRegressionFiles) {
+  if (OVERWRITE_NON_REG_FILES) {
     write.table(dataset1, file = file, sep = ",", row.names = FALSE)
   }
 
@@ -82,17 +82,17 @@ datasetRegressionTest <- function(
 #' @param times filter reference results on specific times, NULL by default
 #' @importFrom tibble as_tibble
 #' @export
-outputRegressionTest <- function(results, output, filename, times = NULL) {
+output_regression_test <- function(results, output, filename, times = NULL) {
   selectedColumns <- unique(c("ID", "TIME", output))
   results1 <- results %>%
-    stripMetadata() %>%
+    strip_metadata() %>%
     dplyr::select(dplyr::all_of(selectedColumns)) %>%
     dplyr::mutate_if(is.numeric, round, digits = 2)
   suffix <- paste0(output, collapse = "_") %>% tolower()
 
   file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, "_", suffix, ".csv"))
 
-  if (overwriteNonRegressionFiles) {
+  if (OVERWRITE_NON_REG_FILES) {
     write.table(results1, file = file, sep = ",", row.names = FALSE)
   }
 
@@ -110,9 +110,9 @@ outputRegressionTest <- function(results, output, filename, times = NULL) {
 #' @param output variables to compare
 #' @param filename reference file (output will be appended automatically)
 #' @export
-vpcOutputRegressionTest <- function(results, output, filename) {
+vpc_output_regression_test <- function(results, output, filename) {
   results <- results %>%
-    stripMetadata() %>%
+    strip_metadata() %>%
     dplyr::filter(.data$variable %in% output)
 
   results1 <- results %>%
@@ -123,7 +123,7 @@ vpcOutputRegressionTest <- function(results, output, filename) {
 
   file <- file.path(getwd(), test_path(), "non_regression", paste0(filename, "_", suffix, ".csv"))
 
-  if (overwriteNonRegressionFiles) {
+  if (OVERWRITE_NON_REG_FILES) {
     write.table(results1, file = file, sep = ",", row.names = FALSE)
   }
 
@@ -137,60 +137,52 @@ vpcOutputRegressionTest <- function(results, output, filename) {
   expect_equal(results1, results2)
 }
 
-noEngineInstalled <- function() {
-  cond1 <- engineInstalled("rxode2")
-  cond2 <- engineInstalled("mrgsolve")
+no_engine_installed <- function() {
+  cond1 <- engine_installed("rxode2")
+  cond2 <- engine_installed("mrgsolve")
   return(!(cond1 || cond2))
 }
 
-engineInstalled <- function(name) {
+engine_installed <- function(name) {
   return(find.package(name, quiet = TRUE) %>% length() > 0)
 }
 
-campsisTest <- function(simulation, test, env) {
+campsis_test <- function(simulation, test, env) {
   # Iteration over all test engines to be tested
-  for (testEngine in testEngines) {
+  for (testEngine in TEST_ENGINES) {
     env$destEngine <- testEngine
     # Check if package exists (as test engines are suggested packages)
     # This is needed for CRAN when package is tested with `_R_CHECK_DEPENDS_ONLY_`=TRUE
-    if (engineInstalled(testEngine)) {
+    if (engine_installed(testEngine)) {
       env$results <- eval(simulation, envir = env)
       eval(test, envir = env)
     }
   }
 }
 
-getTestName <- function(name) {
-  return(paste0(name, " (", paste0(testEngines, collapse = "/"), ")"))
-}
-
-getContext <- function(name) {
-  return(paste0(name, " (", paste0(testEngines, collapse = "/"), ")"))
-}
-
-skipLongTests <- function() {
+skip_long_tests <- function() {
   # On CRAN, default value is TRUE
   # FALSE otherwise
   return(get_campsis_option(name = "SKIP_LONG_TESTS", default = on_cran()))
 }
 
-skipVeryLongTests <- function() {
+skip_very_long_tests <- function() {
   return(get_campsis_option(name = "SKIP_VERY_LONG_TESTS", default = TRUE))
 }
 
-isMacOs <- function() {
+is_mac_os <- function() {
   # return windows, darwin, linux or sunos
   systemOs <- tolower(Sys.info()[["sysname"]])
   return(systemOs == "darwin")
 }
 
-skipVdiffrTests <- function() {
+skip_vdiffr_tests <- function() {
   # On mac, default value is TRUE (problems in vdiffr tests, see CI)
   # FALSE otherwise
-  return(get_campsis_option(name = "SKIP_VDIFFR_TESTS", default = ifelse(isMacOs(), TRUE, FALSE)))
+  return(get_campsis_option(name = "SKIP_VDIFFR_TESTS", default = ifelse(is_mac_os(), TRUE, FALSE)))
 }
 
-convertCampsisTest <- function(env = parent.frame(), debug_engine = "mrgsolve") {
+convert_campsis_test <- function(env = parent.frame(), debug_engine = "mrgsolve") {
   if (!exists("simulation", envir = env) || !exists("test", envir = env)) {
     stop("Could not find 'simulation' or 'test' expressions in the provided environment.")
   }

@@ -39,5 +39,5 @@ test_that("Incorrect Campsis model does not compile and a clear error message is
       )
     }
   )
-  campsisTest(expression(), test, env = environment())
+  campsis_test(expression(), test, env = environment())
 })

@@ -14,7 +14,7 @@ test_that("Declare argument with mrgsolve", {
     add(Bolus(time = 0, amount = 1000, compartment = 1)) %>%
     add(Observations(times = seq(0, 24, by = 0.5)))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   tablefun <- ~ .x %>% dplyr::mutate(SOMETHING = 0)
 
@@ -22,7 +22,7 @@ test_that("Declare argument with mrgsolve", {
     if (destEngine %in% c("rxode2")) {
       # RxODE does not complain
       results <- model %>% simulate(dataset, dest = destEngine, seed = seed, tablefun = tablefun)
-      outputRegressionTest(results, output = "CP", filename = regFilename)
+      output_regression_test(results, output = "CP", filename = regFilename)
     },
     if (destEngine %in% c("mrgsolve")) {
       # mrgsolve complains and cannot build the model
@@ -37,8 +37,8 @@ test_that("Declare argument with mrgsolve", {
           tablefun = tablefun,
           settings = Settings(Declare("SOMETHING"))
         )
-      outputRegressionTest(results, output = "CP", filename = regFilename)
+      output_regression_test(results, output = "CP", filename = regFilename)
     }
   )
-  campsisTest(expression(), test, env = environment())
+  campsis_test(expression(), test, env = environment())
 })

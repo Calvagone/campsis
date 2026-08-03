@@ -15,13 +15,13 @@ test_that("Dose adaptations based on weight work well", {
     add(Covariate("WT", c(100, 50))) %>%
     add(DoseAdaptation("AMT*WT"))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Dose adaptations preserve specified infusion duration", {
@@ -34,13 +34,13 @@ test_that("Dose adaptations preserve specified infusion duration", {
     add(Covariate("WT", c(100, 50))) %>%
     add(DoseAdaptation("AMT*WT"))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Dose adaptations preserve specified infusion rate", {
@@ -63,9 +63,9 @@ test_that("Dose adaptations preserve specified infusion rate", {
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Dose adaptations based on weight work well, check argument compartments works as expected", {
@@ -91,11 +91,11 @@ test_that("Dose adaptations based on weight work well, check argument compartmen
   # Unnamed compartments
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
-    outputRegressionTest(results %>% dplyr::filter(TIME != 0), output = "A_TEST", filename = regFilename), # Remove first time (RxODE:0, mrgsolve:1000)
+    output_regression_test(results, output = "CP", filename = regFilename),
+    output_regression_test(results %>% dplyr::filter(TIME != 0), output = "A_TEST", filename = regFilename), # Remove first time (RxODE:0, mrgsolve:1000)
     spaghettiPlot(results, "A_TEST", "ID")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Same test but with named compartments
   # Dataset with unnamed compartments
@@ -113,9 +113,9 @@ test_that("Dose adaptations based on weight work well, check argument compartmen
   # Unnamed compartments
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
-    outputRegressionTest(results %>% dplyr::filter(TIME != 0), output = "A_TEST", filename = regFilename), # Remove first time (RxODE:0, mrgsolve:1000)
+    output_regression_test(results, output = "CP", filename = regFilename),
+    output_regression_test(results %>% dplyr::filter(TIME != 0), output = "A_TEST", filename = regFilename), # Remove first time (RxODE:0, mrgsolve:1000)
     spaghettiPlot(results, "A_TEST", "ID")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

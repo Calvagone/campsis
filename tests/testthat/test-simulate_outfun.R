@@ -7,7 +7,7 @@ seed <- 1
 source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate with Outfuns returns a named list; single Outfun still returns a data frame", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
 
@@ -26,7 +26,7 @@ test_that("Simulate with Outfuns returns a named list; single Outfun still retur
     seed = seed
   ))
   test <- expression(expect_true(is.data.frame(results)))
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Outfuns with 2 functions at the same level: result must be a named list
   outfuns <- Outfuns() %>%
@@ -42,11 +42,11 @@ test_that("Simulate with Outfuns returns a named list; single Outfun still retur
     expect_true(all(c("custom_campsis_tbl", "campsis_tbl") %in% class(results[["cp"]]))),
     expect_true(all(c("custom_campsis_tbl", "campsis_tbl") %in% class(results[["y"]])))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("apply_outfun on a single-replicate std_campsis_tbl with an Outfuns collection", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
 
@@ -79,11 +79,11 @@ test_that("apply_outfun on a single-replicate std_campsis_tbl with an Outfuns co
     expect_true(all(c("TIME", "metric", "value") %in% colnames(results$cp))),
     expect_true(all(c("TIME", "metric", "value") %in% colnames(results$y)))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("apply_outfun on a multiple-replicate std_campsis_tbl with an Outfuns collection", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
 
@@ -120,11 +120,11 @@ test_that("apply_outfun on a multiple-replicate std_campsis_tbl with an Outfuns 
     expect_true(all(c("TIME", "metric", "value") %in% colnames(results$cp))),
     expect_true(all(c("TIME", "metric", "value") %in% colnames(results$y)))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Use argument 'outfun' with PIOutfun", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
 
@@ -172,11 +172,11 @@ test_that("Use argument 'outfun' with PIOutfun", {
     expect_true(all(c("pi_campsis_tbl", "campsis_tbl") %in% class(results[["pi_CP_Y_90%"]]))),
     expect_true(all(c("pi_campsis_tbl", "campsis_tbl") %in% class(results[["pi_CP_Y_80%"]])))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Use argument 'outfun' with StatsOutfun", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
 
@@ -215,11 +215,11 @@ test_that("Use argument 'outfun' with StatsOutfun", {
     expect_true(all(c("stats_campsis_tbl", "campsis_tbl") %in% class(results[[1]]))),
     expect_true(all(c("stats_campsis_tbl", "campsis_tbl") %in% class(results[[2]])))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Use argument 'outfun' with single StatsOutfun returns data frame", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
 
@@ -239,11 +239,11 @@ test_that("Use argument 'outfun' with single StatsOutfun returns data frame", {
     expect_equal(unique(results$variable), "CP"),
     expect_true(all(unique(results$metric) %in% c("p2.5", "p5", "median", "p95", "p97.5")))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate CTS settings in JSON format that include an output function", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
 
@@ -269,5 +269,5 @@ test_that("Simulate CTS settings in JSON format that include an output function"
     expect_true(is(results, "pi_campsis_tbl")),
     expect_equal(unique(results$replicate), 1:10)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

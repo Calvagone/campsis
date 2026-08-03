@@ -6,7 +6,7 @@ seed <- 1
 source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate 1000mg QD with IOV on KA (1)", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   regFilename <- "3_boluses_iov_ka_1"
@@ -37,10 +37,10 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
       settings = Settings(NOCB(FALSE, "IOV_KA"))
     ))
     test <- expression(
-      outputRegressionTest(results, output = "CP", filename = regFilename, times = obsTimes),
+      output_regression_test(results, output = "CP", filename = regFilename, times = obsTimes),
       spaghettiPlot(results, "CP")
     )
-    campsisTest(simulation, test, env = environment())
+    campsis_test(simulation, test, env = environment())
 
     # NOCB=TRUE
     simulation <- expression(simulate(
@@ -51,16 +51,16 @@ test_that("Simulate 1000mg QD with IOV on KA (1)", {
       settings = Settings(NOCB(TRUE, "IOV_KA"))
     ))
     test <- expression(
-      outputRegressionTest(results, output = "CP", filename = regFilename, times = obsTimes),
+      output_regression_test(results, output = "CP", filename = regFilename, times = obsTimes),
       spaghettiPlot(results, "CP")
     )
-    campsisTest(simulation, test, env = environment())
+    campsis_test(simulation, test, env = environment())
   }
 })
 
 test_that("Simulate 1000mg QD with IOV on KA (2)", {
   # This test could sometimes fail with RxODE version > 1.0.5 & < 1.1.0
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   regFilename <- "3_boluses_iov_ka_2"
@@ -84,10 +84,10 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
     settings = Settings(NOCB(FALSE, "IOV_KA"))
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # NOCB=TRUE
   simulation <- expression(simulate(
@@ -98,15 +98,15 @@ test_that("Simulate 1000mg QD with IOV on KA (2)", {
     settings = Settings(NOCB(TRUE, "IOV_KA"))
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate IOV on F1", {
   # This test always failed with RxODE version > 1.0.5 & < 1.1.0
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   regFilename <- "3_boluses_iiv_iov_f1"
@@ -132,11 +132,11 @@ test_that("Simulate IOV on F1", {
   # IIV only
   model_no_iov <- model %>% disable("IOV")
   dataset_no_iov <- getDataset(model_no_iov)
-  datasetRegressionTest(dataset_no_iov, model_no_iov, seed = seed, filename = "3_boluses_iiv_f1")
+  dataset_regression_test(dataset_no_iov, model_no_iov, seed = seed, filename = "3_boluses_iiv_f1")
 
   # IIV + IOV (RxODE / mrgsolve)
   dataset <- getDataset(model)
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   # NOCB=FALSE
   simulation <- expression(simulate(
@@ -147,10 +147,10 @@ test_that("Simulate IOV on F1", {
     settings = Settings(NOCB(FALSE))
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # NOCB=TRUE
   simulation <- expression(simulate(
@@ -161,16 +161,16 @@ test_that("Simulate IOV on F1", {
     settings = Settings(NOCB(TRUE))
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 
 test_that("Simulate IOV on ALAG1", {
   # This test always failed with RxODE version > 1.0.5 & < 1.1.0
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   regFilename <- "3_boluses_iiv_iov_alag1"
@@ -197,11 +197,11 @@ test_that("Simulate IOV on ALAG1", {
   # IIV only
   model_no_iov <- model %>% disable("IOV")
   dataset_no_iov <- getDataset(model_no_iov, obsTimes)
-  datasetRegressionTest(dataset_no_iov, model_no_iov, seed = seed, filename = "3_boluses_iiv_alag1")
+  dataset_regression_test(dataset_no_iov, model_no_iov, seed = seed, filename = "3_boluses_iiv_alag1")
 
   # IIV + IOV (RxODE / mrgsolve)
   dataset <- getDataset(model, obsTimes)
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   startTimes <- c(0, 24, 47) # 47,48 NOT WORKING WITH MRGSOLVE LOCF
   for (startTime in startTimes) {
@@ -227,10 +227,10 @@ test_that("Simulate IOV on ALAG1", {
       } else {
         results
       },
-      outputRegressionTest(results, output = "CP", filename = regFilename, times = obsTimes),
+      output_regression_test(results, output = "CP", filename = regFilename, times = obsTimes),
       spaghettiPlot(results, "CP")
     )
-    campsisTest(simulation, test, env = environment())
+    campsis_test(simulation, test, env = environment())
 
     # NOCB=TRUE
     simulation <- expression(simulate(
@@ -247,15 +247,15 @@ test_that("Simulate IOV on ALAG1", {
       } else {
         results
       },
-      outputRegressionTest(results, output = "CP", filename = regFilename, times = obsTimes),
+      output_regression_test(results, output = "CP", filename = regFilename, times = obsTimes),
       spaghettiPlot(results, "CP")
     )
-    campsisTest(simulation, test, env = environment())
+    campsis_test(simulation, test, env = environment())
   }
 })
 
 test_that("Simulate IOV on D1", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   regFilename <- "3_infusions_iiv_iov_d1"
@@ -281,11 +281,11 @@ test_that("Simulate IOV on D1", {
   # IIV only
   model_no_iov <- model %>% disable("IOV")
   dataset_no_iov <- getDataset(model_no_iov)
-  datasetRegressionTest(dataset_no_iov, model_no_iov, seed = seed, filename = "3_infusions_iiv_d1")
+  dataset_regression_test(dataset_no_iov, model_no_iov, seed = seed, filename = "3_infusions_iiv_d1")
 
   # IIV + IOV (RxODE / mrgsolve)
   dataset <- getDataset(model)
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   # NOCB=FALSE
   simulation <- expression(simulate(
@@ -296,10 +296,10 @@ test_that("Simulate IOV on D1", {
     settings = Settings(NOCB(FALSE))
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # NOCB=TRUE
   simulation <- expression(simulate(
@@ -310,14 +310,14 @@ test_that("Simulate IOV on D1", {
     settings = Settings(NOCB(TRUE))
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate IOV on F1", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   regFilename <- "3_bolus_iov_on_f1"
@@ -353,10 +353,10 @@ test_that("Simulate IOV on F1", {
       outvars = "F1"
     ))
     test <- expression(
-      outputRegressionTest(results, output = "CP", filename = regFilename, times = obsTimes),
+      output_regression_test(results, output = "CP", filename = regFilename, times = obsTimes),
       spaghettiPlot(results, "CP")
     )
-    campsisTest(simulation, test, env = environment())
+    campsis_test(simulation, test, env = environment())
 
     # NOCB=TRUE
     simulation <- expression(simulate(
@@ -368,9 +368,9 @@ test_that("Simulate IOV on F1", {
       outvars = "F1"
     ))
     test <- expression(
-      outputRegressionTest(results, output = "CP", filename = regFilename, times = obsTimes),
+      output_regression_test(results, output = "CP", filename = regFilename, times = obsTimes),
       spaghettiPlot(results, "CP")
     )
-    campsisTest(simulation, test, env = environment())
+    campsis_test(simulation, test, env = environment())
   }
 })

@@ -19,7 +19,7 @@ test_that("Simulate a bolus without observation", {
       regexp = "Dataset does not contain any observation"
     )
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate a bolus with single observation at time 0", {
@@ -31,11 +31,11 @@ test_that("Simulate a bolus with single observation at time 0", {
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
-    results <- results %>% stripMetadata(),
+    results <- results %>% strip_metadata(),
     expect_equal(nrow(results), 1),
     expect_equal(results[c("ID", "TIME", "CP")], tibble::tibble(ID = 1, TIME = 0, CP = 0))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate a model which is not valid", {
@@ -55,7 +55,7 @@ test_that("Simulate a model which is not valid", {
       regexp = "name is length 2. Should be 1."
     )
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate a dataset which is not valid", {
@@ -75,7 +75,7 @@ test_that("Simulate a dataset which is not valid", {
       regexp = "amount is length 2. Should be 1."
     )
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Covariates must be trimmed by campsis to avoid issues", {
@@ -104,9 +104,9 @@ test_that("Covariates must be trimmed by campsis to avoid issues", {
     outvars = "MY_COV"
   ))
   test <- expression(
-    outputRegressionTest(results, output = "MY_COV", filename = regFilename)
+    output_regression_test(results, output = "MY_COV", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Arm label mapping must first verify the ARM column exists", {
@@ -127,7 +127,7 @@ test_that("Arm label mapping must first verify the ARM column exists", {
     expect_true(nrow(results) == 6),
     expect_false("ARM" %in% results)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Model advan1_trans1 must compile properly with mrgsolve v1.5.2 on Windows", {
@@ -142,9 +142,9 @@ test_that("Model advan1_trans1 must compile properly with mrgsolve v1.5.2 on Win
   simulation <- expression(model %>% simulate(dataset, dest = destEngine, seed = seed))
 
   test <- expression(
-    outputRegressionTest(results, output = "CONC", filename = regFilename)
+    output_regression_test(results, output = "CONC", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("No need to adapt 'future.globals.maxSize' option anymore when dataset is large.", {
@@ -165,7 +165,7 @@ test_that("No need to adapt 'future.globals.maxSize' option anymore when dataset
   # This test will be skipped most of the time
   # Simulation takes 15 seconds approximately with mrgsolve (OK)
   # Simulation is 60x slower with rxode2... (NOK)
-  if (skipVeryLongTests()) {
+  if (skip_very_long_tests()) {
     return(TRUE)
   }
 
@@ -187,5 +187,5 @@ test_that("No need to adapt 'future.globals.maxSize' option anymore when dataset
   test <- expression(
     expect_true(nrow(results) == length(0:months(8)) * 1000)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

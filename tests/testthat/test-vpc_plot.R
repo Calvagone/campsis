@@ -128,7 +128,7 @@ test_that("vpc_plot renders a full VPC from multi-replicate pi_campsis_tbl data"
   # Three ribbons: CI around the median, lower and upper percentiles.
   expect_length(plot$layers, 3)
 
-  if (!skipVdiffrTests()) {
+  if (!skip_vdiffr_tests()) {
     vdiffr::expect_doppelganger("vpc_plot / pi_campsis_tbl / no strata", plot)
   }
 })
@@ -151,7 +151,7 @@ test_that("vpc_plot facets a stratified VPC by ARM (multi-ARM pi_campsis_tbl)", 
   # The plot is facetted (one panel per arm).
   expect_s3_class(plot$facet, "FacetWrap")
 
-  if (!skipVdiffrTests()) {
+  if (!skip_vdiffr_tests()) {
     vdiffr::expect_doppelganger("vpc_plot / pi_campsis_tbl / strata: ARM / facet", plot)
   }
 })
@@ -170,7 +170,7 @@ test_that("vpc_plot colours a stratified VPC by ARM when facet = FALSE", {
   # A fill legend is present, titled by the stratification variable.
   expect_identical(plot$labels$fill, "ARM")
 
-  if (!skipVdiffrTests()) {
+  if (!skip_vdiffr_tests()) {
     vdiffr::expect_doppelganger("vpc_plot / pi_campsis_tbl / strata: ARM / colour", plot)
   }
 })

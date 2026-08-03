@@ -6,7 +6,7 @@ seed <- 1
 source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Weight as a time-varying covariate, NOCB vs LOCF", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -24,7 +24,7 @@ test_that("Weight as a time-varying covariate, NOCB vs LOCF", {
   table <- table %>% dplyr::left_join(weight, by = "TIME")
 
   # Dataset non-regression test
-  datasetRegressionTest(dataset, model, seed = seed, filename = "wt_as_time_varying_cov")
+  dataset_regression_test(dataset, model, seed = seed, filename = "wt_as_time_varying_cov")
 
   # LOCF tests
   regFilename <- "wt_as_time_varying_cov_locf"
@@ -37,10 +37,10 @@ test_that("Weight as a time-varying covariate, NOCB vs LOCF", {
   ))
   # Note: argument declare is only needed for mrgsolve
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # NOCB tests
   regFilename <- "wt_as_time_varying_cov_nocb"
@@ -53,15 +53,15 @@ test_that("Weight as a time-varying covariate, NOCB vs LOCF", {
   ))
   # Note: argument declare is only needed for mrgsolve
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 
 test_that("NOCB/LOCF should not have any effect on treatment occasion", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan4_trans4 %>%
@@ -83,7 +83,7 @@ test_that("NOCB/LOCF should not have any effect on treatment occasion", {
   # table_mrgsolve <- dataset %>% export(dest="mrgsolve", model=model, seed=seed)
 
   # Dataset non-regression test
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   # LOCF tests
   simulation <- expression(simulate(
@@ -95,10 +95,10 @@ test_that("NOCB/LOCF should not have any effect on treatment occasion", {
     outvars = "KA"
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # NOCB tests
   simulation <- expression(simulate(
@@ -110,14 +110,14 @@ test_that("NOCB/LOCF should not have any effect on treatment occasion", {
     outvars = "KA"
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("NOCB/LOCF should not have any effect on IOV, e.g. on clearance", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   regFilename <- "3_boluses_iov_cl"
@@ -146,10 +146,10 @@ test_that("NOCB/LOCF should not have any effect on IOV, e.g. on clearance", {
       seed = seed
     ))
     test <- expression(
-      outputRegressionTest(results, output = "CP", filename = regFilename, times = obsTimes),
+      output_regression_test(results, output = "CP", filename = regFilename, times = obsTimes),
       spaghettiPlot(results, "CP")
     )
-    campsisTest(simulation, test, env = environment())
+    campsis_test(simulation, test, env = environment())
 
     # NOCB tests
     simulation <- expression(simulate(
@@ -160,9 +160,9 @@ test_that("NOCB/LOCF should not have any effect on IOV, e.g. on clearance", {
       seed = seed
     ))
     test <- expression(
-      outputRegressionTest(results, output = "CP", filename = regFilename, times = obsTimes),
+      output_regression_test(results, output = "CP", filename = regFilename, times = obsTimes),
       spaghettiPlot(results, "CP")
     )
-    campsisTest(simulation, test, env = environment())
+    campsis_test(simulation, test, env = environment())
   }
 })

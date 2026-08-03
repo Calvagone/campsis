@@ -22,5 +22,5 @@ test_that("Test generated RUV is correct", {
     eps <- results$Y / results$CP - 1,
     expect_equal(round(var(eps), 3), 0.025)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

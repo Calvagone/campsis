@@ -1,6 +1,6 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
-#
+
 on:
   push:
     branches: [main, develop, snake_case]
@@ -21,14 +21,14 @@ jobs:
         config:
           - {os: macos-latest,   r: 'release'}
           - {os: windows-latest, r: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,  r: 'release'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -44,6 +44,16 @@ jobs:
             any::rcmdcheck
             any::progress
           needs: check
+
+      # Force source installation of rxode2 stack on Windows to resolve DLL procedure entry point errors
+      - name: Reinstall rxode2 from source (Windows only)
+        if: runner.os == 'Windows'
+        shell: Rscript {0}
+        run: |
+          install.packages(
+            c("rxode2parse", "rxode2ll", "rxode2random", "rxode2"),
+            type = "source"
+          )
 
       - uses: r-lib/actions/check-r-package@v2
         with:

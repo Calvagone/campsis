@@ -13,15 +13,15 @@ test_that("Simulate a bolus", {
     add(Bolus(time = 0, amount = 1000, compartment = 1)) %>%
     add(Observations(times = seq(0, 24, by = 0.5)))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49),
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     expect_true(all(c("std_campsis_tbl", "campsis_tbl") %in% class(results)))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate a bolus, single-labelled arm", {
@@ -35,10 +35,10 @@ test_that("Simulate a bolus, single-labelled arm", {
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49),
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     expect_equal(unique(results$ARM), "My Arm") # Check that the arm label is present
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate a bolus, 2 arms", {
@@ -57,14 +57,14 @@ test_that("Simulate a bolus, 2 arms", {
     add(arm1) %>%
     add(arm2)
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(model %>% simulate(dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), dataset %>% length() * 49),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate a bolus, 2 labelled arms", {
@@ -85,9 +85,9 @@ test_that("Simulate a bolus, 2 labelled arms", {
   simulation <- expression(model %>% simulate(dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), dataset %>% length() * 49),
-    outputRegressionTest(results, output = c("CP", "ARM"), filename = regFilename)
+    output_regression_test(results, output = c("CP", "ARM"), filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate multiple doses, with and without the repeat option", {
@@ -123,9 +123,9 @@ test_that("Simulate multiple doses, with and without the repeat option", {
     resultsArm1 <- results %>% dplyr::filter(.data$ARM == "TRT 1") %>% dplyr::mutate(ID = 0),
     resultsArm2 <- results %>% dplyr::filter(.data$ARM == "TRT 2") %>% dplyr::mutate(ID = 0),
     resultsArm3 <- results %>% dplyr::filter(.data$ARM == "TRT 3") %>% dplyr::mutate(ID = 0),
-    outputRegressionTest(resultsArm1, output = c("CP"), filename = regFilename),
-    outputRegressionTest(resultsArm2, output = c("CP"), filename = regFilename),
-    outputRegressionTest(resultsArm3, output = c("CP"), filename = regFilename)
+    output_regression_test(resultsArm1, output = c("CP"), filename = regFilename),
+    output_regression_test(resultsArm2, output = c("CP"), filename = regFilename),
+    output_regression_test(resultsArm3, output = c("CP"), filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

@@ -6,7 +6,7 @@ seed <- 1
 source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simple interrutpions - No events", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -28,20 +28,20 @@ test_that("Simple interrutpions - No events", {
   # With events
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = events, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Without events
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = NULL, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Interruptions at doses times - BW covariate - No events", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -68,20 +68,20 @@ test_that("Interruptions at doses times - BW covariate - No events", {
   # With events
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = events, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Without events
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = NULL, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Interruptions at doses times - BW covariate - IOV on KA - No events", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -115,21 +115,21 @@ test_that("Interruptions at doses times - BW covariate - IOV on KA - No events",
   # With events
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = events, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Without events
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = NULL, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 
 test_that("Simulate initial conditions + events", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan3_trans4
@@ -148,13 +148,13 @@ test_that("Simulate initial conditions + events", {
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = events, seed = seed))
   test <- expression(
-    outputRegressionTest(results %>% dplyr::filter(TIME >= 5), output = "CP", filename = regFilename)
+    output_regression_test(results %>% dplyr::filter(TIME >= 5), output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate multiple arms + events", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -183,14 +183,14 @@ test_that("Simulate multiple arms + events", {
   # With events
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = events, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Without events
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = NULL, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

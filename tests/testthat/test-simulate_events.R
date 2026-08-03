@@ -6,7 +6,7 @@ seed <- 1
 source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Clear central compartment events", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -25,14 +25,14 @@ test_that("Clear central compartment events", {
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = events, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP") # Still drug in A_PERIPHERAL
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Give daily dose in absortion", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -50,14 +50,14 @@ test_that("Give daily dose in absortion", {
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = events, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Daily dose in dataset + daily dose through events", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan4_trans4
@@ -76,14 +76,14 @@ test_that("Daily dose in dataset + daily dose through events", {
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, events = events, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Body weight as an event covariate", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan2_trans2
@@ -118,14 +118,14 @@ test_that("Body weight as an event covariate", {
     outvars = "BW"
   ))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename),
+    output_regression_test(results, output = "CP", filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Dose adaptation based on Ctrough", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan2_trans2
@@ -153,8 +153,8 @@ test_that("Dose adaptation based on Ctrough", {
     outvars = "DOSE"
   ))
   test <- expression(
-    outputRegressionTest(results, output = c("CP", "DOSE"), filename = regFilename),
+    output_regression_test(results, output = c("CP", "DOSE"), filename = regFilename),
     spaghettiPlot(results, "CP")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

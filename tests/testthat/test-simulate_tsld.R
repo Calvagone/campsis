@@ -22,9 +22,9 @@ test_that("Weibull model simulation works as expected", {
   # Export TDOS only
   simulation <- expression(simulate(model = model, dataset = ds, dest = destEngine, seed = seed, settings = settings))
   test <- expression(
-    outputRegressionTest(results, output = "CONC", filename = regFilename)
+    output_regression_test(results, output = "CONC", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Now export TSLD as well
   config <- DatasetConfig(exportTSLD = TRUE, exportTDOS = TRUE)
@@ -48,5 +48,5 @@ test_that("Weibull model simulation works as expected", {
     },
     expect_equal(results_$TSLD, expected)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

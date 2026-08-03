@@ -8,7 +8,7 @@ seed <- 1
 source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("VPC on CP, using predicate", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$other$my_model1
@@ -28,9 +28,9 @@ test_that("VPC on CP, using predicate", {
     seed = seed
   ))
   test <- expression(
-    vpcOutputRegressionTest(results, output = "CP", filename = regFilename)
+    vpc_output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Same but using the replicated Campsis model object
   # Please note that 'replicates' is omitted from the simulate function
@@ -48,13 +48,13 @@ test_that("VPC on CP, using predicate", {
     seed = seed
   ))
   test <- expression(
-    vpcOutputRegressionTest(results, output = "CP", filename = regFilename)
+    vpc_output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("VPC on both CP and Y, using function", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$other$my_model1
@@ -75,13 +75,13 @@ test_that("VPC on both CP and Y, using function", {
   ))
   test <- expression(
     vpcPlot(results %>% dplyr::rename(output = variable), strata = c(output = "all")) + facet_wrap(~output),
-    vpcOutputRegressionTest(results, output = "CP", filename = regFilename)
+    vpc_output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Study replication also works with scenarios", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
 
@@ -107,14 +107,14 @@ test_that("Study replication also works with scenarios", {
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
     expect_true(all(results$SCENARIO %>% unique() == c("Base model", "Increased KA"))),
-    if (!skipVdiffrTests()) {
+    if (!skip_vdiffr_tests()) {
       vdiffr::expect_doppelganger(
         sprintf("VPC / specified outfun / %s (A)", destEngine),
         vpcPlot(results, strata = c(SCENARIO = "all")) + facet_wrap(~SCENARIO)
       )
     }
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Outfun executed at the level of the replicate (possible since Campsis v1.5.3)
   simulation <- expression(simulate(
@@ -129,14 +129,14 @@ test_that("Study replication also works with scenarios", {
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
     expect_true(all(results$SCENARIO %>% unique() == c("Base model", "Increased KA"))),
-    if (!skipVdiffrTests()) {
+    if (!skip_vdiffr_tests()) {
       vdiffr::expect_doppelganger(
         sprintf("VPC / specified outfun / %s (B)", destEngine),
         vpcPlot(results, strata = c(SCENARIO = "all")) + facet_wrap(~SCENARIO)
       )
     }
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Alternatively, function and arguments may also be passed (possible since Campsis v1.5.3)
   # This is particularly useful when parallelisation on replicates is enabled since
@@ -153,18 +153,18 @@ test_that("Study replication also works with scenarios", {
   test <- expression(
     expect_true(all(c("replicate", "TIME", "metric", "value", "SCENARIO") %in% colnames(results))),
     expect_true(all(results$SCENARIO %>% unique() == c("Base model", "Increased KA"))),
-    if (!skipVdiffrTests()) {
+    if (!skip_vdiffr_tests()) {
       vdiffr::expect_doppelganger(
         sprintf("VPC / specified outfun / %s (C)", destEngine),
         vpcPlot(results, strata = c(SCENARIO = "all")) + facet_wrap(~SCENARIO)
       )
     }
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Try/catch works as expected if one replicate fails", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan2_trans2
@@ -207,11 +207,11 @@ test_that("Try/catch works as expected if one replicate fails", {
       expect_false(any(is.na(results$CP)))
     }
   )
-  campsisTest(expression(), test, env = environment())
+  campsis_test(expression(), test, env = environment())
 })
 
 test_that("Replicates can be simulated in parallel", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   # progressr::handlers(global=TRUE)
@@ -238,9 +238,9 @@ test_that("Replicates can be simulated in parallel", {
   ))
   test <- expression(
     expect_equal(results$EPSILON %>% unique() %>% length(), 625), # Check RUV is unique
-    outputRegressionTest(results, output = "CONC", filename = regFilename)
+    output_regression_test(results, output = "CONC", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # Running 25 replicates with only 1 CPU
   setup_plan_sequential()
@@ -256,13 +256,13 @@ test_that("Replicates can be simulated in parallel", {
   ))
   test <- expression(
     expect_equal(results$EPSILON %>% unique() %>% length(), 625), # Check RUV is unique
-    outputRegressionTest(results, output = "CONC", filename = regFilename)
+    output_regression_test(results, output = "CONC", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("SIGMAs are correctly updated from replicate to replicate", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
 
@@ -299,7 +299,7 @@ test_that("SIGMAs are correctly updated from replicate to replicate", {
     expect_equal(summary$SD2, c(0.4, 0.5, 0.6), tolerance = 0.005)
   )
 
-  campsisTest(simulation1, test, env = environment())
+  campsis_test(simulation1, test, env = environment())
 
   # Or equivalently
   settings <- Settings(ManualReplicationSettings(data = repData))
@@ -312,5 +312,5 @@ test_that("SIGMAs are correctly updated from replicate to replicate", {
     settings = settings
   ))
 
-  campsisTest(simulation2, test, env = environment())
+  campsis_test(simulation2, test, env = environment())
 })

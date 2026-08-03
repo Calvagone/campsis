@@ -14,8 +14,8 @@ test_that("Simulate a minimalist model, no parameters/IIV/error model", {
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "A_CENTRAL", filename = regFilename),
+    output_regression_test(results, output = "A_CENTRAL", filename = regFilename),
     spaghettiPlot(results, "A_CENTRAL")
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

@@ -6,7 +6,7 @@ seed <- 1
 source(file.path(getwd(), test_path(), "test-utils.R"))
 
 test_that("Simulate infusion using duration in dataset, then in model", {
-  if (skipLongTests()) {
+  if (skip_long_tests()) {
     return(TRUE)
   }
   model <- model_suite$testing$nonmem$advan3_trans4
@@ -17,14 +17,14 @@ test_that("Simulate infusion using duration in dataset, then in model", {
     add(Infusion(time = 0, amount = 1000, compartment = 1, duration = 5)) %>%
     add(Observations(times = seq(0, 24, by = 0.5)))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # 5 hours infusion duration implemented in model
   dataset <- Dataset() %>%
@@ -36,9 +36,9 @@ test_that("Simulate infusion using duration in dataset, then in model", {
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate infusion using rate in dataset", {
@@ -50,14 +50,14 @@ test_that("Simulate infusion using rate in dataset", {
     add(Infusion(time = 0, amount = 1000, compartment = 1, rate = 200)) %>%
     add(Observations(times = seq(0, 24, by = 0.5)))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 
   # 5 hours infusion duration implemented in model
   dataset <- Dataset()
@@ -69,9 +69,9 @@ test_that("Simulate infusion using rate in dataset", {
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate infusion using rate and lag time in dataset", {
@@ -87,14 +87,14 @@ test_that("Simulate infusion using rate and lag time in dataset", {
     add(Infusion(time = 0, amount = 1000, compartment = 1, duration = duration, lag = lag)) %>%
     add(Observations(times = seq(0, 24, by = 0.5)))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49 * dataset %>% length()),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate infusion using rate and lag time (parameter distribution) in dataset", {
@@ -108,12 +108,12 @@ test_that("Simulate infusion using rate and lag time (parameter distribution) in
   dataset <- dataset %>% add(Infusion(time = 0, amount = 1000, compartment = 1, rate = 200, lag = lag))
   dataset <- dataset %>% add(Observations(times = seq(0, 24, by = 0.5)))
 
-  datasetRegressionTest(dataset, model, seed = seed, filename = regFilename)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
     expect_equal(nrow(results), 49 * dataset %>% length()),
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

@@ -16,9 +16,9 @@ test_that("Simulate initial conditions, observations starting at 0", {
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
-    outputRegressionTest(results %>% dplyr::filter(TIME >= 5), output = "CP", filename = regFilename)
+    output_regression_test(results %>% dplyr::filter(TIME >= 5), output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Simulate initial conditions, observations starting at 5", {
@@ -32,7 +32,7 @@ test_that("Simulate initial conditions, observations starting at 5", {
 
   simulation <- expression(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed))
   test <- expression(
-    outputRegressionTest(results, output = "CP", filename = regFilename)
+    output_regression_test(results, output = "CP", filename = regFilename)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

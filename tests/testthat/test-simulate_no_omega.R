@@ -27,5 +27,5 @@ test_that("Simulate a 1-cpt model without OMEGA's/SIGMA's - Github issue #8", {
     expect_equal(subject1, subject2),
     expect_equal(subject2, subject3)
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })

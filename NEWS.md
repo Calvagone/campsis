@@ -9,6 +9,7 @@
 * Migrate campsis to snake_case #208
 * Update pkgdown documentation #209
 * Format code with Air #211
+* Remove backward compatibility with old RxODE package #212
 
 # campsis 1.8.2
 

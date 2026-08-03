@@ -38,7 +38,7 @@ test_that("NULL outvars", {
     },
     expect_true(all(expected %in% colnames(results)))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Not NULL outvars", {
@@ -75,7 +75,7 @@ test_that("Not NULL outvars", {
     },
     expect_true(all(expected %in% colnames(results)))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Not NULL outvars + DROP_OTHERS", {
@@ -96,7 +96,7 @@ test_that("Not NULL outvars + DROP_OTHERS", {
     expected <- c("ID", "TIME", "ARM", "KA"),
     expect_equal(expected, colnames(results))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Not NULL outvars from ERROR block + DROP_OTHERS", {
@@ -117,7 +117,7 @@ test_that("Not NULL outvars from ERROR block + DROP_OTHERS", {
     expected <- c("ID", "TIME", "ARM", "Y"),
     expect_equal(expected, colnames(results))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("Covariates in outvars can be output well", {
@@ -140,7 +140,7 @@ test_that("Covariates in outvars can be output well", {
     expect_true(all(expected %in% colnames(results))),
     expect_true(all(colnames(results) %in% expected))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
 
 test_that("ETAs in outvars can be output well", {
@@ -162,5 +162,5 @@ test_that("ETAs in outvars can be output well", {
     expect_true(all(expected %in% colnames(results))),
     expect_true(all(colnames(results) %in% expected))
   )
-  campsisTest(simulation, test, env = environment())
+  campsis_test(simulation, test, env = environment())
 })
