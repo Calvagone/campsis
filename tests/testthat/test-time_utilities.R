@@ -29,11 +29,11 @@ test_that("Time related columns in dataset are properly converted when needed", 
 
   tableA <- datasetA %>%
     add(DatasetConfig(timeUnitExport = "day", exportTSLD = TRUE, exportTDOS = TRUE)) %>%
-    export(dest = "RxODE")
+    export(dest = "rxode2")
 
   tableB <- datasetB %>%
     add(DatasetConfig(timeUnitExport = "hour", exportTSLD = TRUE, exportTDOS = TRUE)) %>% # Default
-    export(dest = "RxODE") %>%
+    export(dest = "rxode2") %>%
     dplyr::mutate(TIME = TIME / 24, TDOS = TDOS / 24, TSLD = TSLD / 24)
 
   expect_equal(tableA, tableB)

@@ -17,12 +17,12 @@ test_that("Fixed covariates (including bootstrap) are correctly dealth with when
   # Default setting (no parallelisation)
   settings1 <- Settings()
 
-  table1 <- dataset %>% export(dest = "RxODE", settings = settings1)
+  table1 <- dataset %>% export(dest = "rxode2", settings = settings1)
 
   # Parallelisation with 2 CPU's and slice of 5 subjects
   settings2 <- Settings(Hardware(cpu = 2, dataset_parallel = T, dataset_slice_size = 5))
 
-  table2 <- dataset %>% export(dest = "RxODE", settings = settings2)
+  table2 <- dataset %>% export(dest = "rxode2", settings = settings2)
 
   expect_equal(table1, table2)
   expect_equal(table1$BW %>% unique(), bws)
@@ -68,12 +68,12 @@ test_that("Time-varying covariates are correctly dealth with when parallelisatio
   # Default setting (no parallelisation)
   settings1 <- Settings()
 
-  table1 <- dataset %>% export(dest = "RxODE", settings = settings1)
+  table1 <- dataset %>% export(dest = "rxode2", settings = settings1)
 
   # Parallelisation with 2 CPU's and slice of 5 subjects
   settings2 <- Settings(Hardware(cpu = 2, dataset_parallel = T, dataset_slice_size = 5))
 
-  table2 <- dataset %>% export(dest = "RxODE", settings = settings2)
+  table2 <- dataset %>% export(dest = "rxode2", settings = settings2)
 
   expect_equal(table1, table2)
   expect_equal(table1$BW %>% unique(), db$VALUE %>% unique())
@@ -99,7 +99,7 @@ test_that("Time-varying covariates are correctly dealth with when parallelisatio
   dataset_ <- Dataset() %>%
     add(c(arm1, arm2))
 
-  table3b <- dataset_ %>% export(dest = "RxODE", settings = settings3)
+  table3b <- dataset_ %>% export(dest = "rxode2", settings = settings3)
 
   # Identical tables except ARM column
   expect_equal(table3 %>% dplyr::select(-ARM), table3b %>% dplyr::select(-ARM))
@@ -125,12 +125,12 @@ test_that("Arms are correctly dealth with when parallelisation is enabled", {
   # Default setting (no parallelisation)
   settings1 <- Settings()
 
-  table1 <- dataset %>% export(dest = "RxODE", settings = settings1)
+  table1 <- dataset %>% export(dest = "rxode2", settings = settings1)
 
   # Parallelisation with 2 CPU's and slice of 4 subjects
   settings2 <- Settings(Hardware(cpu = 2, dataset_parallel = T, dataset_slice_size = 4))
 
-  table2 <- dataset %>% export(dest = "RxODE", settings = settings2)
+  table2 <- dataset %>% export(dest = "rxode2", settings = settings2)
 
   expect_equal(table1, table2)
   expect_equal(table1$BW %>% unique(), c(bws_arm1, bws_arm2))
@@ -179,20 +179,20 @@ test_that("Dataset export may vary if parallelisation is used when covariates/IO
   # Default setting (no parallelisation)
   settings1 <- Settings()
   setup_plan_sequential()
-  table1 <- dataset %>% export(dest = "RxODE", settings = settings1, seed = seed)
+  table1 <- dataset %>% export(dest = "rxode2", settings = settings1, seed = seed)
   datasetRegressionTest(dataset, model, seed = seed, filename = regFilenameDisabled)
 
   # Parallelisation with 2 CPU's and slice of 10 subjects
   settings2 <- Settings(Hardware(cpu = 2, dataset_parallel = T, dataset_slice_size = 10))
   setup_plan_default(settings2@hardware)
-  table2 <- dataset %>% export(dest = "RxODE", settings = settings2, seed = seed)
+  table2 <- dataset %>% export(dest = "rxode2", settings = settings2, seed = seed)
   datasetRegressionTest(
     dataset,
     model,
     seed = seed,
     filename = regFilenameEnabled,
     settings = settings2,
-    dest = "RxODE"
+    dest = "rxode2"
   )
   datasetRegressionTest(
     dataset,
@@ -206,14 +206,14 @@ test_that("Dataset export may vary if parallelisation is used when covariates/IO
   # Parallelisation with 3 CPU's and slice of 10 subjects
   settings3 <- Settings(Hardware(cpu = 3, dataset_parallel = T, dataset_slice_size = 10))
   setup_plan_default(settings3@hardware)
-  table3 <- dataset %>% export(dest = "RxODE", settings = settings3, seed = seed)
+  table3 <- dataset %>% export(dest = "rxode2", settings = settings3, seed = seed)
   datasetRegressionTest(
     dataset,
     model,
     seed = seed,
     filename = regFilenameEnabled,
     settings = settings3,
-    dest = "RxODE"
+    dest = "rxode2"
   )
   datasetRegressionTest(
     dataset,

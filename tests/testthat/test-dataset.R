@@ -42,7 +42,7 @@ test_that("Add entry, order, filter, get_times (simple example)", {
   expect_equal(dataset %>% get_times(), seq(0, 48, by = 4))
 
   # Export to RxODE
-  table1 <- dataset %>% export(dest = "RxODE")
+  table1 <- dataset %>% export(dest = "rxode2")
   expect_equal(nrow(table1), 16)
   expect_true(is(table1, "tbl_df"))
 
@@ -78,7 +78,7 @@ test_that("Two arms example", {
   expect_equal(length(dataset@arms), 2)
 
   # Export to RxODE
-  table <- dataset %>% export(dest = "RxODE")
+  table <- dataset %>% export(dest = "rxode2")
   expect_equal(nrow(table), 98)
 
   # Replace numbers of subjects in second arm
@@ -104,7 +104,7 @@ test_that("Export using config", {
   # Export to RxODE
   config <- DatasetConfig(defObsCmt = 2)
   dataset <- dataset %>% add(config)
-  table <- dataset %>% export(dest = "RxODE")
+  table <- dataset %>% export(dest = "rxode2")
 
   expect_true(all(c(1, 2) %in% table$CMT))
 })
@@ -131,7 +131,7 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   # Export to RxODE N=1
   config <- DatasetConfig(defObsCmt = 2)
   dataset <- dataset %>% add(config)
-  table <- dataset %>% export(dest = "RxODE")
+  table <- dataset %>% export(dest = "rxode2")
 
   expect_true(all(table$WT == 70))
   expect_true(all(table$HT == 180))
@@ -143,7 +143,7 @@ test_that("Export constant covariates work well (N=1, N=2)", {
   dataset@arms <- dataset@arms %>% replace(arm)
 
   dataset <- dataset %>% add(config)
-  table <- dataset %>% export(dest = "RxODE")
+  table <- dataset %>% export(dest = "rxode2")
 
   expect_true(all(table$WT == 70))
   expect_true(all(table$HT == 180))
@@ -171,7 +171,7 @@ test_that("Export fixed covariates work well (N=3)", {
   # Export to RxODE N=1
   config <- DatasetConfig(defObsCmt = 2)
   dataset <- dataset %>% add(config)
-  table <- dataset %>% export(dest = "RxODE")
+  table <- dataset %>% export(dest = "rxode2")
 
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct()
   expect_equal(subTable, tibble::tibble(ID = c(1, 2, 3), WT = c(65, 70, 75), HT = c(175, 180, 185)))
@@ -199,7 +199,7 @@ test_that("Export function covariates work well (N=3)", {
   # Export to RxODE N=1
   config <- new("dataset_config", def_depot_cmt = as.integer(1), def_obs_cmt = as.integer(2))
   dataset <- dataset %>% add(config)
-  table <- dataset %>% export(dest = "RxODE", seed = 1)
+  table <- dataset %>% export(dest = "rxode2", seed = 1)
 
   subTable <- table %>%
     dplyr::select(ID, WT, HT) %>%
@@ -229,7 +229,7 @@ test_that("Export boostrap covariates work well (N=8)", {
   # Export to RxODE
   config <- DatasetConfig(defObsCmt = 2)
   dataset <- dataset %>% add(config)
-  table <- dataset %>% export(dest = "RxODE", seed = 1)
+  table <- dataset %>% export(dest = "rxode2", seed = 1)
 
   subTable <- table %>% dplyr::select(ID, WT, HT) %>% dplyr::distinct()
   expect_equal(
@@ -257,7 +257,7 @@ test_that("Export occasions works well - example 1", {
   ds <- ds %>% add(Occasion("MY_OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3)))
 
   # Export to RxODE
-  table <- ds %>% export(dest = "RxODE", seed = 1)
+  table <- ds %>% export(dest = "rxode2", seed = 1)
 
   # All OCC values are used because 3 doses
   expect_equal(table$MY_OCC, rep(c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3), 2))
@@ -277,7 +277,7 @@ test_that("Export occasions works well - example 2", {
   ds <- ds %>% add(Occasion("MY_OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3)))
 
   # Export to RxODE
-  table <- ds %>% export(dest = "RxODE", seed = 1)
+  table <- ds %>% export(dest = "rxode2", seed = 1)
 
   # Check value 3 is not used (no 3rd dose)
   expect_equal(table$MY_OCC, rep(c(1, 1, 1, 1, 2, 2, 2, 2, 2), 2))
@@ -300,7 +300,7 @@ test_that("Export occasions works well - example 3", {
   ds <- ds %>% add(Occasion("MY_OCC", values = c(1, 2, 4), doseNumbers = c(1, 2, 4)))
 
   # Export to RxODE
-  table <- ds %>% export(dest = "RxODE", seed = 1)
+  table <- ds %>% export(dest = "rxode2", seed = 1)
 
   # All OCC values are used because 3 doses
   expect_equal(table$MY_OCC, rep(c(1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 4, 4), 2))
@@ -322,7 +322,7 @@ test_that("Export occasions works well - example 4", {
   ds <- ds %>% add(Occasion("MY_OCC", values = c(2, 3, 4), doseNumbers = c(2, 3, 4)))
 
   # Export to RxODE
-  table <- ds %>% export(dest = "RxODE", seed = 1)
+  table <- ds %>% export(dest = "rxode2", seed = 1)
 
   # Is this the expected behaviour ? This is arbitrary, for sure
   expect_equal(table$MY_OCC, rep(c(0, 0, 0, 0, 2, 2, 2, 3, 3, 3, 3, 4, 4), 2))
@@ -348,7 +348,7 @@ test_that("Occasion can be added into arms", {
   ds <- Dataset() %>% add(c(arm1, arm2))
 
   # Export to RxODE
-  table <- ds %>% export(dest = "RxODE", seed = 1)
+  table <- ds %>% export(dest = "rxode2", seed = 1)
 
   # All OCC values are used because 3 doses
   expect_equal(table$MY_OCC, rep(c(1, 1, 1, 1, 2, 2, 2, 3, 3, 3), 2))
@@ -370,7 +370,7 @@ test_that("Export IOV works well - example 1", {
   ds <- ds %>% add(IOV("IOV_KA", distribution = NormalDistribution(0, sd = 1), doseNumbers = c(3, 4)))
 
   # Export to RxODE
-  table <- ds %>% export(dest = "RxODE", seed = 1)
+  table <- ds %>% export(dest = "rxode2", seed = 1)
 
   # Arbitrary but OK
   expect_equal(
@@ -422,7 +422,7 @@ test_that("Export IOV works well - example 2", {
   ds <- ds %>% add(IOV("IOV_KA", distribution = NormalDistribution(0, sd = 1), doseNumbers = c(1, 3)))
 
   # Export to RxODE
-  table <- ds %>% export(dest = "RxODE", seed = 1)
+  table <- ds %>% export(dest = "rxode2", seed = 1)
 
   # Arbitrary but OK
   expect_equal(
@@ -561,7 +561,7 @@ test_that("Export works well even if objects are defined in a different order", 
     add(Bolus(time = 0, amount = 2000, compartment = 1, ii = 24, addl = 2))
 
   ds <- Dataset() %>% add(c(arm1, arm2))
-  table <- ds %>% export(dest = "RxODE")
+  table <- ds %>% export(dest = "rxode2")
 
   datasetRegressionTest(dataset = ds, seed = 1, doseOnly = FALSE, filename = regFilename)
 })
@@ -596,7 +596,7 @@ test_that("Any layer added to the multiple-arm dataset apply to each arm.", {
   arm2 <- dataset %>% find(Arm(2))
   expect_true(!is.null(arm2 %>% find(IOV("IOVKA", distribution = 0))))
 
-  table <- dataset %>% export(dest = "RxODE", seed = 1)
+  table <- dataset %>% export(dest = "rxode2", seed = 1)
 
   datasetRegressionTest(dataset = dataset, seed = 1, doseOnly = FALSE, filename = regFilename)
 })
@@ -705,7 +705,7 @@ test_that("Compartment properties can be vectorised", {
     add(bolus) %>%
     add(infusion)
 
-  table <- dataset %>% export(dest = "RxODE", seed = 1)
+  table <- dataset %>% export(dest = "rxode2", seed = 1)
 
   # First non-regression test
   datasetRegressionTest(dataset = dataset, seed = 1, doseOnly = TRUE, filename = regFilename)

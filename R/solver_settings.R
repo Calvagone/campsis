@@ -11,7 +11,7 @@
 #' @slot rtol relative solver tolerance, default is 1e-08
 #' @slot hmax limit how big a solver step can be, default is NA
 #' @slot maxsteps max steps between 2 integration times (e.g. when observations records are far apart), default is 70000
-#' @slot method solver method, for RxODE/rxode2 only: 'liblsoda' (default), 'lsoda', 'dop853', 'indLin'. Mrgsolve's method is always 'lsoda'.
+#' @slot method solver method, for rxode2 only: 'liblsoda' (default), 'lsoda', 'dop853', 'indLin'. Mrgsolve's method is always 'lsoda'.
 #' @export
 setClass(
   "solver_settings",
@@ -32,7 +32,7 @@ setClass(
 #' @param rtol relative solver tolerance, default is 1e-08
 #' @param hmax limit how big a solver step can be, default is NA
 #' @param maxsteps max steps between 2 integration times (e.g. when observations records are far apart), default is 70000
-#' @param method solver method, for RxODE/rxode2 only: 'liblsoda' (default), 'lsoda', 'dop853', 'indLin'. Mrgsolve's method is always 'lsoda'.
+#' @param method solver method, for rxode2 only: 'liblsoda' (default), 'lsoda', 'dop853', 'indLin'. Mrgsolve's method is always 'lsoda'.
 #'
 #' @return solver settings
 #' @export

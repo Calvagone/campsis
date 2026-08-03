@@ -2,23 +2,21 @@
 #' engine is not installed.
 #'
 #' @param dest destination engine
-#' @return 'rxode2', 'RxODE' or 'mrgsolve'
+#' @return 'rxode2' or 'mrgsolve'
 #' @keywords internal
 #'
 preprocess_dest <- function(dest) {
   if (is.null(dest)) {
     if (find.package("rxode2", quiet = TRUE) %>% length() > 0) {
       dest <- "rxode2" # Default package
-    } else if (find.package("RxODE", quiet = TRUE) %>% length() > 0) {
-      dest <- "RxODE"
     } else if (find.package("mrgsolve", quiet = TRUE) %>% length() > 0) {
       dest <- "mrgsolve"
     } else {
-      stop("Simulation engine 'rxode2', 'RxODE' or 'mrgsolve' is required to run Campsis")
+      stop("Simulation engine 'rxode2' or 'mrgsolve' is required to run Campsis")
     }
   } else if (is.vector(dest)) {
-    if (!(dest %in% c("rxode2", "RxODE", "mrgsolve"))) {
-      stop("Argument 'dest' must be one of: 'rxode2', 'RxODE', 'mrgsolve' or NULL")
+    if (!(dest %in% c("rxode2", "mrgsolve"))) {
+      stop("Argument 'dest' must be one of: 'rxode2', 'mrgsolve' or NULL")
     }
     if (find.package(dest, quiet = TRUE) %>% length() == 0) {
       stop(paste0("Simulation engine '", dest, "' is not installed"))
@@ -186,8 +184,8 @@ preprocess_settings <- function(settings, dest) {
     if (dest == "mrgsolve") {
       settings@hardware@slice_size <- as.integer(500)
     } else {
-      # There seems to be an issue in RxODE/rxode2 when dealing with large datasets
-      # From what I notice, a too large slice size (e.g. > 25) slows down RxODE/rxode2
+      # There seems to be an issue in rxode2 when dealing with large datasets
+      # From what I notice, a too large slice size (e.g. > 25) slows down rxode2
       # while mrgsolve can work with a large slice size without any problem...
       settings@hardware@slice_size <- as.integer(6)
     }

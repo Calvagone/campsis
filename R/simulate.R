@@ -100,13 +100,11 @@ setGeneric(
 #'
 get_simulation_engine_type <- function(dest) {
   if (dest == "rxode2") {
-    engine <- new("rxode_engine", rxode2 = TRUE)
-  } else if (dest == "RxODE") {
-    engine <- new("rxode_engine", rxode2 = FALSE)
+    engine <- new("rxode_engine")
   } else if (dest == "mrgsolve") {
     engine <- new("mrgsolve_engine")
   } else {
-    stop("Only rxode2, RxODE and mrgsolve are supported for now")
+    stop("Only rxode2 and mrgsolve are supported for now")
   }
   return(engine)
 }
@@ -779,9 +777,10 @@ process_simulate_arguments <- function(model, dataset, dest, outvars, dosing, se
   # Compartment names
   cmtNames <- model@compartments@list %>% purrr::map_chr(~ .x %>% to_string())
 
-  # Export to RxODE / rxode2
+  # Export to rxode2
   if (is(dest, "rxode_engine")) {
-    engineModel <- model %>% export(dest = "RxODE")
+    engineModel <- model %>%
+      export(dest = "rxode2")
 
     # Export to mrgsolve
   } else if (is(dest, "mrgsolve_engine")) {
@@ -926,29 +925,13 @@ setMethod(
 
     # Instantiate RxODE model
     rxmod <- config$engineModel
-    if (dest@rxode2) {
-      mod <- rxode2::rxode2(model = paste0(rxmod@code, collapse = "\n"), envir = NULL)
-    } else {
-      # For backwards compatibility since RxODE isn't on CRAN anymore
-      fun <- getExportedValue("RxODE", "RxODE")
-      mod <- do.call(fun, list(paste0(rxmod@code, collapse = "\n")))
-    }
+    mod <- rxode2::rxode2(model = paste0(rxmod@code, collapse = "\n"), envir = NULL)
 
     # Preparing parameters
     params <- rxmod@theta
     sigma <- rxmod@sigma
     if (nrow(sigma) == 0) {
       sigma <- NULL
-    }
-
-    # Fake OMEGA to avoid RxODE warning if several subjects in dataset
-    if (dest@rxode2) {
-      omega <- FALSE
-    } else {
-      omega <- matrix(1)
-      fakeEtaName <- "FAKE_ETA"
-      rownames(omega) <- fakeEtaName
-      colnames(omega) <- fakeEtaName
     }
 
     # Prepare simulation
@@ -965,12 +948,11 @@ setMethod(
     sliceFunRxode <- function(subdataset, index) {
       inits <- get_initial_conditions(subdataset, iteration = config$iteration, cmtNames = config$cmtNames)
 
-      # Launch simulation with RxODE
-      if (dest@rxode2) {
-        tmp <- rxode2::rxSolve(
+      # Launch simulation with rxode2
+      tmp <- rxode2::rxSolve(
           object = mod,
           params = params,
-          omega = omega,
+          omega = FALSE,
           sigma = sigma,
           events = subdataset,
           returnType = "tibble",
@@ -986,31 +968,6 @@ setMethod(
           addCov = FALSE,
           cores = 1
         )
-      } else {
-        # For backwards compatibility since RxODE isn't on CRAN anymore
-        fun <- getExportedValue("RxODE", "rxSolve")
-        tmp <- do.call(
-          fun,
-          list(
-            object = mod,
-            params = params,
-            omega = omega,
-            sigma = sigma,
-            events = subdataset,
-            returnType = "tibble",
-            atol = solver@atol,
-            rtol = solver@rtol,
-            hmax = solver@hmax,
-            maxsteps = solver@maxsteps,
-            method = solver@method,
-            keep = keep,
-            inits = inits,
-            covs_interpolation = ifelse(nocb, "nocb", "constant"),
-            addDosing = dosing,
-            cores = 1
-          )
-        )
-      }
 
       # Tick progress
       if (tick_slice) {

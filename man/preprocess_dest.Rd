@@ -11,7 +11,7 @@ preprocess_dest(dest)
 \item{dest}{destination engine}
 }
 \value{
-'rxode2', 'RxODE' or 'mrgsolve'
+'rxode2' or 'mrgsolve'
 }
 \description{
 Pre-process destination engine. Throw an error message if the destination

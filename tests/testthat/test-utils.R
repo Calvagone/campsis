@@ -44,7 +44,7 @@ datasetRegressionTest <- function(
   doseOnly = TRUE,
   filename,
   settings = Settings(),
-  dest = "RxODE"
+  dest = "rxode2"
 ) {
   dataset1 <- datasetInMemory(
     dataset = dataset,

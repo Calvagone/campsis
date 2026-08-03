@@ -14,7 +14,7 @@ test_that("Argument dest works well", {
   # Unknown engine
   expect_error(
     model %>% simulate(dataset = dataset, dest = "ENGINE3"),
-    regexp = "Argument 'dest' must be one of: 'rxode2', 'RxODE', 'mrgsolve' or NULL"
+    regexp = "Argument 'dest' must be one of: 'rxode2', 'mrgsolve' or NULL"
   )
 
   if (noEngineInstalled()) {
@@ -44,7 +44,7 @@ test_that("Auto seed value vs fix seed + default engine", {
   expect_equal(results1, results2)
 
   # Check RxODE was chosen as default engine
-  if (engineInstalled("RxODE") || engineInstalled("rxode2")) {
+  if (engineInstalled("rxode2")) {
     expect_true(all(c("KA", "CL", "V2") %in% colnames(results1)))
   }
 

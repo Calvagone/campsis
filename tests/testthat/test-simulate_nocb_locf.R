@@ -19,7 +19,7 @@ test_that("Weight as a time-varying covariate, NOCB vs LOCF", {
     add(Observations(times = c(0, 3, 9, 16, 24, 26, 48)))
 
   # Left join time-varying BW column
-  table <- dataset %>% export(dest = "RxODE", model = model, seed = seed) # CAREFUL, SEED NEEDED FOR REPRODUCIBILITY
+  table <- dataset %>% export(dest = "rxode2", model = model, seed = seed) # CAREFUL, SEED NEEDED FOR REPRODUCIBILITY
   weight <- data.frame(TIME = c(0, 3, 9, 16, 24, 26, 48), BW = c(150, 20, 100, 250, 40, 170, 10))
   table <- table %>% dplyr::left_join(weight, by = "TIME")
 

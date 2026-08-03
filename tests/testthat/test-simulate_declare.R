@@ -19,7 +19,7 @@ test_that("Declare argument with mrgsolve", {
   tablefun <- ~ .x %>% dplyr::mutate(SOMETHING = 0)
 
   test <- expression(
-    if (destEngine %in% c("RxODE", "rxode2")) {
+    if (destEngine %in% c("rxode2")) {
       # RxODE does not complain
       results <- model %>% simulate(dataset, dest = destEngine, seed = seed, tablefun = tablefun)
       outputRegressionTest(results, output = "CP", filename = regFilename)
