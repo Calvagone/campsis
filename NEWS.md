@@ -10,6 +10,7 @@
 * Update pkgdown documentation #209
 * Format code with Air #211
 * Remove backward compatibility with old RxODE package #212
+* Temporarily remove rxode2 simulation engine in tests #213
 
 # campsis 1.8.2
 

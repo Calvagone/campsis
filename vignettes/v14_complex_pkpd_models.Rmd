@@ -80,6 +80,7 @@ results <- simulate(
   model = pkpd,
   dataset = base_dataset,
   scenarios = scenarios,
+  outvars = "CP",
   seed = 1
 ) %>%
   dplyr::mutate(SCENARIO = factor(SCENARIO, levels = unique(SCENARIO)))
