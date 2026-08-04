@@ -43,14 +43,14 @@ test_that("Auto seed value vs fix seed + unspecified engine", {
   expect_true(all(results1$CP == results2$CP))
   expect_equal(results1, results2)
 
-  # If rxode2 is chosen
-  if (engine_installed("rxode2")) {
-    expect_true(all(c("KA", "CL", "V2", "CP", "OBS_CP", "Y") %in% colnames(results1)))
-  }
-
-  # If mrgsolve is chosen
+  # mrgsolve = choice 1
   if (engine_installed("mrgsolve")) {
     expect_true(all(c("CP", "OBS_CP", "Y") %in% colnames(results1)))
+  } else {
+    # rxode2 = choice 2
+    if (engine_installed("rxode2")) {
+      expect_true(all(c("KA", "CL", "V2", "CP", "OBS_CP", "Y") %in% colnames(results1)))
+    }
   }
 
   # Auto seed vs fixed seed
