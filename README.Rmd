@@ -58,7 +58,7 @@ model <- model_suite$pk$`2cpt_fo`
 Simulate your results with your preferred simulation engine (`rxode2` or `mrgsolve`):
 
 ```{r, message=F}
-results <- simulate(model = model, dataset = ds, dest = "rxode2", seed = 1)
+results <- simulate(model = model, dataset = ds, dest = "mrgsolve", seed = 1)
 ```
 
 Plot your results:

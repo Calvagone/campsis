@@ -57,24 +57,24 @@ setGeneric(
     }
 
     # Propagate default settings
-    defaultSettings <- settings@default
+    default_settings <- settings@default
     if (is.null(dest)) {
-      dest <- defaultSettings@engine
+      dest <- default_settings@engine
     }
     if (is.null(seed)) {
-      seed <- defaultSettings@seed
+      seed <- default_settings@seed
     }
     if (is.null(replicates)) {
-      replicates <- defaultSettings@replicates
+      replicates <- default_settings@replicates
     }
     if (is.null(outvars)) {
-      outvars <- defaultSettings@outvars
+      outvars <- default_settings@outvars
     }
     if (is.null(dosing)) {
-      dosing <- defaultSettings@dosing
+      dosing <- default_settings@dosing
     }
     if (is.null(outfun)) {
-      outfun <- defaultSettings@outfuns
+      outfun <- default_settings@outfuns
     }
 
     dest <- preprocess_dest(dest)

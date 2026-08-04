@@ -1,7 +1,9 @@
 #'
 #' Default settings class.
 #'
-#' @slot engine simulation engine, character
+#' @slot engine Simulation engine: \code{'rxode2'} or \code{'mrgsolve'}.
+#'   Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first 
+#'   (if installed), followed by \code{'rxode2'} (if installed).
 #' @slot seed random seed number, integer
 #' @slot replicates number of replicates, integer
 #' @slot outvars output variables, character vector
@@ -12,7 +14,7 @@
 setClass(
   "default_settings",
   representation(
-    engine = "character",
+    engine = "character", # NA means
     seed = "integer", # NA means 'AUTO'
     replicates = "integer",
     outvars = "character",
@@ -21,7 +23,7 @@ setClass(
     dosing = "logical"
   ),
   prototype = prototype(
-    engine = "rxode2",
+    engine = as.character(NA),
     seed = as.integer(NA),
     replicates = 1L,
     outvars = character(),
@@ -34,7 +36,9 @@ setClass(
 #'
 #' Create default settings.
 #'
-#' @param engine simulation engine, character
+#' @param engine Simulation engine: \code{'rxode2'} or \code{'mrgsolve'}.
+#'   Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first 
+#'   (if installed), followed by \code{'rxode2'} (if installed).
 #' @param seed random seed number, integer (or NULL for auto-generated seed)
 #' @param replicates number of replicates, integer. Default is 1.
 #' @param outvars output variables, character vector
@@ -44,7 +48,7 @@ setClass(
 #' @return default settings
 #' @export
 DefaultSettings <- function(
-  engine = "rxode2",
+  engine = NULL,
   seed = NULL,
   replicates = 1L,
   outvars = character(),
@@ -52,12 +56,15 @@ DefaultSettings <- function(
   disabled_variabilities = character(),
   dosing = FALSE
 ) {
+  if (is.null(engine)) {
+    engine <- as.character(NA)
+  }
   if (is.null(seed)) {
     seed <- as.integer(NA)
   }
   return(new(
     "default_settings",
-    engine = engine,
+    engine = as.character(engine),
     seed = as.integer(seed),
     replicates = as.integer(replicates),
     outvars = outvars,

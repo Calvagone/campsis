@@ -1,28 +1,30 @@
 #' Pre-process destination engine. Throw an error message if the destination
 #' engine is not installed.
 #'
-#' @param dest destination engine
+#' @param dest destination engine (from simulate argument, default settings or S4 simulation engine)
 #' @return 'rxode2' or 'mrgsolve'
 #' @keywords internal
 #'
 preprocess_dest <- function(dest) {
-  if (is.null(dest)) {
-    if (find.package("rxode2", quiet = TRUE) %>% length() > 0) {
-      dest <- "rxode2" # Default package
-    } else if (find.package("mrgsolve", quiet = TRUE) %>% length() > 0) {
-      dest <- "mrgsolve"
-    } else {
-      stop("Simulation engine 'rxode2' or 'mrgsolve' is required to run Campsis")
-    }
-  } else if (is.vector(dest)) {
-    if (!(dest %in% c("rxode2", "mrgsolve"))) {
-      stop("Argument 'dest' must be one of: 'rxode2', 'mrgsolve' or NULL")
-    }
-    if (find.package(dest, quiet = TRUE) %>% length() == 0) {
-      stop(paste0("Simulation engine '", dest, "' is not installed"))
-    }
-  } else {
+  if (isS4(dest)) {
     # Do nothing, dest can also be the simulation engine in its S4 form
+  } else {
+    if (is.null(dest) || is.na(dest)) {
+      if (find.package("mrgsolve", quiet = TRUE) %>% length() > 0) {
+        dest <- "mrgsolve" # First choice
+      } else if (find.package("rxode2", quiet = TRUE) %>% length() > 0) {
+        dest <- "rxode2" # Second choice
+      } else {
+        stop("Simulation engine 'rxode2' or 'mrgsolve' is required to run Campsis")
+      }
+    } else {
+      if (!(dest %in% c("rxode2", "mrgsolve"))) {
+        stop("Argument 'dest' must be one of: 'rxode2', 'mrgsolve' or NULL")
+      }
+      if (find.package(dest, quiet = TRUE) %>% length() == 0) {
+        stop(paste0("Simulation engine '", dest, "' is not installed"))
+      }
+    }
   }
   return(dest)
 }

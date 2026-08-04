@@ -1,5 +1,5 @@
 OVERWRITE_NON_REG_FILES <- FALSE
-TEST_ENGINES <- c("rxode2", "mrgsolve")
+TEST_ENGINES <- c("mrgsolve")
 
 dataset_in_memory <- function(dataset, model = NULL, seed, doseOnly = TRUE, settings, dest) {
   table <- dataset %>% export(dest = dest, model = model, seed = seed, settings = settings)

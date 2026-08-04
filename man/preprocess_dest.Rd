@@ -8,7 +8,7 @@ engine is not installed.}
 preprocess_dest(dest)
 }
 \arguments{
-\item{dest}{destination engine}
+\item{dest}{destination engine (from simulate argument, default settings or S4 simulation engine)}
 }
 \value{
 'rxode2' or 'mrgsolve'

@@ -21,12 +21,12 @@ test_that("Argument dest works well", {
     return(TRUE)
   }
 
-  # Default engine (RxODE)
+  # Default engine: rxode2 (first choice) or mrgsolve (second choice)
   results <- model %>% simulate(dataset = dataset)
   expect_equal(nrow(results), 49)
 })
 
-test_that("Auto seed value vs fix seed + default engine", {
+test_that("Auto seed value vs fix seed + unspecified engine", {
   model <- model_suite$testing$nonmem$advan4_trans4
 
   dataset <- Dataset() %>%
@@ -43,9 +43,14 @@ test_that("Auto seed value vs fix seed + default engine", {
   expect_true(all(results1$CP == results2$CP))
   expect_equal(results1, results2)
 
-  # Check RxODE was chosen as default engine
+  # If rxode2 is chosen
   if (engine_installed("rxode2")) {
-    expect_true(all(c("KA", "CL", "V2") %in% colnames(results1)))
+    expect_true(all(c("KA", "CL", "V2", "CP", "OBS_CP", "Y") %in% colnames(results1)))
+  }
+
+  # If mrgsolve is chosen
+  if (engine_installed("mrgsolve")) {
+    expect_true(all(c("CP", "OBS_CP", "Y") %in% colnames(results1)))
   }
 
   # Auto seed vs fixed seed

@@ -55,7 +55,7 @@ Simulate your results with your preferred simulation engine (`rxode2` or
 `mrgsolve`):
 
 ``` r
-results <- simulate(model = model, dataset = ds, dest = "rxode2", seed = 1)
+results <- simulate(model = model, dataset = ds, dest = "mrgsolve", seed = 1)
 ```
 
 Plot your results:
