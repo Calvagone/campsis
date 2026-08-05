@@ -4,16 +4,24 @@
 \alias{vpcPlot}
 \title{VPC plot.}
 \usage{
-vpcPlot(x, scenarios = NULL, level = 0.9, alpha = 0.15)
+vpcPlot(x, strata = NULL, level = 0.9, alpha = 0.15, facet = TRUE)
 }
 \arguments{
-\item{x}{data frame, output of CAMPSIS with replicates}
+\item{x}{data frame, output of Campsis with replicates}
 
-\item{scenarios}{scenarios, character vector, NULL is default}
+\item{strata}{named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
+Only columns that are actually present in \code{x} are used.}
 
 \item{level}{PI level, default is 0.9 (90\% PI)}
 
 \item{alpha}{alpha parameter (transparency) given to geom_ribbon}
+
+\item{facet}{how the stratification variable is displayed. \code{TRUE}
+(default) draws one panel per stratum with \code{facet_wrap()}, keeping the
+median band red and the outer bands blue. \code{FALSE} overlays the strata
+in a single panel, mapping the stratum to the ribbon fill colour (the
+median band is drawn more opaque than the outer bands). Ignored when no
+stratification is requested.}
 }
 \value{
 a ggplot object
@@ -21,3 +29,4 @@ a ggplot object
 \description{
 VPC plot.
 }
+\keyword{internal}

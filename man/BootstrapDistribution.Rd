@@ -2,7 +2,7 @@
 % Please edit documentation in R/distribution.R
 \name{BootstrapDistribution}
 \alias{BootstrapDistribution}
-\title{Create a bootstrap distribution. During function sampling, CAMPSIS will generate
+\title{Create a bootstrap distribution. During function sampling, Campsis will generate
 values depending on the given data and arguments.}
 \usage{
 BootstrapDistribution(data, replacement = FALSE, random = FALSE)
@@ -18,6 +18,6 @@ BootstrapDistribution(data, replacement = FALSE, random = FALSE)
 a bootstrap distribution
 }
 \description{
-Create a bootstrap distribution. During function sampling, CAMPSIS will generate
+Create a bootstrap distribution. During function sampling, Campsis will generate
 values depending on the given data and arguments.
 }

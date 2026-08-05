@@ -21,7 +21,7 @@ Solver(
 
 \item{maxsteps}{max steps between 2 integration times (e.g. when observations records are far apart), default is 70000}
 
-\item{method}{solver method, for RxODE/rxode2 only: 'liblsoda' (default), 'lsoda', 'dop853', 'indLin'. Mrgsolve's method is always 'lsoda'.}
+\item{method}{solver method, for rxode2 only: 'liblsoda' (default), 'lsoda', 'dop853', 'indLin'. Mrgsolve's method is always 'lsoda'.}
 }
 \value{
 solver settings

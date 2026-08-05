@@ -1,4 +1,3 @@
-
 #' NHANES database (demographics and body measure data combined, from 2017-2018).
 #'
 #' @format data frame

@@ -1,28 +1,27 @@
-
-#' 
+#'
 #' Import the whole campsismod package into NAMESPACE when parsed by 'roxygen'.
-#' 
+#'
 #' @import campsismod
 #' @keywords internal
 #' @return always TRUE
-#' 
-importCampsismodToNamespace <- function() {
+#'
+import_campsismod_to_namespace <- function() {
   return(TRUE)
 }
 
-#' 
-#' Convert user-given distribution to an explicit CAMPSIS distribution.
+#'
+#' Convert user-given distribution to an explicit Campsis distribution.
 #' Passed distribution can be:
 #' - a NULL value. In that case, it will be converted into an 'UndefinedDistribution'.
 #' - a single numeric value. In that case, it will be converted into a 'ConstantDistribution'.
 #' - a numeric vector. In that case, it will be converted into a 'FixedDistribution'.
 #' - all available types of distribution. In this case, no conversion is applied.
-#' 
+#'
 #' @param distribution user-given distribution
 #' @return a distribution object
 #' @keywords internal
-#' 
-toExplicitDistribution <- function(distribution) {
+#'
+to_explicit_distribution <- function(distribution) {
   if (is.null(distribution)) {
     return(new("undefined_distribution"))
   } else if (is.numeric(distribution)) {
@@ -38,44 +37,43 @@ toExplicitDistribution <- function(distribution) {
   }
 }
 
-toExplicitDistributionList <- function(distribution, cmtNo) {
+to_explicit_distribution_list <- function(distribution, cmtNo) {
   if (is.null(distribution)) {
     retValue <- list(new("undefined_distribution"))
   }
   if (is.numeric(distribution)) {
     # E.g. f=c(0.5, 1)
-    retValue <- distribution %>% purrr::map(toExplicitDistribution)
-    
+    retValue <- distribution %>% purrr::map(to_explicit_distribution)
   } else if (is.list(distribution)) {
     # E.g. f=list(0.5, 1)
-    retValue <- distribution %>% purrr::map(toExplicitDistribution)
+    retValue <- distribution %>% purrr::map(to_explicit_distribution)
   } else {
-    retValue <- list(toExplicitDistribution(distribution))
+    retValue <- list(to_explicit_distribution(distribution))
   }
   size <- length(retValue)
-  if (size==cmtNo) {
+  if (size == cmtNo) {
     return(retValue)
-  } else if (size==1 && cmtNo > 1) {
+  } else if (size == 1 && cmtNo > 1) {
     return(rep(retValue, cmtNo))
   } else {
     stop("Invalid distribution")
   }
 }
 
-envVarIsTrue <- function(x) {
+env_var_is_true <- function(x) {
   return(isTRUE(as.logical(Sys.getenv(x, "false"))))
 }
 
 #'
-#' Check if the current session is on CRAN. The objective is to potentially suppress 
+#' Check if the current session is on CRAN. The objective is to potentially suppress
 #' long tasks to be run on CRAN (long tests or vignettes).
 #'
 #' @return logical value TRUE/FALSE
 #' @export
 #' @keywords internal
-onCran <- function() {
-  # Copied from testthat:::on_cran() 
-  return(!interactive() && !envVarIsTrue("NOT_CRAN"))
+on_cran <- function() {
+  # Copied from testthat:::on_cran()
+  return(!interactive() && !env_var_is_true("NOT_CRAN"))
 }
 
 #'
@@ -84,9 +82,9 @@ onCran <- function() {
 #' @return logical value TRUE/FALSE
 #' @export
 #' @keywords internal
-onCI <- function() {
-  # Copied from testthat:::on_ci() 
-  return(envVarIsTrue("CI"))
+on_ci <- function() {
+  # Copied from testthat:::on_ci()
+  return(env_var_is_true("CI"))
 }
 
 #'
@@ -95,7 +93,7 @@ onCI <- function() {
 #' @return global options for Campsis
 #' @export
 #' @keywords internal
-getCampsisOptions <- function() {
+get_campsis_options <- function() {
   return(getOption("campsis.options"))
 }
 
@@ -106,8 +104,8 @@ getCampsisOptions <- function() {
 #' @param default default value if option not found
 #' @return option value
 #' @export
-getCampsisOption <- function(name, default) {
-  option <- getCampsisOptions()
+get_campsis_option <- function(name, default) {
+  option <- get_campsis_options()
   if (is.null(option)) {
     return(default)
   } else {

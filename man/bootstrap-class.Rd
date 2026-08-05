@@ -18,6 +18,6 @@ Other columns are covariates to be bootstrapped (row by row).}
 
 \item{\code{random}}{values are drawn randomly, logical}
 
-\item{\code{export_id}}{tell CAMPSIS if 'BS_ID' must be exported into the dataset, logical}
+\item{\code{export_id}}{tell Campsis if 'BS_ID' must be exported into the dataset, logical}
 }}
 

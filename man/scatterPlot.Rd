@@ -4,12 +4,12 @@
 \alias{scatterPlot}
 \title{Scatter plot (or X vs Y plot).}
 \usage{
-scatterPlot(x, output, colour = NULL, time = NULL)
+scatterPlot(x, variable, colour = NULL, time = NULL)
 }
 \arguments{
 \item{x}{data frame}
 
-\item{output}{the 2 variables to show, character vector}
+\item{variable}{the 2 variables to show, character vector}
 
 \item{colour}{variable(s) to colour}
 
@@ -21,3 +21,4 @@ a ggplot object
 \description{
 Scatter plot (or X vs Y plot).
 }
+\keyword{internal}

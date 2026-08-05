@@ -1,8 +1,8 @@
 ---
-title: "Get started with CAMPSIS"
+title: "Get started with Campsis"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Get started with CAMPSIS}
+  %\VignetteIndexEntry{Get started with Campsis}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -27,7 +27,7 @@ model <- model_suite$pk$`2cpt_fo`
 
 ### Create dataset
 
-Create your dataset in CAMPSIS. For instance, let's give 1000mg QD for 3 days and observe every hour.
+Create your dataset in Campsis. For instance, let's give 1000mg QD for 3 days and observe every hour.
 
 ```{r}
 dataset <- Dataset(10) %>%
@@ -40,7 +40,7 @@ dataset <- Dataset(10) %>%
 Simulate this very simple protocol:
 
 ```{r, message=F}
-results <- model %>% simulate(dataset, seed=1)
+results <-  simulate(model=model, dataset=dataset, seed=1)
 head(results)
 ```
 
@@ -49,13 +49,13 @@ head(results)
 Plot these results:
 
 ```{r get_started_spaguetti_plot, fig.align='center', fig.height=4, fig.width=8}
-spaghettiPlot(results, "CONC")
+spaghetti_plot(results)
 ```
 
 A shaded plot may also be used:
 
 ```{r get_started_shaded_plot, fig.align='center', fig.height=4, fig.width=8}
-shadedPlot(results, "CONC")
+shaded_plot(results)
 ```
 
 ### Simulate 2 arms
@@ -75,10 +75,10 @@ arm2 <- Arm(subjects=50, label="2000 mg QD") %>%
 
 dataset <- Dataset() %>% add(c(arm1, arm2))
 
-results <- model %>% simulate(dataset, seed=1)
-shadedPlot(results, "CONC", colour="ARM")
+results <- simulate(model=model, dataset=dataset, seed=1)
+shaded_plot(results)
 ```
 
 ### Going further
 
-We invite you to check out the other [vignettes](https://calvagone.github.io/campsis.doc/articles/). Have fun with CAMPSIS!
+We invite you to check out the other [vignettes](https://calvagone.github.io/campsis.doc/articles/). Have fun with Campsis!

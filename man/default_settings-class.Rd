@@ -10,11 +10,17 @@ Default settings class.
 \section{Slots}{
 
 \describe{
-\item{\code{engine}}{simulation engine, character}
+\item{\code{engine}}{Simulation engine: \code{'rxode2'} or \code{'mrgsolve'}.
+Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first 
+(if installed), followed by \code{'rxode2'} (if installed).}
 
 \item{\code{seed}}{random seed number, integer}
 
+\item{\code{replicates}}{number of replicates, integer}
+
 \item{\code{outvars}}{output variables, character vector}
+
+\item{\code{outfuns}}{output functions, outfuns object}
 
 \item{\code{disabled_variabilities}}{variabilities to disable in the simulation, character vector}
 

@@ -6,7 +6,7 @@
 \usage{
 shadedPlot(
   x,
-  output,
+  variable,
   colour = NULL,
   strat_extra = NULL,
   level = 0.9,
@@ -16,7 +16,7 @@ shadedPlot(
 \arguments{
 \item{x}{data frame}
 
-\item{output}{variable to show}
+\item{variable}{variable to show}
 
 \item{colour}{variable(s) to colour}
 
@@ -32,3 +32,4 @@ a ggplot object
 \description{
 Shaded plot (or prediction interval plot).
 }
+\keyword{internal}

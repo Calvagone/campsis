@@ -1,0 +1,18 @@
+[
+   {
+      "type": "default_settings",
+      "engine": "mrgsolve",
+      "seed": 1,
+      "outvars": [
+         "CONC"
+      ],
+      "outfuns": [
+         {
+            "type": "nca_table_outfun",
+            "name": "nca_default",
+            "table": "{\"nca_analyses\":[{\"name\":\"Default\",\"variable\":\"CONC\",\"window\":{\"start\":0,\"end\":\"last\"},\"metrics\":[{\"type\":\"auc_metric\",\"name\":\"AUC\"}]}]}",
+            "export_type": "summary"
+         }
+      ]
+   }
+]

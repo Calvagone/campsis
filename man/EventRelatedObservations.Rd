@@ -2,7 +2,7 @@
 % Please edit documentation in R/observations.R
 \name{EventRelatedObservations}
 \alias{EventRelatedObservations}
-\title{Create an event-related observations list. Please note that the provided 'times' will 
+\title{Create an event-related observations list. Please note that the provided 'times' will
 automatically be sorted. Duplicated times will be removed.}
 \usage{
 EventRelatedObservations(times, compartment = NA)
@@ -16,7 +16,7 @@ EventRelatedObservations(times, compartment = NA)
 observations
 }
 \description{
-Create an event-related observations list. Please note that the provided 'times' will 
+Create an event-related observations list. Please note that the provided 'times' will
 automatically be sorted. Duplicated times will be removed.
 }
 \keyword{internal}

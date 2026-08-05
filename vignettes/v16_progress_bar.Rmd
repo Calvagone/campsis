@@ -10,8 +10,10 @@ editor_options:
 ---
 
 ```{r, results='asis', echo=F, message=F, warning=F}
-if (campsis::onCran()) {
-  cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v16_progress_bar.html).")
+if (campsis::on_cran()) {
+  cat(
+    "This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v16_progress_bar.html)."
+  )
   knitr::knit_exit()
 }
 ```
@@ -33,7 +35,7 @@ library(progressr)
 The easiest way to track the progress is to add the following snippet once for all in your script. By doing so, any call to the simulate method of `campsis` will display the progress bar.
 
 ```{r, echo=TRUE, eval=FALSE}
-handlers(global=TRUE)
+handlers(global = TRUE)
 ```
 
 By default, the progress bar will only give the progress as a percentage. Any user-custom handler may be provided. Please have a look at the official [documentation](https://CRAN.R-project.org/package=progressr) (Vignette `progressr`: An Introduction / 'Customizing how progress is reported').
@@ -47,18 +49,33 @@ If you don't want your handler(s) to be global, you can also explicitly call the
 
 ```{r, with_progress_example, fig.align='center', fig.height=4, fig.width=8}
 dataset <- Dataset(1000) %>%
-  add(Infusion(time=0, amount=1000, compartment=1, ii=24, addl=6)) %>%
-  add(Observations(seq(0, 7*24)))
+  add(Infusion(time = 0, amount = 1000, compartment = 1, ii = 24, addl = 6)) %>%
+  add(Observations(seq(0, 7 * 24)))
 
 model <- model_suite$pk$`1cpt_fo`
-results <- with_progress(simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, replicates=3))
+results <- with_progress(simulate(
+  model = model,
+  dataset = dataset,
+  dest = "mrgsolve",
+  seed = 1,
+  replicates = 3
+))
 shadedPlot(results, "CONC", "replicate")
 ```
 
 Any handler may be provided as well:
 
 ```{r}
-results <- with_progress(simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, replicates=3), handlers=campsis_handler())
+results <- with_progress(
+  simulate(
+    model = model,
+    dataset = dataset,
+    dest = "mrgsolve",
+    seed = 1,
+    replicates = 3
+  ),
+  handlers = campsis_handler()
+)
 ```
 
 ### Track the simulation progress in a targets project
@@ -75,10 +92,10 @@ source("R/my_script.R")
 
 # Packages loaded by targets
 packages <- c("campsis", "progressr")
-tar_option_set(packages=packages)
+tar_option_set(packages = packages)
 
 # Enable progress bar
-options(progressr.enable=TRUE)
+options(progressr.enable = TRUE)
 progressr::handlers(campsis::campsis_handler())
 
 list(
@@ -88,11 +105,11 @@ list(
   ),
   tar_target(
     dataset,
-    makeDataset(subjects=1000, dose=1000)
+    make_dataset(subjects = 1000, dose = 1000)
   ),
   tar_target(
     results,
-    runSimulation(model=model, dataset=dataset, replicates=3)
+    run_simulation(model = model, dataset = dataset, replicates = 3)
   )
 )
 ```
@@ -101,23 +118,37 @@ The R folder contains as much as possible of the code (or logic) being executed,
 An explicit call to `with_progress` will make the progress bar appear when executing the target `results`.
 
 ```{r, echo=TRUE, eval=FALSE}
-makeDataset <- function(subjects, dose) {
-  dataset <- Dataset(subjects=subjects) %>%
-    add(Infusion(time=0, amount=dose, compartment=1, ii=24, addl=6)) %>%
-    add(Observations(seq(0, 7*24)))
+make_dataset <- function(subjects, dose) {
+  dataset <- Dataset(subjects = subjects) %>%
+    add(Infusion(
+      time = 0,
+      amount = dose,
+      compartment = 1,
+      ii = 24,
+      addl = 6
+    )) %>%
+    add(Observations(seq(0, 7 * 24)))
   return(dataset)
 }
 
-runSimulation <- function(model, dataset, replicates) {
-  results <- with_progress(simulate(model=model, dataset=dataset, dest="mrgsolve",
-                                    seed=1, replicates=replicates))
+run_simulation <- function(model, dataset, replicates) {
+  results <- with_progress(simulate(
+    model = model,
+    dataset = dataset,
+    dest = "mrgsolve",
+    seed = 1,
+    replicates = replicates
+  ))
   return(results)
 }
 ```
 
 This small project can be downloaded by clicking the link below.
 ```{r echo=FALSE}
-xfun::embed_dir('resources/Targets_Squeletton/', text="Download targets squeletton")
+xfun::embed_dir(
+  'resources/Targets_Squeletton/',
+  text = "Download targets squeletton"
+)
 ```
 
 To run this project, simply open an R console within your targets folder and type:

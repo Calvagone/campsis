@@ -2,7 +2,7 @@
 % Please edit documentation in R/observations.R
 \name{Observations}
 \alias{Observations}
-\title{Create an observations list. Please note that the provided 'times' will 
+\title{Create an observations list. Please note that the provided 'times' will
 automatically be sorted. Duplicated times will be removed.}
 \usage{
 Observations(times, compartment = NA, rep = NULL)
@@ -18,6 +18,6 @@ Observations(times, compartment = NA, rep = NULL)
 an observations list
 }
 \description{
-Create an observations list. Please note that the provided 'times' will 
+Create an observations list. Please note that the provided 'times' will
 automatically be sorted. Duplicated times will be removed.
 }

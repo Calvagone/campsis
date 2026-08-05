@@ -25,7 +25,7 @@ row by row and belong to a same individual.}
 
 \item{random}{values are drawn randomly, logical}
 
-\item{export_id}{tell CAMPSIS if the identifier 'BS_ID' must be output or not, logical}
+\item{export_id}{tell Campsis if the identifier 'BS_ID' must be output or not, logical}
 }
 \value{
 a bootstrap object

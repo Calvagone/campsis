@@ -11,6 +11,9 @@
         "oneOf": [
           {
             "$ref": "#/$defs/default_settings"
+          },
+          {
+            "$ref": "#/$defs/hardware_settings"
           }
         ]
       }
@@ -19,7 +22,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "default_settings"
+          "const": "default_settings",
+          "default": "default_settings"
         },
         "engine": {
           "enum": [
@@ -30,10 +34,37 @@
         "seed": {
           "type": "integer"
         },
+        "replicates": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of replicates. Optional, defaults to 1."
+        },
         "outvars": {
           "type": "array",
           "items": {
             "type": "string"
+          }
+        },
+        "outfuns": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/pi_outfun"
+              },
+              {
+                "$ref": "#/$defs/stats_outfun"
+              },
+              {
+                "$ref": "#/$defs/nca_table_outfun"
+              },
+              {
+                "$ref": "#/$defs/default_outfun"
+              }
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
           }
         },
         "disabled_variabilities": {
@@ -47,8 +78,156 @@
         }
       },
       "required": [
+        "type",
         "engine",
         "seed"
+      ],
+      "additionalProperties": false
+    },
+    "hardware_settings": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "hardware_settings",
+          "default": "hardware_settings"
+        },
+        "cpu": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of CPU cores."
+        },
+        "replicate_parallel": {
+          "type": "boolean",
+          "description": "Should replicates be simulated in parallel?"
+        }
+      },
+      "required": [
+        "cpu",
+        "replicate_parallel"
+      ],
+      "additionalProperties": false
+    },
+    "pi_outfun": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "pi_outfun",
+          "default": "pi_outfun"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the output function (used for labeling the Campsis output). This name is optional. If not provided, the default name will be 'pi_<variable>_<pi_level>'"
+        },
+        "variable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Variable(s) for which the prediction interval is computed"
+        },
+        "strata": {
+          "$ref": "#/$defs/outfun_strata",
+          "description": "Named strata filters used to subset the Campsis output. See outfun_strata definition."
+        },
+        "pi_level": {
+          "type": "number",
+          "description": "Prediction interval level (between 0 and 1)"
+        }
+      },
+      "required": [
+        "type",
+        "variable",
+        "pi_level"
+      ],
+      "additionalProperties": false
+    },
+    "stats_outfun": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "stats_outfun",
+          "default": "stats_outfun"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the output function (used for labeling the Campsis output). This name is optional. If not provided, the default name will be 'stats_<variable>'"
+        },
+        "variable": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Variable(s) for which the statistics are computed"
+        },
+        "strata": {
+          "$ref": "#/$defs/outfun_strata",
+          "description": "Named strata filters used to subset the Campsis output. See outfun_strata definition."
+        },
+        "stats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "statistics to compute. Supported: 'median', 'mean', or percentiles like 'p5', 'p95'."
+        }
+      },
+      "required": [
+        "type",
+        "variable",
+        "stats"
+      ],
+      "additionalProperties": false
+    },
+    "outfun_strata": {
+      "type": "object",
+      "description": "Named strata filters used to subset the dataset (e.g., ARM, SCENARIO). Each property name represents a column and its value the level to select. Use value 'all' to select all levels of a column. Example: {\"ARM\": \"Arm 1\", \"SCENARIO\": \"all\"} selects all rows where ARM is Arm 1, regardless of SCENARIO.",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "minProperties": 1
+    },
+    "default_outfun": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "default_outfun",
+          "default": "default_outfun"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "nca_table_outfun": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "nca_table_outfun",
+          "default": "nca_table_outfun"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the output function (used for labeling the Campsis output). This name is optional."
+        },
+        "table": {
+          "type": "string",
+          "description": "NCA table (see campsisnca package) in JSON format"
+        },
+        "export_type": {
+          "enum": [
+            "summary",
+            "summary_wide",
+            "summary_pretty",
+            "individual",
+            "individual_wide"
+          ]
+        }
+      },
+      "required": [
+        "type",
+        "table",
+        "export_type"
       ],
       "additionalProperties": false
     }

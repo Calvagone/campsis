@@ -10,8 +10,10 @@ editor_options:
 ---
 
 ```{r, results='asis', echo=F, message=F, warning=F}
-if (campsis::onCran()) {
-  cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v10_replicate_study.html).")
+if (campsis::on_cran()) {
+  cat(
+    "This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v10_replicate_study.html)."
+  )
   knitr::knit_exit()
 }
 ```
@@ -41,8 +43,8 @@ Let's mimic the protocol that was implemented in the study.
 
 ```{r}
 ds <- Dataset(50) %>%
-  add(Infusion(time=(0:6)*24, amount=1000, compartment=1)) %>%
-  add(Observations(times=seq(0, 7*24)))
+  add(Infusion(time = (0:6) * 24, amount = 1000, compartment = 1)) %>%
+  add(Observations(times = seq(0, 7 * 24)))
 ```
 
 Let's now simulate this model with parameter uncertainty.  
@@ -50,13 +52,19 @@ Argument `replicates` specifies how many times the simulation is replicated.
 Argument `outfun` is a function that is going to be called after each simulation on the output data frame.
 
 ```{r, message=F}
-results <- model %>% simulate(dataset=ds, replicates=10, outfun=~PI(.x, output="Y"), seed=1)
+results <- simulate(
+  model = model,
+  dataset = ds,
+  replicates = 10,
+  outfun = PIOutfun(variable = "Y"),
+  seed = 1
+)
 results %>% head()
 ```
 
-Function `vpcPlot` allows to quickly visualize such results.
+Function `vpc_plot` allows to quickly visualize such results.
 
 ```{r replicate_your_study_varcov , fig.align='center', fig.height=4, fig.width=8}
-vpcPlot(results)
+vpc_plot(results)
 ```
 

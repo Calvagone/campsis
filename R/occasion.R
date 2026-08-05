@@ -2,10 +2,10 @@
 #----                           occasion class                              ----
 #_______________________________________________________________________________
 
-validateOccasion <- function(object) {
-  check1 <- expectOne(object, "colname")
-  check2 <- expectOneOrMore(object, "values")
-  check3 <- expectOneOrMore(object, "dose_numbers")
+validate_occasion <- function(object) {
+  check1 <- expect_one(object, "colname")
+  check2 <- expect_one_or_more(object, "values")
+  check3 <- expect_one_or_more(object, "dose_numbers")
   check4 <-
     if (object@values %>% length() == object@dose_numbers %>% length()) {
       character()
@@ -15,9 +15,9 @@ validateOccasion <- function(object) {
   return(c(check1, check2, check3, check4))
 }
 
-#' 
+#'
 #' Occasion class.
-#' 
+#'
 #' @slot colname single character value representing the column name related to this occasion
 #' @slot values occasion values, integer vector, same length as dose_numbers
 #' @slot dose_numbers associated dose numbers, integer vector, same length as values
@@ -29,8 +29,8 @@ setClass(
     values = "integer",
     dose_numbers = "integer"
   ),
-  contains="pmx_element",
-  validity=validateOccasion 
+  contains = "pmx_element",
+  validity = validate_occasion
 )
 
 #'
@@ -43,13 +43,18 @@ setClass(
 #' @return occasion object
 #' @export
 Occasion <- function(colname, values, doseNumbers) {
-  return(new("occasion", colname=trimws(colname), values=as.integer(values), dose_numbers=as.integer(doseNumbers)))
+  return(new(
+    "occasion",
+    colname = trimws(colname),
+    values = as.integer(values),
+    dose_numbers = as.integer(doseNumbers)
+  ))
 }
 
 #_______________________________________________________________________________
-#----                             getName                                   ----
+#----                             get_name                                  ----
 #_______________________________________________________________________________
 
-setMethod("getName", signature = c("occasion"), definition = function(x) {
+setMethod("get_name", signature = c("occasion"), definition = function(x) {
   return(x@colname)
 })
