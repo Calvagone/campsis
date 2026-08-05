@@ -7,7 +7,7 @@
 vpcPlot(x, strata = NULL, level = 0.9, alpha = 0.15, facet = TRUE)
 }
 \arguments{
-\item{x}{data frame, output of CAMPSIS with replicates}
+\item{x}{data frame, output of Campsis with replicates}
 
 \item{strata}{named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 Only columns that are actually present in \code{x} are used.}
@@ -29,3 +29,4 @@ a ggplot object
 \description{
 VPC plot.
 }
+\keyword{internal}

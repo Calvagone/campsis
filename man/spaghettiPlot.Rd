@@ -19,3 +19,4 @@ plot
 \description{
 Spaghetti plot.
 }
+\keyword{internal}

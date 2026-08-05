@@ -21,3 +21,4 @@ a ggplot object
 \description{
 Scatter plot (or X vs Y plot).
 }
+\keyword{internal}

@@ -10,8 +10,10 @@ editor_options:
 ---
 
 ```{r, results='asis', echo=F, message=F, warning=F}
-if (campsis::onCran()) {
-  cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v02_uncertainties.html).")
+if (campsis::on_cran()) {
+  cat(
+    "This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v02_uncertainties.html)."
+  )
   knitr::knit_exit()
 }
 ```
@@ -25,23 +27,23 @@ library(campsis)
 Let's use a simple 1-compartment model with absorption compartment to illustrate the different levels of variabilities.
 
 ```{r}
-refModel <- model_suite$nonmem$advan2_trans2
-refModel
+ref_model <- model_suite$nonmem$advan2_trans2
+ref_model
 ```
 
 We're going to use a very basic dataset. 1000 mg QD shall be administered for a week.
 
 ```{r}
 ds <- Dataset(25) %>%
-  add(Bolus(time=0, amount=1000, ii=24, addl=6)) %>%
-  add(Observations(times=seq(0,24*7,by=4)))
+  add(Bolus(time = 0, amount = 1000, ii = 24, addl = 6)) %>%
+  add(Observations(times = seq(0, 24 * 7, by = 4)))
 ```
 
 All subjects are different due to IIV and RUV.
 
 ```{r uncertainties_all_enabled , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- refModel %>% simulate(dataset=ds, seed=1)
-spaghettiPlot(results, "CONC_ERR")
+results <- simulate(model = ref_model, dataset = ds, seed = 1)
+spaghetti_plot(results, "CONC_ERR")
 ```
 
 ### Simulate without RUV
@@ -49,19 +51,20 @@ spaghettiPlot(results, "CONC_ERR")
 Disabling RUV is done as follows:
 
 ```{r}
-model <- refModel %>% disable(c("RUV"))
+model <- ref_model %>%
+  disable(c("RUV"))
 model@parameters
 ```
 
 In that case, CONC_ERR (the observed concentration) is identical as CONC (the model-simulated plasma concentration).
 
 ```{r uncertainties_no_ruv_y , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, seed=1)
-spaghettiPlot(results, "CONC_ERR")
+results <- simulate(model = model, dataset = ds, seed = 1)
+spaghetti_plot(results, "CONC_ERR")
 ```
 
 ```{r uncertainties_no_ruv_cp , fig.align='center', fig.height=4, fig.width=8, message=F}
-spaghettiPlot(results, "CONC")
+spaghetti_plot(results, "CONC")
 ```
 
 ### Simulate without RUV and IIV
@@ -69,13 +72,15 @@ spaghettiPlot(results, "CONC")
 Disabling RUV and IIV is done as follows:
 
 ```{r}
-model <- refModel %>% disable(c("IIV", "RUV"))
+model <- ref_model %>%
+  disable(c("IIV", "RUV"))
 model@parameters
 ```
 
 Now, the typical profile is shown for all subjects.
 
 ```{r uncertainties_no_ruv_no_iiv , fig.align='center', fig.height=4, fig.width=8, message=F}
-results <- model %>% simulate(dataset=ds, seed=1)
-spaghettiPlot(results, "CONC_ERR")
+results <- model %>%
+  simulate(dataset = ds, seed = 1)
+spaghetti_plot(results, "CONC_ERR")
 ```

@@ -2,9 +2,8 @@
 #----                       hardware_settings class                       ----
 #_______________________________________________________________________________
 
-validateHardware <- function(object) {
-  parallel <- c(object@dataset_parallel, object@replicate_parallel,
-                object@scenario_parallel, object@slice_parallel)
+validate_hardware <- function(object) {
+  parallel <- c(object@dataset_parallel, object@replicate_parallel, object@scenario_parallel, object@slice_parallel)
   if (sum(parallel) > 1) {
     return("Parallelization can only be applied at one level")
   } else {
@@ -12,9 +11,9 @@ validateHardware <- function(object) {
   }
 }
 
-#' 
+#'
 #' Hardware settings class.
-#' 
+#'
 #' @slot cpu number of CPU cores to use, default is 1
 #' @slot replicate_parallel enable parallel computing for replicates, default is FALSE
 #' @slot scenario_parallel enable parallel computing for scenarios, default is FALSE
@@ -27,19 +26,26 @@ validateHardware <- function(object) {
 setClass(
   "hardware_settings",
   representation(
-    cpu="integer",
-    replicate_parallel="logical",
-    scenario_parallel="logical",
-    slice_parallel="logical",
-    slice_size="integer",
-    dataset_parallel="logical",
-    dataset_slice_size="integer",
-    auto_setup_plan="logical"
+    cpu = "integer",
+    replicate_parallel = "logical",
+    scenario_parallel = "logical",
+    slice_parallel = "logical",
+    slice_size = "integer",
+    dataset_parallel = "logical",
+    dataset_slice_size = "integer",
+    auto_setup_plan = "logical"
   ),
-  prototype=prototype(cpu=as.integer(1), replicate_parallel=FALSE, scenario_parallel=FALSE,
-                      slice_parallel=FALSE, slice_size=as.integer(NA),
-                      dataset_parallel=FALSE, dataset_slice_size=as.integer(500), auto_setup_plan=FALSE),
-  validity=validateHardware
+  prototype = prototype(
+    cpu = as.integer(1),
+    replicate_parallel = FALSE,
+    scenario_parallel = FALSE,
+    slice_parallel = FALSE,
+    slice_size = as.integer(NA),
+    dataset_parallel = FALSE,
+    dataset_slice_size = as.integer(500),
+    auto_setup_plan = FALSE
+  ),
+  validity = validate_hardware
 )
 
 #'
@@ -52,32 +58,45 @@ setClass(
 #' @param slice_size number of subjects per simulated slice, default is NULL (auto-configured by Campsis depending on the specified engine)
 #' @param dataset_parallel enable parallelisation when exporting dataset into a table, default is FALSE
 #' @param dataset_slice_size dataset slice size when exporting subjects to a table, default is 500. Only applicable if 'dataset_parallel' is enabled.
-#' @param auto_setup_plan auto-setup plan with the library future, if not set (i.e. =NULL), plan will be setup automatically if the number of CPU's > 1. 
+#' @param auto_setup_plan auto-setup plan with the library future, if not set (i.e. =NULL), plan will be setup automatically if the number of CPU's > 1.
 #'
 #' @return hardware settings
 #' @export
-Hardware <- function(cpu=1, replicate_parallel=FALSE, scenario_parallel=FALSE,
-                     slice_parallel=FALSE, slice_size=NULL, dataset_parallel=FALSE, dataset_slice_size=500,
-                     auto_setup_plan=NULL) {
+Hardware <- function(
+  cpu = 1,
+  replicate_parallel = FALSE,
+  scenario_parallel = FALSE,
+  slice_parallel = FALSE,
+  slice_size = NULL,
+  dataset_parallel = FALSE,
+  dataset_slice_size = 500,
+  auto_setup_plan = NULL
+) {
   if (is.null(slice_size)) {
     slice_size <- NA
   }
   if (is.null(auto_setup_plan)) {
     auto_setup_plan <- ifelse(cpu > 1, TRUE, FALSE)
   }
-  return(new("hardware_settings", cpu=as.integer(cpu),
-             replicate_parallel=replicate_parallel, scenario_parallel=scenario_parallel, 
-             slice_parallel=slice_parallel, slice_size=as.integer(slice_size),
-             dataset_parallel=dataset_parallel, dataset_slice_size=as.integer(dataset_slice_size),
-             auto_setup_plan=auto_setup_plan))
+  return(new(
+    "hardware_settings",
+    cpu = as.integer(cpu),
+    replicate_parallel = replicate_parallel,
+    scenario_parallel = scenario_parallel,
+    slice_parallel = slice_parallel,
+    slice_size = as.integer(slice_size),
+    dataset_parallel = dataset_parallel,
+    dataset_slice_size = as.integer(dataset_slice_size),
+    auto_setup_plan = auto_setup_plan
+  ))
 }
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("hardware_settings", "json_element"), definition=function(object, json) {
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
+setMethod("load_from_json", signature = c("hardware_settings", "json_element"), definition = function(object, json) {
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
   object@auto_setup_plan <- ifelse(object@cpu > 1, TRUE, FALSE)
   return(object)
 })
@@ -86,16 +105,21 @@ setMethod("loadFromJSON", signature=c("hardware_settings", "json_element"), defi
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("hardware_settings"), definition=function(object) {
+setMethod("show", signature = c("hardware_settings"), definition = function(object) {
   if (identical(object, Hardware())) {
-    cat("Hardware: default")    
+    cat("Hardware: default")
   } else {
     items <- c("replicates", "scenarios", "dataset", "slices")
-    items_ <- items[c(object@replicate_parallel, object@scenario_parallel, object@dataset_parallel, object@slice_parallel)]
+    items_ <- items[c(
+      object@replicate_parallel,
+      object@scenario_parallel,
+      object@dataset_parallel,
+      object@slice_parallel
+    )]
     if (length(items_) == 0) {
       parallel <- "parallelisation disabled"
     } else {
-      parallel <- paste0("parallelisation enabled (", paste0(items_, collapse=", "), ")")
+      parallel <- paste0("parallelisation enabled (", paste0(items_, collapse = ", "), ")")
     }
     cat(sprintf("Hardware: %i CPU core(s), %s", object@cpu, parallel))
   }

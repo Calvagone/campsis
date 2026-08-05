@@ -1,18 +1,18 @@
 #' @importFrom rlang expr
-allStrataLevels <- function() {
+all_strata_levels <- function() {
   return("all")
 }
 
-getDefaultStrata <- function() {
-  return(c(SCENARIO=allStrataLevels(), ARM=allStrataLevels()))
+get_default_strata <- function() {
+  return(c(SCENARIO = all_strata_levels(), ARM = all_strata_levels()))
 }
 
 #' @importFrom purrr reduce
 #' @importFrom dplyr filter
-filterOutputOnStrata <- function(x, strata) {
+filter_output_on_strata <- function(x, strata) {
   # Detect the specific strata
-  specific_strata <- strata[strata != allStrataLevels()]
-  
+  specific_strata <- strata[strata != all_strata_levels()]
+
   # Filter input data frame to specific strata
   x_reduced <- purrr::reduce(
     names(specific_strata),
@@ -26,11 +26,11 @@ filterOutputOnStrata <- function(x, strata) {
 #' @importFrom dplyr all_of
 metrics_pivot_longer <- function(x, cols) {
   x <- x |>
-      tidyr::pivot_longer(
-        cols = dplyr::all_of(cols),
-        names_to = "metric",
-        values_to = "value"
-      )
+    tidyr::pivot_longer(
+      cols = dplyr::all_of(cols),
+      names_to = "metric",
+      values_to = "value"
+    )
   return(x)
 }
 
@@ -45,7 +45,7 @@ metrics_pivot_wider <- function(x) {
 }
 
 #' Compute generic statistics over time.
-#' 
+#'
 #' @param x data frame
 #' @param variable variable(s) used to compute the statistics, character vector.
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
@@ -58,7 +58,7 @@ metrics_pivot_wider <- function(x) {
 #' @importFrom dplyr all_of group_by across summarise relocate
 #' @importFrom tidyr pivot_longer
 #' @export
-compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p5", "median", "p95")) {
+compute_stats <- function(x, variable, strata = get_default_strata(), stats = c("p5", "median", "p95")) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
@@ -74,15 +74,15 @@ compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p
 
   # Only keep strata columns that are actually present in x
   strata_cols <- names(strata)[names(strata) %in% colnames(x)]
-  group_cols  <- c(strata_cols, "TIME")
+  group_cols <- c(strata_cols, "TIME")
 
   assertthat::assert_that(
     !"variable" %in% strata_cols,
     msg = "variable can't be used as a stratification column name"
   )
-  
+
   # Filter data
-  x_filtered <- filterOutputOnStrata(x = x, strata = strata)
+  x_filtered <- filter_output_on_strata(x = x, strata = strata)
 
   # Map string shortcuts to an expression list for summarize()
   # This dynamically builds the calls for mean, median, or any pXX quantile
@@ -98,21 +98,22 @@ compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p
     } else {
       stop(paste("Unsupported statistic:", stat))
     }
-  }) |> rlang::set_names(stats)
+  }) |>
+    rlang::set_names(stats)
 
   # Pivot the variables long first, keeping data grouped properly
   res <- x_filtered |>
     dplyr::select(dplyr::all_of(c(group_cols, variable))) |>
     tidyr::pivot_longer(
-      cols = dplyr::all_of(variable), 
-      names_to = "variable", 
+      cols = dplyr::all_of(variable),
+      names_to = "variable",
       values_to = "value"
     ) |>
     # Group by the grouping columns AND the new variable column
     dplyr::group_by(dplyr::across(dplyr::all_of(c(group_cols, "variable")))) |>
     # Dynamically summarize based on user requests
     dplyr::summarise(!!!summary_exprs, .groups = "drop")
-  
+
   # Pivot longer into the final format
   res <- metrics_pivot_longer(x = res, cols = stats)
 
@@ -124,7 +125,7 @@ compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p
 }
 
 #' Compute the prediction interval summary over time.
-#' 
+#'
 #' @param x data frame
 #' @param variable variable(s) used to compute the prediction interval, character vector.
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
@@ -132,31 +133,33 @@ compute_stats <- function(x, variable, strata = getDefaultStrata(), stats = c("p
 #' @return a summary table
 #' @importFrom dplyr mutate case_when
 #' @export
-compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
+compute_pi <- function(x, variable, strata = get_default_strata(), level = 0.90) {
   # Map PI level to requested percentile strings
   prob_low <- (1 - level) / 2
-  prob_up  <- 1 - prob_low
-  
+  prob_up <- 1 - prob_low
+
   low_name <- paste0("p", prob_low * 100)
-  up_name  <- paste0("p", prob_up * 100)
-  
+  up_name <- paste0("p", prob_up * 100)
+
   # Call the generic function
   res <- compute_stats(
-    x = x, 
-    variable = variable, 
-    strata = strata, 
+    x = x,
+    variable = variable,
+    strata = strata,
     stats = c(low_name, "median", up_name)
   )
-  
+
   # Map the generic metric names ("p5", "median", "p95") back to ("low", "med", "up")
-  res <- res |> 
-    dplyr::mutate(metric = dplyr::case_when(
-      metric == "median" ~ "med",
-      metric == low_name ~ "low",
-      metric == up_name  ~ "up",
-      TRUE               ~ metric
-    ))
-  
+  res <- res |>
+    dplyr::mutate(
+      metric = dplyr::case_when(
+        metric == "median" ~ "med",
+        metric == low_name ~ "low",
+        metric == up_name ~ "up",
+        TRUE ~ metric
+      )
+    )
+
   return(res)
 }
 
@@ -166,25 +169,32 @@ compute_pi <- function(x, variable, strata = getDefaultStrata(), level = 0.90) {
 #' - med: median value in replicate (and in scenario if present)
 #' - up: up percentile value in replicate (and in scenario if present)
 #' - any scenario column
-#' 
+#'
 #' @param x data frame, with metric
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 #'   Only columns that are actually present in \code{x} are used.
 #' @param level PI level, default is 0.9 (90\% PI)
 #' @importFrom dplyr rename
 #' @importFrom tidyr pivot_wider
-#' @return VPC summary with columns TIME, stratification variables and all combinations of 
+#' @return VPC summary with columns TIME, stratification variables and all combinations of
 #' low, med, up (i.e. low_low, low_med, low_up, etc.)
 #' @keywords internal
-make_vpc_summary <- function(x, strata=NULL, level=0.90) {
+make_vpc_summary <- function(x, strata = NULL, level = 0.90) {
   x <- x |>
-    dplyr::rename(original_metric="metric")
-  retValue <- compute_pi(x=x, variable="value", strata=c(original_metric=allStrataLevels(), strata), level=level) |>
+    dplyr::rename(original_metric = "metric")
+  retValue <- compute_pi(
+    x = x,
+    variable = "value",
+    strata = c(original_metric = all_strata_levels(), strata),
+    level = level
+  ) |>
     metrics_pivot_wider()
 
   retValue_ <- retValue |>
-    tidyr::pivot_wider(names_from="original_metric",
-                       names_glue="{original_metric}_{.value}",
-                       values_from=c("low", "med", "up"))
+    tidyr::pivot_wider(
+      names_from = "original_metric",
+      names_glue = "{original_metric}_{.value}",
+      values_from = c("low", "med", "up")
+    )
   return(retValue_)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/scatter_plot.R
 \name{scatter_plot.std_campsis_tbl}
 \alias{scatter_plot.std_campsis_tbl}
-\title{Scatter plot for standard CAMPSIS simulation output.}
+\title{Scatter plot for standard Campsis simulation output.}
 \usage{
 \method{scatter_plot}{std_campsis_tbl}(x, variable = "CONC", colour = "auto", time = NULL, ...)
 }

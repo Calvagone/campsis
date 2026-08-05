@@ -2,9 +2,9 @@
 #----                       time_entry class                                ----
 #_______________________________________________________________________________
 
-checkTimeEntry <- function(object) {
-  check1 <- expectOneOrMore(object, "time")
-  check2 <- expectPositiveValues(object, "time")
+check_time_entry <- function(object) {
+  check1 <- expect_one_or_more(object, "time")
+  check2 <- expect_positive_values(object, "time")
   return(c(check1, check2))
 }
 
@@ -13,6 +13,6 @@ setClass(
   representation(
     time = "numeric"
   ),
-  contains="pmx_element",
-  validity=checkTimeEntry
+  contains = "pmx_element",
+  validity = check_time_entry
 )

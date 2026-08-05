@@ -20,7 +20,7 @@ Only columns that are actually present in \code{x} are used.}
 \item{level}{PI level, default is 0.9 (90\% PI)}
 }
 \value{
-VPC summary with columns TIME, stratification variables and all combinations of 
+VPC summary with columns TIME, stratification variables and all combinations of
 low, med, up (i.e. low_low, low_med, low_up, etc.)
 }
 \description{

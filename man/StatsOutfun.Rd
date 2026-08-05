@@ -6,7 +6,7 @@
 \usage{
 StatsOutfun(
   variable,
-  strata = getDefaultStrata(),
+  strata = get_default_strata(),
   stats = c("p5", "median", "p95"),
   name = sprintf("stats_\%s", paste0(variable, collapse = "_"))
 )

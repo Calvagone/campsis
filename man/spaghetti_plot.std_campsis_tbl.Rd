@@ -2,7 +2,7 @@
 % Please edit documentation in R/spaghetti_plot.R
 \name{spaghetti_plot.std_campsis_tbl}
 \alias{spaghetti_plot.std_campsis_tbl}
-\title{Spaghetti plot for standard CAMPSIS simulation output.}
+\title{Spaghetti plot for standard Campsis simulation output.}
 \usage{
 \method{spaghetti_plot}{std_campsis_tbl}(x, variable = "CONC", colour = "auto", ...)
 }

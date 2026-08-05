@@ -32,3 +32,4 @@ a ggplot object
 \description{
 Shaded plot (or prediction interval plot).
 }
+\keyword{internal}

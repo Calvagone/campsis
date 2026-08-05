@@ -1,4 +1,3 @@
-
 #_______________________________________________________________________________
 #----                     shared S3 plot method helpers                     ----
 #_______________________________________________________________________________
@@ -37,16 +36,20 @@
   missing <- setdiff(variable, colnames(x))
   if (length(missing) > 0) {
     available <- paste(colnames(x), collapse = ", ")
-    stop(sprintf(
-      "Column(s) '%s' not found in data. Available columns: %s",
-      paste(missing, collapse = "', '"), available
-    ), call. = FALSE)
+    stop(
+      sprintf(
+        "Column(s) '%s' not found in data. Available columns: %s",
+        paste(missing, collapse = "', '"),
+        available
+      ),
+      call. = FALSE
+    )
   }
   invisible(NULL)
 }
 
 #' Does the data contain more than one replicate?
-#' 
+#'
 #' @return \code{TRUE} if the data contains a \code{replicate} column with more than one distinct value, \code{FALSE} otherwise
 #' @param x a data frame (typically \code{std_campsis_tbl})
 #' @importFrom dplyr n_distinct

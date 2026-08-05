@@ -10,14 +10,16 @@ editor_options:
 ---
 
 ```{r, results='asis', echo=F, message=F, warning=F}
-if (campsis::onCran()) {
-  cat("This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v17_run_simulation_in_parallel.html).")
+if (campsis::on_cran()) {
+  cat(
+    "This vignette was not built on CRAN. Please check out the online version [here](https://calvagone.github.io/campsis.doc/articles/v17_run_simulation_in_parallel.html)."
+  )
   knitr::knit_exit()
 }
 ```
 
 ```{r, results='asis', echo=F, message=F, warning=F}
-if (campsis::onCI()) {
+if (campsis::on_ci()) {
   cat("This vignette takes time to build and is excluded from the CI.")
   knitr::knit_exit()
 }
@@ -38,8 +40,8 @@ This vignette explains how Campsis can benefit from several CPU cores for runnin
 model <- model_suite$pk$`2cpt_fo_mm`
 
 dataset <- Dataset(1000) %>%
-  add(Bolus(time=0, amount=100, ii=12, addl=10)) %>%
-  add(Observations(times=0:(11*12)))
+  add(Bolus(time = 0, amount = 100, ii = 12, addl = 10)) %>%
+  add(Observations(times = 0:(11 * 12)))
 ```
 
 ### Run replicates in parallel
@@ -48,24 +50,39 @@ Sequential run:
 
 ```{r, message=F}
 tic()
-results <- simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, outfun=PIOutfun(variable="CONC"), replicates=100)
+results <- simulate(
+  model = model,
+  dataset = dataset,
+  dest = "mrgsolve",
+  seed = 1,
+  outfun = PIOutfun(variable = "CONC"),
+  replicates = 100
+)
 toc()
 ```
 
 Using 6 cores:
 
 ```{r}
-settings <- Settings(Hardware(cpu=6, replicate_parallel=TRUE))
+settings <- Settings(Hardware(cpu = 6, replicate_parallel = TRUE))
 ```
 
 ```{r, message=F}
 tic()
-results <- simulate(model=model, dataset=dataset, dest="mrgsolve", seed=1, outfun=PIOutfun(variable="CONC"), replicates=10, settings=settings)
+results <- simulate(
+  model = model,
+  dataset = dataset,
+  dest = "mrgsolve",
+  seed = 1,
+  outfun = PIOutfun(variable = "CONC"),
+  replicates = 100,
+  settings = settings
+)
 toc()
 ```
 
 ```{r replicates_in_parallel, fig.align='center', fig.height=4, fig.width=8}
-vpcPlot(results)
+vpc_plot(results)
 ```
 
 Since there is no uncertainty on the parameters and since 1000 patients are simulated in each replicate, the confidence intervals on the percentiles are very low.
@@ -84,9 +101,12 @@ Let's create one scenario per dose to be tested:
 
 ```{r}
 scenarios <- Scenarios()
-for (dose in c(0.5,1,5,10,50,100,500,1000,5000,10000,50000,100000)) {
+for (dose in c(0.5, 1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000)) {
   scenarios <- scenarios %>%
-    add(Scenario(name=paste0("DOSE=", dose), dataset=dataset_ %>% replace(Covariate("DOSE", dose))))
+    add(Scenario(
+      name = paste0("DOSE=", dose),
+      dataset = dataset_ %>% replace(Covariate("DOSE", dose))
+    ))
 }
 ```
 
@@ -94,31 +114,52 @@ Sequential run:
 
 ```{r, message=F}
 tic()
-results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1, scenarios=scenarios)
+results <- simulate(
+  model = model,
+  dataset = dataset_,
+  seed = 1,
+  scenarios = scenarios
+)
 toc()
 ```
 
-Using 6 cores (plan is auto-setup):
+Using 6 cores (auto-setup plan):
 
 ```{r}
-settings <- Settings(Hardware(cpu=6, scenario_parallel=TRUE))
+settings <- Settings(Hardware(cpu = 6, scenario_parallel = TRUE))
 ```
 
 ```{r, message=F}
 tic()
-results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1, scenarios=scenarios, settings=settings)
+results <- simulate(
+  model = model,
+  dataset = dataset_,
+  seed = 1,
+  scenarios = scenarios,
+  settings = settings
+)
 toc()
 ```
 
 Using 6 cores (plan already setup from last execution):
 
 ```{r}
-settings <- Settings(Hardware(cpu=6, scenario_parallel=TRUE, auto_setup_plan=FALSE))
+settings <- Settings(Hardware(
+  cpu = 6,
+  scenario_parallel = TRUE,
+  auto_setup_plan = FALSE
+))
 ```
 
 ```{r, message=F}
 tic()
-results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1, scenarios=scenarios, settings=settings)
+results <- simulate(
+  model = model,
+  dataset = dataset_,
+  seed = 1,
+  scenarios = scenarios,
+  settings = settings
+)
 toc()
 ```
 
@@ -126,67 +167,12 @@ Plot results:
 
 ```{r scenarios_in_parallel, fig.align='center', fig.height=4, fig.width=8}
 # Re-arrange scenarios by natural order
-results <- results %>% mutate(SCENARIO=factor(SCENARIO, levels=unique(SCENARIO)))
+results <- results %>%
+  mutate(SCENARIO = factor(SCENARIO, levels = unique(SCENARIO)))
 
-shadedPlot(results, "CONC", "SCENARIO") +
-  facet_wrap(~SCENARIO, ncol=4, scales="free_y") +
-  guides(colour="none", fill="none")
-```
-
-### Export dataset in parallel
-
-In some particular cases, when the number of subjects is important and/or the dataset is complex, it may be interesting to export the dataset in parallel.
-Let's illustrate this feature using a dataset that contains a lot of subjects and treatment IOV (which is costly).
-
-```{r}
-dataset_ <- dataset %>%
-  setSubjects(24000) %>%
-  add(IOV("IOV_KA", distribution=NormalDistribution(mean=0, sd=0.1))) # This step is costly
-```
-
-```{r}
-model_ <- model %>%
-  replaceAll("ETA_KA", "ETA_KA + IOV_KA")
-
-```
-
-Sequential run:
-
-```{r, message=F}
-tic()
-settings <- Settings(Hardware(slice_size=4000))
-results <- simulate(model=model_, dataset=dataset_, dest="mrgsolve", seed=1, settings=settings)
-toc()
-```
-
-Using 6 cores (plan is auto-setup):
-
-```{r}
-settings <- Settings(Hardware(cpu=6, dataset_parallel=TRUE, dataset_slice_size=4000, slice_size=4000))
-```
-
-```{r, message=F}
-tic()
-results <- simulate(model=model_, dataset=dataset_, dest="mrgsolve", seed=1, settings=settings)
-toc()
-```
-
-Using 6 cores (plan already setup from last execution):
-
-```{r}
-settings <- Settings(Hardware(cpu=6, dataset_parallel=TRUE, dataset_slice_size=4000, slice_size=4000, auto_setup_plan=FALSE))
-```
-
-```{r, message=F}
-tic()
-results <- simulate(model=model_, dataset=dataset_, dest="mrgsolve", seed=1, settings=settings)
-toc()
-```
-
-Plot results:
-
-```{r dataset_in_parallel, fig.align='center', fig.height=4, fig.width=8}
-shadedPlot(results, "CONC")
+shaded_plot(results, "CONC") +
+  facet_wrap(~SCENARIO, ncol = 4, scales = "free_y") +
+  guides(colour = "none", fill = "none")
 ```
 
 ### Run slices in parallel
@@ -196,47 +182,36 @@ To illustrate this topic, let's dose and observe a drug over a 6-month period.
 
 ```{r}
 dataset_ <- Dataset(200) %>%
-  add(Bolus(time=0, amount=100, ii=12, addl=364)) %>%
-  add(Observations(times=0:(365*12)))
+  add(Bolus(time = 0, amount = 100, ii = 12, addl = 364)) %>%
+  add(Observations(times = 0:(365 * 12)))
 ```
 
-Sequential run (`rxode2`) :
+Sequential run:
 
 ```{r, message=F}
 tic()
-results <- simulate(model=model, dataset=dataset_, dest="rxode2", seed=1)
+results <- simulate(
+  model = model,
+  dataset = dataset_,
+  seed = 1
+)
 toc()
 ```
 
-Sequential run (`mrgsolve`) :
-
-```{r, message=F}
-tic()
-results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1)
-toc()
-```
-
-Using 6 cores (`rxode2`, plan is auto-setup):
+Using 6 cores (auto-setup plan):
 
 ```{r}
-settings <- Settings(Hardware(cpu=6, slice_parallel=TRUE))
+settings <- Settings(Hardware(cpu = 6, slice_parallel = TRUE))
 ```
 
 ```{r, message=F}
 tic()
-results <- simulate(model=model, dataset=dataset_, dest="rxode2", seed=1, settings=settings)
-toc()
-```
-
-Using 6 cores (`mrgsolve`, plan is auto-setup):
-
-```{r}
-settings <- Settings(Hardware(cpu=6, slice_parallel=TRUE))
-```
-
-```{r, message=F}
-tic()
-results <- simulate(model=model, dataset=dataset_, dest="mrgsolve", seed=1, settings=settings)
+results <- simulate(
+  model = model,
+  dataset = dataset_,
+  seed = 1,
+  settings = settings
+)
 toc()
 ```
 
@@ -247,11 +222,15 @@ For `rxode2`, which works with a much smaller slice size of 6 subjects, parallel
 
 As you may have seen in the examples above, the argument `auto_setup_plan` is `TRUE` by default. This means, that Campsis, will setup your hardware plan every time you call the `simulate` method. This comes at a high cost since the setup phase can take some time.
 
-For repeated simulations, it may be useful to setup your plan manually once for all. To do so, you can call `setupPlanDefault` on your settings or hardware object:
+For repeated simulations, it may be useful to setup your plan manually once for all. To do so, you can call `setup_plan_default` on your settings or hardware object:
 
 ```{r}
-settings <- Settings(Hardware(cpu=2, replicate_parallel=TRUE, auto_setup_plan=FALSE))
-setupPlanDefault(settings)
+settings <- Settings(Hardware(
+  cpu = 2,
+  replicate_parallel = TRUE,
+  auto_setup_plan = FALSE
+))
+setup_plan_default(settings)
 ```
 
 If you do so, please don't forget to set the argument `auto_setup_plan` to FALSE, when you give these settings to the `simulate` method, otherwise your plan is setup again...
@@ -259,7 +238,7 @@ If you do so, please don't forget to set the argument `auto_setup_plan` to FALSE
 For going back to the sequential execution (1 CPU core), you can call:
 
 ```{r}
-setupPlanSequential()
+setup_plan_sequential()
 ```
 
 ### Run Campsis in parallel within the pipeline tool targets
@@ -275,36 +254,36 @@ source("R/my_script.R")
 
 # Packages loaded by targets
 packages <- c("campsis", "progressr", "future")
-tar_option_set(packages=packages, storage="worker", retrieval="worker")
+tar_option_set(packages = packages, storage = "worker", retrieval = "worker")
 
 # Prepare 3 workers
-future::plan(future::multisession, workers=3)
+future::plan(future::multisession, workers = 3)
 
 list(
   tar_target(
     model,
     model_suite$pk$`1cpt_zo_abs_lag`,
-    deployment="main"
+    deployment = "main"
   ),
   tar_target(
     dataset,
-    makeDataset(subjects=1000, dose=1000),
-    deployment="main"
+    make_dataset(subjects = 1000, dose = 1000),
+    deployment = "main"
   ),
   tar_target(
     results1,
-    runSimulation(model=model, dataset=dataset, replicates=10, seed=1),
-    deployment="worker"
+    run_simulation(model = model, dataset = dataset, replicates = 10, seed = 1),
+    deployment = "worker"
   ),
   tar_target(
     results2,
-    runSimulation(model=model, dataset=dataset, replicates=10, seed=2),
-    deployment="worker"
+    run_simulation(model = model, dataset = dataset, replicates = 10, seed = 2),
+    deployment = "worker"
   ),
   tar_target(
     results3,
-    runSimulation(model=model, dataset=dataset, replicates=10, seed=3),
-    deployment="worker"
+    run_simulation(model = model, dataset = dataset, replicates = 10, seed = 3),
+    deployment = "worker"
   )
 )
 ```
@@ -312,12 +291,15 @@ list(
 This small project can be downloaded by clicking the link below.
 
 ```{r echo=FALSE}
-xfun::embed_dir('resources/Targets_Squeletton_Parallel/', text="Download targets squeletton")
+xfun::embed_dir(
+  'resources/Targets_Squeletton_Parallel/',
+  text = "Download targets squeletton"
+)
 ```
 
 To run this project, nothing is easier. Open an R console within your targets folder and type:
 
 ```{r, echo=TRUE, eval=FALSE}
 library(targets)
-tar_make_future(workers=3)
+tar_make_future(workers = 3)
 ```

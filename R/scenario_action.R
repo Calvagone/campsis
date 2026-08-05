@@ -2,18 +2,17 @@
 #----                        scenario_action class                          ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Scenario action class.
-#' 
+#'
 #' @export
 setClass(
   "scenario_action",
-  representation(
-  ),
-  contains="pmx_element"
+  representation(),
+  contains = "pmx_element"
 )
 
-setMethod("getName", signature = c("scenario_action"), definition = function(x) {
+setMethod("get_name", signature = c("scenario_action"), definition = function(x) {
   return(as.character(NA))
 })
 
@@ -21,37 +20,37 @@ setMethod("getName", signature = c("scenario_action"), definition = function(x) 
 #----                         replace_action class                          ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Replace action class.
-#' 
+#'
 #' @export
 setClass(
   "replace_action",
   representation(
     object = "ANY"
   ),
-  contains="scenario_action"
+  contains = "scenario_action"
 )
 
-#' 
+#'
 #' Create a replace action.
-#' 
+#'
 #' @param object replacement object
-#' @return a replace action 
+#' @return a replace action
 #' @export
 ReplaceAction <- function(object) {
-  return(new("replace_action", object=object))
+  return(new("replace_action", object = object))
 }
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("replace_action", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature = c("replace_action", "json_element"), definition = function(object, json) {
   replacementObject <- json@data$object
   replacementType <- replacementObject$type
   if (replacementType %in% c("theta", "omega", "sigma")) {
-    object@object <- campsismod::jsonToParameter(replacementObject)
+    object@object <- campsismod::json_to_parameter(replacementObject)
   } else {
     stop(sprintf("Type 's' is not supported as a replacement object", replacementType))
   }
@@ -59,11 +58,11 @@ setMethod("loadFromJSON", signature=c("replace_action", "json_element"), definit
 })
 
 #_______________________________________________________________________________
-#----                            applyAction                                ----
+#----                            apply_action                               ----
 #_______________________________________________________________________________
 
-#' @rdname applyAction
-setMethod("applyAction", signature=c("campsis_model", "replace_action"), definition=function(object, action) {
+#' @rdname apply_action
+setMethod("apply_action", signature = c("campsis_model", "replace_action"), definition = function(object, action) {
   replacementObject <- action@object
   if (is(replacementObject, "parameter")) {
     object <- object %>%
@@ -72,8 +71,8 @@ setMethod("applyAction", signature=c("campsis_model", "replace_action"), definit
   return(object)
 })
 
-#' @rdname applyAction
-setMethod("applyAction", signature=c("dataset", "replace_action"), definition=function(object, action) {
+#' @rdname apply_action
+setMethod("apply_action", signature = c("dataset", "replace_action"), definition = function(object, action) {
   # Nothing to do yet
   return(object)
 })
@@ -82,7 +81,7 @@ setMethod("applyAction", signature=c("dataset", "replace_action"), definition=fu
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("replace_action"), definition=function(object) {
+setMethod("show", signature = c("replace_action"), definition = function(object) {
   cat("Replacement object:\n")
   show(object@object)
   cat("\n")

@@ -26,7 +26,9 @@ setClass(
   ),
   contains = "pmx_element",
   prototype = prototype(
-    fun = function(x, ...) {x}, # Identity function
+    fun = function(x, ...) {
+      x
+    }, # Identity function
     name = "default",
     args = list(),
     packages = character(0),
@@ -36,7 +38,7 @@ setClass(
   )
 )
 
-setMethod("getName", signature = c("outfun"), definition = function(x) {
+setMethod("get_name", signature = c("outfun"), definition = function(x) {
   return(x@name)
 })
 
@@ -51,7 +53,15 @@ setMethod("getName", signature = c("outfun"), definition = function(x) {
 #' @importFrom rlang as_function is_formula
 #' @return an output function
 #' @export
-Outfun <- function(fun = function(x, ...) {x}, args = list(), packages = NULL, level = "replicate", name = "custom") {
+Outfun <- function(
+  fun = function(x, ...) {
+    x
+  },
+  args = list(),
+  packages = NULL,
+  level = "replicate",
+  name = "custom"
+) {
   if (is.function(fun)) {
     # Do nothing
   } else if (rlang::is_formula(fun)) {
@@ -119,11 +129,12 @@ setMethod("apply_outfun", signature = c(outfun = "outfun"), definition = functio
 #' @export
 setClass(
   "default_outfun",
-  representation(
-  ),
+  representation(),
   contains = "outfun",
   prototype = prototype(
-    fun = function(x, ...) {x}, # Identity function
+    fun = function(x, ...) {
+      x
+    }, # Identity function
     name = "default",
     cls = c("std_campsis_tbl", "campsis_tbl")
   )
@@ -137,10 +148,9 @@ DefaultOutfun <- function() {
   return(new("default_outfun"))
 }
 
-setMethod("loadFromJSON", signature = c("default_outfun", "json_element"), definition = function(object, json) {
-    return(object) # Nothing to do
-  }
-)
+setMethod("load_from_json", signature = c("default_outfun", "json_element"), definition = function(object, json) {
+  return(object) # Nothing to do
+})
 
 #_______________________________________________________________________________
 #----                            pi_outfun class                            ----
@@ -173,7 +183,7 @@ setClass(
   prototype = prototype(
     fun = pi_wrapper,
     variable = character(0),
-    strata = getDefaultStrata(),
+    strata = get_default_strata(),
     pi_level = 0.90,
     name = "default_pi",
     cls = c("pi_campsis_tbl", "campsis_tbl"),
@@ -191,8 +201,12 @@ setClass(
 #' @importFrom assertthat assert_that
 #' @return a pi_outfun object
 #' @export
-PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
-  name = sprintf("pi_%s_%i%%", paste0(variable, collapse = "_"), round(level * 100))) {
+PIOutfun <- function(
+  variable,
+  strata = get_default_strata(),
+  level = 0.9,
+  name = sprintf("pi_%s_%i%%", paste0(variable, collapse = "_"), round(level * 100))
+) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
@@ -218,11 +232,10 @@ PIOutfun <- function(variable, strata = getDefaultStrata(), level = 0.9,
   ))
 }
 
-setMethod("loadFromJSON", signature = c("pi_outfun", "json_element"), definition = function(object, json) {
-    object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
-    return(object)
-  }
-)
+setMethod("load_from_json", signature = c("pi_outfun", "json_element"), definition = function(object, json) {
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
+  return(object)
+})
 
 #_______________________________________________________________________________
 #----                          stats_outfun class                           ----
@@ -255,7 +268,7 @@ setClass(
   prototype = prototype(
     fun = stats_wrapper,
     variable = character(0),
-    strata = getDefaultStrata(),
+    strata = get_default_strata(),
     stats = c("p5", "median", "p95"),
     name = "default_stats",
     cls = c("stats_campsis_tbl", "campsis_tbl"),
@@ -273,8 +286,12 @@ setClass(
 #' @importFrom assertthat assert_that
 #' @return a stats_outfun object
 #' @export
-StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "median", "p95"),
-  name = sprintf("stats_%s", paste0(variable, collapse = "_"))) {
+StatsOutfun <- function(
+  variable,
+  strata = get_default_strata(),
+  stats = c("p5", "median", "p95"),
+  name = sprintf("stats_%s", paste0(variable, collapse = "_"))
+) {
   assertthat::assert_that(
     is.character(variable) && length(variable) >= 1,
     msg = "variable must be a non-empty character vector"
@@ -300,11 +317,10 @@ StatsOutfun <- function(variable, strata = getDefaultStrata(), stats = c("p5", "
   ))
 }
 
-setMethod("loadFromJSON", signature = c("stats_outfun", "json_element"), definition = function(object, json) {
-    object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
-    return(object)
-  }
-)
+setMethod("load_from_json", signature = c("stats_outfun", "json_element"), definition = function(object, json) {
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
+  return(object)
+})
 
 
 #_______________________________________________________________________________
@@ -317,7 +333,12 @@ nca_table_wrapper <- function(x, obj, ...) {
   table_ <- eval(parse(text = eval_str1))
   eval_str2 <- sprintf("table_ |> campsismod::export(dest='dataframe', type='%s')", obj@export_type)
   export_df <- eval(parse(text = eval_str2))
-  class(export_df) <- c(sprintf("%s_campsisnca_tbl", obj@export_type), "campsisnca_tbl", "campsis_tbl", class(export_df))
+  class(export_df) <- c(
+    sprintf("%s_campsisnca_tbl", obj@export_type),
+    "campsisnca_tbl",
+    "campsis_tbl",
+    class(export_df)
+  )
   return(export_df)
 }
 
@@ -337,7 +358,7 @@ setClass(
   prototype = prototype(
     fun = nca_table_wrapper,
     name = "default_nca_table",
-    cls = c("campsisnca_tbl"), 
+    cls = c("campsisnca_tbl"),
     packages = c("campsisnca", "gtsummary"),
     outfun_as_arg = TRUE
   )
@@ -371,12 +392,11 @@ NCATableOutfun <- function(table, export_type = "summary", name = "default_nca_t
   ))
 }
 
-setMethod("loadFromJSON", signature = c("nca_table_outfun", "json_element"), definition = function(object, json) {
-    table <- open_nca_table(json=json@data$table)
-    json@data$table <- NULL
-    object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
-    object@table <- table
-    object@cls <- c(sprintf("%s_campsisnca_tbl", object@export_type), "campsisnca_tbl") # Cls constructed similarly as in NCATableOutfun constructor
-    return(object)
-}
-)
+setMethod("load_from_json", signature = c("nca_table_outfun", "json_element"), definition = function(object, json) {
+  table <- open_nca_table(json = json@data$table)
+  json@data$table <- NULL
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
+  object@table <- table
+  object@cls <- c(sprintf("%s_campsisnca_tbl", object@export_type), "campsisnca_tbl") # Cls constructed similarly as in NCATableOutfun constructor
+  return(object)
+})

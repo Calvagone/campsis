@@ -2,7 +2,7 @@
 % Please edit documentation in R/vpc_plot.R
 \name{vpc_plot.pi_campsis_tbl}
 \alias{vpc_plot.pi_campsis_tbl}
-\title{VPC plot for prediction-interval CAMPSIS output.}
+\title{VPC plot for prediction-interval Campsis output.}
 \usage{
 \method{vpc_plot}{pi_campsis_tbl}(x, strata = "auto", level = 0.9, alpha = 0.15, facet = TRUE, ...)
 }

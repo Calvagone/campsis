@@ -2,37 +2,35 @@
 #----                        distribution class                             ----
 #_______________________________________________________________________________
 
-validateDistribution <- function(object) {
+validate_distribution <- function(object) {
   return(TRUE)
 }
 
-#' 
+#'
 #' Distribution class. See this class as an interface.
-#' 
+#'
 #' @export
 setClass(
   "distribution",
-  representation(
-  ),
-  contains="pmx_element",
-  validity=validateDistribution
+  representation(),
+  contains = "pmx_element",
+  validity = validate_distribution
 )
 
 #_______________________________________________________________________________
 #----                     undefined_distribution class                      ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Undefined distribution class. This type of object is automatically created
-#' in method toExplicitDistribution() when the user does not provide a concrete
+#' in method to_explicit_distribution() when the user does not provide a concrete
 #' distribution. This is because S4 objects do not accept NULL values.
-#' 
+#'
 #' @export
 setClass(
   "undefined_distribution",
-  representation(
-  ),
-  contains="distribution"
+  representation(),
+  contains = "distribution"
 )
 
 #_______________________________________________________________________________
@@ -40,7 +38,7 @@ setClass(
 #_______________________________________________________________________________
 
 validateSampledDistribution <- function(object) {
-  return(expectZeroOrMore(object, "sampled_values"))
+  return(expect_zero_or_more(object, "sampled_values"))
 }
 
 setClass(
@@ -48,9 +46,9 @@ setClass(
   representation(
     sampled_values = "numeric"
   ),
-  contains="distribution",
-  prototype=prototype(sampled_values=numeric(0)),
-  validity=validateSampledDistribution
+  contains = "distribution",
+  prototype = prototype(sampled_values = numeric(0)),
+  validity = validateSampledDistribution
 )
 
 #_______________________________________________________________________________
@@ -58,12 +56,12 @@ setClass(
 #_______________________________________________________________________________
 
 validateConstantDistribution <- function(object) {
-  return(expectOneForAll(object, c("value")))
+  return(expect_one_for_all(object, c("value")))
 }
 
-#' 
+#'
 #' Constant distribution class.
-#' 
+#'
 #' @slot value covariate value, single numeric value
 #' @export
 setClass(
@@ -71,18 +69,18 @@ setClass(
   representation(
     value = "numeric"
   ),
-  contains="sampled_distribution",
-  validity=validateConstantDistribution
+  contains = "sampled_distribution",
+  validity = validateConstantDistribution
 )
 
-#' 
+#'
 #' Create a constant distribution. Its value will be constant across all generated samples.
-#' 
+#'
 #' @param value covariate value, single numeric value
-#' @return a constant distribution (same value for all samples)  
+#' @return a constant distribution (same value for all samples)
 #' @export
 ConstantDistribution <- function(value) {
-  return(new("constant_distribution", value=as.numeric(value)))
+  return(new("constant_distribution", value = as.numeric(value)))
 }
 
 #_______________________________________________________________________________
@@ -90,12 +88,12 @@ ConstantDistribution <- function(value) {
 #_______________________________________________________________________________
 
 validateFixedDistribution <- function(object) {
-  return(expectOneOrMore(object, c("values")))
+  return(expect_one_or_more(object, c("values")))
 }
 
-#' 
+#'
 #' Fixed distribution class.
-#' 
+#'
 #' @slot values covariate values, numeric vector (1 value per sample)
 #' @export
 setClass(
@@ -103,8 +101,8 @@ setClass(
   representation(
     values = "numeric"
   ),
-  contains="sampled_distribution",
-  validity=validateFixedDistribution
+  contains = "sampled_distribution",
+  validity = validateFixedDistribution
 )
 
 #'
@@ -115,7 +113,7 @@ setClass(
 #' @return a fixed distribution (1 value per sample)
 #' @export
 FixedDistribution <- function(values) {
-  return(new("fixed_distribution", values=values))
+  return(new("fixed_distribution", values = values))
 }
 
 #_______________________________________________________________________________
@@ -123,14 +121,14 @@ FixedDistribution <- function(values) {
 #_______________________________________________________________________________
 
 validateFunctionDistribution <- function(object) {
-  check1 <- expectOne(object, "fun")
-  check2 <- expectZeroOrMore(object, "args")
+  check1 <- expect_one(object, "fun")
+  check2 <- expect_zero_or_more(object, "args")
   return(c(check1, check2))
 }
 
-#' 
+#'
 #' Function distribution class.
-#' 
+#'
 #' @slot fun function name, character (e.g. 'rnorm')
 #' @slot args list of arguments (e.g list(mean=70, sd=10))
 #' @export
@@ -140,9 +138,9 @@ setClass(
     fun = "character",
     args = "list"
   ),
-  contains="sampled_distribution",
-  prototype=prototype(args=list()),
-  validity=validateFunctionDistribution
+  contains = "sampled_distribution",
+  prototype = prototype(args = list()),
+  validity = validateFunctionDistribution
 )
 
 #'
@@ -156,22 +154,21 @@ setClass(
 #' @return a function distribution
 #' @export
 FunctionDistribution <- function(fun, args) {
-  return(new("function_distribution", fun=fun, args=args))
+  return(new("function_distribution", fun = fun, args = args))
 }
 
 #_______________________________________________________________________________
 #----                      uniform_distribution class                       ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Uniform distribution class.
-#' 
+#'
 #' @export
 setClass(
   "uniform_distribution",
-  representation(
-  ),
-  contains="function_distribution"
+  representation(),
+  contains = "function_distribution"
 )
 
 #'
@@ -182,24 +179,23 @@ setClass(
 #' @return an uniform distribution
 #' @export
 UniformDistribution <- function(min, max) {
-  expectSingleNumericValue(min, "min")
-  expectSingleNumericValue(max, "max")
-  return(new("function_distribution", fun="runif", args=list(min=as.numeric(min), max=as.numeric(max))))
+  expect_single_numeric_value(min, "min")
+  expect_single_numeric_value(max, "max")
+  return(new("function_distribution", fun = "runif", args = list(min = as.numeric(min), max = as.numeric(max))))
 }
 
 #_______________________________________________________________________________
 #----                     normal_distribution class                         ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Normal distribution class.
-#' 
+#'
 #' @export
 setClass(
   "normal_distribution",
-  representation(
-  ),
-  contains="function_distribution"
+  representation(),
+  contains = "function_distribution"
 )
 
 #'
@@ -210,24 +206,23 @@ setClass(
 #' @return a normal distribution
 #' @export
 NormalDistribution <- function(mean, sd) {
-  expectSingleNumericValue(mean, "mean")
-  expectSingleNumericValue(sd, "sd")
-  return(new("normal_distribution", fun="rnorm", args=list(mean=as.numeric(mean), sd=as.numeric(sd))))
+  expect_single_numeric_value(mean, "mean")
+  expect_single_numeric_value(sd, "sd")
+  return(new("normal_distribution", fun = "rnorm", args = list(mean = as.numeric(mean), sd = as.numeric(sd))))
 }
 
 #_______________________________________________________________________________
 #----                    lognormal_distribution class                       ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Log normal distribution class.
-#' 
+#'
 #' @export
 setClass(
   "lognormal_distribution",
-  representation(
-  ),
-  contains="function_distribution"
+  representation(),
+  contains = "function_distribution"
 )
 
 
@@ -239,24 +234,27 @@ setClass(
 #' @return a log normal distribution
 #' @export
 LogNormalDistribution <- function(meanlog, sdlog) {
-  expectSingleNumericValue(meanlog, "meanlog")
-  expectSingleNumericValue(sdlog, "sdlog")
-  return(new("function_distribution", fun="rlnorm", args=list(meanlog=as.numeric(meanlog), sdlog=as.numeric(sdlog))))
+  expect_single_numeric_value(meanlog, "meanlog")
+  expect_single_numeric_value(sdlog, "sdlog")
+  return(new(
+    "function_distribution",
+    fun = "rlnorm",
+    args = list(meanlog = as.numeric(meanlog), sdlog = as.numeric(sdlog))
+  ))
 }
 
 #_______________________________________________________________________________
 #----                     discrete_distribution class                       ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Discrete distribution class.
-#' 
+#'
 #' @export
 setClass(
   "discrete_distribution",
-  representation(
-  ),
-  contains="function_distribution"
+  representation(),
+  contains = "function_distribution"
 )
 
 #'
@@ -267,26 +265,29 @@ setClass(
 #' @param replace should sampling be with replacement, default is TRUE
 #' @return a discrete distribution
 #' @export
-DiscreteDistribution <- function(x, prob, replace=TRUE) {
-  assertthat::assert_that(is.numeric(x), msg="x must be numeric")
-  assertthat::assert_that(is.numeric(prob), msg="prob must be numeric")
-  assertthat::assert_that(length(x)==length(prob), msg="x and prob must have the same length")
-  return(new("function_distribution", fun="base::sample", args=list(size="n", x=as.numeric(x), prob=as.numeric(prob), replace=as.logical(replace))))
+DiscreteDistribution <- function(x, prob, replace = TRUE) {
+  assertthat::assert_that(is.numeric(x), msg = "x must be numeric")
+  assertthat::assert_that(is.numeric(prob), msg = "prob must be numeric")
+  assertthat::assert_that(length(x) == length(prob), msg = "x and prob must have the same length")
+  return(new(
+    "function_distribution",
+    fun = "base::sample",
+    args = list(size = "n", x = as.numeric(x), prob = as.numeric(prob), replace = as.logical(replace))
+  ))
 }
 
 #_______________________________________________________________________________
 #----                     binomial_distribution class                       ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Binomial distribution class.
-#' 
+#'
 #' @export
 setClass(
   "binomial_distribution",
-  representation(
-  ),
-  contains="function_distribution"
+  representation(),
+  contains = "function_distribution"
 )
 
 #'
@@ -297,14 +298,14 @@ setClass(
 #' @return a binomial distribution
 #' @export
 BinomialDistribution <- function(trials, prob) {
-  expectSingleIntegerValue(trials, name="trials")
-  expectSingleNumericValue(prob, name="prob")
-  return(new("function_distribution", fun="rbinom", args=list(size=as.integer(trials), prob=as.numeric(prob))))
+  expect_single_integer_value(trials, name = "trials")
+  expect_single_numeric_value(prob, name = "prob")
+  return(new("function_distribution", fun = "rbinom", args = list(size = as.integer(trials), prob = as.numeric(prob))))
 }
 
-#' 
+#'
 #' Retrieve the parameter value (standardized) for the specified parameter name.
-#' 
+#'
 #' @param model model
 #' @param paramName parameter name
 #' @param default default value if not found
@@ -312,11 +313,13 @@ BinomialDistribution <- function(trials, prob) {
 #' @return the standardized parameter value or the given default value if not found
 #' @importFrom assertthat assert_that
 #' @export
-retrieveParameterValue <- function(model, paramName, default=NULL, mandatory=FALSE) {
-  assertthat::assert_that(is.character(paramName) && length(paramName)==1,
-                          msg="paramName must be a single character value")
-  parameter <- model@parameters %>% getByName(paramName)
-  
+retrieve_parameter_value <- function(model, paramName, default = NULL, mandatory = FALSE) {
+  assertthat::assert_that(
+    is.character(paramName) && length(paramName) == 1,
+    msg = "paramName must be a single character value"
+  )
+  parameter <- model@parameters %>% get_by_name(paramName)
+
   if (parameter %>% length() == 0) {
     if (is.null(default) && mandatory) {
       stop(paste0(paramName, " can't be found in model"))
@@ -330,37 +333,37 @@ retrieveParameterValue <- function(model, paramName, default=NULL, mandatory=FAL
   }
 }
 
-#' 
+#'
 #' Create a parameter distribution. The resulting distribution is a
 #' log-normal distribution, with meanlog=log(THETA) and sdlog=sqrt(OMEGA).
-#' 
+#'
 #' @param model model
 #' @param theta corresponding THETA name, character
 #' @param omega corresponding OMEGA name, character, NULL if not defined
-#' @return a parameter distribution  
+#' @return a parameter distribution
 #' @export
-ParameterDistribution <- function(model, theta, omega=NULL) {
-  thetaValue <- retrieveParameterValue(model, paramName=paste0("THETA_", theta), mandatory=TRUE)
+ParameterDistribution <- function(model, theta, omega = NULL) {
+  thetaValue <- retrieve_parameter_value(model, paramName = paste0("THETA_", theta), mandatory = TRUE)
   if (is.null(omega)) {
     omegaValue <- 0
   } else {
-    omegaValue <- retrieveParameterValue(model, paramName=paste0("OMEGA_", omega), mandatory=TRUE)
+    omegaValue <- retrieve_parameter_value(model, paramName = paste0("OMEGA_", omega), mandatory = TRUE)
   }
-  fun <- FunctionDistribution(fun="rlnorm", args=list(meanlog=log(thetaValue), sdlog=sqrt(omegaValue)))
+  fun <- FunctionDistribution(fun = "rlnorm", args = list(meanlog = log(thetaValue), sdlog = sqrt(omegaValue)))
   return(fun)
 }
 
-#' 
+#'
 #' Create an ETA distribution. The resulting distribution is a
 #' normal distribution, with mean=0 and sd=sqrt(OMEGA).
-#' 
+#'
 #' @param model model
 #' @param omega corresponding THETA name, character
 #' @return an ETA distribution
 #' @export
 EtaDistribution <- function(model, omega) {
-  omegaValue <- retrieveParameterValue(model, paramName=paste0("OMEGA_", omega), mandatory=TRUE)
-  return(NormalDistribution(mean=0, sd=sqrt(omegaValue)))
+  omegaValue <- retrieve_parameter_value(model, paramName = paste0("OMEGA_", omega), mandatory = TRUE)
+  return(NormalDistribution(mean = 0, sd = sqrt(omegaValue)))
 }
 
 #_______________________________________________________________________________
@@ -368,14 +371,14 @@ EtaDistribution <- function(model, omega) {
 #_______________________________________________________________________________
 
 validateBootstrapDistribution <- function(object) {
-  check1 <- expectOneOrMore(object, c("data"))
-  check2 <- expectOneForAll(object, c("replacement", "random"))
+  check1 <- expect_one_or_more(object, c("data"))
+  check2 <- expect_one_for_all(object, c("replacement", "random"))
   return(c(check1, check2))
 }
 
-#' 
+#'
 #' Bootstrap distribution class.
-#' 
+#'
 #' @slot data values to draw, numeric vector
 #' @slot replacement values can be reused or not, logical
 #' @slot random values are drawn randomly, logical
@@ -387,13 +390,13 @@ setClass(
     replacement = "logical",
     random = "logical"
   ),
-  contains="sampled_distribution",
-  prototype=prototype(replacement=FALSE, random=FALSE),
-  validity=validateBootstrapDistribution
+  contains = "sampled_distribution",
+  prototype = prototype(replacement = FALSE, random = FALSE),
+  validity = validateBootstrapDistribution
 )
 
 #'
-#' Create a bootstrap distribution. During function sampling, CAMPSIS will generate
+#' Create a bootstrap distribution. During function sampling, Campsis will generate
 #' values depending on the given data and arguments.
 #'
 #' @param data values to draw, numeric vector
@@ -401,8 +404,8 @@ setClass(
 #' @param random values are drawn randomly, logical
 #' @return a bootstrap distribution
 #' @export
-BootstrapDistribution <- function(data, replacement=FALSE, random=FALSE) {
-  return(new("bootstrap_distribution", data=data, replacement=replacement, random=random))
+BootstrapDistribution <- function(data, replacement = FALSE, random = FALSE) {
+  return(new("bootstrap_distribution", data = data, replacement = replacement, random = random))
 }
 
 #_______________________________________________________________________________
@@ -434,31 +437,40 @@ setMethod("sample", signature = c("fixed_distribution", "integer"), definition =
 
 #' @rdname sample
 setMethod("sample", signature = c("function_distribution", "integer"), definition = function(object, n) {
-  fun <- eval(parse(text=object@fun))
+  fun <- eval(parse(text = object@fun))
   args <- object@args
   SAMPLING_SIZE <- n
-  
+
   # If "n" is provided as value in args, this means the first arg of the function
   # is not related to the size
   hasNCharAsValue <- "n" %in% as.character(args)
-  
+
   if (length(args) == 0) {
     args_str <- "SAMPLING_SIZE"
   } else {
     # Example: return 'mean=70, sd=2'
-    args_str <- purrr::accumulate2(names(args), args, .f=function(.x, .y, .z){
-      comma <- if (.x=="") {""} else {", "}
-      if (.z[[1]]=="n") {
-        .z <- "SAMPLING_SIZE"
-      }
-      if (length(.z) > 1) {
-        value <- paste0("c(", paste0(.z, collapse=","), ")")
-      } else {
-        value <- .z
-      }
-      paste0(.x, comma, .y , "=", value)
-    }, .init="")
-    
+    args_str <- purrr::accumulate2(
+      names(args),
+      args,
+      .f = function(.x, .y, .z) {
+        comma <- if (.x == "") {
+          ""
+        } else {
+          ", "
+        }
+        if (.z[[1]] == "n") {
+          .z <- "SAMPLING_SIZE"
+        }
+        if (length(.z) > 1) {
+          value <- paste0("c(", paste0(.z, collapse = ","), ")")
+        } else {
+          value <- .z
+        }
+        paste0(.x, comma, .y, "=", value)
+      },
+      .init = ""
+    )
+
     if (hasNCharAsValue) {
       # Size is not the first argument
       args_str <- args_str[length(args_str)]
@@ -467,24 +479,33 @@ setMethod("sample", signature = c("function_distribution", "integer"), definitio
       args_str <- paste0("SAMPLING_SIZE, ", args_str[length(args_str)])
     }
   }
-  
+
   # Eval string expression
   if (hasNCharAsValue) {
     text <- paste0("sample_delegate(fun, ", args_str, ")")
   } else {
     text <- paste0("sample_delegate_n(fun, ", args_str, ")")
   }
-  
-  values <- eval(parse(text=text))
-  
+
+  values <- eval(parse(text = text))
+
   # Check result
   if (length(values) != n) {
-    stop(paste("Calling function", object@fun, "with arguments", args_str, "does not provided", n, "values but", length(values)))
+    stop(paste(
+      "Calling function",
+      object@fun,
+      "with arguments",
+      args_str,
+      "does not provided",
+      n,
+      "values but",
+      length(values)
+    ))
   }
-  
+
   # Assign values
   object@sampled_values <- values
-  
+
   return(object)
 })
 
@@ -494,59 +515,75 @@ setMethod("sample", signature = c("bootstrap_distribution", "integer"), definiti
   nData <- length(data)
   replacement <- object@replacement
   random <- object@random
-  
+
   if (n > nData && !replacement) {
-    stop(paste("Provided bootstrap function does not have enough data to generate", n, "samples (please set 'replacement' to TRUE)"))
+    stop(paste(
+      "Provided bootstrap function does not have enough data to generate",
+      n,
+      "samples (please set 'replacement' to TRUE)"
+    ))
   }
-  
+
   if (random) {
-    values <- data[sample.int(n=nData, size=n, replace=replacement)]
+    values <- data[sample.int(n = nData, size = n, replace = replacement)]
   } else {
-    values <- rep(data, length.out=n)
+    values <- rep(data, length.out = n)
   }
-  
+
   # Assign values
   object@sampled_values <- values
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("constant_distribution", "json_element"), definition=function(object, json) {
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
-  return(object)
-})
-
-setMethod("loadFromJSON", signature=c("fixed_distribution", "json_element"), definition=function(object, json) {
-  object <- campsismod::mapJSONPropertiesToS4Slots(object, json)
-  return(object)
-})
-
-setMethod("loadFromJSON", signature=c("uniform_distribution", "json_element"), definition=function(object, json) {
-  object <- UniformDistribution(min=json@data$min, max=json@data$max)
-  return(object)
-})
-
-setMethod("loadFromJSON", signature=c("normal_distribution", "json_element"), definition=function(object, json) {
-  object <- NormalDistribution(mean=json@data$mean, sd=json@data$sd)
-  return(object)
-})
-
-setMethod("loadFromJSON", signature=c("lognormal_distribution", "json_element"), definition=function(object, json) {
-  object <- LogNormalDistribution(meanlog=json@data$meanlog, sdlog=json@data$sdlog)
-  return(object)
-})
-
-setMethod("loadFromJSON", signature=c("discrete_distribution", "json_element"), definition=function(object, json) {
-  items <- json@data$items
-  values <- NULL
-  prob <- NULL
-  for (item in items) {
-    values <- c(values, item$value)
-    prob <- c(prob, item$probability)
+setMethod(
+  "load_from_json",
+  signature = c("constant_distribution", "json_element"),
+  definition = function(object, json) {
+    object <- campsismod::map_json_properties_to_s4_slots(object, json)
+    return(object)
   }
-  object <- DiscreteDistribution(x=values, prob=prob, replace=TRUE)
+)
+
+setMethod("load_from_json", signature = c("fixed_distribution", "json_element"), definition = function(object, json) {
+  object <- campsismod::map_json_properties_to_s4_slots(object, json)
   return(object)
 })
+
+setMethod("load_from_json", signature = c("uniform_distribution", "json_element"), definition = function(object, json) {
+  object <- UniformDistribution(min = json@data$min, max = json@data$max)
+  return(object)
+})
+
+setMethod("load_from_json", signature = c("normal_distribution", "json_element"), definition = function(object, json) {
+  object <- NormalDistribution(mean = json@data$mean, sd = json@data$sd)
+  return(object)
+})
+
+setMethod(
+  "load_from_json",
+  signature = c("lognormal_distribution", "json_element"),
+  definition = function(object, json) {
+    object <- LogNormalDistribution(meanlog = json@data$meanlog, sdlog = json@data$sdlog)
+    return(object)
+  }
+)
+
+setMethod(
+  "load_from_json",
+  signature = c("discrete_distribution", "json_element"),
+  definition = function(object, json) {
+    items <- json@data$items
+    values <- NULL
+    prob <- NULL
+    for (item in items) {
+      values <- c(values, item$value)
+      prob <- c(prob, item$probability)
+    }
+    object <- DiscreteDistribution(x = values, prob = prob, replace = TRUE)
+    return(object)
+  }
+)

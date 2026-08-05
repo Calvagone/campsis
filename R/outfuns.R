@@ -1,18 +1,16 @@
-
 #_______________________________________________________________________________
 #----                             outfuns class                             ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Output functions class (i.e. a collection of output functions).
-#' 
+#'
 #' @export
 setClass(
   "outfuns",
-  representation(
-  ),
-  contains="pmx_list",
-  prototype=prototype(type="outfun")
+  representation(),
+  contains = "pmx_list",
+  prototype = prototype(type = "outfun")
 )
 
 #'
@@ -28,9 +26,8 @@ Outfuns <- function() {
 #----                                 add                                   ----
 #_______________________________________________________________________________
 
-
 #' @importFrom methods callNextMethod
-setMethod("add", signature=c("outfuns", "outfun"), definition=function(object, x) {
+setMethod("add", signature = c("outfuns", "outfun"), definition = function(object, x) {
   return(methods::callNextMethod(object, x))
 })
 
@@ -53,7 +50,10 @@ setMethod("apply_outfun", signature = c(outfun = "outfuns"), definition = functi
           replicate_i <- sub$replicate[1]
           apply_outfun(
             x = sub %>% dplyr::select(-dplyr::all_of("replicate")),
-            outfun = fun, level = level, replicate = replicate_i, ...
+            outfun = fun,
+            level = level,
+            replicate = replicate_i,
+            ...
           ) %>%
             dplyr::mutate(replicate = replicate_i) %>%
             dplyr::relocate(dplyr::all_of("replicate"))
@@ -73,7 +73,7 @@ setMethod("apply_outfun", signature = c(outfun = "outfuns"), definition = functi
 #----                                show                                   ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("outfuns"), definition=function(object) {
+setMethod("show", signature = c("outfuns"), definition = function(object) {
   n <- object %>% length()
   if (n == 0) {
     cat("No output functions\n")
@@ -85,16 +85,17 @@ setMethod("show", signature=c("outfuns"), definition=function(object) {
 })
 
 #_______________________________________________________________________________
-#----                           loadFromJSON                                ----
+#----                           load_from_json                                ----
 #_______________________________________________________________________________
 
-setMethod("loadFromJSON", signature=c("outfuns", "json_element"), definition=function(object, json) {
+setMethod("load_from_json", signature = c("outfuns", "json_element"), definition = function(object, json) {
   json_outfuns <- json@data
-  
-  object@list <- json_outfuns %>% purrr::map(.f=function(json_outfun) {
-    outfun <- loadFromJSON(object=new(json_outfun$type), json=JSONElement(json_outfun))
-    return(outfun)
-  })
-  
+
+  object@list <- json_outfuns %>%
+    purrr::map(.f = function(json_outfun) {
+      outfun <- load_from_json(object = new(json_outfun$type), json = JSONElement(json_outfun))
+      return(outfun)
+    })
+
   return(object)
 })

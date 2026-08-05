@@ -1,35 +1,34 @@
-
-#' Filter CAMPSIS output on observation rows.
-#' 
-#' @param x data frame, CAMPSIS output
+#' Filter Campsis output on observation rows.
+#'
+#' @param x data frame, Campsis output
 #' @return a data frame with the observation rows
 #' @importFrom dplyr filter
 #' @export
-obsOnly <- function(x) {
+obs_only <- function(x) {
   if ("EVID" %in% colnames(x)) {
-    return(x %>% dplyr::filter(.data$EVID==0))
+    return(x %>% dplyr::filter(.data$EVID == 0))
   } else {
     return(x)
   }
 }
 
-#' Filter CAMPSIS output on dosing rows.
-#' 
-#' @param x data frame, CAMPSIS output
+#' Filter Campsis output on dosing rows.
+#'
+#' @param x data frame, Campsis output
 #' @return a data frame with the dosing rows
 #' @importFrom dplyr filter
 #' @export
-dosingOnly <- function(x) {
+dosing_only <- function(x) {
   if ("EVID" %in% colnames(x)) {
-    return(x %>% dplyr::filter(.data$EVID==1))
+    return(x %>% dplyr::filter(.data$EVID == 1))
   } else {
     return(x)
   }
 }
 
 #' Unite the given column names.
-#' 
-#' @param x data frame, CAMPSIS output
+#'
+#' @param x data frame, Campsis output
 #' @param columns columns to unify
 #' @param colname destination column name
 #' @param factor factor the destination column
@@ -37,23 +36,23 @@ dosingOnly <- function(x) {
 #' @importFrom dplyr all_of
 #' @importFrom tidyr unite
 #' @keywords internal
-uniteColumns <- function(x, columns, colname, factor=TRUE) {
+unite_columns <- function(x, columns, colname, factor = TRUE) {
   x <- x %>%
-    tidyr::unite(!!colname, dplyr::all_of(columns), remove=FALSE, sep=" / ")
+    tidyr::unite(!!colname, dplyr::all_of(columns), remove = FALSE, sep = " / ")
   if (factor) {
     x <- x %>%
-      dplyr::mutate(!!colname := factor(.data[[colname]], levels=unique(.data[[colname]])))
+      dplyr::mutate(!!colname := factor(.data[[colname]], levels = unique(.data[[colname]])))
   }
   return(x)
 }
 
 #' Get data of given column unless if does not exist (return NULL in that case).
-#' 
+#'
 #' @param .data data frame
 #' @param colname column name
 #' @return a vector
 #' @keywords internal
-getColumn <- function(.data, colname) {
+get_column <- function(.data, colname) {
   if (is.null(colname)) {
     return(NULL)
   } else {
@@ -62,36 +61,45 @@ getColumn <- function(.data, colname) {
 }
 
 #' Spaghetti plot.
-#' 
+#'
 #' @param x data frame
 #' @param variable variable to show
 #' @param colour variable(s) to colour
 #' @return plot
 #' @importFrom ggplot2 aes ggplot geom_line
 #' @export
-spaghettiPlot <- function(x, variable, colour=NULL) {
+#' @keywords internal
+spaghettiPlot <- function(x, variable, colour = NULL) {
   group <- "GROUP_GGPLOT"
   strat_extra <- if (.is_replicated(x)) "replicate" else NULL
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", strat_extra, colour), colname=group)
-  
+  x <- unite_columns(x = x %>% obs_only(), columns = c("ID", strat_extra, colour), colname = group)
+
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x, columns=colour, colname=colourColumn)
+    x <- unite_columns(x = x, columns = colour, colname = colourColumn)
   } else {
     colourColumn <- NULL
   }
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data$TIME, y=.data[[variable]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
+  plot <- ggplot2::ggplot(
+    x,
+    ggplot2::aes(
+      x = .data$TIME,
+      y = .data[[variable]],
+      group = .data[[group]],
+      colour = get_column(.data, colourColumn)
+    )
+  ) +
     ggplot2::geom_line()
-  
+
   if (length(colour) > 0) {
-    plot <- plot + ggplot2::labs(colour=paste0(colour, collapse = " / "))
+    plot <- plot + ggplot2::labs(colour = paste0(colour, collapse = " / "))
   }
-    
+
   return(plot)
 }
 
 #' Shaded plot (or prediction interval plot).
-#' 
+#'
 #' @param x data frame
 #' @param variable variable to show
 #' @param colour variable(s) to colour
@@ -101,35 +109,44 @@ spaghettiPlot <- function(x, variable, colour=NULL) {
 #' @return a ggplot object
 #' @importFrom ggplot2 aes ggplot geom_line geom_ribbon ylab
 #' @export
-shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, alpha=0.25) {
+#' @keywords internal
+shadedPlot <- function(x, variable, colour = NULL, strat_extra = NULL, level = 0.90, alpha = 0.25) {
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x %>% obsOnly(), columns=colour, colname=colourColumn)
+    x <- unite_columns(x = x %>% obs_only(), columns = colour, colname = colourColumn)
   } else {
     colourColumn <- NULL
   }
   strat_extra <- c(if (.is_replicated(x)) "replicate" else NULL, strat_extra)
   strata_names <- unique(c(colour, strat_extra, colourColumn))
-  strata <- if (is.null(strata_names)) NULL else setNames(rep(allStrataLevels(), length(strata_names)), strata_names)
+  strata <- if (is.null(strata_names)) NULL else setNames(rep(all_strata_levels(), length(strata_names)), strata_names)
 
-  x_ <- compute_pi(x=x, variable=variable, strata=strata, level=level) |>
+  x_ <- compute_pi(x = x, variable = variable, strata = strata, level = level) |>
     metrics_pivot_wider()
 
-  plot <- ggplot2::ggplot(data=x_, mapping=ggplot2::aes(x=.data$TIME, colour=getColumn(.data, colourColumn))) +
-    ggplot2::geom_line(ggplot2::aes(y=.data$med)) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low, ymax=.data$up, colour=getColumn(.data, colourColumn), fill=getColumn(.data, colourColumn)), colour=NA, alpha=alpha) +
+  plot <- ggplot2::ggplot(data = x_, mapping = ggplot2::aes(x = .data$TIME, colour = get_column(.data, colourColumn))) +
+    ggplot2::geom_line(ggplot2::aes(y = .data$med)) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(
+        ymin = .data$low,
+        ymax = .data$up,
+        colour = get_column(.data, colourColumn),
+        fill = get_column(.data, colourColumn)
+      ),
+      colour = NA,
+      alpha = alpha
+    ) +
     ggplot2::ylab(variable)
-  
+
   if (length(colour) > 0) {
-    plot <- plot + ggplot2::labs(colour=paste0(colour, collapse = " / "),
-                                 fill=paste0(colour, collapse = " / "))
+    plot <- plot + ggplot2::labs(colour = paste0(colour, collapse = " / "), fill = paste0(colour, collapse = " / "))
   }
 
   return(plot)
 }
 
 #' Scatter plot (or X vs Y plot).
-#' 
+#'
 #' @param x data frame
 #' @param variable the 2 variables to show, character vector
 #' @param colour variable(s) to colour
@@ -138,16 +155,17 @@ shadedPlot <- function(x, variable, colour=NULL, strat_extra=NULL, level=0.90, a
 #' @importFrom dplyr filter
 #' @importFrom ggplot2 aes ggplot geom_point
 #' @export
-scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
+#' @keywords internal
+scatterPlot <- function(x, variable, colour = NULL, time = NULL) {
   strat_extra <- if (.is_replicated(x)) "replicate" else NULL
   group <- "GROUP_GGPLOT"
-  x <- uniteColumns(x=x %>% obsOnly(), columns=c("ID", strat_extra, colour), colname=group)
-  
+  x <- unite_columns(x = x %>% obs_only(), columns = c("ID", strat_extra, colour), colname = group)
+
   if (is.null(time)) {
     time <- min(x$TIME)
   }
   x <- x %>% dplyr::filter(.data$TIME %in% time)
-  
+
   if (variable %>% length() == 1) {
     x$MY_VARIABLE_2 <- 0
     variable <- c(variable, "MY_VARIABLE_2")
@@ -157,24 +175,32 @@ scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
 
   if (length(colour) > 0) {
     colourColumn <- "COLOUR_GGPLOT"
-    x <- uniteColumns(x=x, columns=colour, colname=colourColumn)
+    x <- unite_columns(x = x, columns = colour, colname = colourColumn)
   } else {
     colourColumn <- NULL
   }
-  
-  plot <- ggplot2::ggplot(x, ggplot2::aes(x=.data[[variable[1]]], y=.data[[variable[2]]], group=.data[[group]], colour=getColumn(.data, colourColumn))) +
+
+  plot <- ggplot2::ggplot(
+    x,
+    ggplot2::aes(
+      x = .data[[variable[1]]],
+      y = .data[[variable[2]]],
+      group = .data[[group]],
+      colour = get_column(.data, colourColumn)
+    )
+  ) +
     ggplot2::geom_point()
-  
+
   if (length(colour) > 0) {
-    plot <- plot + ggplot2::labs(colour=paste0(colour, collapse = " / "))
+    plot <- plot + ggplot2::labs(colour = paste0(colour, collapse = " / "))
   }
-  
+
   return(plot)
 }
 
 #' VPC plot.
-#' 
-#' @param x data frame, output of CAMPSIS with replicates
+#'
+#' @param x data frame, output of Campsis with replicates
 #' @param strata named vector with the strata to use, default is c(SCENARIO="all", ARM="all").
 #'   Only columns that are actually present in \code{x} are used.
 #' @param level PI level, default is 0.9 (90\% PI)
@@ -188,15 +214,16 @@ scatterPlot <- function (x, variable, colour=NULL, time=NULL) {
 #'   stratification is requested.
 #' @importFrom ggplot2 aes ggplot facet_wrap labs vars ylab
 #' @export
-vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15, facet=TRUE) {
+#' @keywords internal
+vpcPlot <- function(x, strata = NULL, level = 0.90, alpha = 0.15, facet = TRUE) {
   if (length(strata) > 1) {
     stop("Currently max 1 stratification variable is allowed")
   }
-  summary <- make_vpc_summary(x=x, strata=strata, level=level)
+  summary <- make_vpc_summary(x = x, strata = strata, level = level)
   stratified <- length(strata) > 0
   if (stratified) {
     group <- "GROUP_GGPLOT"
-    summary <- uniteColumns(x=summary, columns=names(strata), colname=group)
+    summary <- unite_columns(x = summary, columns = names(strata), colname = group)
   } else {
     group <- NULL
   }
@@ -205,23 +232,50 @@ vpcPlot <- function(x, strata=NULL, level=0.90, alpha=0.15, facet=TRUE) {
     # Colour mode: distinguish strata by fill; the median band stays more opaque
     # than the outer bands so the percentile structure remains readable.
     return(
-      ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=.data[[group]])) +
-        ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$med_low, ymax=.data$med_up, fill=.data[[group]]), alpha=alpha, color=NA) +
-        ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low_low, ymax=.data$low_up, fill=.data[[group]]), alpha=alpha/2, color=NA) +
-        ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$up_low, ymax=.data$up_up, fill=.data[[group]]), alpha=alpha/2, color=NA) +
-        ggplot2::labs(fill=paste0(names(strata), collapse=" / ")) +
+      ggplot2::ggplot(summary, ggplot2::aes(x = .data$TIME, group = .data[[group]])) +
+        ggplot2::geom_ribbon(
+          ggplot2::aes(ymin = .data$med_low, ymax = .data$med_up, fill = .data[[group]]),
+          alpha = alpha,
+          color = NA
+        ) +
+        ggplot2::geom_ribbon(
+          ggplot2::aes(ymin = .data$low_low, ymax = .data$low_up, fill = .data[[group]]),
+          alpha = alpha / 2,
+          color = NA
+        ) +
+        ggplot2::geom_ribbon(
+          ggplot2::aes(ymin = .data$up_low, ymax = .data$up_up, fill = .data[[group]]),
+          alpha = alpha / 2,
+          color = NA
+        ) +
+        ggplot2::labs(fill = paste0(names(strata), collapse = " / ")) +
         ggplot2::ylab("")
     )
   }
 
-  plot <- ggplot2::ggplot(summary, ggplot2::aes(x=.data$TIME, group=getColumn(.data, group))) +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$med_low, ymax=.data$med_up), alpha=alpha, color=NA, fill="red") +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$low_low, ymax=.data$low_up), alpha=alpha, color=NA, fill="blue") +
-    ggplot2::geom_ribbon(ggplot2::aes(ymin=.data$up_low, ymax=.data$up_up), alpha=alpha, color=NA, fill="blue") +
+  plot <- ggplot2::ggplot(summary, ggplot2::aes(x = .data$TIME, group = get_column(.data, group))) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = .data$med_low, ymax = .data$med_up),
+      alpha = alpha,
+      color = NA,
+      fill = "red"
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = .data$low_low, ymax = .data$low_up),
+      alpha = alpha,
+      color = NA,
+      fill = "blue"
+    ) +
+    ggplot2::geom_ribbon(
+      ggplot2::aes(ymin = .data$up_low, ymax = .data$up_up),
+      alpha = alpha,
+      color = NA,
+      fill = "blue"
+    ) +
     ggplot2::ylab("")
   if (stratified) {
     plot <- plot + ggplot2::facet_wrap(ggplot2::vars(.data[[group]]))
   }
-  
+
   return(plot)
 }

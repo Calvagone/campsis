@@ -1,18 +1,16 @@
-
 #_______________________________________________________________________________
 #----                            arms class                                 ----
 #_______________________________________________________________________________
 
-#' 
+#'
 #' Arms class.
-#' 
+#'
 #' @export
 setClass(
   "arms",
-  representation(
-  ),
-  contains="pmx_list",
-  prototype = prototype(type="arm") 
+  representation(),
+  contains = "pmx_list",
+  prototype = prototype(type = "arm")
 )
 
 #_______________________________________________________________________________
@@ -22,7 +20,7 @@ setClass(
 setMethod("add", signature = c("arms", "arm"), definition = function(object, x) {
   # Auto-increment ID based on existing ID values in arms
   if (is.na(x@id)) {
-    existingIds <- object@list %>% purrr::map_int(~.x@id)
+    existingIds <- object@list %>% purrr::map_int(~ .x@id)
     if (length(existingIds) > 0) {
       x@id <- as.integer(max(existingIds) + 1) # Increment by 1
     } else {
@@ -37,82 +35,82 @@ setMethod("add", signature = c("arms", "arm"), definition = function(object, x) 
 #----                              default                                  ----
 #_______________________________________________________________________________
 
-setMethod("default", signature=c("arms"), definition=function(object, ...) {
+setMethod("default", signature = c("arms"), definition = function(object, ...) {
   if (object %>% length() == 0) {
-    arm = new("arm", id=as.integer(0))
+    arm <- new("arm", id = as.integer(0))
     object <- object %>% add(arm)
   }
   return(object@list[[1]])
 })
 
 #_______________________________________________________________________________
-#----                           getCovariates                               ----
+#----                           get_covariates                              ----
 #_______________________________________________________________________________
 
-#' @rdname getCovariates
-setMethod("getCovariates", signature = c("arms"), definition = function(object) {
-  return(object %>% default() %>% getCovariates())
+#' @rdname get_covariates
+setMethod("get_covariates", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% get_covariates())
 })
 
 #_______________________________________________________________________________
-#----                         getEventCovariates                            ----
+#----                        get_event_covariates                            ----
 #_______________________________________________________________________________
 
-#' @rdname getEventCovariates
-setMethod("getEventCovariates", signature = c("arms"), definition = function(object) {
-  return(object %>% default() %>% getEventCovariates())
+#' @rdname get_event_covariates
+setMethod("get_event_covariates", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% get_event_covariates())
 })
 
 #_______________________________________________________________________________
-#----                         getFixedCovariates                            ----
+#----                        get_fixed_covariates                           ----
 #_______________________________________________________________________________
 
-#' @rdname getFixedCovariates
-setMethod("getFixedCovariates", signature = c("arms"), definition = function(object) {
-  return(object %>% default() %>% getFixedCovariates())
+#' @rdname get_fixed_covariates
+setMethod("get_fixed_covariates", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% get_fixed_covariates())
 })
 
 #_______________________________________________________________________________
-#----                       getTimeVaryingCovariates                        ----
+#----                     get_time_varying_covariates                       ----
 #_______________________________________________________________________________
 
-#' @rdname getTimeVaryingCovariates
-setMethod("getTimeVaryingCovariates", signature = c("arms"), definition = function(object) {
-  return(object %>% default() %>% getTimeVaryingCovariates())
+#' @rdname get_time_varying_covariates
+setMethod("get_time_varying_covariates", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% get_time_varying_covariates())
 })
 
 #_______________________________________________________________________________
-#----                              getIOVs                                  ----
+#----                             get_iovs                                  ----
 #_______________________________________________________________________________
 
-#' @rdname getIOVs
-setMethod("getIOVs", signature = c("arms"), definition = function(object) {
-  return(object %>% default() %>% getIOVs())
+#' @rdname get_iovs
+setMethod("get_iovs", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% get_iovs())
 })
 
 #_______________________________________________________________________________
-#----                            getOccasions                               ----
+#----                            get_occasions                              ----
 #_______________________________________________________________________________
 
-#' @rdname getOccasions
-setMethod("getOccasions", signature = c("arms"), definition = function(object) {
-  return(object %>% default() %>% getOccasions())
+#' @rdname get_occasions
+setMethod("get_occasions", signature = c("arms"), definition = function(object) {
+  return(object %>% default() %>% get_occasions())
 })
 
 #_______________________________________________________________________________
-#----                             getTimes                                  ----
+#----                             get_times                                 ----
 #_______________________________________________________________________________
 
-#' @rdname getTimes
-setMethod("getTimes", signature = c("arms"), definition = function(object) {
-  return(object@list %>% purrr::map(.f=~.x %>% getTimes()) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
+#' @rdname get_times
+setMethod("get_times", signature = c("arms"), definition = function(object) {
+  return(object@list %>% purrr::map(.f = ~ .x %>% get_times()) %>% purrr::flatten_dbl() %>% unique() %>% base::sort())
 })
 
 #_______________________________________________________________________________
 #----                                  show                                 ----
 #_______________________________________________________________________________
 
-setMethod("show", signature=c("arms"), definition=function(object) {
+setMethod("show", signature = c("arms"), definition = function(object) {
   for (arm in object@list) {
     show(arm)
     cat("\n")
@@ -120,53 +118,55 @@ setMethod("show", signature=c("arms"), definition=function(object) {
 })
 
 #_______________________________________________________________________________
-#----                          unwrapTreatment                              ----
+#----                          unwrap_treatment                             ----
 #_______________________________________________________________________________
 
-#' @rdname unwrapTreatment
-setMethod("unwrapTreatment", signature = c("arms"), definition = function(object) {
-  object@list <- object@list %>% purrr::map(~.x %>% unwrapTreatment())
+#' @rdname unwrap_treatment
+setMethod("unwrap_treatment", signature = c("arms"), definition = function(object) {
+  object@list <- object@list %>% purrr::map(~ .x %>% unwrap_treatment())
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                            updateAmount                               ----
+#----                            update_amount                              ----
 #_______________________________________________________________________________
 
-#' @rdname updateAmount
-setMethod("updateAmount", signature = c("arms", "numeric", "character"), definition = function(object, amount, ref) {
-  object@list <- object@list %>% purrr::map(~updateAmount(.x, amount, ref))
+#' @rdname update_amount
+setMethod("update_amount", signature = c("arms", "numeric", "character"), definition = function(object, amount, ref) {
+  object@list <- object@list %>% purrr::map(~ update_amount(.x, amount, ref))
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                              updateII                                 ----
+#----                              update_ii                                ----
 #_______________________________________________________________________________
 
-#' @rdname updateII
-setMethod("updateII", signature = c("arms", "numeric", "character"), definition = function(object, ii, ref) {
-  object@list <- object@list %>% purrr::map(~updateII(.x, ii, ref))
+#' @rdname update_ii
+setMethod("update_ii", signature = c("arms", "numeric", "character"), definition = function(object, ii, ref) {
+  object@list <- object@list %>% purrr::map(~ update_ii(.x, ii, ref))
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                             updateADDL                                ----
+#----                             update_addl                               ----
 #_______________________________________________________________________________
 
-#' @rdname updateADDL
-setMethod("updateADDL", signature = c("arms", "integer", "character"), definition = function(object, addl, ref) {
-  object@list <- object@list %>% purrr::map(~updateADDL(.x, addl, ref))
+#' @rdname update_addl
+setMethod("update_addl", signature = c("arms", "integer", "character"), definition = function(object, addl, ref) {
+  object@list <- object@list %>% purrr::map(~ update_addl(.x, addl, ref))
   return(object)
 })
 
 #_______________________________________________________________________________
-#----                             updateRepeat                              ----
+#----                             update_repeat                              ----
 #_______________________________________________________________________________
 
-#' @rdname updateRepeat
-setMethod("updateRepeat", signature = c("arms", "repeated_schedule", "character"), definition = function(object, rep, ref) {
-  object@list <- object@list %>% purrr::map(~updateRepeat(.x, rep, ref))
-  return(object)
-})
-
-
+#' @rdname update_repeat
+setMethod(
+  "update_repeat",
+  signature = c("arms", "repeated_schedule", "character"),
+  definition = function(object, rep, ref) {
+    object@list <- object@list %>% purrr::map(~ update_repeat(.x, rep, ref))
+    return(object)
+  }
+)

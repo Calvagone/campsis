@@ -11,7 +11,7 @@ Arm(id = as.integer(NA), subjects = 1, label = as.character(NA))
 
 \item{subjects}{number of subjects in arm, integer}
 
-\item{label}{arm label, single character string. If set, this label will be output in the ARM column of CAMPSIS instead of the identifier.}
+\item{label}{arm label, single character string. If set, this label will be output in the ARM column of Campsis instead of the identifier.}
 }
 \value{
 an arm
