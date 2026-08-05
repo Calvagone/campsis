@@ -1,16 +1,16 @@
 #'
 #' Simulation progress class.
 #'
-#' @param replicates total number of replicates to simulate
-#' @param scenarios total number of scenarios to simulate
-#' @param iterations total number of iterations to simulate
-#' @param slices total number of slices to simulate
-#' @param replicate current replicate number being simulated
-#' @param scenario current scenario number being simulated
-#' @param iteration current iteration number being simulated
-#' @param slice current slice number being simulated
-#' @param progressor progressr progressor
-#' @param hardware hardware settings
+#' @slot replicates total number of replicates to simulate
+#' @slot scenarios total number of scenarios to simulate
+#' @slot iterations total number of iterations to simulate
+#' @slot slices total number of slices to simulate
+#' @slot replicate current replicate number being simulated
+#' @slot scenario current scenario number being simulated
+#' @slot iteration current iteration number being simulated
+#' @slot slice current slice number being simulated
+#' @slot progressor progressr progressor
+#' @slot hardware hardware settings
 #' @export
 setClass(
   "simulation_progress",

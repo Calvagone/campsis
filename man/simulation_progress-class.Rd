@@ -4,27 +4,30 @@
 \name{simulation_progress-class}
 \alias{simulation_progress-class}
 \title{Simulation progress class.}
-\arguments{
-\item{replicates}{total number of replicates to simulate}
-
-\item{scenarios}{total number of scenarios to simulate}
-
-\item{iterations}{total number of iterations to simulate}
-
-\item{slices}{total number of slices to simulate}
-
-\item{replicate}{current replicate number being simulated}
-
-\item{scenario}{current scenario number being simulated}
-
-\item{iteration}{current iteration number being simulated}
-
-\item{slice}{current slice number being simulated}
-
-\item{progressor}{progressr progressor}
-
-\item{hardware}{hardware settings}
-}
 \description{
 Simulation progress class.
 }
+\section{Slots}{
+
+\describe{
+\item{\code{replicates}}{total number of replicates to simulate}
+
+\item{\code{scenarios}}{total number of scenarios to simulate}
+
+\item{\code{iterations}}{total number of iterations to simulate}
+
+\item{\code{slices}}{total number of slices to simulate}
+
+\item{\code{replicate}}{current replicate number being simulated}
+
+\item{\code{scenario}}{current scenario number being simulated}
+
+\item{\code{iteration}}{current iteration number being simulated}
+
+\item{\code{slice}}{current slice number being simulated}
+
+\item{\code{progressor}}{progressr progressor}
+
+\item{\code{hardware}}{hardware settings}
+}}
+
