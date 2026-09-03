@@ -81,6 +81,9 @@ compute_stats <- function(x, variable, strata = get_default_strata(), stats = c(
     msg = "variable can't be used as a stratification column name"
   )
 
+  # Preserve original order of stratification variables
+  x <- preserve_column_levels(x = x, cols = strata_cols)
+
   # Filter data
   x_filtered <- filter_output_on_strata(x = x, strata = strata)
 
@@ -116,6 +119,9 @@ compute_stats <- function(x, variable, strata = get_default_strata(), stats = c(
 
   # Pivot longer into the final format
   res <- metrics_pivot_longer(x = res, cols = stats)
+
+  # Stratification variables back to character vectors
+  res <- remove_column_levels(x = res, cols = strata_cols)
 
   # Variable before TIME
   res <- res |>

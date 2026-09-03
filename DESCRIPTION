@@ -1,7 +1,7 @@
 Type: Package
 Package: campsis
 Title: Generic PK/PD Simulation Platform Campsis
-Version: 1.9.0
+Version: 1.9.1
 Authors@R:
     person("Nicolas", "Luyckx", , "nicolas.luyckx@calvagone.com", role = c("aut", "cre"))
 Description: A generic, easy-to-use and intuitive
@@ -132,4 +132,4 @@ Collate:
     'scatter_plot.R'
     'vpc_plot.R'
     'deprecated_methods.R'
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0
