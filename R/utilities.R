@@ -118,24 +118,29 @@ get_campsis_option <- function(name, default) {
   }
 }
 
+#' @importFrom purrr map_lgl
+get_character_cols_only <- function(x, cols) {
+  matched <- intersect(cols, colnames(x))
+  return(matched[purrr::map_lgl(matched, ~ is.character(x[[.x]]))])
+}
+
 #' Preserve Existing Column Value Order as Factor Levels
 #'
 #' Converts target columns into factors using their current unique row appearance
 #' order as the factor levels.
 #'
-#' @param x A data frame or tibble.
-#' @param cols A character vector of column names to convert.
+#' @param x a data frame or tibble.
+#' @param cols a character vector of column names to convert.
 #'
-#' @return A data frame with updated factor columns.
+#' @return a data frame with updated factor columns.
 #' @export
 #' @importFrom dplyr mutate across all_of
 preserve_column_levels <- function(x, cols) {
-  target_cols <- intersect(cols, colnames(x))
-  if (length(target_cols) > 0) {
+  if (length(cols) > 0) {
     x <- x %>%
       dplyr::mutate(
         dplyr::across(
-          dplyr::all_of(target_cols),
+          dplyr::all_of(cols),
           ~ factor(.x, levels = unique(.x))
         )
       )
@@ -147,19 +152,18 @@ preserve_column_levels <- function(x, cols) {
 #'
 #' Converts target columns from factors into standard character vectors.
 #'
-#' @param x A data frame or tibble.
-#' @param cols A character vector of column names to convert.
+#' @param x a data frame or tibble.
+#' @param cols a character vector of column names to convert.
 #'
-#' @return A data frame with character columns.
+#' @return a data frame with character columns.
 #' @export
 #' @importFrom dplyr mutate across all_of
 remove_column_levels <- function(x, cols) {
-  target_cols <- intersect(cols, colnames(x))
-  if (length(target_cols) > 0) {
+  if (length(cols) > 0) {
     x <- x %>%
       dplyr::mutate(
         dplyr::across(
-          dplyr::all_of(target_cols),
+          dplyr::all_of(cols),
           as.character
         )
       )
