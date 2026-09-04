@@ -159,3 +159,29 @@ test_that("Export 'SCENARIO' column as soon as 1 scenario is specified.", {
   )
   campsis_test(simulation, test, env = environment())
 })
+
+test_that("Disabled scenarios should not be simulated.", {
+  model <- model_suite$testing$nonmem$advan4_trans4
+
+  dataset <- Dataset(3) %>%
+    add(Bolus(time = 0, amount = 1000)) %>%
+    add(Observations(times = c(0, 1, 2, 3, 4, 5, 6, 12, 24)))
+
+  scenarios <- Scenarios() %>%
+    add(Scenario("THETA_CL=1") %>% add(ReplaceAction(Theta(name = "CL", value = 1)))) %>%
+    add(Scenario("THETA_CL=2") %>% add(ReplaceAction(Theta(name = "CL", value = 2)))) %>%
+    add(Scenario("THETA_CL=3") %>% add(ReplaceAction(Theta(name = "CL", value = 3))))
+
+  simulation <- expression(simulate(
+    model = model,
+    dataset = dataset,
+    dest = destEngine,
+    scenarios = scenarios %>% disable(c(FALSE, TRUE, FALSE)), # Disable scenario 2
+    seed = seed
+  ))
+  test <- expression(
+    expect_false(all(results$SCENARIO %in% c("THETA_CL=1", "THETA_CL=2"))),
+    expect_true(all(results$SCENARIO %in% c("THETA_CL=1", "THETA_CL=3")))
+  )
+  campsis_test(simulation, test, env = environment())
+})
