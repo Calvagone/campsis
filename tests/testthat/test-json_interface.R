@@ -2,11 +2,12 @@ library(testthat)
 
 context("Test the JSON interface")
 
-testFolder <- file.path(getwd(), test_path())
+test_folder <- file.path(getwd(), test_path())
+source(file.path(test_folder, "test-utils.R"))
 
 test_that("Import a few basic Campsis datasets from JSON", {
   # 1A
-  dataset1a <- Dataset(json = file.path(testFolder, "json_examples", "dataset_example1a.json"))
+  dataset1a <- Dataset(json = file.path(test_folder, "json_examples", "dataset_example1a.json"))
 
   expArm1 <- Arm(subjects = 100, label = "Arm 1") %>%
     add(Bolus(time = 0, amount = 50, compartment = "ABS", ii = 24, addl = 6)) %>%
@@ -21,7 +22,7 @@ test_that("Import a few basic Campsis datasets from JSON", {
   expect_equal(dataset1a, expDataset1a)
 
   # 1B
-  dataset1b <- Dataset(json = file.path(testFolder, "json_examples", "dataset_example1b.json"))
+  dataset1b <- Dataset(json = file.path(test_folder, "json_examples", "dataset_example1b.json"))
   expDataset1b <- Dataset() %>%
     add(expArm1) %>%
     add(expArm2) %>%
@@ -30,7 +31,7 @@ test_that("Import a few basic Campsis datasets from JSON", {
   expect_equal(dataset1b, expDataset1b)
 
   # 1C
-  dataset1c <- Dataset(json = file.path(testFolder, "json_examples", "dataset_example1c.json"))
+  dataset1c <- Dataset(json = file.path(test_folder, "json_examples", "dataset_example1c.json"))
   expDataset1c <- Dataset() %>%
     add(expArm1) %>%
     add(expArm2) %>%
@@ -39,15 +40,15 @@ test_that("Import a few basic Campsis datasets from JSON", {
   expect_equal(dataset1c, expDataset1c)
 
   # 1D = 1A but all time units in days
-  dataset1d <- Dataset(json = file.path(testFolder, "json_examples", "dataset_example1d.json"))
+  dataset1d <- Dataset(json = file.path(test_folder, "json_examples", "dataset_example1d.json"))
   expect_equal(dataset1d, expDataset1a)
 
   # 1E = 1B but all time units in days
-  dataset1e <- Dataset(json = file.path(testFolder, "json_examples", "dataset_example1e.json"))
+  dataset1e <- Dataset(json = file.path(test_folder, "json_examples", "dataset_example1e.json"))
   expect_equal(dataset1e, expDataset1b)
 
   # Example 2: dataset settings
-  dataset2 <- Dataset(json = file.path(testFolder, "json_examples", "dataset_example2.json"))
+  dataset2 <- Dataset(json = file.path(test_folder, "json_examples", "dataset_example2.json"))
   expArm2 <- Arm(subjects = 100, label = "My dataset") %>%
     add(Bolus(time = 0, amount = 100, compartment = "ABS", ii = 24, addl = 6)) %>%
     add(Observations(TimeSequence(0, 24, by = 1), rep = DosingSchedule()))
@@ -58,7 +59,7 @@ test_that("Import a few basic Campsis datasets from JSON", {
   expect_equal(dataset2, expDataset2)
 
   # Example 3: dataset covariates
-  dataset3 <- Dataset(json = file.path(testFolder, "json_examples", "dataset_example3_covariates.json"))
+  dataset3 <- Dataset(json = file.path(test_folder, "json_examples", "dataset_example3_covariates.json"))
   expArm3 <- Arm(subjects = 100, label = "My dataset") %>%
     add(Observations(TimeSequence(0, 24, by = 1))) %>%
     add(Covariate("BW1", 70.5)) %>%
@@ -74,7 +75,7 @@ test_that("Import a few basic Campsis datasets from JSON", {
 })
 
 test_that("Import Campsis datasets that include a dose adaptation layer from JSON", {
-  dataset <- Dataset(json = file.path(testFolder, "json_examples", "dataset_dose_adaptation_example1.json"))
+  dataset <- Dataset(json = file.path(test_folder, "json_examples", "dataset_dose_adaptation_example1.json"))
   expArm <- Arm(subjects = 100, label = "My dataset") %>%
     add(Bolus(time = 0, amount = 50, compartment = "ABS", ii = 24, addl = 0)) %>%
     add(Observations(TimeSequence(0, 24, by = 1))) %>%
@@ -89,7 +90,7 @@ test_that("Import Campsis datasets that include a dose adaptation layer from JSO
 
 test_that("Import Campsis datasets that include a bootstrap layer from JSON", {
   # Example 1 with bootstrap
-  dataset1 <- Dataset(json = file.path(testFolder, "json_examples", "dataset_bootstrap_example1.json"))
+  dataset1 <- Dataset(json = file.path(test_folder, "json_examples", "dataset_bootstrap_example1.json"))
 
   expArm1 <- Arm(subjects = 100, label = "My dataset") %>%
     add(Observations(TimeSequence(0, 24, by = 1))) %>%
@@ -106,13 +107,13 @@ test_that("Import Campsis datasets that include a bootstrap layer from JSON", {
   expect_equal(dataset1, expDataset1)
 
   # Example 2 with bootstrap (same but no row identifier)
-  dataset2 <- Dataset(json = file.path(testFolder, "json_examples", "dataset_bootstrap_example2.json"))
+  dataset2 <- Dataset(json = file.path(test_folder, "json_examples", "dataset_bootstrap_example2.json"))
   expect_equal(dataset2, expDataset1)
   expect_equal(dataset1, dataset2)
 })
 
 test_that("Import Campsis datasets that include a cyclic treatment schedule from JSON", {
-  dataset1 <- Dataset(json = file.path(testFolder, "json_examples", "dataset_cyclic_schedule_example1.json"))
+  dataset1 <- Dataset(json = file.path(test_folder, "json_examples", "dataset_cyclic_schedule_example1.json"))
 
   expArm1 <- Arm(subjects = 100, label = "My dataset") %>%
     add(Bolus(
@@ -131,13 +132,13 @@ test_that("Import Campsis datasets that include a cyclic treatment schedule from
   expect_equal(dataset1, expDataset1)
 
   # Same but duration in hours and unit is not specified
-  dataset2 <- Dataset(json = file.path(testFolder, "json_examples", "dataset_cyclic_schedule_example2.json"))
+  dataset2 <- Dataset(json = file.path(test_folder, "json_examples", "dataset_cyclic_schedule_example2.json"))
   expect_equal(dataset2, expDataset1)
 })
 
 test_that("Import Campsis settings in JSON format", {
   # 1A
-  settings1a <- Settings(json = file.path(testFolder, "json_examples", "settings_example1a.json"))
+  settings1a <- Settings(json = file.path(test_folder, "json_examples", "settings_example1a.json"))
   expSettings1a <- Settings(DefaultSettings(
     engine = "mrgsolve",
     seed = 1,
@@ -148,13 +149,13 @@ test_that("Import Campsis settings in JSON format", {
   expect_equal(settings1a, expSettings1a)
 
   # 1B
-  settings1b <- Settings(json = file.path(testFolder, "json_examples", "settings_example1b.json"))
+  settings1b <- Settings(json = file.path(test_folder, "json_examples", "settings_example1b.json"))
   expSettings1b <- Settings(DefaultSettings(engine = "mrgsolve", seed = 1, outvars = c("CONC", "CONC_ERR")))
 
   expect_equal(settings1b, expSettings1b)
 
   # CTS settings (example 1)
-  settings_cts1 <- Settings(json = file.path(testFolder, "json_examples", "settings_cts_example1.json"))
+  settings_cts1 <- Settings(json = file.path(test_folder, "json_examples", "settings_cts_example1.json"))
   exp_outfuns_cts1 <- Outfuns() %>%
     add(DefaultOutfun()) %>%
     add(PIOutfun(variable = "CONC", name = "PI 90%", level = 0.9)) %>%
@@ -177,7 +178,7 @@ test_that("Import Campsis settings that include a NCA table outfun from JSON", {
   skip_if_not_installed("campsisnca")
   library(campsisnca)
 
-  settings_cts3 <- Settings(json = file.path(testFolder, "json_examples", "settings_cts_example3.json"))
+  settings_cts3 <- Settings(json = file.path(test_folder, "json_examples", "settings_cts_example3.json"))
 
   # NCA table, as passed to the 'table' property of a 'nca_table_outfun' (JSON-encoded string)
   nca_table_json <- paste0(
@@ -199,16 +200,16 @@ test_that("Import Campsis settings that include a NCA table outfun from JSON", {
 
 test_that("Import Campsis settings with replicates from JSON", {
   # replicates field present → loaded and stored correctly
-  settings_rep <- Settings(json = file.path(testFolder, "json_examples", "settings_example_replicates.json"))
+  settings_rep <- Settings(json = file.path(test_folder, "json_examples", "settings_example_replicates.json"))
   exp_settings_rep <- Settings(DefaultSettings(engine = "rxode2", seed = 42, replicates = 100L))
   expect_equal(settings_rep, exp_settings_rep)
 
   # replicates field absent → defaults to 1L
-  settings_no_rep <- Settings(json = file.path(testFolder, "json_examples", "settings_example1b.json"))
+  settings_no_rep <- Settings(json = file.path(test_folder, "json_examples", "settings_example1b.json"))
   expect_equal(settings_no_rep@default@replicates, 1L)
 
   # replicates field present + hardware settings
-  settings_rep <- Settings(json = file.path(testFolder, "json_examples", "settings_example_replicates_hardware.json"))
+  settings_rep <- Settings(json = file.path(test_folder, "json_examples", "settings_example_replicates_hardware.json"))
   exp_settings_rep <- Settings(
     DefaultSettings(engine = "rxode2", seed = 42, replicates = 100L),
     Hardware(cpu = 4, replicate_parallel = TRUE)
@@ -218,7 +219,7 @@ test_that("Import Campsis settings with replicates from JSON", {
 
 test_that("Import Campsis scenarios in JSON format", {
   # 1A
-  scenarios1a <- Scenarios(json = file.path(testFolder, "json_examples", "scenarios_example1a.json"))
+  scenarios1a <- Scenarios(json = file.path(test_folder, "json_examples", "scenarios_example1a.json"))
 
   expScenarios1a <- Scenarios() %>%
     add(Scenario(name = "Base scenario")) %>%
@@ -231,4 +232,9 @@ test_that("Import Campsis scenarios in JSON format", {
 
   expect_true("Scenario 'Base scenario'" %in% capture.output(show(scenarios1a)))
   expect_true("Scenario 'Slow KA'" %in% capture.output(show(scenarios1a)))
+
+  # 1B (same as 1A but 'enabled' slot is true)
+  scenarios1b <- Scenarios(json = file.path(test_folder, "json_examples", "scenarios_example1b.json"))
+  expScenarios1b <- expScenarios1a
+  expect_equal(scenarios1b, expScenarios1b)
 })

@@ -33,6 +33,10 @@
               }
             ]
           }
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Is this scenario enabled? Default is True. Disabled scenarios are not simulated by Campsis."
         }
       },
       "required": [

@@ -110,9 +110,10 @@ setMethod("get_name", signature = c("scenario"), definition = function(x) {
 #_______________________________________________________________________________
 
 setMethod("load_from_json", signature = c("scenario", "json_element"), definition = function(object, json) {
-  jsonScenario <- json@data
-  scenario <- Scenario(name = jsonScenario$name)
-  scenario@actions <- load_from_json(new("scenario_actions"), JSONElement(jsonScenario$actions))
+  json_actions <- json@data$actions
+  json@data$actions <- NULL
+  scenario <- campsismod::map_json_properties_to_s4_slots(object, json)
+  scenario@actions <- load_from_json(new("scenario_actions"), JSONElement(json_actions))
   return(scenario)
 })
 
