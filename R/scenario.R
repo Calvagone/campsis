@@ -16,6 +16,7 @@ check_scenario <- function(object) {
 #' @slot model either a Campsis model, a function or lambda-style formula
 #' @slot dataset either a Campsis dataset, a function or lambda-style formula
 #' @slot actions list of actions to apply
+#' @slot enabled is the scenario enabled in the simulation, logical value
 #' @export
 setClass(
   "scenario",
@@ -23,9 +24,11 @@ setClass(
     name = "character",
     model = "ANY", # To deprecate
     dataset = "ANY", # To deprecate
-    actions = "scenario_actions"
+    actions = "scenario_actions",
+    enabled = "logical"
   ),
   contains = "pmx_element",
+  prototype = prototype(enabled = TRUE),
   validity = check_scenario
 )
 
@@ -78,6 +81,19 @@ expect_appropriate_dataset_arg <- function(dataset) {
 
 setMethod("add", signature = c("scenario", "scenario_action"), definition = function(object, x) {
   object@actions <- object@actions %>% add(x)
+  return(object)
+})
+
+#_______________________________________________________________________________
+#----                              disable                                  ----
+#_______________________________________________________________________________
+
+setMethod("disable", signature = c("scenario", "logical"), definition = function(object, x, ...) {
+  if (length(x) == 1) {
+    object@enabled <- !x
+  } else {
+    stop("x should be TRUE or FALSE")
+  }
   return(object)
 })
 
@@ -146,7 +162,11 @@ apply_scenario <- function(x, scenario) {
 #_______________________________________________________________________________
 
 setMethod("show", signature = c("scenario"), definition = function(object) {
-  cat(sprintf("Scenario '%s'", object@name), "\n", sep = "")
+  disabled_str = ""
+  if (!object@enabled) {
+    disabled_str = " (DISABLED)"
+  }
+  cat(sprintf("Scenario '%s'%s", object@name, disabled_str), "\n", sep = "")
   for (action in object@actions@list) {
     cat(" - ")
     show(action)

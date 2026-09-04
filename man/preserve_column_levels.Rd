@@ -7,12 +7,12 @@
 preserve_column_levels(x, cols)
 }
 \arguments{
-\item{x}{A data frame or tibble.}
+\item{x}{a data frame or tibble.}
 
-\item{cols}{A character vector of column names to convert.}
+\item{cols}{a character vector of column names to convert.}
 }
 \value{
-A data frame with updated factor columns.
+a data frame with updated factor columns.
 }
 \description{
 Converts target columns into factors using their current unique row appearance

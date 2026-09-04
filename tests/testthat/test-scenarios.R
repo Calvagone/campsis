@@ -26,3 +26,19 @@ test_that("Example of scenario list works as expected", {
   thetaKa <- model %>% find(Theta("KA"))
   expect_equal(thetaKa@value, 3)
 })
+
+test_that("Specific scenarios can be disabled using the disable method", {
+  scenarios <- Scenarios() %>%
+    add(Scenario(name = "A")) %>%
+    add(Scenario(name = "B")) %>%
+    add(Scenario(name = "C")) %>%
+    add(Scenario(name = "D"))
+
+  scenarios <- scenarios %>%
+    disable(c(FALSE, FALSE, TRUE, FALSE))
+
+  expect_false("Scenario 'A' (DISABLED)" %in% capture.output(show(scenarios)))
+  expect_false("Scenario 'B' (DISABLED)" %in% capture.output(show(scenarios)))
+  expect_true("Scenario 'C' (DISABLED)" %in% capture.output(show(scenarios)))
+  expect_false("Scenario 'D' (DISABLED)" %in% capture.output(show(scenarios)))
+})

@@ -17,5 +17,7 @@ Scenario class.
 \item{\code{dataset}}{either a Campsis dataset, a function or lambda-style formula}
 
 \item{\code{actions}}{list of actions to apply}
+
+\item{\code{enabled}}{is the scenario enabled in the simulation, logical value}
 }}
 

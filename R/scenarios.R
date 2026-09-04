@@ -43,6 +43,24 @@ setMethod("add", signature = c("scenarios", "scenario"), definition = function(o
 })
 
 #_______________________________________________________________________________
+#----                              disable                                  ----
+#_______________________________________________________________________________
+
+setMethod("disable", signature = c("scenarios", "logical"), definition = function(object, x, ...) {
+  if (length(object) == length(x)) {
+    object@list <- object@list %>%
+      purrr::imap(.f = function(scenario, index) {
+        scenario <- scenario %>%
+          disable(x = x[index])
+        return(scenario)
+      })
+  } else {
+    stop("x should be a logical vector of the same length as the number of scenarios")
+  }
+  return(object)
+})
+
+#_______________________________________________________________________________
 #----                           load_from_json                                ----
 #_______________________________________________________________________________
 
