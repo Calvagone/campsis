@@ -27,7 +27,10 @@
               {
                 "$ref": "#/$defs/sigma"
               }
-            ]
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
           }
         },
         "varcov": {
@@ -86,7 +89,8 @@
         {
           "properties": {
             "type": {
-              "const": "theta"
+              "const": "theta",
+              "default": "theta"
             },
             "unit": {
               "type": "string",
@@ -134,7 +138,8 @@
         {
           "properties": {
             "type": {
-              "const": "omega"
+              "const": "omega",
+              "default": "omega"
             }
           },
           "required": []
@@ -150,7 +155,8 @@
         {
           "properties": {
             "type": {
-              "const": "sigma"
+              "const": "sigma",
+              "default": "sigma"
             }
           },
           "required": []
@@ -179,7 +185,8 @@
         {
           "properties": {
             "type": {
-              "const": "theta_ref"
+              "const": "theta_ref",
+              "default": "theta_ref"
             }
           }
         }
@@ -211,7 +218,8 @@
         {
           "properties": {
             "type": {
-              "const": "omega_ref"
+              "const": "omega_ref",
+              "default": "omega_ref"
             }
           },
           "required": []
@@ -227,7 +235,8 @@
         {
           "properties": {
             "type": {
-              "const": "sigma_ref"
+              "const": "sigma_ref",
+              "default": "sigma_ref"
             }
           },
           "required": []
@@ -253,6 +262,9 @@
               "$ref": "#/$defs/sigma_ref"
             }
           ],
+          "discriminator": {
+            "propertyName": "type"
+          },
           "description": "First referenced parameter"
         },
         "ref2": {
@@ -267,6 +279,9 @@
               "$ref": "#/$defs/sigma_ref"
             }
           ],
+          "discriminator": {
+            "propertyName": "type"
+          },
           "description": "Second referenced parameter"
         },
         "cov": {

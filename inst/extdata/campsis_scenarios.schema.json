@@ -19,7 +19,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "scenario"
+          "const": "scenario",
+          "default": "scenario"
         },
         "name": {
           "type": "string"
@@ -31,7 +32,10 @@
               {
                 "$ref": "#/$defs/replace_action"
               }
-            ]
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
           }
         },
         "enabled": {
@@ -48,10 +52,8 @@
     "action": {
       "title": "Base action",
       "type": "object",
-      "properties": {
-      },
-      "required": [
-      ]
+      "properties": {},
+      "required": []
     },
     "replace_action": {
       "title": "Replace action",
@@ -62,7 +64,8 @@
         {
           "properties": {
             "type": {
-              "const": "replace_action"
+              "const": "replace_action",
+              "default": "replace_action"
             },
             "object": {
               "oneOf": [

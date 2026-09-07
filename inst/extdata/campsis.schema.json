@@ -15,14 +15,18 @@
           {
             "$ref": "#/$defs/dataset_config"
           }
-        ]
+        ],
+        "discriminator": {
+          "propertyName": "type"
+        }
       }
     },
     "arm": {
       "type": "object",
       "properties": {
         "type": {
-          "const": "arm"
+          "const": "arm",
+          "default": "arm"
         },
         "list": {
           "type": "array",
@@ -52,7 +56,10 @@
               {
                 "$ref": "#/$defs/iov"
               }
-            ]
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
           }
         }
       },
@@ -65,7 +72,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "arm_attributes"
+          "const": "arm_attributes",
+          "default": "arm_attributes"
         },
         "subjects": {
           "type": "integer",
@@ -87,7 +95,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "bolus"
+          "const": "bolus",
+          "default": "bolus"
         },
         "time": {
           "type": "number",
@@ -136,7 +145,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "infusion"
+          "const": "infusion",
+          "default": "infusion"
         },
         "time": {
           "type": "number"
@@ -187,7 +197,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "observations"
+          "const": "observations",
+          "default": "observations"
         },
         "times": {
           "oneOf": [
@@ -200,7 +211,10 @@
             {
               "$ref": "#/$defs/time_sequence"
             }
-          ]
+          ],
+          "discriminator": {
+            "propertyName": "type"
+          }
         },
         "unit": {
           "$ref": "#/$defs/time_unit",
@@ -217,7 +231,10 @@
             {
               "$ref": "#/$defs/dosing_schedule"
             }
-          ]
+          ],
+          "discriminator": {
+            "propertyName": "type"
+          }
         }
       },
       "required": [
@@ -229,7 +246,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "time_sequence"
+          "const": "time_sequence",
+          "default": "time_sequence"
         },
         "start": {
           "type": "number",
@@ -253,7 +271,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "dosing_schedule"
+          "const": "dosing_schedule",
+          "default": "dosing_schedule"
         }
       },
       "required": []
@@ -262,7 +281,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "cyclic_schedule"
+          "const": "cyclic_schedule",
+          "default": "cyclic_schedule"
         },
         "duration": {
           "type": "number",
@@ -286,7 +306,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "dataset_config"
+          "const": "dataset_config",
+          "default": "dataset_config"
         },
         "export_tsld": {
           "type": "boolean",
@@ -323,7 +344,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "constant_distribution"
+          "const": "constant_distribution",
+          "default": "constant_distribution"
         },
         "value": {
           "type": "number",
@@ -345,7 +367,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "fixed_distribution"
+          "const": "fixed_distribution",
+          "default": "fixed_distribution"
         },
         "values": {
           "type": "array",
@@ -370,7 +393,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "uniform_distribution"
+          "const": "uniform_distribution",
+          "default": "uniform_distribution"
         },
         "min": {
           "type": "number",
@@ -397,7 +421,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "normal_distribution"
+          "const": "normal_distribution",
+          "default": "normal_distribution"
         },
         "mean": {
           "type": "number",
@@ -424,7 +449,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "lognormal_distribution"
+          "const": "lognormal_distribution",
+          "default": "lognormal_distribution"
         },
         "meanlog": {
           "type": "number",
@@ -445,7 +471,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "discrete_distribution_item"
+          "const": "discrete_distribution_item",
+          "default": "discrete_distribution_item"
         },
         "value": {
           "type": "number",
@@ -475,7 +502,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "discrete_distribution"
+          "const": "discrete_distribution",
+          "default": "discrete_distribution"
         },
         "items": {
           "type": "array",
@@ -494,7 +522,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "covariate"
+          "const": "covariate",
+          "default": "covariate"
         },
         "name": {
           "type": "string",
@@ -536,7 +565,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "dose_adaptation"
+          "const": "dose_adaptation",
+          "default": "dose_adaptation"
         },
         "formula": {
           "type": "string",
@@ -571,7 +601,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "bootstrap"
+          "const": "bootstrap",
+          "default": "bootstrap"
         },
         "data": {
           "type": "array",
@@ -599,22 +630,23 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "bootstrap_row"
+          "const": "bootstrap_row",
+          "default": "bootstrap_row"
         },
         "BS_ID": {
           "type": "integer"
         }
       },
       "description": "Each bootstrap row contains the covariates of a specific individual. BS_ID is a non-mandatory identifier for this row. Other properties are the covariates to bootstrap for this individual.",
-      "required": [
-      ],
+      "required": [],
       "additionalProperties": true
     },
     "iov": {
       "type": "object",
       "properties": {
         "type": {
-          "const": "iov"
+          "const": "iov",
+          "default": "iov"
         },
         "colname": {
           "type": "string"
