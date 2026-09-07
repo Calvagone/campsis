@@ -5,14 +5,14 @@
 \title{Define a new occasion. Occasions are defined by mapping occasion values to dose numbers.
 A new column will automatically be created in the exported dataset.}
 \usage{
-Occasion(colname, values, doseNumbers)
+Occasion(colname, values, dose_numbers)
 }
 \arguments{
 \item{colname}{name of the column that will be output in dataset}
 
 \item{values}{the occasion numbers, any integer vector}
 
-\item{doseNumbers}{the related dose numbers, any integer vector of same length as 'values'}
+\item{dose_numbers}{the related dose numbers, any integer vector of same length as 'values'}
 }
 \value{
 occasion object

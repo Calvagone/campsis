@@ -254,7 +254,7 @@ test_that("Export occasions works well - example 1", {
   ds <- ds %>% add(Observations(times = seq(0, 60, by = 10)))
 
   # Add occasions
-  ds <- ds %>% add(Occasion("MY_OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3)))
+  ds <- ds %>% add(Occasion("MY_OCC", values = c(1, 2, 3), dose_numbers = c(1, 2, 3)))
 
   # Export to RxODE
   table <- ds %>% export(dest = "rxode2", seed = 1)
@@ -274,7 +274,7 @@ test_that("Export occasions works well - example 2", {
   ds <- ds %>% add(Observations(times = seq(0, 60, by = 10)))
 
   # Add occasions
-  ds <- ds %>% add(Occasion("MY_OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3)))
+  ds <- ds %>% add(Occasion("MY_OCC", values = c(1, 2, 3), dose_numbers = c(1, 2, 3)))
 
   # Export to RxODE
   table <- ds %>% export(dest = "rxode2", seed = 1)
@@ -297,7 +297,7 @@ test_that("Export occasions works well - example 3", {
   ds <- ds %>% add(Observations(times = seq(0, 80, by = 10)))
 
   # Add occasions (skip occasion on dose 3)
-  ds <- ds %>% add(Occasion("MY_OCC", values = c(1, 2, 4), doseNumbers = c(1, 2, 4)))
+  ds <- ds %>% add(Occasion("MY_OCC", values = c(1, 2, 4), dose_numbers = c(1, 2, 4)))
 
   # Export to RxODE
   table <- ds %>% export(dest = "rxode2", seed = 1)
@@ -319,7 +319,7 @@ test_that("Export occasions works well - example 4", {
   ds <- ds %>% add(Observations(times = seq(0, 80, by = 10)))
 
   # Add occasions (skip occasion on dose 3)
-  ds <- ds %>% add(Occasion("MY_OCC", values = c(2, 3, 4), doseNumbers = c(2, 3, 4)))
+  ds <- ds %>% add(Occasion("MY_OCC", values = c(2, 3, 4), dose_numbers = c(2, 3, 4)))
 
   # Export to RxODE
   table <- ds %>% export(dest = "rxode2", seed = 1)
@@ -340,7 +340,7 @@ test_that("Occasion can be added into arms", {
     x <- x %>% add(Observations(times = seq(0, 60, by = 10)))
 
     # Add occasions
-    x <- x %>% add(Occasion("MY_OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3)))
+    x <- x %>% add(Occasion("MY_OCC", values = c(1, 2, 3), dose_numbers = c(1, 2, 3)))
   }
 
   arm1 <- Arm(id = 1, subjects = 1) %>% addProtocol()
@@ -367,7 +367,7 @@ test_that("Export IOV works well - example 1", {
   ds <- ds %>% add(Observations(times = seq(0, 80, by = 10)))
 
   # Add occasions (skip occasion on dose 3)
-  ds <- ds %>% add(IOV("IOV_KA", distribution = NormalDistribution(0, sd = 1), doseNumbers = c(3, 4)))
+  ds <- ds %>% add(IOV("IOV_KA", distribution = NormalDistribution(0, sd = 1), dose_numbers = c(3, 4)))
 
   # Export to RxODE
   table <- ds %>% export(dest = "rxode2", seed = 1)
@@ -419,7 +419,7 @@ test_that("Export IOV works well - example 2", {
   ds <- ds %>% add(Observations(times = seq(0, 80, by = 10)))
 
   # Add occasions (skip occasion on dose 3)
-  ds <- ds %>% add(IOV("IOV_KA", distribution = NormalDistribution(0, sd = 1), doseNumbers = c(1, 3)))
+  ds <- ds %>% add(IOV("IOV_KA", distribution = NormalDistribution(0, sd = 1), dose_numbers = c(1, 3)))
 
   # Export to RxODE
   table <- ds %>% export(dest = "rxode2", seed = 1)
@@ -471,7 +471,7 @@ test_that("Replace, delete, find, contains methods works well", {
   ds <- ds %>% add(IOV("IOV_KA", distribution = c(1, 2, 3)))
 
   # Add occasions
-  ds <- ds %>% add(Occasion("OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3)))
+  ds <- ds %>% add(Occasion("OCC", values = c(1, 2, 3), dose_numbers = c(1, 2, 3)))
 
   # Add covariate
   ds <- ds %>% add(Covariate("WT", 0))
@@ -490,7 +490,7 @@ test_that("Replace, delete, find, contains methods works well", {
   expect_equal((updatedDs %>% find(IOV("IOV_KA", 0)))@distribution, FixedDistribution(c(1, 2, 3, 4)))
 
   # Change occasion numbers
-  updatedDs <- ds %>% replace(Occasion("OCC", values = c(1, 2), doseNumbers = c(1, 2)))
+  updatedDs <- ds %>% replace(Occasion("OCC", values = c(1, 2), dose_numbers = c(1, 2)))
   expect_true(updatedDs %>% contains(Occasion("OCC", 0, 0))) # Only name matters
   expect_equal((updatedDs %>% find(Occasion("OCC", 0, 0)))@values, c(1, 2))
 
@@ -517,7 +517,7 @@ test_that("Replace, delete, find, contains methods works well", {
   expect_false(updatedDs %>% contains(iov))
 
   # Delete occasions
-  occ <- Occasion("OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3))
+  occ <- Occasion("OCC", values = c(1, 2, 3), dose_numbers = c(1, 2, 3))
   expect_true(ds %>% contains(occ))
   updatedDs <- ds %>% delete(occ)
   expect_false(updatedDs %>% contains(occ))
@@ -548,14 +548,14 @@ test_that("Export works well even if objects are defined in a different order", 
     add(Bolus(time = 0, amount = 1000, compartment = 1, ii = 24, addl = 2)) %>%
     add(Observations(times = seq(0, 72, by = 5))) %>%
     add(TimeVaryingCovariate("TVCOV", data.frame(TIME = c(0, 10), VALUE = c(10, 15)))) %>%
-    add(Occasion("OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3))) %>%
+    add(Occasion("OCC", values = c(1, 2, 3), dose_numbers = c(1, 2, 3))) %>%
     add(Covariate("BW", 70)) %>%
     add(Covariate("HT", 180))
 
   arm2 <- Arm(2, subjects = 1) %>%
     add(Covariate("HT", 170)) %>%
     add(Covariate("BW", 60)) %>%
-    add(Occasion("OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3))) %>%
+    add(Occasion("OCC", values = c(1, 2, 3), dose_numbers = c(1, 2, 3))) %>%
     add(TimeVaryingCovariate("TVCOV", data.frame(TIME = c(0, 10), VALUE = c(9, 14)))) %>%
     add(Observations(times = seq(0, 72, by = 5))) %>%
     add(Bolus(time = 0, amount = 2000, compartment = 1, ii = 24, addl = 2))

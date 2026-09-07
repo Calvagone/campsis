@@ -54,13 +54,13 @@ setClass(
 #'
 #' @param colname name of the column that will be output in dataset
 #' @param distribution distribution
-#' @param doseNumbers dose numbers, if provided, IOV is generated at these doses only. By default, IOV is generated for all doses.
+#' @param dose_numbers dose numbers, if provided, IOV is generated at these doses only. By default, IOV is generated for all doses.
 #' @param omega_ref name of the OMEGA (e.g. 'IOV' without the 'OMEGA_')
 #' @return an IOV object
 #' @export
-IOV <- function(colname, distribution = NULL, doseNumbers = NULL, omega_ref = NULL) {
-  if (is.null(doseNumbers)) {
-    doseNumbers <- integer(0)
+IOV <- function(colname, distribution = NULL, dose_numbers = NULL, omega_ref = NULL) {
+  if (is.null(dose_numbers)) {
+    dose_numbers <- integer(0)
   }
   if (is.null(distribution)) {
     distribution <- new("undefined_distribution")
@@ -72,7 +72,7 @@ IOV <- function(colname, distribution = NULL, doseNumbers = NULL, omega_ref = NU
     "iov",
     colname = trimws(colname),
     distribution = to_explicit_distribution(distribution),
-    dose_numbers = as.integer(doseNumbers) %>% unique() %>% base::sort(),
+    dose_numbers = as.integer(dose_numbers) %>% unique() %>% base::sort(),
     omega_ref = as.character(omega_ref)
   ))
 }

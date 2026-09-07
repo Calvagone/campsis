@@ -6,14 +6,14 @@
 'colname' will be output into the dataset and will vary at each dose number
 according to the given distribution.}
 \usage{
-IOV(colname, distribution = NULL, doseNumbers = NULL, omega_ref = NULL)
+IOV(colname, distribution = NULL, dose_numbers = NULL, omega_ref = NULL)
 }
 \arguments{
 \item{colname}{name of the column that will be output in dataset}
 
 \item{distribution}{distribution}
 
-\item{doseNumbers}{dose numbers, if provided, IOV is generated at these doses only. By default, IOV is generated for all doses.}
+\item{dose_numbers}{dose numbers, if provided, IOV is generated at these doses only. By default, IOV is generated for all doses.}
 
 \item{omega_ref}{name of the OMEGA (e.g. 'IOV' without the 'OMEGA_')}
 }
