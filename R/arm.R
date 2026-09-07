@@ -137,7 +137,7 @@ setMethod("add", signature = c("arm", "treatment_entry"), definition = function(
   return(object)
 })
 
-setMethod("add", signature = c("arm", "treatment_iov"), definition = function(object, x) {
+setMethod("add", signature = c("arm", "iov"), definition = function(object, x) {
   object@protocol@treatment <- object@protocol@treatment %>% add(x)
   return(object)
 })
@@ -184,7 +184,7 @@ setMethod("delete", signature = c("arm", "treatment_entry"), definition = functi
   return(object)
 })
 
-setMethod("delete", signature = c("arm", "treatment_iov"), definition = function(object, x) {
+setMethod("delete", signature = c("arm", "iov"), definition = function(object, x) {
   object@protocol@treatment <- object@protocol@treatment %>% delete(x)
   return(object)
 })
@@ -217,7 +217,7 @@ setMethod("find", signature = c("arm", "treatment_entry"), definition = function
   return(object@protocol@treatment %>% find(x))
 })
 
-setMethod("find", signature = c("arm", "treatment_iov"), definition = function(object, x) {
+setMethod("find", signature = c("arm", "iov"), definition = function(object, x) {
   return(object@protocol@treatment %>% find(x))
 })
 
@@ -258,7 +258,7 @@ setMethod("replace", signature = c("arm", "treatment_entry"), definition = funct
   return(object)
 })
 
-setMethod("replace", signature = c("arm", "treatment_iov"), definition = function(object, x) {
+setMethod("replace", signature = c("arm", "iov"), definition = function(object, x) {
   object@protocol@treatment <- object@protocol@treatment %>% replace(x)
   return(object)
 })

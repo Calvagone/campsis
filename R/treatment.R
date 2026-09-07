@@ -26,7 +26,7 @@ setClass(
 #----                                 add                                   ----
 #_______________________________________________________________________________
 
-setMethod("add", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+setMethod("add", signature = c("treatment", "iov"), definition = function(object, x) {
   object@iovs <- object@iovs %>% add(x)
   return(object)
 })
@@ -45,7 +45,7 @@ setMethod("add", signature = c("treatment", "dose_adaptation"), definition = fun
 #----                               delete                                  ----
 #_______________________________________________________________________________
 
-setMethod("delete", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+setMethod("delete", signature = c("treatment", "iov"), definition = function(object, x) {
   object@iovs <- object@iovs %>% delete(x)
   return(object)
 })
@@ -65,7 +65,7 @@ setMethod("delete", signature = c("treatment", "dose_adaptation"), definition = 
 #----                                find                                   ----
 #_______________________________________________________________________________
 
-setMethod("find", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+setMethod("find", signature = c("treatment", "iov"), definition = function(object, x) {
   return(object@iovs %>% find(x))
 })
 
@@ -81,7 +81,7 @@ setMethod("find", signature = c("treatment", "dose_adaptation"), definition = fu
 #----                              replace                                  ----
 #_______________________________________________________________________________
 
-setMethod("replace", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+setMethod("replace", signature = c("treatment", "iov"), definition = function(object, x) {
   object@iovs <- object@iovs %>% replace(x)
   return(object)
 })

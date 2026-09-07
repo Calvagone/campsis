@@ -147,6 +147,7 @@ exportClasses(function_distribution)
 exportClasses(hardware_settings)
 exportClasses(infusion)
 exportClasses(infusion_wrapper)
+exportClasses(iov)
 exportClasses(lognormal_distribution)
 exportClasses(mrgsolve_engine)
 exportClasses(nca_table_outfun)
@@ -181,7 +182,6 @@ exportClasses(time_sequence)
 exportClasses(time_varying_covariate)
 exportClasses(time_vector)
 exportClasses(treatment)
-exportClasses(treatment_iov)
 exportClasses(treatment_iovs)
 exportClasses(undefined_distribution)
 exportClasses(undefined_schedule)
@@ -190,6 +190,7 @@ import(campsismod)
 importFrom(assertthat,assert_that)
 importFrom(campsismod,
   export,
+  map_json_properties_to_s4_slots,
   select
 )
 importFrom(digest,sha1)

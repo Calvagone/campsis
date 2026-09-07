@@ -48,6 +48,9 @@
               },
               {
                 "$ref": "#/$defs/bootstrap"
+              },
+              {
+                "$ref": "#/$defs/iov"
               }
             ]
           }
@@ -606,6 +609,25 @@
       "required": [
       ],
       "additionalProperties": true
+    },
+    "iov": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "const": "iov"
+        },
+        "colname": {
+          "type": "string"
+        },
+        "omega_ref": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "colname",
+        "omega_ref"
+      ],
+      "additionalProperties": false
     }
   }
 }

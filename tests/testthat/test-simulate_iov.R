@@ -254,7 +254,7 @@ test_that("Simulate IOV on ALAG1", {
   }
 })
 
-test_that("Simulate IOV on D1", {
+test_that("Simulate IOV on D1 (from EtaDistribution)", {
   if (skip_long_tests()) {
     return(TRUE)
   }
@@ -314,6 +314,35 @@ test_that("Simulate IOV on D1", {
     spaghettiPlot(results, "CP")
   )
   campsis_test(simulation, test, env = environment())
+})
+
+test_that("Simulate IOV on D1 (from omega_ref argument)", {
+  if (skip_long_tests()) {
+    return(TRUE)
+  }
+  regFilename <- "3_infusions_iiv_iov_d1"
+
+  # Model with IIV on D1
+  model <- model_suite$testing$nonmem$advan3_trans4 %>%
+    add(Theta("D1", value = 5)) %>%
+    add(Omega("D1", value = 0.2^2)) %>%
+    add(Omega("IOV_D1", value = 0.5^2, same = FALSE)) %>% # 50% IOV
+    add(InfusionDuration(compartment = 1, rhs = "D1")) %>%
+    add(Equation("D1", "THETA_D1*exp(ETA_D1 + IOV_D1)"))
+
+  getDataset <- function(model) {
+    dataset <- Dataset(10) %>%
+      add(Infusion(time = 0, amount = 1000, compartment = 1)) %>%
+      add(Infusion(time = 24, amount = 1000, compartment = 1)) %>%
+      add(Infusion(time = 48, amount = 1000, compartment = 1)) %>%
+      add(Observations(times = seq(0, 72, by = 0.5))) %>%
+      add(IOV(colname = "IOV_D1", omega_ref = "IOV_D1"))
+    return(dataset)
+  }
+  
+  # IIV + IOV (RxODE / mrgsolve)
+  dataset <- getDataset(model)
+  dataset_regression_test(dataset, model, seed = seed, filename = regFilename)
 })
 
 test_that("Simulate IOV on F1", {

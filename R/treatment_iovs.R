@@ -10,7 +10,7 @@ setClass(
   "treatment_iovs",
   representation(),
   contains = "pmx_list",
-  prototype = prototype(type = "treatment_iov")
+  prototype = prototype(type = "iov")
 )
 
 #_______________________________________________________________________________

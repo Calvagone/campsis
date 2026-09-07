@@ -563,18 +563,28 @@ export_delegate <- function(object, dest, model, arm_offset = NULL, offset_withi
 
     # Sampling IOV's
     for (treatmentIov in treatmentIovs@list) {
-      doseNumbers <- treatmentIov@dose_numbers
-      doseNumbers <- if (doseNumbers %>% length() == 0) {
+      dose_numbers <- treatmentIov@dose_numbers
+      dose_numbers <- if (dose_numbers %>% length() == 0) {
         seq_len(maxDoseNumber)
       } else {
-        doseNumbers
+        dose_numbers
       }
+
+      distribution <- treatmentIov@distribution
+      if (!is.na(treatmentIov@omega_ref)) {
+        if (is.null(model)) {
+          stop("A model is needed to retrieve the OMEGA value for IOV sampling")
+        }
+        omega_value <- retrieve_parameter_value(model, paramName = paste0("OMEGA_", treatmentIov@omega_ref), mandatory = TRUE)
+        distribution <- NormalDistribution(mean = 0, sd = sqrt(omega_value))
+      }
+
       iov <- sample_distribution_as_tibble(
-        treatmentIov@distribution,
-        n = length(ids) * length(doseNumbers),
+        distribution,
+        n = length(ids) * length(dose_numbers),
         colname = treatmentIov@colname
       )
-      iov <- iov %>% dplyr::mutate(ID = rep(ids, each = length(doseNumbers)), DOSENO = rep(doseNumbers, length(ids)))
+      iov <- iov %>% dplyr::mutate(ID = rep(ids, each = length(dose_numbers)), DOSENO = rep(dose_numbers, length(ids)))
       table <- table %>% dplyr::left_join(iov, by = c("ID", "DOSENO"))
     }
 

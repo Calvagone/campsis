@@ -238,3 +238,32 @@ test_that("Import Campsis scenarios in JSON format", {
   expScenarios1b <- expScenarios1a
   expect_equal(scenarios1b, expScenarios1b)
 })
+
+test_that("Import Campsis datasets that include an IOV layer from JSON", {
+  dataset <- Dataset(json = '
+  [
+    {
+      "type": "arm",
+      "list": [
+        {
+          "type": "arm_attributes",
+          "subjects": 10,
+          "label": "Arm 1"
+        },
+        {
+          "type": "iov",
+          "colname": "IOV_KA",
+          "omega_ref": "IOV_KA"
+        }
+      ]
+    }
+  ]')
+
+  expArm <- Arm(subjects = 10, label = "Arm 1") %>%
+    add(IOV(colname = "IOV_KA", omega_ref = "IOV_KA"))
+
+  expDataset <- Dataset() %>%
+    add(expArm)
+
+  expect_equal(dataset, expDataset)
+})
