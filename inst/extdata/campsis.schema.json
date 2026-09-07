@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://calvagone.github.io/campsis.doc/schema/1.0/campsis.schema.json",
-  "$comment": "Campsis JSON Schema v1.0 © 2025 [Nicolas Luyckx / Calvagone]. Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). You are free to share and adapt this schema with attribution.",
+  "$comment": "Campsis JSON Schema v1.0 \u00a9 2025 [Nicolas Luyckx / Calvagone]. Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). You are free to share and adapt this schema with attribution.",
   "title": "Campsis JSON Schema",
   "$ref": "#/$defs/dataset",
   "$defs": {
@@ -64,6 +64,7 @@
         }
       },
       "required": [
+        "type",
         "list"
       ],
       "additionalProperties": false
@@ -86,6 +87,7 @@
         }
       },
       "required": [
+        "type",
         "subjects",
         "label"
       ],
@@ -135,6 +137,7 @@
         }
       },
       "required": [
+        "type",
         "time",
         "amount",
         "compartment"
@@ -187,6 +190,7 @@
         }
       },
       "required": [
+        "type",
         "time",
         "amount",
         "compartment"
@@ -238,6 +242,7 @@
         }
       },
       "required": [
+        "type",
         "times"
       ],
       "additionalProperties": false
@@ -263,6 +268,7 @@
         }
       },
       "required": [
+        "type",
         "start",
         "end"
       ]
@@ -275,7 +281,9 @@
           "default": "dosing_schedule"
         }
       },
-      "required": []
+      "required": [
+        "type"
+      ]
     },
     "cyclic_schedule": {
       "type": "object",
@@ -298,6 +306,7 @@
         }
       },
       "required": [
+        "type",
         "duration",
         "repetitions"
       ]
@@ -323,6 +332,7 @@
         }
       },
       "required": [
+        "type",
         "export_tsld",
         "export_tdos",
         "time_unit_export"
@@ -353,6 +363,7 @@
         }
       },
       "required": [
+        "type",
         "value"
       ],
       "additionalProperties": false
@@ -379,6 +390,7 @@
         }
       },
       "required": [
+        "type",
         "values"
       ],
       "additionalProperties": false
@@ -406,6 +418,7 @@
         }
       },
       "required": [
+        "type",
         "min",
         "max"
       ],
@@ -434,6 +447,7 @@
         }
       },
       "required": [
+        "type",
         "mean",
         "sd"
       ],
@@ -462,6 +476,7 @@
         }
       },
       "required": [
+        "type",
         "meanlog",
         "sdlog"
       ],
@@ -488,6 +503,7 @@
         }
       },
       "required": [
+        "type",
         "value",
         "probability"
       ]
@@ -513,6 +529,7 @@
         }
       },
       "required": [
+        "type",
         "items"
       ],
       "additionalProperties": false
@@ -556,6 +573,7 @@
         }
       },
       "required": [
+        "type",
         "name",
         "distribution"
       ]
@@ -581,6 +599,7 @@
         }
       },
       "required": [
+        "type",
         "formula"
       ]
     },
@@ -621,6 +640,7 @@
         }
       },
       "required": [
+        "type",
         "data",
         "replacement",
         "random"
@@ -638,7 +658,9 @@
         }
       },
       "description": "Each bootstrap row contains the covariates of a specific individual. BS_ID is a non-mandatory identifier for this row. Other properties are the covariates to bootstrap for this individual.",
-      "required": [],
+      "required": [
+        "type"
+      ],
       "additionalProperties": true
     },
     "iov": {
@@ -656,6 +678,7 @@
         }
       },
       "required": [
+        "type",
         "colname",
         "omega_ref"
       ],

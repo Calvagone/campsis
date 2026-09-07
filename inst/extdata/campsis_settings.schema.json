@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://calvagone.github.io/campsis.doc/schema/1.0/campsis_settings.schema.json",
-  "$comment": "Campsis Settings JSON Schema v1.0 © 2025 [Nicolas Luyckx / Calvagone]. Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). You are free to share and adapt this schema with attribution.",
+  "$comment": "Campsis Settings JSON Schema v1.0 \u00a9 2025 [Nicolas Luyckx / Calvagone]. Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). You are free to share and adapt this schema with attribution.",
   "title": "Campsis Settings JSON Schema",
   "$ref": "#/$defs/settings",
   "$defs": {
@@ -105,6 +105,7 @@
         }
       },
       "required": [
+        "type",
         "cpu",
         "replicate_parallel"
       ],
