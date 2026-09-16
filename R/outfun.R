@@ -364,6 +364,12 @@ setClass(
   )
 )
 
+open_nca_table <- function(json) {
+  table <- json
+  eval_table_str <- "campsisnca::NCATable(json=table)"
+  return(eval(parse(text = eval_table_str)))
+}
+
 #'
 #' Create a NCA table output function
 #'
@@ -371,12 +377,11 @@ setClass(
 #' @param export_type type of export, 'summary', 'summary_wide', 'summary_pretty', 'individual' or 'individual_wide'
 #' @param name name of the output function. Default is 'default_nca_table'.
 #' @importFrom assertthat assert_that
-#' @importFrom campsisnca NCATable
 #' @return a stats_outfun object
 #' @export
 NCATableOutfun <- function(table, export_type = "summary", name = "default_nca_table") {
   if (!isS4(table)) {
-    table <- campsisnca::NCATable(json = table)
+    table <- open_nca_table(json = table)
   }
   return(new(
     "nca_table_outfun",
@@ -388,7 +393,7 @@ NCATableOutfun <- function(table, export_type = "summary", name = "default_nca_t
 }
 
 setMethod("load_from_json", signature = c("nca_table_outfun", "json_element"), definition = function(object, json) {
-  table <- campsisnca::NCATable(json = json@data$table)
+  table <- open_nca_table(json = json@data$table)
   json@data$table <- NULL
   object <- campsismod::map_json_properties_to_s4_slots(object, json)
   object@table <- table

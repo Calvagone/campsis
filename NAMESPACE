@@ -193,7 +193,6 @@ importFrom(campsismod,
   map_json_properties_to_s4_slots,
   select
 )
-importFrom(campsisnca,NCATable)
 importFrom(digest,sha1)
 importFrom(dplyr,
   across,

@@ -50,7 +50,6 @@ Imports:
     vctrs
 Suggests:
     bookdown,
-    campsisnca,
     devtools,
     gridExtra,
     knitr,
