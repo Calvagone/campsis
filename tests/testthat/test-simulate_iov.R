@@ -339,7 +339,7 @@ test_that("Simulate IOV on D1 (from omega_ref argument)", {
       add(IOV(colname = "IOV_D1", omega_ref = "IOV_D1"))
     return(dataset)
   }
-  
+
   # IIV + IOV (RxODE / mrgsolve)
   dataset <- getDataset(model)
   dataset_regression_test(dataset, model, seed = seed, filename = regFilename)

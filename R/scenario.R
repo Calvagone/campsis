@@ -163,9 +163,9 @@ apply_scenario <- function(x, scenario) {
 #_______________________________________________________________________________
 
 setMethod("show", signature = c("scenario"), definition = function(object) {
-  disabled_str = ""
+  disabled_str <- ""
   if (!object@enabled) {
-    disabled_str = " (DISABLED)"
+    disabled_str <- " (DISABLED)"
   }
   cat(sprintf("Scenario '%s'%s", object@name, disabled_str), "\n", sep = "")
   for (action in object@actions@list) {

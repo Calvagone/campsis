@@ -172,11 +172,9 @@ test_that("Import Campsis settings in JSON format", {
 test_that("Import Campsis settings that include a NCA table outfun from JSON", {
   if (skip_long_tests()) {
     # Long tests are not executed on CRAN
-    # Here I don't to create a dependency to campsisnca in the Campsis tests
     return(TRUE)
   }
   skip_if_not_installed("campsisnca")
-  library(campsisnca)
 
   settings_cts3 <- Settings(json = file.path(test_folder, "json_examples", "settings_cts_example3.json"))
 
@@ -240,7 +238,8 @@ test_that("Import Campsis scenarios in JSON format", {
 })
 
 test_that("Import Campsis datasets that include an IOV layer from JSON", {
-  dataset <- Dataset(json = '
+  dataset <- Dataset(
+    json = '
   [
     {
       "type": "arm",
@@ -257,7 +256,8 @@ test_that("Import Campsis datasets that include an IOV layer from JSON", {
         }
       ]
     }
-  ]')
+  ]'
+  )
 
   expArm <- Arm(subjects = 10, label = "Arm 1") %>%
     add(IOV(colname = "IOV_KA", omega_ref = "IOV_KA"))

@@ -16,7 +16,7 @@ DefaultSettings(
 }
 \arguments{
 \item{engine}{Simulation engine: \code{'rxode2'} or \code{'mrgsolve'}.
-Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first 
+Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first
 (if installed), followed by \code{'rxode2'} (if installed).}
 
 \item{seed}{random seed number, integer (or NULL for auto-generated seed)}

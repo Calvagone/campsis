@@ -2,7 +2,7 @@
 #' Default settings class.
 #'
 #' @slot engine Simulation engine: \code{'rxode2'} or \code{'mrgsolve'}.
-#'   Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first 
+#'   Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first
 #'   (if installed), followed by \code{'rxode2'} (if installed).
 #' @slot seed random seed number, integer
 #' @slot replicates number of replicates, integer
@@ -37,7 +37,7 @@ setClass(
 #' Create default settings.
 #'
 #' @param engine Simulation engine: \code{'rxode2'} or \code{'mrgsolve'}.
-#'   Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first 
+#'   Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first
 #'   (if installed), followed by \code{'rxode2'} (if installed).
 #' @param seed random seed number, integer (or NULL for auto-generated seed)
 #' @param replicates number of replicates, integer. Default is 1.

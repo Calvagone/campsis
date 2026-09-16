@@ -575,7 +575,11 @@ export_delegate <- function(object, dest, model, arm_offset = NULL, offset_withi
         if (is.null(model)) {
           stop("A model is needed to retrieve the OMEGA value for IOV sampling")
         }
-        omega_value <- retrieve_parameter_value(model, paramName = paste0("OMEGA_", treatmentIov@omega_ref), mandatory = TRUE)
+        omega_value <- retrieve_parameter_value(
+          model,
+          paramName = paste0("OMEGA_", treatmentIov@omega_ref),
+          mandatory = TRUE
+        )
         distribution <- NormalDistribution(mean = 0, sd = sqrt(omega_value))
       }
 
