@@ -64,7 +64,7 @@ test_that("Applying method show on a few datasets works as expected", {
     add(Bolus(time = 96, amount = 300)) %>%
     add(Bolus(time = 120, amount = 400)) %>%
     add(Observations(times = seq(0, 60, by = 10))) %>%
-    add(Occasion("MY_OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3)))
+    add(Occasion("MY_OCC", values = c(1, 2, 3), dose_numbers = c(1, 2, 3)))
   #show(ds)
   expect_true(
     "-> Adm. times (bolus into DEFAULT): 0 (100),24,48 (200),72,96 (300),120 (400)" %in% capture.output(show(ds))

@@ -39,15 +39,15 @@ setClass(
 #'
 #' @param colname name of the column that will be output in dataset
 #' @param values the occasion numbers, any integer vector
-#' @param doseNumbers the related dose numbers, any integer vector of same length as 'values'
+#' @param dose_numbers the related dose numbers, any integer vector of same length as 'values'
 #' @return occasion object
 #' @export
-Occasion <- function(colname, values, doseNumbers) {
+Occasion <- function(colname, values, dose_numbers) {
   return(new(
     "occasion",
     colname = trimws(colname),
     values = as.integer(values),
-    dose_numbers = as.integer(doseNumbers)
+    dose_numbers = as.integer(dose_numbers)
   ))
 }
 

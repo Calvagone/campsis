@@ -46,3 +46,10 @@ test_that("Incorrect scenario slots must be detected", {
     regexp = "model must be a Campsis model, a function or a purrr-style lambda formula"
   )
 })
+
+test_that("Method disable(TRUE) can be used to disable a scenario", {
+  scenario <- Scenario(name = "A")
+  scenario <- scenario %>%
+    disable(TRUE)
+  expect_true("Scenario 'A' (DISABLED)" %in% capture.output(show(scenario)))
+})

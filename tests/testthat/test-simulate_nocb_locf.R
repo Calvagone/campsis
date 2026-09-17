@@ -75,7 +75,7 @@ test_that("NOCB/LOCF should not have any effect on treatment occasion", {
     add(Bolus(time = 0, amount = 1000, compartment = 1)) %>%
     add(Bolus(time = 12, amount = 1000, compartment = 1)) %>%
     add(Bolus(time = 24, amount = 1000, compartment = 1)) %>%
-    add(Occasion("OCC", values = c(1, 2, 3), doseNumbers = c(1, 2, 3))) %>%
+    add(Occasion("OCC", values = c(1, 2, 3), dose_numbers = c(1, 2, 3))) %>%
     add(Observations(times = seq(24, 36)))
 
   regFilename <- "occ_as_time_varying_cov"

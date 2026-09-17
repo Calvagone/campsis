@@ -11,7 +11,7 @@ Default settings class.
 
 \describe{
 \item{\code{engine}}{Simulation engine: \code{'rxode2'} or \code{'mrgsolve'}.
-Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first 
+Default is \code{NULL} (unspecified). If \code{NULL}, \code{'mrgsolve'} is used first
 (if installed), followed by \code{'rxode2'} (if installed).}
 
 \item{\code{seed}}{random seed number, integer}

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://calvagone.github.io/campsis.doc/schema/1.0/campsis_scenarios.schema.json",
-  "$comment": "Campsis Scenarios JSON Schema v1.0 © 2025 [Nicolas Luyckx / Calvagone]. Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). You are free to share and adapt this schema with attribution.",
+  "$comment": "Campsis Scenarios JSON Schema v1.0 \u00a9 2025 [Nicolas Luyckx / Calvagone]. Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). You are free to share and adapt this schema with attribution.",
   "title": "Campsis Scenarios JSON Schema",
   "$ref": "#/$defs/scenarios",
   "$defs": {
@@ -19,7 +19,8 @@
       "type": "object",
       "properties": {
         "type": {
-          "const": "scenario"
+          "const": "scenario",
+          "default": "scenario"
         },
         "name": {
           "type": "string"
@@ -31,11 +32,19 @@
               {
                 "$ref": "#/$defs/replace_action"
               }
-            ]
+            ],
+            "discriminator": {
+              "propertyName": "type"
+            }
           }
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Is this scenario enabled? Default is True. Disabled scenarios are not simulated by Campsis."
         }
       },
       "required": [
+        "type",
         "name",
         "actions"
       ],
@@ -44,10 +53,8 @@
     "action": {
       "title": "Base action",
       "type": "object",
-      "properties": {
-      },
-      "required": [
-      ]
+      "properties": {},
+      "required": []
     },
     "replace_action": {
       "title": "Replace action",
@@ -58,7 +65,8 @@
         {
           "properties": {
             "type": {
-              "const": "replace_action"
+              "const": "replace_action",
+              "default": "replace_action"
             },
             "object": {
               "oneOf": [
@@ -75,12 +83,13 @@
             }
           },
           "required": [
+            "type",
             "object"
           ]
         }
       ]
     },
-	"parameter": {
+    "parameter": {
       "title": "Base Parameter",
       "type": "object",
       "properties": {
@@ -123,13 +132,17 @@
         {
           "properties": {
             "type": {
-              "const": "theta"
+              "const": "theta",
+              "default": "theta"
             },
             "unit": {
               "type": "string",
               "description": "Unit of the parameter"
             }
-          }
+          },
+          "required": [
+            "type"
+          ]
         }
       ]
     },
@@ -171,10 +184,13 @@
         {
           "properties": {
             "type": {
-              "const": "omega"
+              "const": "omega",
+              "default": "omega"
             }
           },
-          "required": []
+          "required": [
+            "type"
+          ]
         }
       ]
     },
@@ -187,10 +203,13 @@
         {
           "properties": {
             "type": {
-              "const": "sigma"
+              "const": "sigma",
+              "default": "sigma"
             }
           },
-          "required": []
+          "required": [
+            "type"
+          ]
         }
       ]
     }

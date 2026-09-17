@@ -26,7 +26,7 @@ setClass(
 #----                                 add                                   ----
 #_______________________________________________________________________________
 
-setMethod("add", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+setMethod("add", signature = c("treatment", "iov"), definition = function(object, x) {
   object@iovs <- object@iovs %>% add(x)
   return(object)
 })
@@ -45,7 +45,7 @@ setMethod("add", signature = c("treatment", "dose_adaptation"), definition = fun
 #----                               delete                                  ----
 #_______________________________________________________________________________
 
-setMethod("delete", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+setMethod("delete", signature = c("treatment", "iov"), definition = function(object, x) {
   object@iovs <- object@iovs %>% delete(x)
   return(object)
 })
@@ -65,7 +65,7 @@ setMethod("delete", signature = c("treatment", "dose_adaptation"), definition = 
 #----                                find                                   ----
 #_______________________________________________________________________________
 
-setMethod("find", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+setMethod("find", signature = c("treatment", "iov"), definition = function(object, x) {
   return(object@iovs %>% find(x))
 })
 
@@ -81,7 +81,7 @@ setMethod("find", signature = c("treatment", "dose_adaptation"), definition = fu
 #----                              replace                                  ----
 #_______________________________________________________________________________
 
-setMethod("replace", signature = c("treatment", "treatment_iov"), definition = function(object, x) {
+setMethod("replace", signature = c("treatment", "iov"), definition = function(object, x) {
   object@iovs <- object@iovs %>% replace(x)
   return(object)
 })
@@ -134,8 +134,8 @@ setGeneric("assign_dose_number", function(object) {
 setMethod("assign_dose_number", signature = c("treatment"), definition = function(object) {
   object <- object %>% sort()
   times <- object@list %>% purrr::map_dbl(~ .x@time)
-  doseNumbers <- match(times, unique(times))
-  object@list <- purrr::map2(object@list, doseNumbers, .f = function(.x, .y) {
+  dose_numbers <- match(times, unique(times))
+  object@list <- purrr::map2(object@list, dose_numbers, .f = function(.x, .y) {
     .x@dose_number <- .y
     return(.x)
   })

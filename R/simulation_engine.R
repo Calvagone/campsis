@@ -18,8 +18,7 @@ setClass(
 #' @export
 setClass(
   "rxode_engine",
-  representation(
-  ),
+  representation(),
   contains = "simulation_engine"
 )
 

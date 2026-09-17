@@ -1,3 +1,11 @@
+# campsis 1.9.1
+
+* StatsOutfun: preserve original order of stratification variables #220
+* Make it possible to enable/disable scenarios #221
+* Include IOV (Inter-Occasion Variability) layer in the JSON interface #222
+* Add "discriminator" field in JSON schemas #223
+* Fix unstated dependency on 'campsisnca' in tests #224
+
 # campsis 1.9.0
 
 * Extend JSON interface for study replication #199

@@ -43,14 +43,18 @@ preprocess_events <- function(events) {
 }
 
 #' Pre-process scenarios.
+#' Please note that only the enabled scenarios will be retained for the simulation.
 #'
-#' @param scenarios scenarios
+#' @param scenarios a list of scenarios
+#' @importFrom purrr keep
 #' @keywords internal
 #'
 preprocess_scenarios <- function(scenarios) {
   if (is.null(scenarios)) {
     return(Scenarios())
   } else {
+    scenarios@list <- scenarios@list %>%
+      purrr::keep(~ .x@enabled)
     return(scenarios)
   }
 }

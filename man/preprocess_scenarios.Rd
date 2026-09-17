@@ -2,14 +2,16 @@
 % Please edit documentation in R/simulate_preprocess.R
 \name{preprocess_scenarios}
 \alias{preprocess_scenarios}
-\title{Pre-process scenarios.}
+\title{Pre-process scenarios.
+Please note that only the enabled scenarios will be retained for the simulation.}
 \usage{
 preprocess_scenarios(scenarios)
 }
 \arguments{
-\item{scenarios}{scenarios}
+\item{scenarios}{a list of scenarios}
 }
 \description{
 Pre-process scenarios.
+Please note that only the enabled scenarios will be retained for the simulation.
 }
 \keyword{internal}

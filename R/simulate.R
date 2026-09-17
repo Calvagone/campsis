@@ -950,24 +950,24 @@ setMethod(
 
       # Launch simulation with rxode2
       tmp <- rxode2::rxSolve(
-          object = mod,
-          params = params,
-          omega = FALSE,
-          sigma = sigma,
-          events = subdataset,
-          returnType = "tibble",
-          atol = solver@atol,
-          rtol = solver@rtol,
-          hmax = solver@hmax,
-          maxsteps = solver@maxsteps,
-          method = solver@method,
-          keep = keep,
-          inits = inits,
-          covsInterpolation = ifelse(nocb, "nocb", "locf"),
-          addDosing = dosing,
-          addCov = FALSE,
-          cores = 1
-        )
+        object = mod,
+        params = params,
+        omega = FALSE,
+        sigma = sigma,
+        events = subdataset,
+        returnType = "tibble",
+        atol = solver@atol,
+        rtol = solver@rtol,
+        hmax = solver@hmax,
+        maxsteps = solver@maxsteps,
+        method = solver@method,
+        keep = keep,
+        inits = inits,
+        covsInterpolation = ifelse(nocb, "nocb", "locf"),
+        addDosing = dosing,
+        addCov = FALSE,
+        cores = 1
+      )
 
       # Tick progress
       if (tick_slice) {

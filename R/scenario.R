@@ -16,6 +16,7 @@ check_scenario <- function(object) {
 #' @slot model either a Campsis model, a function or lambda-style formula
 #' @slot dataset either a Campsis dataset, a function or lambda-style formula
 #' @slot actions list of actions to apply
+#' @slot enabled is the scenario enabled in the simulation, logical value
 #' @export
 setClass(
   "scenario",
@@ -23,9 +24,11 @@ setClass(
     name = "character",
     model = "ANY", # To deprecate
     dataset = "ANY", # To deprecate
-    actions = "scenario_actions"
+    actions = "scenario_actions",
+    enabled = "logical"
   ),
   contains = "pmx_element",
+  prototype = prototype(enabled = TRUE),
   validity = check_scenario
 )
 
@@ -82,6 +85,19 @@ setMethod("add", signature = c("scenario", "scenario_action"), definition = func
 })
 
 #_______________________________________________________________________________
+#----                              disable                                  ----
+#_______________________________________________________________________________
+
+setMethod("disable", signature = c("scenario", "logical"), definition = function(object, x, ...) {
+  if (length(x) == 1) {
+    object@enabled <- !x
+  } else {
+    stop("x should be TRUE or FALSE")
+  }
+  return(object)
+})
+
+#_______________________________________________________________________________
 #----                           get_name                                     ----
 #_______________________________________________________________________________
 
@@ -94,9 +110,10 @@ setMethod("get_name", signature = c("scenario"), definition = function(x) {
 #_______________________________________________________________________________
 
 setMethod("load_from_json", signature = c("scenario", "json_element"), definition = function(object, json) {
-  jsonScenario <- json@data
-  scenario <- Scenario(name = jsonScenario$name)
-  scenario@actions <- load_from_json(new("scenario_actions"), JSONElement(jsonScenario$actions))
+  json_actions <- json@data$actions
+  json@data$actions <- NULL
+  scenario <- campsismod::map_json_properties_to_s4_slots(object, json)
+  scenario@actions <- load_from_json(new("scenario_actions"), JSONElement(json_actions))
   return(scenario)
 })
 
@@ -146,7 +163,11 @@ apply_scenario <- function(x, scenario) {
 #_______________________________________________________________________________
 
 setMethod("show", signature = c("scenario"), definition = function(object) {
-  cat(sprintf("Scenario '%s'", object@name), "\n", sep = "")
+  disabled_str <- ""
+  if (!object@enabled) {
+    disabled_str <- " (DISABLED)"
+  }
+  cat(sprintf("Scenario '%s'%s", object@name, disabled_str), "\n", sep = "")
   for (action in object@actions@list) {
     cat(" - ")
     show(action)
