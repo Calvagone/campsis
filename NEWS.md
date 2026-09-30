@@ -1,3 +1,6 @@
+# campsis 1.9.2
+* Update maintainer's email address
+
 # campsis 1.9.1
 
 * StatsOutfun: preserve original order of stratification variables #220

@@ -8,4 +8,8 @@
 
 0 errors | 0 warnings | 0 note
 
-* This is a new release
+## Submission Summary & Maintainer Update
+This patch release updates the maintainer's email address.
+
+* Updated maintainer email to `nicolas.luyckx@lynxsoft.be`.
+* No API or functional changes have been introduced in this patch release.
