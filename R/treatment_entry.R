@@ -448,9 +448,9 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
   #  -1: rate via dataset
   #  -2: duration via dataset
   # -99: rate/duration specified by -1 or -2 in RATE (see method apply_compartment_characteristics)
-  infusion_type <- ifelse(!is.na(duration), -2, NA)
-  infusion_type <- ifelse(!is.na(rate), -1, infusion_type)
-  infusion_type <- ifelse(is.na(infusion_type), -99, infusion_type)
+  infusionType <- ifelse(!is.na(duration), -2, NA)
+  infusionType <- ifelse(!is.na(rate), -1, infusionType)
+  infusionType <- ifelse(is.na(infusionType), -99, infusionType)
 
   retValue <- tibble::tibble(
     ID = rep(as.integer(ids), each = length(depotCmt)),
@@ -463,7 +463,7 @@ setMethod("sample", signature = c("infusion", "integer"), definition = function(
     RATE = rate,
     DURATION = duration,
     DOSENO = object@dose_number,
-    INFUSION_TYPE = as.integer(infusion_type),
+    INFUSION_TYPE = as.integer(infusionType),
     EVENT_RELATED = as.integer(FALSE)
   )
 

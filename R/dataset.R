@@ -360,18 +360,17 @@ sample_distribution_as_tibble <- function(distribution, n, colname) {
 #'
 apply_compartment_characteristics <- function(table, properties) {
   for (property in properties@list) {
-    is_infusion <- is(property, "compartment_infusion_duration")
-    is_rate <- is(property, "compartment_infusion_rate")
-    if (is_infusion || is_rate) {
+    isInfusion <- is(property, "compartment_infusion_duration")
+    isRate <- is(property, "compartment_infusion_rate")
+    if (isInfusion || isRate) {
       compartment <- property@compartment
       if (!("RATE" %in% colnames(table))) {
-        table <- table %>%
-          dplyr::mutate(RATE = 0)
+        table <- table %>% dplyr::mutate(RATE = 0)
       }
-      rate_value <- ifelse(is_rate, -1, -2)
+      rateValue <- ifelse(isRate, -1, -2)
       table <- table %>%
         dplyr::mutate(
-          RATE = ifelse(.data$EVID == 1 & .data$CMT == compartment & .data$INFUSION_TYPE == -99, rate_value, .data$RATE)
+          RATE = ifelse(.data$EVID == 1 & .data$CMT == compartment & .data$INFUSION_TYPE == -99, rateValue, .data$RATE)
         )
     }
   }
@@ -807,47 +806,35 @@ preprocessNocbvars <- function(nocbvars) {
 #' @keywords internal
 #'
 processAllTimeColumns <- function(table, config) {
-  unit_from <- config@time_unit_dataset
-  unit_to <- config@time_unit_export
+  unitFrom <- config@time_unit_dataset
+  unitTo <- config@time_unit_export
 
   # TIME conversion according to specified units
   table <- table %>%
-    dplyr::mutate(TIME = convert_time(x = .data$TIME, from = unit_from, to = unit_to))
+    dplyr::mutate(TIME = convert_time(x = .data$TIME, from = unitFrom, to = unitTo))
 
   # TDOS conversion according to specified units
   if (config@export_tdos || config@export_tsld) {
     table <- table %>%
-      dplyr::mutate(TDOS = convert_time(x = .data$TDOS, from = unit_from, to = unit_to))
+      dplyr::mutate(TDOS = convert_time(x = .data$TDOS, from = unitFrom, to = unitTo))
   }
 
   # TIME_TSLD conversion according to specified units
   if (config@export_tsld) {
     table <- table %>%
-      dplyr::mutate(TIME_TSLD = convert_time(x = .data$TIME_TSLD, from = unit_from, to = unit_to))
+      dplyr::mutate(TIME_TSLD = convert_time(x = .data$TIME_TSLD, from = unitFrom, to = unitTo))
   }
 
   # Compute TSLD
   if (config@export_tsld) {
-    table <- table %>%
-      dplyr::mutate(TSLD = .data$TIME_TSLD - .data$TDOS) %>%
-      dplyr::select(-dplyr::all_of("TIME_TSLD"))
+    table <- table %>% dplyr::mutate(TSLD = .data$TIME_TSLD - .data$TDOS)
+    table <- table %>% dplyr::select(-dplyr::all_of("TIME_TSLD"))
   }
 
   # Discard TDOS is not needed
   if (!config@export_tdos && config@export_tsld) {
     table <- table %>% dplyr::select(-dplyr::all_of("TDOS"))
   }
-
-  # Convert RATE column
-  table <- table %>%
-    dplyr::mutate(
-      RATE = ifelse(
-        is.na(.data$RATE) | .data$RATE <= 0, # TRUE when RATE is NA, -1 or -2
-        RATE,
-        RATE / convert_time(x = 1, from = unit_from, to = unit_to)
-      )
-    )
-
   return(table)
 }
 
