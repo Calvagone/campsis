@@ -1,7 +1,7 @@
 Type: Package
 Package: campsis
 Title: Generic PK/PD Simulation Platform Campsis
-Version: 1.9.2
+Version: 1.9.3
 Authors@R: c(
     person("Nicolas", "Luyckx", email = "nicolas.luyckx@lynxsoft.be", role = c("aut", "cre")),
     person("Calvagone", role = "cph")

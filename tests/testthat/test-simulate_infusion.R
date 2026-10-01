@@ -3,7 +3,8 @@ library(testthat)
 context("Test the simulate method with infusions")
 
 seed <- 1
-source(file.path(getwd(), test_path(), "test-utils.R"))
+test_folder <- file.path(getwd(), test_path())
+source(file.path(test_folder, "test-utils.R"))
 
 test_that("Simulate infusion using duration in dataset, then in model", {
   if (skip_long_tests()) {
@@ -116,4 +117,38 @@ test_that("Simulate infusion using rate and lag time (parameter distribution) in
     output_regression_test(results, output = "CP", filename = regFilename)
   )
   campsis_test(simulation, test, env = environment())
+})
+
+test_that("Infusion duration value should depend on the exported time unit", {
+
+  regFilename <- "infusion_duration_bug"
+
+  # Time is in hour in this model
+  # Infusion duration in CENTRAL is 5/24=0.2083 day
+  # IIV disabled
+  model <- CampsisModel(json = file.path(test_folder, "json_examples", "infusion_duration_bug_model.json")) %>%
+    disable("IIV")
+
+  # Arm 1: 5h-infusion (model-based)
+  # Arm 2: 5h-infusion (dataset-based)
+  dataset <- Dataset(json = file.path(test_folder, "json_examples", "infusion_duration_bug_dataset.json"))
+  
+  expect_equal(dataset@config@time_unit_dataset, "hour")
+  expect_equal(dataset@config@time_unit_export, "day") # Conversion needed because the model is in hours
+
+  # The following warnings is suppressed for mrgsolve (expected warning)
+  # [mrgsolve] RATE is not -2 on a dosing record with modeled infusion duration;
+  #  either set the modeled duration to zero or use the `@!check_modeled_infusions` block option for $MAIN/$PK to silence this warning
+  simulation <- expression(suppressWarnings(simulate(model = model, dataset = dataset, dest = destEngine, seed = seed)))
+  test <- expression(
+    results_hour <- results %>%
+      dplyr::mutate(TIME=convert_time(.data$TIME, "day", "hour")),
+    max_conc <- results_hour %>%
+      dplyr::group_by(ARM) %>%
+      dplyr::filter(CONC == max(CONC)),
+    expect_equal(max_conc$TIME, c(5, 5)), # Max concentration should be after 5 hours
+    output_regression_test(results_hour, output = c("ARM", "CONC"), filename = regFilename)
+  )
+  campsis_test(simulation, test, env = environment())
+
 })
